@@ -3705,7 +3705,15 @@ function renderTableRows(data){
       <td><div class="td-ac">${c.seat||ac}</div></td>
       <td><span class="td-party-badge" style="background:${cp}20;color:${cp};border:1px solid ${cp}50">${c.party.length>12?c.party.slice(0,12)+'…':c.party}</span></td>
       <td><span class="td-desig">${c.level==='Chief Minister'?'Chief Minister':c.level==='Deputy Chief Minister'?'Deputy Chief Minister':c.level}</span></td>
-      <td><div class="td-name">${c.name}</div><div class="td-handle">@${c.handle}${c.noData?' <span style="color:#9aa4b2;font-weight:600">· No tweets yet</span>':''}</div></td>
+      <td>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+          <div>
+            <div class="td-name">${c.name}</div>
+            <div class="td-handle">@${c.handle}${c.noData?' <span style="color:#9aa4b2;font-weight:600">· No tweets yet</span>':''}</div>
+          </div>
+          ${c.handle?`<button type="button" class="cm-x-prof-btn" onclick="event.stopPropagation();window.openProfile('${c.handle}')" title="View ${c.name} Profile" style="display:inline-flex;align-items:center;gap:4px;padding:3px 7px;background:#f0f7ff;border:1.5px solid #bfdbfe;border-radius:6px;cursor:pointer;color:#1d4ed8;font-size:10px;font-weight:700;line-height:1;flex-shrink:0;transition:all .15s" onmouseover="this.style.background=\'#e0efff\';this.style.borderColor=\'#93c5fd\'" onmouseout="this.style.background=\'#f0f7ff\';this.style.borderColor=\'#bfdbfe\'"><svg width="10" height="10" viewBox="0 0 24 24" fill="#0f1419"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 24.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg><span style="color:#1d4ed8">Profile ↗</span></button>`:''}
+        </div>
+      </td>
       <td class="num"><span class="td-num orange">${fmt(c.followers)}</span></td>
       <td class="num"><span class="td-num blue">${c.followings!=null?c.followings:'—'}</span></td>      <td class="num"><span class="td-num">${c.tweets}</span></td>
       <td class="num"><span class="td-num blue">${fmt(c.rts)}</span></td>
@@ -3745,7 +3753,15 @@ function rowHTMLState(c,i){
     <td><div class="td-ac">${c.seat||ac}</div></td>
     <td><span class="td-party-badge" style="background:${cp}20;color:${cp};border:1px solid ${cp}50">${c.party}</span></td>
     <td><span class="td-desig">${desig}</span></td>
-    <td><div class="td-name">${c.name}</div>${c.handle?`<div class="td-handle">@${c.handle}</div>`:''}</td>
+    <td>
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+        <div>
+          <div class="td-name">${c.name}</div>
+          ${c.handle?`<div class="td-handle">@${c.handle}</div>`:''}
+        </div>
+        ${c.handle?`<button type="button" class="cm-x-prof-btn" onclick="event.stopPropagation();window.openProfile('${c.handle}')" title="View ${c.name} Profile" style="display:inline-flex;align-items:center;gap:4px;padding:3px 7px;background:#f0f7ff;border:1.5px solid #bfdbfe;border-radius:6px;cursor:pointer;color:#1d4ed8;font-size:10px;font-weight:700;line-height:1;flex-shrink:0;transition:all .15s" onmouseover="this.style.background=\'#e0efff\';this.style.borderColor=\'#93c5fd\'" onmouseout="this.style.background=\'#f0f7ff\';this.style.borderColor=\'#bfdbfe\'"><svg width="10" height="10" viewBox="0 0 24 24" fill="#0f1419"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 24.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg><span style="color:#1d4ed8">Profile ↗</span></button>`:''}
+      </div>
+    </td>
     <td class="num"><span class="td-num orange">${fmt(c.followers)}</span></td>
     <td class="num"><span class="td-num blue">${c.followings!=null?c.followings:'—'}</span></td>
     <td class="num"><span class="td-num">${c.tweets}</span></td>
@@ -4068,7 +4084,157 @@ window.profPresetChange=function(){var DD=window.PHD_DATES||[];var v=(document.g
 window.profReset=function(){var p=document.getElementById('profPreset');if(p)p.value='all';var pa=document.getElementById('profParty');if(pa)pa.value='all';var DD=window.PHD_DATES||[];var fe=document.getElementById('profFrom'),te=document.getElementById('profTo');if(fe&&DD.length)fe.value=DD[0];if(te&&DD.length)te.value=DD[DD.length-1];renderCMGrid();};
 function renderCMGrid(){var _pf=(document.getElementById('profFrom')||{}).value||'';var _pt=(document.getElementById('profTo')||{}).value||'';var _pp=(document.getElementById('profParty')||{}).value||'all';var _pool=PROF.filter(function(c){return _pp==='all'||c.party===_pp;});var _rows=_pool.map(function(c0,i){var c=(window._applyDate?window._applyDate(c0,_pf,_pt):c0);var s=cmStats(c);var col=pc(s.party);var nm=esc(s.name.replace(/\(.*\)/,'').trim());/* allmap (13-Oct): yahan 'PM'/'CM' likha hua tha -- ab mapping se */
 var dz=(window.roleOf?window.roleOf(s.h,''):'')||((s.h==='narendramodi')?'PM':'CM');var avgV=s.tw?Math.round(s.vw/s.tw):0;var avgL=s.tw?Math.round(s.lk/s.tw):0;var fg=c.followings||0;return '<tr data-name="'+esc((nm+' '+s.state+' '+s.party+' @'+s.h).toLowerCase())+'" onclick="openProfile(\''+s.h+'\')">'+'<td>'+esc(s.state)+'</td>'+'<td><div class="cm-nmcell"><div class="cm-av" style="background:'+col+';position:relative;overflow:hidden">'+ini(s.name)+photoImg(s.h)+'</div><div><div class="nm">'+nm+'</div><div class="hd">@'+esc(s.h)+'</div></div></div></td>'+'<td><span class="cm-badge">'+dz+'</span></td>'+'<td><span class="party-chip" style="background:'+col+'18;color:'+col+'">'+esc(shortP(s.party))+'</span></td>'+'<td class="r cm-tnum">'+uf(s.followers)+'</td>'+'<td class="r cm-tnum">'+uf(fg)+'</td>'+'<td class="r cm-tnum">'+uf(s.tw)+'</td>'+'<td class="r cm-tnum">'+uf(avgV)+'</td>'+'<td class="r cm-tnum">'+uf(avgL)+'</td>'+'<td class="r"><button class="cm-pf-btn" onclick="event.stopPropagation();openProfile(\''+s.h+'\')">View Profile \u2192</button></td>'+'</tr>';}).join('');var _html='<table class="cm-table"><thead><tr><th>State</th><th>Name</th><th>Designation</th><th>Party</th><th class="r">Followers</th><th class="r">Following</th><th class="r">Tweets</th><th class="r">Avg Views/Post</th><th class="r">Avg Likes/Post</th><th class="r">Action</th></tr></thead><tbody>'+_rows+'</tbody></table>';var g=document.getElementById('cmGrid');if(g)g.innerHTML=_html;var cc=document.getElementById('cmCount');if(cc)cc.textContent=PROF.length;}
-window.openProfile=function(h){var c=PROF.filter(function(x){return x.h===h})[0];if(!c)return;var s=cmStats(c);var col=pc(s.party);var tot=s.pos+s.neu+s.neg||1;var avg=s.tw?Math.round(s.vw/s.tw):0;var avgl=s.tw?Math.round(s.lk/s.tw):0;var nm=s.name.replace(/\(.*\)/,'').trim();var isPM=(h==='narendramodi');var role=isPM?'Prime Minister':'Chief Minister';var bio=BIO[h]||(esc(nm)+' is the '+role+' of '+esc(s.state)+', representing the '+esc(s.party)+'.');var det=DET[h]||{};var con=c.loc||'\u2014';var pP=Math.round(s.pos/tot*100),nP=Math.round(s.neu/tot*100),gP=Math.round(s.neg/tot*100);var age=det.born?(2026-parseInt(((det.born.match(/\d{4}/))||[''])[0])):0;var ageS=age?String(age):'\u2014';var rf=RK_F[h]||0,rv=RK_V[h]||0,rtk=RK_T[h]||0;var NL=PROF.length;var standing='<div class="pf-sec">Standing Among '+NL+' Tracked Leaders</div><div class="pf-stats"><div class="pf-st o"><b>#'+rf+'</b><span>Followers Rank</span></div><div class="pf-st g"><b>#'+rv+'</b><span>Views Rank</span></div><div class="pf-st b"><b>#'+rtk+'</b><span>Tweets Rank</span></div><div class="pf-st r"><b>'+ageS+'</b><span>Age</span></div></div>';var hl=HL[h];var hlHTML=(hl&&hl.length&&hl[0]!=='\u2014')?('<div class="pf-sec">Key Highlights</div><ul class="pf-hl">'+hl.map(function(x){return '<li>'+esc(x)+'</li>'}).join('')+'</ul>'):'';var rows=[['Role',role],['State / UT',s.state],['Party',shortP(s.party)],['Constituency',con]];if(det.born)rows.push(['Born',det.born]);if(det.edu)rows.push(['Education',det.edu]);rows.push(['In office since',det.since||'\u2014']);rows.push(['X Handle','@'+h]);var detHTML=rows.map(function(r){return '<div class="pf-d"><span>'+esc(r[0])+'</span><b>'+esc(String(r[1]))+'</b></div>'}).join('');var jm=JM[h];var jmHTML='';if(jm&&jm.length){jmHTML='<div class="pf-sec">Career Journey</div><div class="pf-tl">'+jm.map(function(t){return '<div class="pf-tli"><div class="pf-yr">'+esc(String(t[0]))+'</div><div class="pf-ev">'+esc(t[1])+'</div></div>'}).join('')+'</div>';}var an='In Apr–Jul 2026, '+esc(nm)+' posted '+uf(s.tw)+' tweets that drew '+uf(s.vw)+' views and '+uf(s.lk)+' likes (~'+uf(avg)+' views and '+uf(avgl)+' likes per post). The tone was '+nP+'% neutral, '+pP+'% positive and '+gP+'% negative \u2014 a broadly '+(gP<10?'favourable':(gP<20?'mixed':'contested'))+' reception.';document.getElementById('pfCard').innerHTML='<button class="pf-x" onclick="closeProfile()">\u2715</button>'+'<div class="pf-head"><div class="pf-av" style="background:'+col+';position:relative;overflow:hidden">'+ini(s.name)+photoImg(h)+'</div><div style="flex:1"><div class="pf-nm">'+esc(nm)+'</div><div class="pf-role" style="color:'+col+'">'+esc(role)+' \u2014 '+esc(s.state)+'</div><div class="pf-sub">@'+esc(h)+' \u00b7 '+uf(s.followers)+' followers</div><div style="margin-top:6px"><span class="party-chip" style="background:'+col+'18;color:'+col+'">'+esc(shortP(s.party))+'</span></div></div></div>'+'<div class="pf-sec">Key Stats \u00b7 Apr–Jul 2026</div><div class="pf-stats"><div class="pf-st o"><b>'+uf(s.followers)+'</b><span>Followers</span></div><div class="pf-st b"><b>'+uf(s.tw)+'</b><span>Tweets</span></div><div class="pf-st g"><b>'+uf(s.vw)+'</b><span>Total Views</span></div><div class="pf-st r"><b>'+uf(avg)+'</b><span>Avg Views/Post</span></div></div>'+standing+'<div class="pf-sec">X (Twitter) Engagement</div><div class="pf-kpis"><div class="pf-k"><b>'+uf(s.lk)+'</b><span>Likes</span></div><div class="pf-k"><b>'+uf(s.rt)+'</b><span>Retweets</span></div><div class="pf-k"><b>'+uf(avgl)+'</b><span>Avg Likes/Post</span></div><div class="pf-k"><b>'+s.tw+'</b><span>Posts Tracked</span></div></div>'+'<div class="pf-sec">About</div><div class="pf-bio">'+bio+'</div>'+hlHTML+'<div class="pf-sec">Personal Details</div><div class="pf-dgrid">'+detHTML+'</div>'+jmHTML+'<div class="pf-sec">Activity Analysis</div><div class="pf-an">'+an+'</div>';var m=document.getElementById('profileModal');if(m)m.classList.add('show');scanPhotos()}
+window.openProfile=function(h){
+  if(!h)return;
+  var normH=String(h).trim().replace(/^@/,'');
+  var c=(window.PROF||[]).find(function(x){return String(x.h||x.handle||'').toLowerCase()===normH.toLowerCase();});
+  if(!c&&window.CM_DATA){
+    var cmd=window.CM_DATA.find(function(x){return String(x.handle||x.h||'').toLowerCase()===normH.toLowerCase();});
+    if(cmd){
+      c=Object.assign({},cmd,{
+        h:cmd.handle||cmd.h,
+        tw:cmd.tweets!==undefined?cmd.tweets:cmd.tw,
+        vw:cmd.views!==undefined?cmd.views:cmd.vw,
+        lk:cmd.likes!==undefined?cmd.likes:cmd.lk,
+        rt:cmd.rts!==undefined?cmd.rts:cmd.rt,
+        loc:cmd.seat||cmd.loc||(typeof AC_MAP!=='undefined'?AC_MAP[cmd.name]:'')||''
+      });
+    }
+  }
+  if(!c&&window.UNI&&window.UNI.allHandles){
+    c=window.UNI.allHandles.find(function(x){return String(x.h||'').toLowerCase()===normH.toLowerCase();});
+  }
+  if(!c)return;
+
+  var _cf=(document.getElementById('cmFrom')||{}).value||'';
+  var _ct=(document.getElementById('cmTo')||{}).value||'';
+  if(window._applyDate&&(_cf||_ct)){
+    try{c=window._applyDate(c,_cf,_ct);}catch(e){}
+  }
+
+  var s={
+    h:c.h||c.handle||normH,
+    name:c.name||normH,
+    party:c.party||'—',
+    state:c.state||'—',
+    tw:c.tw!==undefined?+c.tw:(+c.tweets||0),
+    vw:c.vw!==undefined?+c.vw:(+c.views||0),
+    lk:c.lk!==undefined?+c.lk:(+c.likes||0),
+    rt:c.rt!==undefined?+c.rt:(+c.rts||0),
+    pos:+c.pos||0,
+    neu:+c.neu||0,
+    neg:+c.neg||0,
+    followers:c.followers!==undefined?+c.followers:0
+  };
+
+  var col=pc(s.party);
+  var tot=s.pos+s.neu+s.neg||1;
+  var avg=s.tw?Math.round(s.vw/s.tw):0;
+  var avgl=s.tw?Math.round(s.lk/s.tw):0;
+  var nm=s.name.replace(/\(.*\)/,'').trim();
+
+  var isPM=(normH.toLowerCase()==='narendramodi');
+  var isDyCM=(c.level==='Deputy Chief Minister'||c.level==='Dy CM'||(window.roleOf&&/Deputy|Dy/i.test(window.roleOf(normH,''))));
+  var role=isPM?'Prime Minister':(isDyCM?'Deputy Chief Minister':(c.level||'Chief Minister'));
+
+  var bio=(window.BIO&&window.BIO[normH])||(esc(nm)+' is the '+role+' of '+esc(s.state)+', representing the '+esc(s.party)+'.');
+  var det=(window.DET&&window.DET[normH])||{};
+  var con=c.loc||c.seat||(typeof AC_MAP!=='undefined'?AC_MAP[nm]:'')||'—';
+  var pP=Math.round(s.pos/tot*100),nP=Math.round(s.neu/tot*100),gP=Math.round(s.neg/tot*100);
+  var age=det.born?(2026-parseInt(((det.born.match(/\d{4}/))||[''])[0])):0;
+  var ageS=age?String(age):'—';
+
+  var allLeadersList=(window.CM_DATA&&window.CM_DATA.length)?window.CM_DATA:(window.PROF||[]);
+  var NL=allLeadersList.length||(window.PROF?window.PROF.length:32);
+
+  var byFollowers=allLeadersList.slice().sort(function(a,b){return (+b.followers||0)-(+a.followers||0);});
+  var rf=byFollowers.findIndex(function(x){return String(x.handle||x.h||'').toLowerCase()===normH.toLowerCase();})+1;
+
+  var byViews=allLeadersList.slice().sort(function(a,b){return (+b.views||+b.vw||0)-(+a.views||+a.vw||0);});
+  var rv=byViews.findIndex(function(x){return String(x.handle||x.h||'').toLowerCase()===normH.toLowerCase();})+1;
+
+  var byTweets=allLeadersList.slice().sort(function(a,b){return (+b.tweets||+b.tw||0)-(+a.tweets||+a.tw||0);});
+  var rtk=byTweets.findIndex(function(x){return String(x.handle||x.h||'').toLowerCase()===normH.toLowerCase();})+1;
+
+  if(!rf)rf=(window.RK_F&&window.RK_F[normH])||'—';
+  if(!rv)rv=(window.RK_V&&window.RK_V[normH])||'—';
+  if(!rtk)rtk=(window.RK_T&&window.RK_T[normH])||'—';
+
+  var standing='<div class="pf-sec">Standing Among '+NL+' Tracked Leaders</div>'+
+    '<div class="pf-stats">'+
+    '<div class="pf-st o"><b>#'+rf+'</b><span>Followers Rank</span></div>'+
+    '<div class="pf-st g"><b>#'+rv+'</b><span>Views Rank</span></div>'+
+    '<div class="pf-st b"><b>#'+rtk+'</b><span>Tweets Rank</span></div>'+
+    '<div class="pf-st r"><b>'+ageS+'</b><span>Age</span></div>'+
+    '</div>';
+
+  var hl=(window.HL&&window.HL[normH]);
+  var hlHTML=(hl&&hl.length&&hl[0]!=='—')
+    ?('<div class="pf-sec">Key Highlights</div><ul class="pf-hl">'+hl.map(function(x){return '<li>'+esc(x)+'</li>';}).join('')+'</ul>')
+    :('<div class="pf-sec">Key Highlights</div><ul class="pf-hl"><li>Key leader representing '+esc(s.state)+'</li><li>Serves as '+esc(role)+' representing '+esc(shortP(s.party))+'</li><li>Active presence on X with '+uf(s.followers)+' followers</li></ul>');
+
+  var rows=[
+    ['Role',role],
+    ['State / UT',s.state],
+    ['Party',shortP(s.party)],
+    ['Constituency',con]
+  ];
+  if(det.born)rows.push(['Born',det.born]);
+  if(det.edu)rows.push(['Education',det.edu]);
+  rows.push(['In office since',det.since||'—']);
+  rows.push(['X Handle','@'+normH]);
+
+  var detHTML=rows.map(function(r){return '<div class="pf-d"><span>'+esc(r[0])+'</span><b>'+esc(String(r[1]))+'</b></div>';}).join('');
+
+  var jm=(window.JM&&window.JM[normH]);
+  var jmHTML='';
+  if(jm&&jm.length){
+    jmHTML='<div class="pf-sec">Career Journey</div><div class="pf-tl">'+jm.map(function(t){return '<div class="pf-tli"><div class="pf-yr">'+esc(String(t[0]))+'</div><div class="pf-ev">'+esc(t[1])+'</div></div>';}).join('')+'</div>';
+  }
+
+  var an='In '+(c.period||'Apr–Oct 2026')+', '+esc(nm)+' posted '+uf(s.tw)+' tweets that drew '+uf(s.vw)+' views and '+uf(s.lk)+' likes (~'+uf(avg)+' views and '+uf(avgl)+' likes per post). The tone was '+nP+'% neutral, '+pP+'% positive and '+gP+'% negative — a broadly '+(gP<10?'favourable':(gP<20?'mixed':'contested'))+' reception.';
+
+  var cardEl=document.getElementById('pfCard');
+  if(cardEl){
+    cardEl.innerHTML='<button class="pf-x" onclick="closeProfile()">✕</button>'+
+      '<div class="pf-head">'+
+        '<div class="pf-av" style="background:'+col+';position:relative;overflow:hidden">'+ini(s.name)+photoImg(normH)+'</div>'+
+        '<div style="flex:1">'+
+          '<div class="pf-nm">'+esc(nm)+'</div>'+
+          '<div class="pf-role" style="color:'+col+'">'+esc(role)+' — '+esc(s.state)+'</div>'+
+          '<div class="pf-sub">@'+esc(normH)+' · '+uf(s.followers)+' followers</div>'+
+          '<div style="margin-top:6px"><span class="party-chip" style="background:'+col+'18;color:'+col+'">'+esc(shortP(s.party))+'</span></div>'+
+        '</div>'+
+      '</div>'+
+      '<div class="pf-sec">Key Stats · Apr–Oct 2026</div>'+
+      '<div class="pf-stats">'+
+        '<div class="pf-st o"><b>'+uf(s.followers)+'</b><span>Followers</span></div>'+
+        '<div class="pf-st b"><b>'+uf(s.tw)+'</b><span>Tweets</span></div>'+
+        '<div class="pf-st g"><b>'+uf(s.vw)+'</b><span>Total Views</span></div>'+
+        '<div class="pf-st r"><b>'+uf(avg)+'</b><span>Avg Views/Post</span></div>'+
+      '</div>'+
+      standing+
+      '<div class="pf-sec">X (Twitter) Engagement</div>'+
+      '<div class="pf-kpis">'+
+        '<div class="pf-k"><b>'+uf(s.lk)+'</b><span>Likes</span></div>'+
+        '<div class="pf-k"><b>'+uf(s.rt)+'</b><span>Retweets</span></div>'+
+        '<div class="pf-k"><b>'+uf(avgl)+'</b><span>Avg Likes/Post</span></div>'+
+        '<div class="pf-k"><b>'+s.tw+'</b><span>Posts Tracked</span></div>'+
+      '</div>'+
+      '<div class="pf-sec">About</div>'+
+      '<div class="pf-bio">'+bio+'</div>'+
+      hlHTML+
+      '<div class="pf-sec">Personal Details</div>'+
+      '<div class="pf-dgrid">'+detHTML+'</div>'+
+      jmHTML+
+      '<div class="pf-sec">Activity Analysis</div>'+
+      '<div class="pf-an">'+an+'</div>';
+  }
+
+  var m=document.getElementById('profileModal');
+  if(m)m.classList.add('show');
+  if(typeof scanPhotos==='function')scanPhotos();
+};
 window.closeProfile=function(){const m=document.getElementById('profileModal');if(m)m.classList.remove('show')}
 
 // ---- party-card click: focus charts on selected party ----
