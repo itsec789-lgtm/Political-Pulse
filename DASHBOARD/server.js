@@ -1181,6 +1181,12 @@ function mapGate(map) {
         o.live++; o.tw += (+r.tw) || 0; o.vw += (+r.vw) || 0;
       });
       map.UNI.admStats = _as;
+      try {
+        var _cdFile = path.join(__dirname, 'data', 'cat_daily.json');
+        if (fs.existsSync(_cdFile)) {
+          map.UNI.catDaily = JSON.parse(fs.readFileSync(_cdFile, 'utf8'));
+        }
+      } catch (e) {}
       console.log('  cat-cards: ' + Object.keys(_cs).length + ' category'
         + ' (' + Object.keys(_cs).sort(function (a, b) { return _cs[b].map - _cs[a].map; })
             .slice(0, 4).map(function (c) { return c + ':' + _cs[c].map; }).join(', ') + ')');

@@ -157327,13 +157327,13 @@
 "tweet_url": "",
 "profile_url": "https://x.com/shivprakashbjp"
 },
-"ShaliniJDU": {
-"handle": "ShaliniJDU",
-"name": "Smt. Shalini Mishra",
-"state": "Bihar",
+"mkrishnappa_mla": {
+"handle": "mkrishnappa_mla",
+"name": "Shri M.Krishnappa",
+"state": "Karnataka",
 "locations": "-",
-"ac_pc_no": "AC_15",
-"ac_name": "Kesaria",
+"ac_pc_no": "AC_167",
+"ac_name": "Vijayanagar",
 "pc_name": "-",
 "designation_raw": "MLA",
 "designations": [
@@ -157346,8 +157346,8 @@
 "categories": [
 "MLA"
 ],
-"party": "JD(U)",
-"ac_pc_name": "Kesaria",
+"party": "INC",
+"ac_pc_name": "Vijayanagar",
 "gender": "-",
 "party_designation": "-",
 "admin_designation": "-",
@@ -157355,8 +157355,196 @@
 "admin_group": "-",
 "status": "Active",
 "tweet_url": "",
-"profile_url": "https://x.com/ShaliniJDU",
-"alias_of": "shalinijdu"
+"profile_url": "https://x.com/mkrishnappa_mla",
+"alias_of": "mkrishnappa_MLA"
+},
+"kbanerjee_aitc": {
+"handle": "kbanerjee_aitc",
+"name": "Shri Kalyan Banerjee",
+"state": "West Bengal",
+"locations": "-",
+"ac_pc_no": "PC_27",
+"ac_name": "-",
+"pc_name": "Srerampur",
+"designation_raw": "LS_MP",
+"designations": [
+"LS_MP"
+],
+"levels": [
+"LS MP"
+],
+"category": "LS_MP",
+"categories": [
+"LS_MP"
+],
+"party": "TMC",
+"ac_pc_name": "Srerampur",
+"gender": "-",
+"party_designation": "-",
+"admin_designation": "-",
+"admin_designation_raw": "-",
+"admin_group": "-",
+"status": "Active",
+"tweet_url": "",
+"profile_url": "https://x.com/kbanerjee_aitc",
+"alias_of": "KBanerjee_AITC"
+},
+"amitshah": {
+"handle": "amitshah",
+"name": "Shri Amit Shah",
+"state": "Gujarat",
+"locations": "-",
+"ac_pc_no": "PC_6",
+"ac_name": "-",
+"pc_name": "Gandhinagar",
+"designation_raw": "Cabinet Minister | LS_MP",
+"designations": [
+"Cabinet Minister",
+"LS_MP"
+],
+"levels": [
+"LS MP"
+],
+"category": "LS_MP",
+"categories": [
+"LS_MP"
+],
+"party": "BJP",
+"ac_pc_name": "Gandhinagar",
+"gender": "Male",
+"party_designation": "-",
+"admin_designation": "Cabinet Minister",
+"admin_designation_raw": "Cabinet Minister",
+"admin_group": "Cabinet Minister",
+"status": "Active",
+"tweet_url": "",
+"profile_url": "https://x.com/amitshah",
+"alias_of": "AmitShah"
+},
+"NirmalSMohra": {
+"handle": "NirmalSMohra",
+"name": "Shri Nirmal Singh",
+"state": "Haryana",
+"locations": "-",
+"ac_pc_no": "AC_5",
+"ac_name": "Ambala City",
+"pc_name": "-",
+"designation_raw": "MLA",
+"designations": [
+"MLA"
+],
+"levels": [
+"MLA"
+],
+"category": "MLA",
+"categories": [
+"MLA"
+],
+"party": "INC",
+"ac_pc_name": "Ambala City",
+"gender": "-",
+"party_designation": "-",
+"admin_designation": "-",
+"admin_designation_raw": "-",
+"admin_group": "-",
+"status": "Active",
+"tweet_url": "",
+"profile_url": "https://x.com/NirmalSMohra",
+"alias_of": "nirmalsmohra"
+},
+"RajeevRai": {
+"handle": "RajeevRai",
+"name": "Shri Rajeev Rai",
+"state": "Uttar Pradesh",
+"locations": "-",
+"ac_pc_no": "PC_70",
+"ac_name": "-",
+"pc_name": "Ghosi",
+"designation_raw": "National secretary and spokesperson | LS_MP",
+"designations": [
+"National secretary and spokesperson",
+"LS_MP"
+],
+"levels": [
+"LS MP"
+],
+"category": "LS_MP",
+"categories": [
+"LS_MP"
+],
+"party": "SP",
+"ac_pc_name": "Ghosi",
+"gender": "-",
+"party_designation": "National secretary and spokesperson",
+"admin_designation": "-",
+"admin_designation_raw": "-",
+"admin_group": "-",
+"status": "Active",
+"tweet_url": "",
+"profile_url": "https://x.com/RajeevRai",
+"alias_of": "rajeevrai"
+},
+"sahirampahalwan": {
+"handle": "sahirampahalwan",
+"name": "Shri Sahiram",
+"state": "Delhi",
+"locations": "-",
+"ac_pc_no": "AC_52",
+"ac_name": "Tughlakabad",
+"pc_name": "-",
+"designation_raw": "MLA",
+"designations": [
+"MLA"
+],
+"levels": [
+"MLA"
+],
+"category": "MLA",
+"categories": [
+"MLA"
+],
+"party": "AAP",
+"ac_pc_name": "Tughlakabad",
+"gender": "-",
+"party_designation": "-",
+"admin_designation": "-",
+"admin_designation_raw": "-",
+"admin_group": "-",
+"status": "Active",
+"tweet_url": "",
+"profile_url": "https://x.com/sahirampahalwan",
+"alias_of": "SahiramPahalwan"
+},
+"virendra_mla": {
+"handle": "virendra_mla",
+"name": "Shri Virendra Kumar Yadav",
+"state": "Uttar Pradesh",
+"locations": "-",
+"ac_pc_no": "AC_376",
+"ac_name": "Jangipur",
+"pc_name": "-",
+"designation_raw": "MLA",
+"designations": [
+"MLA"
+],
+"levels": [
+"MLA"
+],
+"category": "MLA",
+"categories": [
+"MLA"
+],
+"party": "SP",
+"ac_pc_name": "Jangipur",
+"gender": "-",
+"party_designation": "-",
+"admin_designation": "-",
+"admin_designation_raw": "-",
+"admin_group": "-",
+"status": "Active",
+"tweet_url": "",
+"profile_url": "https://x.com/virendra_mla",
+"alias_of": "Virendra_mla"
 },
 "SandeepJakharpb": {
 "handle": "SandeepJakharpb",
@@ -157388,68 +157576,6 @@
 "tweet_url": "",
 "profile_url": "https://x.com/SandeepJakharpb",
 "alias_of": "sandeepjakharpb"
-},
-"umang_bjp": {
-"handle": "umang_bjp",
-"name": "Shri Umang Bajaj",
-"state": "Delhi",
-"locations": "-",
-"ac_pc_no": "AC_39",
-"ac_name": "Rajinder Nagar",
-"pc_name": "-",
-"designation_raw": "MLA",
-"designations": [
-"MLA"
-],
-"levels": [
-"MLA"
-],
-"category": "MLA",
-"categories": [
-"MLA"
-],
-"party": "BJP",
-"ac_pc_name": "Rajinder Nagar",
-"gender": "-",
-"party_designation": "-",
-"admin_designation": "-",
-"admin_designation_raw": "-",
-"admin_group": "-",
-"status": "Active",
-"tweet_url": "",
-"profile_url": "https://x.com/umang_bjp",
-"alias_of": "Umang_bjp"
-},
-"rbldineshsingh": {
-"handle": "rbldineshsingh",
-"name": "Shri Dinesh Pratap Singh",
-"state": "Uttar Pradesh",
-"locations": "-",
-"ac_pc_no": "PC_36",
-"ac_name": "-",
-"pc_name": "-",
-"designation_raw": "MLC",
-"designations": [
-"MLC"
-],
-"levels": [
-"MLC"
-],
-"category": "MLC",
-"categories": [
-"MLC"
-],
-"party": "BJP",
-"ac_pc_name": "-",
-"gender": "-",
-"party_designation": "-",
-"admin_designation": "-",
-"admin_designation_raw": "-",
-"admin_group": "-",
-"status": "Active",
-"tweet_url": "",
-"profile_url": "https://x.com/rbldineshsingh",
-"alias_of": "RBLDineshSingh"
 },
 "tanujpuniaINC": {
 "handle": "tanujpuniaINC",
@@ -157483,6 +157609,161 @@
 "profile_url": "https://x.com/tanujpuniaINC",
 "alias_of": "tanujpuniainc"
 },
+"drmukeshmlaskb": {
+"handle": "drmukeshmlaskb",
+"name": "Shri Mukesh Verma",
+"state": "Uttar Pradesh",
+"locations": "-",
+"ac_pc_no": "AC_98",
+"ac_name": "Shikohabad",
+"pc_name": "-",
+"designation_raw": "MLA",
+"designations": [
+"MLA"
+],
+"levels": [
+"MLA"
+],
+"category": "MLA",
+"categories": [
+"MLA"
+],
+"party": "SP",
+"ac_pc_name": "Shikohabad",
+"gender": "-",
+"party_designation": "-",
+"admin_designation": "-",
+"admin_designation_raw": "-",
+"admin_group": "-",
+"status": "Active",
+"tweet_url": "",
+"profile_url": "https://x.com/drmukeshmlaskb",
+"alias_of": "DrMukeshMLASKB"
+},
+"bjpchandankr": {
+"handle": "bjpchandankr",
+"name": "Shri Chandan Kumar Choudhary",
+"state": "Delhi",
+"locations": "-",
+"ac_pc_no": "AC_49",
+"ac_name": "Sangam Vihar",
+"pc_name": "-",
+"designation_raw": "MLA",
+"designations": [
+"MLA"
+],
+"levels": [
+"MLA"
+],
+"category": "MLA",
+"categories": [
+"MLA"
+],
+"party": "BJP",
+"ac_pc_name": "Sangam Vihar",
+"gender": "-",
+"party_designation": "-",
+"admin_designation": "-",
+"admin_designation_raw": "-",
+"admin_group": "-",
+"status": "Active",
+"tweet_url": "",
+"profile_url": "https://x.com/bjpchandankr",
+"alias_of": "BJPChandankr"
+},
+"arunbhartiljp": {
+"handle": "arunbhartiljp",
+"name": "Shri Arun Bharti",
+"state": "Bihar",
+"locations": "-",
+"ac_pc_no": "PC_40",
+"ac_name": "-",
+"pc_name": "Jamui (Sc)",
+"designation_raw": "LS_MP",
+"designations": [
+"LS_MP"
+],
+"levels": [
+"LS MP"
+],
+"category": "LS_MP",
+"categories": [
+"LS_MP"
+],
+"party": "LJP(RV)",
+"ac_pc_name": "Jamui (Sc)",
+"gender": "-",
+"party_designation": "-",
+"admin_designation": "-",
+"admin_designation_raw": "-",
+"admin_group": "-",
+"status": "Active",
+"tweet_url": "",
+"profile_url": "https://x.com/arunbhartiljp",
+"alias_of": "ArunBhartiLJP"
+},
+"ajaymahawarbjp": {
+"handle": "ajaymahawarbjp",
+"name": "Shri Ajay Mahawar",
+"state": "Delhi",
+"locations": "-",
+"ac_pc_no": "AC_66",
+"ac_name": "Ghonda",
+"pc_name": "-",
+"designation_raw": "MLA",
+"designations": [
+"MLA"
+],
+"levels": [
+"MLA"
+],
+"category": "MLA",
+"categories": [
+"MLA"
+],
+"party": "BJP",
+"ac_pc_name": "Ghonda",
+"gender": "-",
+"party_designation": "-",
+"admin_designation": "-",
+"admin_designation_raw": "-",
+"admin_group": "-",
+"status": "Active",
+"tweet_url": "",
+"profile_url": "https://x.com/ajaymahawarbjp",
+"alias_of": "AjayMahawarBJP"
+},
+"Gopal_Italia": {
+"handle": "Gopal_Italia",
+"name": "Shri Gopal Italia",
+"state": "Gujarat",
+"locations": "-",
+"ac_pc_no": "AC_87",
+"ac_name": "Visavadar",
+"pc_name": "-",
+"designation_raw": "MLA",
+"designations": [
+"MLA"
+],
+"levels": [
+"MLA"
+],
+"category": "MLA",
+"categories": [
+"MLA"
+],
+"party": "AAP",
+"ac_pc_name": "Visavadar",
+"gender": "-",
+"party_designation": "-",
+"admin_designation": "-",
+"admin_designation_raw": "-",
+"admin_group": "-",
+"status": "Active",
+"tweet_url": "",
+"profile_url": "https://x.com/Gopal_Italia",
+"alias_of": "gopal_italia"
+},
 "naveen_k_jain": {
 "handle": "naveen_k_jain",
 "name": "Shri Naveen Jain",
@@ -157513,6 +157794,192 @@
 "tweet_url": "",
 "profile_url": "https://x.com/naveen_k_jain",
 "alias_of": "Naveen_k_Jain"
+},
+"karnailsinghbjp": {
+"handle": "karnailsinghbjp",
+"name": "Shri Karnail Singh",
+"state": "Delhi",
+"locations": "-",
+"ac_pc_no": "AC_15",
+"ac_name": "Shakur Basti",
+"pc_name": "-",
+"designation_raw": "MLA",
+"designations": [
+"MLA"
+],
+"levels": [
+"MLA"
+],
+"category": "MLA",
+"categories": [
+"MLA"
+],
+"party": "BJP",
+"ac_pc_name": "Shakur Basti",
+"gender": "-",
+"party_designation": "-",
+"admin_designation": "-",
+"admin_designation_raw": "-",
+"admin_group": "-",
+"status": "Active",
+"tweet_url": "",
+"profile_url": "https://x.com/karnailsinghbjp",
+"alias_of": "KarnailSinghBJP"
+},
+"rabindranathji": {
+"handle": "rabindranathji",
+"name": "Shri Rabindranath Mahato",
+"state": "Jharkhand",
+"locations": "-",
+"ac_pc_no": "AC_8",
+"ac_name": "Nala",
+"pc_name": "-",
+"designation_raw": "MLA",
+"designations": [
+"MLA"
+],
+"levels": [
+"MLA"
+],
+"category": "MLA",
+"categories": [
+"MLA"
+],
+"party": "JMM",
+"ac_pc_name": "Nala",
+"gender": "-",
+"party_designation": "-",
+"admin_designation": "-",
+"admin_designation_raw": "-",
+"admin_group": "-",
+"status": "Active",
+"tweet_url": "",
+"profile_url": "https://x.com/rabindranathji",
+"alias_of": "Rabindranathji"
+},
+"bidhanmajhitmc": {
+"handle": "bidhanmajhitmc",
+"name": "Shri Bidhan Chandra Majhi",
+"state": "West Bengal",
+"locations": "-",
+"ac_pc_no": "AC_287",
+"ac_name": "Nanoor",
+"pc_name": "-",
+"designation_raw": "MLA",
+"designations": [
+"MLA"
+],
+"levels": [
+"MLA"
+],
+"category": "MLA",
+"categories": [
+"MLA"
+],
+"party": "TMC",
+"ac_pc_name": "Nanoor",
+"gender": "-",
+"party_designation": "-",
+"admin_designation": "-",
+"admin_designation_raw": "-",
+"admin_group": "-",
+"status": "Active",
+"tweet_url": "",
+"profile_url": "https://x.com/bidhanmajhitmc",
+"alias_of": "BidhanMajhiTMC"
+},
+"rajeshkinc": {
+"handle": "rajeshkinc",
+"name": "Shri Rajesh Kachhap",
+"state": "Jharkhand",
+"locations": "-",
+"ac_pc_no": "AC_62",
+"ac_name": "Khijri",
+"pc_name": "-",
+"designation_raw": "MLA",
+"designations": [
+"MLA"
+],
+"levels": [
+"MLA"
+],
+"category": "MLA",
+"categories": [
+"MLA"
+],
+"party": "INC",
+"ac_pc_name": "Khijri",
+"gender": "-",
+"party_designation": "-",
+"admin_designation": "-",
+"admin_designation_raw": "-",
+"admin_group": "-",
+"status": "Active",
+"tweet_url": "",
+"profile_url": "https://x.com/rajeshkinc",
+"alias_of": "RajeshKinc"
+},
+"neelams_bjp": {
+"handle": "neelams_bjp",
+"name": "Smt. Neelam Krishan Pahlwan",
+"state": "Delhi",
+"locations": "-",
+"ac_pc_no": "AC_35",
+"ac_name": "Najafgarh",
+"pc_name": "-",
+"designation_raw": "MLA",
+"designations": [
+"MLA"
+],
+"levels": [
+"MLA"
+],
+"category": "MLA",
+"categories": [
+"MLA"
+],
+"party": "BJP",
+"ac_pc_name": "Najafgarh",
+"gender": "-",
+"party_designation": "-",
+"admin_designation": "-",
+"admin_designation_raw": "-",
+"admin_group": "-",
+"status": "Active",
+"tweet_url": "",
+"profile_url": "https://x.com/neelams_bjp",
+"alias_of": "NeelamS_BJP"
+},
+"bhadauriyaanand": {
+"handle": "bhadauriyaanand",
+"name": "Shri Anand Bhadauriya",
+"state": "Uttar Pradesh",
+"locations": "-",
+"ac_pc_no": "PC_29",
+"ac_name": "-",
+"pc_name": "Dhaurahra",
+"designation_raw": "LS_MP",
+"designations": [
+"LS_MP"
+],
+"levels": [
+"LS MP"
+],
+"category": "LS_MP",
+"categories": [
+"LS_MP"
+],
+"party": "SP",
+"ac_pc_name": "Dhaurahra",
+"gender": "-",
+"party_designation": "-",
+"admin_designation": "-",
+"admin_designation_raw": "-",
+"admin_group": "-",
+"status": "Active",
+"tweet_url": "",
+"profile_url": "https://x.com/bhadauriyaanand",
+"alias_of": "BhadauriyaAnand"
 },
 "gagraidashrath": {
 "handle": "gagraidashrath",
@@ -157545,6 +158012,70 @@
 "profile_url": "https://x.com/gagraidashrath",
 "alias_of": "GagraiDashrath"
 },
+"NayabSainiBJP": {
+"handle": "NayabSainiBJP",
+"name": "Shri Nayab Singh Saini",
+"state": "Haryana",
+"locations": "-",
+"ac_pc_no": "AC_11",
+"ac_name": "Ladwa",
+"pc_name": "-",
+"designation_raw": "Chief Minister | MLA",
+"designations": [
+"Chief Minister",
+"MLA"
+],
+"levels": [
+"CM",
+"MLA"
+],
+"category": "MLA",
+"categories": [
+"MLA"
+],
+"party": "BJP",
+"ac_pc_name": "Ladwa",
+"gender": "-",
+"party_designation": "-",
+"admin_designation": "Chief Minister",
+"admin_designation_raw": "Chief Minister",
+"admin_group": "Chief Minister",
+"status": "Active",
+"tweet_url": "",
+"profile_url": "https://x.com/NayabSainiBJP",
+"alias_of": "nayabsainibjp"
+},
+"bjpsanjaygoyal": {
+"handle": "bjpsanjaygoyal",
+"name": "Shri Sanjay Goyal",
+"state": "Delhi",
+"locations": "-",
+"ac_pc_no": "AC_62",
+"ac_name": "Shahdara",
+"pc_name": "-",
+"designation_raw": "MLA",
+"designations": [
+"MLA"
+],
+"levels": [
+"MLA"
+],
+"category": "MLA",
+"categories": [
+"MLA"
+],
+"party": "BJP",
+"ac_pc_name": "Shahdara",
+"gender": "-",
+"party_designation": "-",
+"admin_designation": "-",
+"admin_designation_raw": "-",
+"admin_group": "-",
+"status": "Active",
+"tweet_url": "",
+"profile_url": "https://x.com/bjpsanjaygoyal",
+"alias_of": "BJPSanjayGoyal"
+},
 "SaudanSinghBJP": {
 "handle": "SaudanSinghBJP",
 "name": "Sudan Singh",
@@ -157575,6 +158106,378 @@
 "tweet_url": "",
 "profile_url": "https://x.com/SaudanSinghBJP",
 "alias_of": "saudansinghbjp"
+},
+"rbldineshsingh": {
+"handle": "rbldineshsingh",
+"name": "Shri Dinesh Pratap Singh",
+"state": "Uttar Pradesh",
+"locations": "-",
+"ac_pc_no": "-",
+"ac_name": "-",
+"pc_name": "-",
+"designation_raw": "MLC",
+"designations": [
+"MLC"
+],
+"levels": [
+"MLC"
+],
+"category": "MLC",
+"categories": [
+"MLC"
+],
+"party": "BJP",
+"ac_pc_name": "-",
+"gender": "-",
+"party_designation": "-",
+"admin_designation": "-",
+"admin_designation_raw": "-",
+"admin_group": "-",
+"status": "Active",
+"tweet_url": "",
+"profile_url": "https://x.com/rbldineshsingh",
+"alias_of": "RBLDineshSingh"
+},
+"SarvjitManuke": {
+"handle": "SarvjitManuke",
+"name": "Smt. Sarvjit Kaur Manuke",
+"state": "Punjab",
+"locations": "-",
+"ac_pc_no": "AC_70",
+"ac_name": "Jagraon",
+"pc_name": "-",
+"designation_raw": "MLA",
+"designations": [
+"MLA"
+],
+"levels": [
+"MLA"
+],
+"category": "MLA",
+"categories": [
+"MLA"
+],
+"party": "AAP",
+"ac_pc_name": "Jagraon",
+"gender": "-",
+"party_designation": "-",
+"admin_designation": "-",
+"admin_designation_raw": "-",
+"admin_group": "-",
+"status": "Active",
+"tweet_url": "",
+"profile_url": "https://x.com/SarvjitManuke",
+"alias_of": "sarvjitmanuke"
+},
+"SinghRPN": {
+"handle": "SinghRPN",
+"name": "Shri R.P.N Singh",
+"state": "Uttar Pradesh",
+"locations": "-",
+"ac_pc_no": "-",
+"ac_name": "-",
+"pc_name": "-",
+"designation_raw": "RS_MP",
+"designations": [
+"RS_MP"
+],
+"levels": [
+"RS MP"
+],
+"category": "RS_MP",
+"categories": [
+"RS_MP"
+],
+"party": "BJP",
+"ac_pc_name": "-",
+"gender": "Male",
+"party_designation": "-",
+"admin_designation": "-",
+"admin_designation_raw": "-",
+"admin_group": "-",
+"status": "Active",
+"tweet_url": "",
+"profile_url": "https://x.com/SinghRPN",
+"alias_of": "singhrpn"
+},
+"SujeetKOfficial": {
+"handle": "SujeetKOfficial",
+"name": "Shri Sujeet Kumar",
+"state": "Odisha",
+"locations": "-",
+"ac_pc_no": "-",
+"ac_name": "-",
+"pc_name": "-",
+"designation_raw": "RS_MP",
+"designations": [
+"RS_MP"
+],
+"levels": [
+"RS MP"
+],
+"category": "RS_MP",
+"categories": [
+"RS_MP"
+],
+"party": "BJP",
+"ac_pc_name": "-",
+"gender": "Male",
+"party_designation": "-",
+"admin_designation": "-",
+"admin_designation_raw": "-",
+"admin_group": "-",
+"status": "Active",
+"tweet_url": "",
+"profile_url": "https://x.com/SujeetKOfficial",
+"alias_of": "sujeetkofficial"
+},
+"mlariteshkgupta": {
+"handle": "mlariteshkgupta",
+"name": "Shri Ritesh Kumar Gupta",
+"state": "Uttar Pradesh",
+"locations": "-",
+"ac_pc_no": "AC_28",
+"ac_name": "Moradabad Nagar",
+"pc_name": "-",
+"designation_raw": "MLA",
+"designations": [
+"MLA"
+],
+"levels": [
+"MLA"
+],
+"category": "MLA",
+"categories": [
+"MLA"
+],
+"party": "BJP",
+"ac_pc_name": "Moradabad Nagar",
+"gender": "-",
+"party_designation": "-",
+"admin_designation": "-",
+"admin_designation_raw": "-",
+"admin_group": "-",
+"status": "Active",
+"tweet_url": "",
+"profile_url": "https://x.com/mlariteshkgupta",
+"alias_of": "MLARiteshKGupta"
+},
+"jmmkalpanasoren": {
+"handle": "jmmkalpanasoren",
+"name": "Smt. Kalpana Murmu Soren",
+"state": "Jharkhand",
+"locations": "-",
+"ac_pc_no": "AC_31",
+"ac_name": "Gandey",
+"pc_name": "-",
+"designation_raw": "MLA",
+"designations": [
+"MLA"
+],
+"levels": [
+"MLA"
+],
+"category": "MLA",
+"categories": [
+"MLA"
+],
+"party": "JMM",
+"ac_pc_name": "Gandey",
+"gender": "-",
+"party_designation": "-",
+"admin_designation": "-",
+"admin_designation_raw": "-",
+"admin_group": "-",
+"status": "Active",
+"tweet_url": "",
+"profile_url": "https://x.com/jmmkalpanasoren",
+"alias_of": "JMMKalpanaSoren"
+},
+"AnupamaRawatUK": {
+"handle": "AnupamaRawatUK",
+"name": "Smt. Anupama Rawat",
+"state": "Uttarakhand",
+"locations": "-",
+"ac_pc_no": "AC_35",
+"ac_name": "Haridwar Rural",
+"pc_name": "-",
+"designation_raw": "MLA",
+"designations": [
+"MLA"
+],
+"levels": [
+"MLA"
+],
+"category": "MLA",
+"categories": [
+"MLA"
+],
+"party": "INC",
+"ac_pc_name": "Haridwar Rural",
+"gender": "-",
+"party_designation": "-",
+"admin_designation": "-",
+"admin_designation_raw": "-",
+"admin_group": "-",
+"status": "Active",
+"tweet_url": "",
+"profile_url": "https://x.com/AnupamaRawatUK",
+"alias_of": "anupamarawatuk"
+},
+"MrYaduvansh": {
+"handle": "MrYaduvansh",
+"name": "Shri Subhash Yaduvansh",
+"state": "Uttar Pradesh",
+"locations": "-",
+"ac_pc_no": "-",
+"ac_name": "-",
+"pc_name": "-",
+"designation_raw": "MLC",
+"designations": [
+"MLC"
+],
+"levels": [
+"MLC"
+],
+"category": "MLC",
+"categories": [
+"MLC"
+],
+"party": "BJP",
+"ac_pc_name": "-",
+"gender": "-",
+"party_designation": "-",
+"admin_designation": "-",
+"admin_designation_raw": "-",
+"admin_group": "-",
+"status": "Active",
+"tweet_url": "",
+"profile_url": "https://x.com/MrYaduvansh",
+"alias_of": "mryaduvansh"
+},
+"IPSHumayunKabir": {
+"handle": "IPSHumayunKabir",
+"name": "Shri Humayun Kabir",
+"state": "West Bengal",
+"locations": "-",
+"ac_pc_no": "AC_74",
+"ac_name": "Naoda",
+"pc_name": "-",
+"designation_raw": "MLA",
+"designations": [
+"MLA"
+],
+"levels": [
+"MLA"
+],
+"category": "MLA",
+"categories": [
+"MLA"
+],
+"party": "AJUP",
+"ac_pc_name": "Naoda",
+"gender": "-",
+"party_designation": "-",
+"admin_designation": "-",
+"admin_designation_raw": "-",
+"admin_group": "-",
+"status": "Active",
+"tweet_url": "",
+"profile_url": "https://x.com/IPSHumayunKabir",
+"alias_of": "ipshumayunkabir"
+},
+"mlaraja_snkl": {
+"handle": "mlaraja_snkl",
+"name": "Shri E. Raja",
+"state": "Tamil Nadu",
+"locations": "-",
+"ac_pc_no": "AC_220",
+"ac_name": "Vasudevanallur",
+"pc_name": "-",
+"designation_raw": "MLA",
+"designations": [
+"MLA"
+],
+"levels": [
+"MLA"
+],
+"category": "MLA",
+"categories": [
+"MLA"
+],
+"party": "DMK",
+"ac_pc_name": "Vasudevanallur",
+"gender": "-",
+"party_designation": "-",
+"admin_designation": "-",
+"admin_designation_raw": "-",
+"admin_group": "-",
+"status": "Active",
+"tweet_url": "",
+"profile_url": "https://x.com/mlaraja_snkl",
+"alias_of": "MLARaja_SNKL"
+},
+"brajesh_888": {
+"handle": "brajesh_888",
+"name": "Shri Brajesh Yadav",
+"state": "Uttar Pradesh",
+"locations": "-",
+"ac_pc_no": "AC_113",
+"ac_name": "Sahaswan",
+"pc_name": "-",
+"designation_raw": "MLA",
+"designations": [
+"MLA"
+],
+"levels": [
+"MLA"
+],
+"category": "MLA",
+"categories": [
+"MLA"
+],
+"party": "SP",
+"ac_pc_name": "Sahaswan",
+"gender": "-",
+"party_designation": "-",
+"admin_designation": "-",
+"admin_designation_raw": "-",
+"admin_group": "-",
+"status": "Active",
+"tweet_url": "",
+"profile_url": "https://x.com/brajesh_888",
+"alias_of": "Brajesh_888"
+},
+"vipinjain_": {
+"handle": "vipinjain_",
+"name": "Shri Vipin Jain",
+"state": "Madhya Pradesh",
+"locations": "-",
+"ac_pc_no": "AC_224",
+"ac_name": "Mandsour",
+"pc_name": "-",
+"designation_raw": "MLA",
+"designations": [
+"MLA"
+],
+"levels": [
+"MLA"
+],
+"category": "MLA",
+"categories": [
+"MLA"
+],
+"party": "INC",
+"ac_pc_name": "Mandsour",
+"gender": "-",
+"party_designation": "-",
+"admin_designation": "-",
+"admin_designation_raw": "-",
+"admin_group": "-",
+"status": "Active",
+"tweet_url": "",
+"profile_url": "https://x.com/vipinjain_",
+"alias_of": "Vipinjain_"
 },
 "AtalShrivastav": {
 "handle": "AtalShrivastav",
@@ -157639,13 +158542,13 @@
 "profile_url": "https://x.com/mithileshkmp",
 "alias_of": "mithileshkMp"
 },
-"bjpchandankr": {
-"handle": "bjpchandankr",
-"name": "Shri Chandan Kumar Choudhary",
+"ashokgoelbjp": {
+"handle": "ashokgoelbjp",
+"name": "Shri Ashok Goel Devraha",
 "state": "Delhi",
 "locations": "-",
-"ac_pc_no": "AC_49",
-"ac_name": "Sangam Vihar",
+"ac_pc_no": "AC_18",
+"ac_name": "Model Town",
 "pc_name": "-",
 "designation_raw": "MLA",
 "designations": [
@@ -157659,7 +158562,7 @@
 "MLA"
 ],
 "party": "BJP",
-"ac_pc_name": "Sangam Vihar",
+"ac_pc_name": "Model Town",
 "gender": "-",
 "party_designation": "-",
 "admin_designation": "-",
@@ -157667,109 +158570,16 @@
 "admin_group": "-",
 "status": "Active",
 "tweet_url": "",
-"profile_url": "https://x.com/bjpchandankr",
-"alias_of": "BJPChandankr"
+"profile_url": "https://x.com/ashokgoelbjp",
+"alias_of": "AshokGoelBJP"
 },
-"vipinjain_": {
-"handle": "vipinjain_",
-"name": "Shri Vipin Jain",
-"state": "Madhya Pradesh",
+"Chaitar_Vasava": {
+"handle": "Chaitar_Vasava",
+"name": "Shri Chaitarbhai Damjibhai Vasava",
+"state": "Gujarat",
 "locations": "-",
-"ac_pc_no": "AC_224",
-"ac_name": "Mandsour",
-"pc_name": "-",
-"designation_raw": "MLA",
-"designations": [
-"MLA"
-],
-"levels": [
-"MLA"
-],
-"category": "MLA",
-"categories": [
-"MLA"
-],
-"party": "INC",
-"ac_pc_name": "Mandsour",
-"gender": "-",
-"party_designation": "-",
-"admin_designation": "-",
-"admin_designation_raw": "-",
-"admin_group": "-",
-"status": "Active",
-"tweet_url": "",
-"profile_url": "https://x.com/vipinjain_",
-"alias_of": "Vipinjain_"
-},
-"bhadauriyaanand": {
-"handle": "bhadauriyaanand",
-"name": "Shri Anand Bhadauriya",
-"state": "Uttar Pradesh",
-"locations": "-",
-"ac_pc_no": "PC_29",
-"ac_name": "-",
-"pc_name": "Dhaurahra",
-"designation_raw": "LS_MP",
-"designations": [
-"LS_MP"
-],
-"levels": [
-"LS MP"
-],
-"category": "LS_MP",
-"categories": [
-"LS_MP"
-],
-"party": "SP",
-"ac_pc_name": "Dhaurahra",
-"gender": "-",
-"party_designation": "-",
-"admin_designation": "-",
-"admin_designation_raw": "-",
-"admin_group": "-",
-"status": "Active",
-"tweet_url": "",
-"profile_url": "https://x.com/bhadauriyaanand",
-"alias_of": "BhadauriyaAnand"
-},
-"drmukeshmlaskb": {
-"handle": "drmukeshmlaskb",
-"name": "Shri Mukesh Verma",
-"state": "Uttar Pradesh",
-"locations": "-",
-"ac_pc_no": "AC_98",
-"ac_name": "Shikohabad",
-"pc_name": "-",
-"designation_raw": "MLA",
-"designations": [
-"MLA"
-],
-"levels": [
-"MLA"
-],
-"category": "MLA",
-"categories": [
-"MLA"
-],
-"party": "SP",
-"ac_pc_name": "Shikohabad",
-"gender": "-",
-"party_designation": "-",
-"admin_designation": "-",
-"admin_designation_raw": "-",
-"admin_group": "-",
-"status": "Active",
-"tweet_url": "",
-"profile_url": "https://x.com/drmukeshmlaskb",
-"alias_of": "DrMukeshMLASKB"
-},
-"SarvjitManuke": {
-"handle": "SarvjitManuke",
-"name": "Smt. Sarvjit Kaur Manuke",
-"state": "Punjab",
-"locations": "-",
-"ac_pc_no": "AC_70",
-"ac_name": "Jagraon",
+"ac_pc_no": "AC_149",
+"ac_name": "Dediapada (St)",
 "pc_name": "-",
 "designation_raw": "MLA",
 "designations": [
@@ -157783,7 +158593,7 @@
 "MLA"
 ],
 "party": "AAP",
-"ac_pc_name": "Jagraon",
+"ac_pc_name": "Dediapada (St)",
 "gender": "-",
 "party_designation": "-",
 "admin_designation": "-",
@@ -157791,39 +158601,8 @@
 "admin_group": "-",
 "status": "Active",
 "tweet_url": "",
-"profile_url": "https://x.com/SarvjitManuke",
-"alias_of": "sarvjitmanuke"
-},
-"pratapgrewal2": {
-"handle": "pratapgrewal2",
-"name": "Shri Pratap Grewal",
-"state": "Madhya Pradesh",
-"locations": "-",
-"ac_pc_no": "AC_196",
-"ac_name": "Sardarpur (St)",
-"pc_name": "-",
-"designation_raw": "MLA",
-"designations": [
-"MLA"
-],
-"levels": [
-"MLA"
-],
-"category": "MLA",
-"categories": [
-"MLA"
-],
-"party": "INC",
-"ac_pc_name": "Sardarpur (St)",
-"gender": "-",
-"party_designation": "-",
-"admin_designation": "-",
-"admin_designation_raw": "-",
-"admin_group": "-",
-"status": "Active",
-"tweet_url": "",
-"profile_url": "https://x.com/pratapgrewal2",
-"alias_of": "PratapGrewal2"
+"profile_url": "https://x.com/Chaitar_Vasava",
+"alias_of": "chaitar_vasava"
 },
 "AnantPatel1Mla": {
 "handle": "AnantPatel1Mla",
@@ -157856,168 +158635,13 @@
 "profile_url": "https://x.com/AnantPatel1Mla",
 "alias_of": "anantpatel1mla"
 },
-"karnailsinghbjp": {
-"handle": "karnailsinghbjp",
-"name": "Shri Karnail Singh",
-"state": "Delhi",
-"locations": "-",
-"ac_pc_no": "AC_15",
-"ac_name": "Shakur Basti",
-"pc_name": "-",
-"designation_raw": "MLA",
-"designations": [
-"MLA"
-],
-"levels": [
-"MLA"
-],
-"category": "MLA",
-"categories": [
-"MLA"
-],
-"party": "BJP",
-"ac_pc_name": "Shakur Basti",
-"gender": "-",
-"party_designation": "-",
-"admin_designation": "-",
-"admin_designation_raw": "-",
-"admin_group": "-",
-"status": "Active",
-"tweet_url": "",
-"profile_url": "https://x.com/karnailsinghbjp",
-"alias_of": "KarnailSinghBJP"
-},
-"IPSHumayunKabir": {
-"handle": "IPSHumayunKabir",
-"name": "Shri Humayun Kabir",
-"state": "West Bengal",
-"locations": "-",
-"ac_pc_no": "AC_74",
-"ac_name": "Naoda",
-"pc_name": "-",
-"designation_raw": "MLA",
-"designations": [
-"MLA"
-],
-"levels": [
-"MLA"
-],
-"category": "MLA",
-"categories": [
-"MLA"
-],
-"party": "AJUP",
-"ac_pc_name": "Naoda",
-"gender": "-",
-"party_designation": "-",
-"admin_designation": "-",
-"admin_designation_raw": "-",
-"admin_group": "-",
-"status": "Active",
-"tweet_url": "",
-"profile_url": "https://x.com/IPSHumayunKabir",
-"alias_of": "ipshumayunkabir"
-},
-"Gopal_Italia": {
-"handle": "Gopal_Italia",
-"name": "Shri Gopal Italia",
-"state": "Gujarat",
-"locations": "-",
-"ac_pc_no": "AC_87",
-"ac_name": "Visavadar",
-"pc_name": "-",
-"designation_raw": "MLA",
-"designations": [
-"MLA"
-],
-"levels": [
-"MLA"
-],
-"category": "MLA",
-"categories": [
-"MLA"
-],
-"party": "AAP",
-"ac_pc_name": "Visavadar",
-"gender": "-",
-"party_designation": "-",
-"admin_designation": "-",
-"admin_designation_raw": "-",
-"admin_group": "-",
-"status": "Active",
-"tweet_url": "",
-"profile_url": "https://x.com/Gopal_Italia",
-"alias_of": "gopal_italia"
-},
-"SinghRPN": {
-"handle": "SinghRPN",
-"name": "Shri R.P.N Singh",
-"state": "Uttar Pradesh",
-"locations": "-",
-"ac_pc_no": "-",
-"ac_name": "-",
-"pc_name": "-",
-"designation_raw": "RS_MP",
-"designations": [
-"RS_MP"
-],
-"levels": [
-"RS MP"
-],
-"category": "RS_MP",
-"categories": [
-"RS_MP"
-],
-"party": "BJP",
-"ac_pc_name": "-",
-"gender": "Male",
-"party_designation": "-",
-"admin_designation": "-",
-"admin_designation_raw": "-",
-"admin_group": "-",
-"status": "Active",
-"tweet_url": "",
-"profile_url": "https://x.com/SinghRPN",
-"alias_of": "singhrpn"
-},
-"DSBhole": {
-"handle": "DSBhole",
-"name": "Shri Devendra Singh",
-"state": "Uttar Pradesh",
-"locations": "-",
-"ac_pc_no": "PC_44",
-"ac_name": "-",
-"pc_name": "Akbarpur",
-"designation_raw": "LS_MP",
-"designations": [
-"LS_MP"
-],
-"levels": [
-"LS MP"
-],
-"category": "LS_MP",
-"categories": [
-"LS_MP"
-],
-"party": "BJP",
-"ac_pc_name": "Akbarpur",
-"gender": "Male",
-"party_designation": "-",
-"admin_designation": "-",
-"admin_designation_raw": "-",
-"admin_group": "-",
-"status": "Active",
-"tweet_url": "",
-"profile_url": "https://x.com/DSBhole",
-"alias_of": "dsbhole"
-},
-"AnupamaRawatUK": {
-"handle": "AnupamaRawatUK",
-"name": "Smt. Anupama Rawat",
+"KapriBhuwan": {
+"handle": "KapriBhuwan",
+"name": "Shri Bhuwan Chandra Kapri",
 "state": "Uttarakhand",
 "locations": "-",
-"ac_pc_no": "AC_35",
-"ac_name": "Haridwar Rural",
+"ac_pc_no": "AC_70",
+"ac_name": "Khatima",
 "pc_name": "-",
 "designation_raw": "MLA",
 "designations": [
@@ -158031,7 +158655,7 @@
 "MLA"
 ],
 "party": "INC",
-"ac_pc_name": "Haridwar Rural",
+"ac_pc_name": "Khatima",
 "gender": "-",
 "party_designation": "-",
 "admin_designation": "-",
@@ -158039,228 +158663,8 @@
 "admin_group": "-",
 "status": "Active",
 "tweet_url": "",
-"profile_url": "https://x.com/AnupamaRawatUK",
-"alias_of": "anupamarawatuk"
-},
-"kuldeep4bjp": {
-"handle": "kuldeep4bjp",
-"name": "Shri Kuldeep Solanki",
-"state": "Delhi",
-"locations": "-",
-"ac_pc_no": "AC_37",
-"ac_name": "Palam",
-"pc_name": "-",
-"designation_raw": "MLA",
-"designations": [
-"MLA"
-],
-"levels": [
-"MLA"
-],
-"category": "MLA",
-"categories": [
-"MLA"
-],
-"party": "BJP",
-"ac_pc_name": "Palam",
-"gender": "-",
-"party_designation": "-",
-"admin_designation": "-",
-"admin_designation_raw": "-",
-"admin_group": "-",
-"status": "Active",
-"tweet_url": "",
-"profile_url": "https://x.com/kuldeep4bjp",
-"alias_of": "Kuldeep4BJP"
-},
-"brnishadbjp": {
-"handle": "brnishadbjp",
-"name": "Shri Babu Ram Nishad",
-"state": "Uttar Pradesh",
-"locations": "-",
-"ac_pc_no": "-",
-"ac_name": "-",
-"pc_name": "-",
-"designation_raw": "RS_MP",
-"designations": [
-"RS_MP"
-],
-"levels": [
-"RS MP"
-],
-"category": "RS_MP",
-"categories": [
-"RS_MP"
-],
-"party": "BJP",
-"ac_pc_name": "-",
-"gender": "Male",
-"party_designation": "-",
-"admin_designation": "-",
-"admin_designation_raw": "-",
-"admin_group": "-",
-"status": "Active",
-"tweet_url": "",
-"profile_url": "https://x.com/brnishadbjp",
-"alias_of": "BRNishadBJP"
-},
-"SujeetKOfficial": {
-"handle": "SujeetKOfficial",
-"name": "Shri Sujeet Kumar",
-"state": "Odisha",
-"locations": "-",
-"ac_pc_no": "-",
-"ac_name": "-",
-"pc_name": "-",
-"designation_raw": "RS_MP",
-"designations": [
-"RS_MP"
-],
-"levels": [
-"RS MP"
-],
-"category": "RS_MP",
-"categories": [
-"RS_MP"
-],
-"party": "BJP",
-"ac_pc_name": "-",
-"gender": "Male",
-"party_designation": "-",
-"admin_designation": "-",
-"admin_designation_raw": "-",
-"admin_group": "-",
-"status": "Active",
-"tweet_url": "",
-"profile_url": "https://x.com/SujeetKOfficial",
-"alias_of": "sujeetkofficial"
-},
-"amitshah": {
-"handle": "amitshah",
-"name": "Shri Amit Shah",
-"state": "Gujarat",
-"locations": "-",
-"ac_pc_no": "PC_6",
-"ac_name": "-",
-"pc_name": "Gandhinagar",
-"designation_raw": "Cabinet Minister | LS_MP",
-"designations": [
-"Cabinet Minister",
-"LS_MP"
-],
-"levels": [
-"LS MP"
-],
-"category": "LS_MP",
-"categories": [
-"LS_MP"
-],
-"party": "BJP",
-"ac_pc_name": "Gandhinagar",
-"gender": "Male",
-"party_designation": "-",
-"admin_designation": "Cabinet Minister",
-"admin_designation_raw": "Cabinet Minister",
-"admin_group": "Cabinet Minister",
-"status": "Active",
-"tweet_url": "",
-"profile_url": "https://x.com/amitshah",
-"alias_of": "AmitShah"
-},
-"MrYaduvansh": {
-"handle": "MrYaduvansh",
-"name": "Shri Subhash Yaduvansh",
-"state": "Uttar Pradesh",
-"locations": "-",
-"ac_pc_no": "-",
-"ac_name": "-",
-"pc_name": "-",
-"designation_raw": "MLC",
-"designations": [
-"MLC"
-],
-"levels": [
-"MLC"
-],
-"category": "MLC",
-"categories": [
-"MLC"
-],
-"party": "BJP",
-"ac_pc_name": "-",
-"gender": "-",
-"party_designation": "-",
-"admin_designation": "-",
-"admin_designation_raw": "-",
-"admin_group": "-",
-"status": "Active",
-"tweet_url": "",
-"profile_url": "https://x.com/MrYaduvansh",
-"alias_of": "mryaduvansh"
-},
-"ashokgoelbjp": {
-"handle": "ashokgoelbjp",
-"name": "Shri Ashok Goel Devraha",
-"state": "Delhi",
-"locations": "-",
-"ac_pc_no": "AC_18",
-"ac_name": "Model Town",
-"pc_name": "-",
-"designation_raw": "MLA",
-"designations": [
-"MLA"
-],
-"levels": [
-"MLA"
-],
-"category": "MLA",
-"categories": [
-"MLA"
-],
-"party": "BJP",
-"ac_pc_name": "Model Town",
-"gender": "-",
-"party_designation": "-",
-"admin_designation": "-",
-"admin_designation_raw": "-",
-"admin_group": "-",
-"status": "Active",
-"tweet_url": "",
-"profile_url": "https://x.com/ashokgoelbjp",
-"alias_of": "AshokGoelBJP"
-},
-"NayabSainiBJP": {
-"handle": "NayabSainiBJP",
-"name": "Shri Nayab Singh Saini",
-"state": "Haryana",
-"locations": "-",
-"ac_pc_no": "AC_11",
-"ac_name": "Ladwa",
-"pc_name": "-",
-"designation_raw": "Chief Minister | MLA",
-"designations": [
-"Chief Minister",
-"MLA"
-],
-"levels": [
-"CM",
-"MLA"
-],
-"category": "MLA",
-"categories": [
-"MLA"
-],
-"party": "BJP",
-"ac_pc_name": "Ladwa",
-"gender": "-",
-"party_designation": "-",
-"admin_designation": "Chief Minister",
-"admin_designation_raw": "Chief Minister",
-"admin_group": "Chief Minister",
-"status": "Active",
-"tweet_url": "",
-"profile_url": "https://x.com/NayabSainiBJP",
-"alias_of": "nayabsainibjp"
+"profile_url": "https://x.com/KapriBhuwan",
+"alias_of": "kapribhuwan"
 },
 "AmrutThakorINC": {
 "handle": "AmrutThakorINC",
@@ -158293,44 +158697,44 @@
 "profile_url": "https://x.com/AmrutThakorINC",
 "alias_of": "amrutthakorinc"
 },
-"bidhanmajhitmc": {
-"handle": "bidhanmajhitmc",
-"name": "Shri Bidhan Chandra Majhi",
-"state": "West Bengal",
-"locations": "-",
-"ac_pc_no": "AC_287",
-"ac_name": "Nanoor",
-"pc_name": "-",
-"designation_raw": "MLA",
-"designations": [
-"MLA"
-],
-"levels": [
-"MLA"
-],
-"category": "MLA",
-"categories": [
-"MLA"
-],
-"party": "TMC",
-"ac_pc_name": "Nanoor",
-"gender": "-",
-"party_designation": "-",
-"admin_designation": "-",
-"admin_designation_raw": "-",
-"admin_group": "-",
-"status": "Active",
-"tweet_url": "",
-"profile_url": "https://x.com/bidhanmajhitmc",
-"alias_of": "BidhanMajhiTMC"
-},
-"virendra_mla": {
-"handle": "virendra_mla",
-"name": "Shri Virendra Kumar Yadav",
+"CPSGangwarBJP": {
+"handle": "CPSGangwarBJP",
+"name": "Shri Chhatrapal Singh Gangwar",
 "state": "Uttar Pradesh",
 "locations": "-",
-"ac_pc_no": "AC_376",
-"ac_name": "Jangipur",
+"ac_pc_no": "PC_25",
+"ac_name": "-",
+"pc_name": "Bareilly",
+"designation_raw": "LS_MP",
+"designations": [
+"LS_MP"
+],
+"levels": [
+"LS MP"
+],
+"category": "LS_MP",
+"categories": [
+"LS_MP"
+],
+"party": "BJP",
+"ac_pc_name": "Bareilly",
+"gender": "Male",
+"party_designation": "-",
+"admin_designation": "-",
+"admin_designation_raw": "-",
+"admin_group": "-",
+"status": "Active",
+"tweet_url": "",
+"profile_url": "https://x.com/CPSGangwarBJP",
+"alias_of": "cpsgangwarbjp"
+},
+"kuldeep4bjp": {
+"handle": "kuldeep4bjp",
+"name": "Shri Kuldeep Solanki",
+"state": "Delhi",
+"locations": "-",
+"ac_pc_no": "AC_37",
+"ac_name": "Palam",
 "pc_name": "-",
 "designation_raw": "MLA",
 "designations": [
@@ -158343,8 +158747,8 @@
 "categories": [
 "MLA"
 ],
-"party": "SP",
-"ac_pc_name": "Jangipur",
+"party": "BJP",
+"ac_pc_name": "Palam",
 "gender": "-",
 "party_designation": "-",
 "admin_designation": "-",
@@ -158352,8 +158756,101 @@
 "admin_group": "-",
 "status": "Active",
 "tweet_url": "",
-"profile_url": "https://x.com/virendra_mla",
-"alias_of": "Virendra_mla"
+"profile_url": "https://x.com/kuldeep4bjp",
+"alias_of": "Kuldeep4BJP"
+},
+"mlasurendrakr": {
+"handle": "mlasurendrakr",
+"name": "Shri Surendra Kumar",
+"state": "Delhi",
+"locations": "-",
+"ac_pc_no": "AC_68",
+"ac_name": "Gokalpur",
+"pc_name": "-",
+"designation_raw": "MLA",
+"designations": [
+"MLA"
+],
+"levels": [
+"MLA"
+],
+"category": "MLA",
+"categories": [
+"MLA"
+],
+"party": "AAP",
+"ac_pc_name": "Gokalpur",
+"gender": "-",
+"party_designation": "-",
+"admin_designation": "-",
+"admin_designation_raw": "-",
+"admin_group": "-",
+"status": "Active",
+"tweet_url": "",
+"profile_url": "https://x.com/mlasurendrakr",
+"alias_of": "MLASurendrakr"
+},
+"raghubiramla": {
+"handle": "raghubiramla",
+"name": "Shri Raghubir Tewatia",
+"state": "Haryana",
+"locations": "-",
+"ac_pc_no": "AC_85",
+"ac_name": "Prithla",
+"pc_name": "-",
+"designation_raw": "MLA",
+"designations": [
+"MLA"
+],
+"levels": [
+"MLA"
+],
+"category": "MLA",
+"categories": [
+"MLA"
+],
+"party": "INC",
+"ac_pc_name": "Prithla",
+"gender": "-",
+"party_designation": "-",
+"admin_designation": "-",
+"admin_designation_raw": "-",
+"admin_group": "-",
+"status": "Active",
+"tweet_url": "",
+"profile_url": "https://x.com/raghubiramla",
+"alias_of": "RaghubiraMLA"
+},
+"umang_bjp": {
+"handle": "umang_bjp",
+"name": "Shri Umang Bajaj",
+"state": "Delhi",
+"locations": "-",
+"ac_pc_no": "AC_39",
+"ac_name": "Rajinder Nagar",
+"pc_name": "-",
+"designation_raw": "MLA",
+"designations": [
+"MLA"
+],
+"levels": [
+"MLA"
+],
+"category": "MLA",
+"categories": [
+"MLA"
+],
+"party": "BJP",
+"ac_pc_name": "Rajinder Nagar",
+"gender": "-",
+"party_designation": "-",
+"admin_designation": "-",
+"admin_designation_raw": "-",
+"admin_group": "-",
+"status": "Active",
+"tweet_url": "",
+"profile_url": "https://x.com/umang_bjp",
+"alias_of": "Umang_bjp"
 },
 "tigerjairam": {
 "handle": "tigerjairam",
@@ -158386,99 +158883,6 @@
 "profile_url": "https://x.com/tigerjairam",
 "alias_of": "Tigerjairam"
 },
-"mkrishnappa_mla": {
-"handle": "mkrishnappa_mla",
-"name": "Shri M.Krishnappa",
-"state": "Karnataka",
-"locations": "-",
-"ac_pc_no": "AC_167",
-"ac_name": "Vijayanagar",
-"pc_name": "-",
-"designation_raw": "MLA",
-"designations": [
-"MLA"
-],
-"levels": [
-"MLA"
-],
-"category": "MLA",
-"categories": [
-"MLA"
-],
-"party": "INC",
-"ac_pc_name": "Vijayanagar",
-"gender": "-",
-"party_designation": "-",
-"admin_designation": "-",
-"admin_designation_raw": "-",
-"admin_group": "-",
-"status": "Active",
-"tweet_url": "",
-"profile_url": "https://x.com/mkrishnappa_mla",
-"alias_of": "mkrishnappa_MLA"
-},
-"NirmalSMohra": {
-"handle": "NirmalSMohra",
-"name": "Shri Nirmal Singh",
-"state": "Haryana",
-"locations": "-",
-"ac_pc_no": "AC_5",
-"ac_name": "Ambala City",
-"pc_name": "-",
-"designation_raw": "MLA",
-"designations": [
-"MLA"
-],
-"levels": [
-"MLA"
-],
-"category": "MLA",
-"categories": [
-"MLA"
-],
-"party": "INC",
-"ac_pc_name": "Ambala City",
-"gender": "-",
-"party_designation": "-",
-"admin_designation": "-",
-"admin_designation_raw": "-",
-"admin_group": "-",
-"status": "Active",
-"tweet_url": "",
-"profile_url": "https://x.com/NirmalSMohra",
-"alias_of": "nirmalsmohra"
-},
-"mlaraja_snkl": {
-"handle": "mlaraja_snkl",
-"name": "Shri E. Raja",
-"state": "Tamil Nadu",
-"locations": "-",
-"ac_pc_no": "AC_220",
-"ac_name": "Vasudevanallur",
-"pc_name": "-",
-"designation_raw": "MLA",
-"designations": [
-"MLA"
-],
-"levels": [
-"MLA"
-],
-"category": "MLA",
-"categories": [
-"MLA"
-],
-"party": "DMK",
-"ac_pc_name": "Vasudevanallur",
-"gender": "-",
-"party_designation": "-",
-"admin_designation": "-",
-"admin_designation_raw": "-",
-"admin_group": "-",
-"status": "Active",
-"tweet_url": "",
-"profile_url": "https://x.com/mlaraja_snkl",
-"alias_of": "MLARaja_SNKL"
-},
 "JarnailSinghAAP": {
 "handle": "JarnailSinghAAP",
 "name": "Shri Jarnail Singh",
@@ -158510,44 +158914,13 @@
 "profile_url": "https://x.com/JarnailSinghAAP",
 "alias_of": "jarnailsinghaap"
 },
-"mlariteshkgupta": {
-"handle": "mlariteshkgupta",
-"name": "Shri Ritesh Kumar Gupta",
-"state": "Uttar Pradesh",
+"pratapgrewal2": {
+"handle": "pratapgrewal2",
+"name": "Shri Pratap Grewal",
+"state": "Madhya Pradesh",
 "locations": "-",
-"ac_pc_no": "AC_28",
-"ac_name": "Moradabad Nagar",
-"pc_name": "-",
-"designation_raw": "MLA",
-"designations": [
-"MLA"
-],
-"levels": [
-"MLA"
-],
-"category": "MLA",
-"categories": [
-"MLA"
-],
-"party": "BJP",
-"ac_pc_name": "Moradabad Nagar",
-"gender": "-",
-"party_designation": "-",
-"admin_designation": "-",
-"admin_designation_raw": "-",
-"admin_group": "-",
-"status": "Active",
-"tweet_url": "",
-"profile_url": "https://x.com/mlariteshkgupta",
-"alias_of": "MLARiteshKGupta"
-},
-"rajeshkinc": {
-"handle": "rajeshkinc",
-"name": "Shri Rajesh Kachhap",
-"state": "Jharkhand",
-"locations": "-",
-"ac_pc_no": "AC_62",
-"ac_name": "Khijri",
+"ac_pc_no": "AC_196",
+"ac_name": "Sardarpur (St)",
 "pc_name": "-",
 "designation_raw": "MLA",
 "designations": [
@@ -158561,7 +158934,7 @@
 "MLA"
 ],
 "party": "INC",
-"ac_pc_name": "Khijri",
+"ac_pc_name": "Sardarpur (St)",
 "gender": "-",
 "party_designation": "-",
 "admin_designation": "-",
@@ -158569,17 +158942,48 @@
 "admin_group": "-",
 "status": "Active",
 "tweet_url": "",
-"profile_url": "https://x.com/rajeshkinc",
-"alias_of": "RajeshKinc"
+"profile_url": "https://x.com/pratapgrewal2",
+"alias_of": "PratapGrewal2"
 },
-"CPSGangwarBJP": {
-"handle": "CPSGangwarBJP",
-"name": "Shri Chhatrapal Singh Gangwar",
+"brnishadbjp": {
+"handle": "brnishadbjp",
+"name": "Shri Babu Ram Nishad",
 "state": "Uttar Pradesh",
 "locations": "-",
-"ac_pc_no": "PC_25",
+"ac_pc_no": "-",
 "ac_name": "-",
-"pc_name": "Bareilly",
+"pc_name": "-",
+"designation_raw": "RS_MP",
+"designations": [
+"RS_MP"
+],
+"levels": [
+"RS MP"
+],
+"category": "RS_MP",
+"categories": [
+"RS_MP"
+],
+"party": "BJP",
+"ac_pc_name": "-",
+"gender": "Male",
+"party_designation": "-",
+"admin_designation": "-",
+"admin_designation_raw": "-",
+"admin_group": "-",
+"status": "Active",
+"tweet_url": "",
+"profile_url": "https://x.com/brnishadbjp",
+"alias_of": "BRNishadBJP"
+},
+"DSBhole": {
+"handle": "DSBhole",
+"name": "Shri Devendra Singh",
+"state": "Uttar Pradesh",
+"locations": "-",
+"ac_pc_no": "PC_44",
+"ac_name": "-",
+"pc_name": "Akbarpur",
 "designation_raw": "LS_MP",
 "designations": [
 "LS_MP"
@@ -158592,7 +158996,7 @@
 "LS_MP"
 ],
 "party": "BJP",
-"ac_pc_name": "Bareilly",
+"ac_pc_name": "Akbarpur",
 "gender": "Male",
 "party_designation": "-",
 "admin_designation": "-",
@@ -158600,39 +159004,8 @@
 "admin_group": "-",
 "status": "Active",
 "tweet_url": "",
-"profile_url": "https://x.com/CPSGangwarBJP",
-"alias_of": "cpsgangwarbjp"
-},
-"kbanerjee_aitc": {
-"handle": "kbanerjee_aitc",
-"name": "Shri Kalyan Banerjee",
-"state": "West Bengal",
-"locations": "-",
-"ac_pc_no": "PC_27",
-"ac_name": "-",
-"pc_name": "Srerampur",
-"designation_raw": "LS_MP",
-"designations": [
-"LS_MP"
-],
-"levels": [
-"LS MP"
-],
-"category": "LS_MP",
-"categories": [
-"LS_MP"
-],
-"party": "TMC",
-"ac_pc_name": "Srerampur",
-"gender": "-",
-"party_designation": "-",
-"admin_designation": "-",
-"admin_designation_raw": "-",
-"admin_group": "-",
-"status": "Active",
-"tweet_url": "",
-"profile_url": "https://x.com/kbanerjee_aitc",
-"alias_of": "KBanerjee_AITC"
+"profile_url": "https://x.com/DSBhole",
+"alias_of": "dsbhole"
 },
 "aapbalbir": {
 "handle": "aapbalbir",
@@ -158700,324 +159073,13 @@
 "profile_url": "https://x.com/cnannaduraimp",
 "alias_of": "CNAnnaduraiMP"
 },
-"KapriBhuwan": {
-"handle": "KapriBhuwan",
-"name": "Shri Bhuwan Chandra Kapri",
-"state": "Uttarakhand",
-"locations": "-",
-"ac_pc_no": "AC_70",
-"ac_name": "Khatima",
-"pc_name": "-",
-"designation_raw": "MLA",
-"designations": [
-"MLA"
-],
-"levels": [
-"MLA"
-],
-"category": "MLA",
-"categories": [
-"MLA"
-],
-"party": "INC",
-"ac_pc_name": "Khatima",
-"gender": "-",
-"party_designation": "-",
-"admin_designation": "-",
-"admin_designation_raw": "-",
-"admin_group": "-",
-"status": "Active",
-"tweet_url": "",
-"profile_url": "https://x.com/KapriBhuwan",
-"alias_of": "kapribhuwan"
-},
-"mlasurendrakr": {
-"handle": "mlasurendrakr",
-"name": "Shri Surendra Kumar",
-"state": "Delhi",
-"locations": "-",
-"ac_pc_no": "AC_68",
-"ac_name": "Gokalpur",
-"pc_name": "-",
-"designation_raw": "MLA",
-"designations": [
-"MLA"
-],
-"levels": [
-"MLA"
-],
-"category": "MLA",
-"categories": [
-"MLA"
-],
-"party": "AAP",
-"ac_pc_name": "Gokalpur",
-"gender": "-",
-"party_designation": "-",
-"admin_designation": "-",
-"admin_designation_raw": "-",
-"admin_group": "-",
-"status": "Active",
-"tweet_url": "",
-"profile_url": "https://x.com/mlasurendrakr",
-"alias_of": "MLASurendrakr"
-},
-"jmmkalpanasoren": {
-"handle": "jmmkalpanasoren",
-"name": "Smt. Kalpana Murmu Soren",
-"state": "Jharkhand",
-"locations": "-",
-"ac_pc_no": "AC_31",
-"ac_name": "Gandey",
-"pc_name": "-",
-"designation_raw": "MLA",
-"designations": [
-"MLA"
-],
-"levels": [
-"MLA"
-],
-"category": "MLA",
-"categories": [
-"MLA"
-],
-"party": "JMM",
-"ac_pc_name": "Gandey",
-"gender": "-",
-"party_designation": "-",
-"admin_designation": "-",
-"admin_designation_raw": "-",
-"admin_group": "-",
-"status": "Active",
-"tweet_url": "",
-"profile_url": "https://x.com/jmmkalpanasoren",
-"alias_of": "JMMKalpanaSoren"
-},
-"rabindranathji": {
-"handle": "rabindranathji",
-"name": "Shri Rabindranath Mahato",
-"state": "Jharkhand",
-"locations": "-",
-"ac_pc_no": "AC_8",
-"ac_name": "Nala",
-"pc_name": "-",
-"designation_raw": "MLA",
-"designations": [
-"MLA"
-],
-"levels": [
-"MLA"
-],
-"category": "MLA",
-"categories": [
-"MLA"
-],
-"party": "JMM",
-"ac_pc_name": "Nala",
-"gender": "-",
-"party_designation": "-",
-"admin_designation": "-",
-"admin_designation_raw": "-",
-"admin_group": "-",
-"status": "Active",
-"tweet_url": "",
-"profile_url": "https://x.com/rabindranathji",
-"alias_of": "Rabindranathji"
-},
-"neelams_bjp": {
-"handle": "neelams_bjp",
-"name": "Smt. Neelam Krishan Pahlwan",
-"state": "Delhi",
-"locations": "-",
-"ac_pc_no": "AC_35",
-"ac_name": "Najafgarh",
-"pc_name": "-",
-"designation_raw": "MLA",
-"designations": [
-"MLA"
-],
-"levels": [
-"MLA"
-],
-"category": "MLA",
-"categories": [
-"MLA"
-],
-"party": "BJP",
-"ac_pc_name": "Najafgarh",
-"gender": "-",
-"party_designation": "-",
-"admin_designation": "-",
-"admin_designation_raw": "-",
-"admin_group": "-",
-"status": "Active",
-"tweet_url": "",
-"profile_url": "https://x.com/neelams_bjp",
-"alias_of": "NeelamS_BJP"
-},
-"brajesh_888": {
-"handle": "brajesh_888",
-"name": "Shri Brajesh Yadav",
-"state": "Uttar Pradesh",
-"locations": "-",
-"ac_pc_no": "AC_113",
-"ac_name": "Sahaswan",
-"pc_name": "-",
-"designation_raw": "MLA",
-"designations": [
-"MLA"
-],
-"levels": [
-"MLA"
-],
-"category": "MLA",
-"categories": [
-"MLA"
-],
-"party": "SP",
-"ac_pc_name": "Sahaswan",
-"gender": "-",
-"party_designation": "-",
-"admin_designation": "-",
-"admin_designation_raw": "-",
-"admin_group": "-",
-"status": "Active",
-"tweet_url": "",
-"profile_url": "https://x.com/brajesh_888",
-"alias_of": "Brajesh_888"
-},
-"raghubiramla": {
-"handle": "raghubiramla",
-"name": "Shri Raghubir Tewatia",
-"state": "Haryana",
-"locations": "-",
-"ac_pc_no": "AC_85",
-"ac_name": "Prithla",
-"pc_name": "-",
-"designation_raw": "MLA",
-"designations": [
-"MLA"
-],
-"levels": [
-"MLA"
-],
-"category": "MLA",
-"categories": [
-"MLA"
-],
-"party": "INC",
-"ac_pc_name": "Prithla",
-"gender": "-",
-"party_designation": "-",
-"admin_designation": "-",
-"admin_designation_raw": "-",
-"admin_group": "-",
-"status": "Active",
-"tweet_url": "",
-"profile_url": "https://x.com/raghubiramla",
-"alias_of": "RaghubiraMLA"
-},
-"ajaymahawarbjp": {
-"handle": "ajaymahawarbjp",
-"name": "Shri Ajay Mahawar",
-"state": "Delhi",
-"locations": "-",
-"ac_pc_no": "AC_66",
-"ac_name": "Ghonda",
-"pc_name": "-",
-"designation_raw": "MLA",
-"designations": [
-"MLA"
-],
-"levels": [
-"MLA"
-],
-"category": "MLA",
-"categories": [
-"MLA"
-],
-"party": "BJP",
-"ac_pc_name": "Ghonda",
-"gender": "-",
-"party_designation": "-",
-"admin_designation": "-",
-"admin_designation_raw": "-",
-"admin_group": "-",
-"status": "Active",
-"tweet_url": "",
-"profile_url": "https://x.com/ajaymahawarbjp",
-"alias_of": "AjayMahawarBJP"
-},
-"RajeevRai": {
-"handle": "RajeevRai",
-"name": "Shri Rajeev Rai",
-"state": "Uttar Pradesh",
-"locations": "-",
-"ac_pc_no": "PC_70",
-"ac_name": "-",
-"pc_name": "Ghosi",
-"designation_raw": "National secretary and spokesperson | LS_MP",
-"designations": [
-"National secretary and spokesperson",
-"LS_MP"
-],
-"levels": [
-"LS MP"
-],
-"category": "LS_MP",
-"categories": [
-"LS_MP"
-],
-"party": "SP",
-"ac_pc_name": "Ghosi",
-"gender": "-",
-"party_designation": "National secretary and spokesperson",
-"admin_designation": "-",
-"admin_designation_raw": "-",
-"admin_group": "-",
-"status": "Active",
-"tweet_url": "",
-"profile_url": "https://x.com/RajeevRai",
-"alias_of": "rajeevrai"
-},
-"arunbhartiljp": {
-"handle": "arunbhartiljp",
-"name": "Shri Arun Bharti",
+"ShaliniJDU": {
+"handle": "ShaliniJDU",
+"name": "Smt. Shalini Mishra",
 "state": "Bihar",
 "locations": "-",
-"ac_pc_no": "PC_40",
-"ac_name": "-",
-"pc_name": "Jamui (Sc)",
-"designation_raw": "LS_MP",
-"designations": [
-"LS_MP"
-],
-"levels": [
-"LS MP"
-],
-"category": "LS_MP",
-"categories": [
-"LS_MP"
-],
-"party": "LJP(RV)",
-"ac_pc_name": "Jamui (Sc)",
-"gender": "-",
-"party_designation": "-",
-"admin_designation": "-",
-"admin_designation_raw": "-",
-"admin_group": "-",
-"status": "Active",
-"tweet_url": "",
-"profile_url": "https://x.com/arunbhartiljp",
-"alias_of": "ArunBhartiLJP"
-},
-"Chaitar_Vasava": {
-"handle": "Chaitar_Vasava",
-"name": "Shri Chaitarbhai Damjibhai Vasava",
-"state": "Gujarat",
-"locations": "-",
-"ac_pc_no": "AC_149",
-"ac_name": "Dediapada (St)",
+"ac_pc_no": "AC_15",
+"ac_name": "Kesaria",
 "pc_name": "-",
 "designation_raw": "MLA",
 "designations": [
@@ -159030,8 +159092,8 @@
 "categories": [
 "MLA"
 ],
-"party": "AAP",
-"ac_pc_name": "Dediapada (St)",
+"party": "JD(U)",
+"ac_pc_name": "Kesaria",
 "gender": "-",
 "party_designation": "-",
 "admin_designation": "-",
@@ -159039,216 +159101,7 @@
 "admin_group": "-",
 "status": "Active",
 "tweet_url": "",
-"profile_url": "https://x.com/Chaitar_Vasava",
-"alias_of": "chaitar_vasava"
-},
-"bjpsanjaygoyal": {
-"handle": "bjpsanjaygoyal",
-"name": "Shri Sanjay Goyal",
-"state": "Delhi",
-"locations": "-",
-"ac_pc_no": "AC_62",
-"ac_name": "Shahdara",
-"pc_name": "-",
-"designation_raw": "MLA",
-"designations": [
-"MLA"
-],
-"levels": [
-"MLA"
-],
-"category": "MLA",
-"categories": [
-"MLA"
-],
-"party": "BJP",
-"ac_pc_name": "Shahdara",
-"gender": "-",
-"party_designation": "-",
-"admin_designation": "-",
-"admin_designation_raw": "-",
-"admin_group": "-",
-"status": "Active",
-"tweet_url": "",
-"profile_url": "https://x.com/bjpsanjaygoyal",
-"alias_of": "BJPSanjayGoyal"
-},
-"sahirampahalwan": {
-"handle": "sahirampahalwan",
-"name": "Shri Sahiram",
-"state": "Delhi",
-"locations": "-",
-"ac_pc_no": "AC_52",
-"ac_name": "Tughlakabad",
-"pc_name": "-",
-"designation_raw": "MLA",
-"designations": [
-"MLA"
-],
-"levels": [
-"MLA"
-],
-"category": "MLA",
-"categories": [
-"MLA"
-],
-"party": "AAP",
-"ac_pc_name": "Tughlakabad",
-"gender": "-",
-"party_designation": "-",
-"admin_designation": "-",
-"admin_designation_raw": "-",
-"admin_group": "-",
-"status": "Active",
-"tweet_url": "",
-"profile_url": "https://x.com/sahirampahalwan",
-"alias_of": "SahiramPahalwan"
-},
-"rkmauryapbh": {
-"handle": "rkmauryapbh",
-"profile_url": "https://x.com/rkmauryapbh",
-"tweet_url": "https://x.com/rkmauryapbh/status/2111308247806197783",
-"state": "Uttar Pradesh",
-"locations": "-",
-"ac_pc_no": "AC_248",
-"ac_name": "Pratapgarh",
-"pc_name": "-",
-"designation_raw": "MLA",
-"name": "Rajendra Maurya",
-"category": "MLA",
-"party": "BJP",
-"status": "-",
-"designations": [
-"MLA"
-],
-"levels": [
-"MLA"
-]
-},
-"Ankitrevolution": {
-"handle": "Ankitrevolution",
-"profile_url": "https://x.com/Ankitrevolution",
-"tweet_url": "https://x.com/Ankitrevolution/status/2111346202503766305",
-"state": "National",
-"locations": "-",
-"ac_pc_no": "-",
-"ac_name": "-",
-"pc_name": "-",
-"designation_raw": "-",
-"name": "Ankit Bhardwaj",
-"category": "Party Leader",
-"party": "CJP",
-"status": "-",
-"designations": [
-"-"
-],
-"levels": [
-"Others"
-]
-},
-"IYC": {
-"handle": "IYC",
-"profile_url": "https://x.com/IYC",
-"tweet_url": "https://x.com/IYC/status/2111363344406098064",
-"state": "National",
-"locations": "-",
-"ac_pc_no": "-",
-"ac_name": "-",
-"pc_name": "-",
-"designation_raw": "-",
-"name": "IYC",
-"category": "Party Page",
-"party": "IYC",
-"status": "Active",
-"designations": [
-"-"
-],
-"levels": [
-"Others"
-]
-},
-"whattalawyer": {
-"handle": "whattalawyer",
-"profile_url": "https://x.com/whattalawyer",
-"tweet_url": "https://x.com/whattalawyer/status/2111335162793562501",
-"state": "National",
-"locations": "-",
-"ac_pc_no": "-",
-"ac_name": "-",
-"pc_name": "-",
-"designation_raw": "-",
-"name": "Ratna Singh",
-"category": "Party Leader",
-"party": "CJP",
-"status": "-",
-"designations": [
-"-"
-],
-"levels": [
-"Others"
-]
-},
-"bpsvermabjp": {
-"handle": "bpsvermabjp",
-"profile_url": "https://x.com/bpsvermabjp",
-"tweet_url": "https://x.com/bpsvermabjp/status/2111291928348332134",
-"state": "Uttar Pradesh",
-"locations": "-",
-"ac_pc_no": "PC_45",
-"ac_name": "-",
-"pc_name": "Jalaun",
-"designation_raw": "LS_MP",
-"name": "Jitin Prasada",
-"category": "LS_MP",
-"party": "BJP",
-"status": "-",
-"designations": [
-"LS_MP"
-],
-"levels": [
-"LS MP"
-]
-},
-"CJP_is_back": {
-"handle": "CJP_is_back",
-"profile_url": "https://x.com/CJP_is_back",
-"tweet_url": "https://x.com/CJP_is_back/status/2111351613717950704",
-"state": "National",
-"locations": "-",
-"ac_pc_no": "-",
-"ac_name": "-",
-"pc_name": "-",
-"designation_raw": "-",
-"name": "CJP Updates",
-"category": "Party Page",
-"party": "CJP",
-"status": "-",
-"designations": [
-"-"
-],
-"levels": [
-"Others"
-]
-},
-"apurvasrani": {
-"handle": "apurvasrani",
-"profile_url": "https://x.com/apurvasrani",
-"tweet_url": "https://x.com/apurvasrani/status/2111346760186737026",
-"state": "-",
-"locations": "-",
-"ac_pc_no": "-",
-"ac_name": "-",
-"pc_name": "-",
-"designation_raw": "-",
-"name": "Apurva Asrani",
-"category": "-",
-"party": "-",
-"status": "Active",
-"designations": [
-"-"
-],
-"levels": [
-"Others"
-]
+"profile_url": "https://x.com/ShaliniJDU",
+"alias_of": "shalinijdu"
 }
 }

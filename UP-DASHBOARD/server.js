@@ -184,6 +184,12 @@ async function buildHtml(scope) {
       map.UNI.allHandles.forEach(function (r) {
         var k = r.level || 'Others'; _sum[k] = (_sum[k] || 0) + ((+r.tw) || 0); });
       map.UNI.level = _sum;
+      try {
+        var _cdFile = path.join(__dirname, 'data', 'cat_daily.json');
+        if (fs.existsSync(_cdFile)) {
+          map.UNI.catDaily = JSON.parse(fs.readFileSync(_cdFile, 'utf8'));
+        }
+      } catch (e) {}
     }
     if (Array.isArray(map.CM_DATA)) {
       var _uni = {};
