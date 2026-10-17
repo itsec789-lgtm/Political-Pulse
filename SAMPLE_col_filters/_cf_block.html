@@ -1,0 +1,517 @@
+<script>/* ===== col-filter (09-Oct) ==================================================
+   Windows Explorer jaisa column header filter -- HAR table par.
+
+   * Har header ke daayein chhota chevron (hover par dikhta hai, filter lagte
+     hi hamesha dikhta hai aur header highlight ho jaata hai).
+   * Text column  -> search + checkbox list (ginti ke saath) + Select all/Clear
+     Number column-> Sort 1->9 / 9->1 + Min/Max range
+     Date column  -> Oldest/Newest + from-to
+     "#" column   -> koi filter nahi; filter ke baad number dubara 1 se.
+   * Kai column ek saath = AND. Upar patti par "Showing X of Y", lage hue
+     filter ke chip, aur "Clear all filters".
+   * Popup body par lagta hai + position:fixed -> table ke overflow/scroll se
+     kat-ta nahi, mobile par bhi screen ke andar rehta hai. Esc / bahar click
+     par band; ek waqt me ek hi.
+   * Table ko dashboard khud dubara banata hai (render function) to component
+     chup-chaap dubara index kar leta hai -- purana sort/search/export sab
+     waise hi chalta rehta hai, aur export filter ke baad wali rows deta hai.
+   ======================================================================== */
+(function (W) {
+  'use strict';
+  if (W.enableColumnFilters) return;
+
+  var CHEV = '<svg viewBox="0 0 10 10" aria-hidden="true"><path d="M1 3l4 4 4-4" '
+           + 'fill="none" stroke="currentColor" stroke-width="1.7" '
+           + 'stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+  /* ---------- ek hi popup, poore page ke liye ---------- */
+  var POP = null, OPEN = null;
+  function pop() {
+    if (POP) return POP;
+    POP = document.createElement('div');
+    POP.className = 'cf-pop';
+    POP.setAttribute('role', 'dialog');
+    document.body.appendChild(POP);
+    POP.addEventListener('mousedown', function (e) { e.stopPropagation(); });
+    document.addEventListener('mousedown', function () { close(); });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' || e.keyCode === 27) close();
+    });
+    /* scroll par band karna galat tha: browser khud chevron dikhane ke liye
+       table ko scroll kar deta hai, aur popup khulte hi band ho jaata tha.
+       Ab bas dubara jagah par rakh dete hain. */
+    function follow() {
+      if (!OPEN || !OPEN.th) return;
+      var r = OPEN.th.getBoundingClientRect();
+      if (r.bottom < 0 || r.top > W.innerHeight || r.right < 0 || r.left > W.innerWidth) close();
+      else place(OPEN.th);
+    }
+    W.addEventListener('resize', follow);
+    W.addEventListener('scroll', follow, true);
+    return POP;
+  }
+  function close() {
+    if (!OPEN) return;
+    POP.classList.remove('show');
+    try { OPEN.th.classList.remove('cf-open'); } catch (e) {}
+    OPEN = null;
+  }
+  function place(anchor) {
+    var r = anchor.getBoundingClientRect();
+    POP.style.left = '0px'; POP.style.top = '0px';
+    var w = POP.offsetWidth, h = POP.offsetHeight;
+    var L = Math.min(Math.max(8, r.left), W.innerWidth - w - 8);
+    var T = r.bottom + 5;
+    if (T + h > W.innerHeight - 8) T = Math.max(8, r.top - h - 5);
+    POP.style.left = L + 'px';
+    POP.style.top = T + 'px';
+  }
+
+  /* ---------- helper ---------- */
+  function txt(td) { return (td.textContent || '').replace(/\s+/g, ' ').trim(); }
+  /* "12,345" / "4.2K" / "1.80 L" / "2.35 Cr" / "1.2M" sab samajhta hai */
+  function num(v) {
+    if (v === null || v === undefined) return NaN;
+    var s = String(v).trim();
+    if (!s || s === '-' || s === '—' || s === '–') return NaN;
+    s = s.replace(/[,\s ₹%]/g, '');
+    var m = s.match(/^(-?\d*\.?\d+)(Cr|L|Lac|Lakh|K|M|B|k|m|b|cr|l)?$/i);
+    if (!m) {
+      var f = parseFloat(s.replace(/[^0-9.\-]/g, ''));
+      return isNaN(f) ? NaN : f;
+    }
+    var n = parseFloat(m[1]), u = (m[2] || '').toLowerCase();
+    if (u === 'cr') return n * 1e7;
+    if (u === 'l' || u === 'lac' || u === 'lakh') return n * 1e5;
+    if (u === 'k') return n * 1e3;
+    if (u === 'm') return n * 1e6;
+    if (u === 'b') return n * 1e9;
+    return n;
+  }
+  var MON = { jan:1, feb:2, mar:3, apr:4, may:5, jun:6, jul:7, aug:8, sep:9, oct:10, nov:11, dec:12 };
+  function iso(v) {
+    var s = String(v == null ? '' : v).trim();
+    var m = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (m) return m[1] + '-' + m[2] + '-' + m[3];
+    m = s.match(/^(\d{1,2})[ \-\/]([A-Za-z]{3,})[ \-\/](\d{4})/);
+    if (m) { var mo = MON[m[2].slice(0, 3).toLowerCase()];
+             if (mo) return m[3] + '-' + ('0' + mo).slice(-2) + '-' + ('0' + m[1]).slice(-2); }
+    m = s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/);
+    if (m) return m[3] + '-' + ('0' + m[2]).slice(-2) + '-' + ('0' + m[1]).slice(-2);
+    return '';
+  }
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+  function L10(n) { try { return (+n || 0).toLocaleString('en-IN'); } catch (e) { return String(n); } }
+
+  /* ================================================================ */
+  function enable(table, opts) {
+    opts = opts || {};
+    if (!table || table._cf) return table && table._cf;
+    var thead = table.tHead, tbody = table.tBodies[0];
+    if (!thead || !thead.rows.length || !tbody) return null;
+    var ths = [].slice.call(thead.rows[thead.rows.length - 1].cells);
+    if (ths.length < 3) return null;
+
+    var inst = {
+      table: table, ths: ths, tbody: tbody, cols: [], rows: [], view: [],
+      sort: null, indexCol: -1, bar: null, busy: false
+    };
+    table._cf = inst;
+
+    function sniff(ci) {
+      var a = tbody.rows, n = Math.min(a.length, 40), nn = 0, dd = 0, tot = 0;
+      for (var i = 0; i < n; i++) {
+        var td = a[i].cells[ci]; if (!td) continue;
+        var raw = td.getAttribute('data-v');
+        var s = raw === null ? txt(td) : raw;
+        if (!s) continue;
+        tot++;
+        if (iso(s)) dd++; else if (!isNaN(num(s))) nn++;
+      }
+      if (!tot) return 'text';
+      if (dd / tot > 0.6) return 'date';
+      if (nn / tot > 0.6) return 'num';
+      return 'text';
+    }
+    ths.forEach(function (th, ci) {
+      var lab = txt(th);
+      var t = (th.getAttribute('data-cf') || '').toLowerCase();
+      if (!t) {
+        if (!lab || lab === '#' || /^(action|sr\.?|s\.?no\.?)$/i.test(lab)) { t = 'none'; if (lab === '#') inst.indexCol = ci; }
+        else t = sniff(ci);
+      }
+      if (lab === '#') inst.indexCol = ci;
+      inst.cols.push({ ci: ci, th: th, type: t, label: lab || ('Column ' + (ci + 1)),
+                       sel: null, min: null, max: null, from: '', to: '' });
+    });
+
+    function index() {
+      inst.rows = [].slice.call(tbody.rows).filter(function (tr) {
+        /* "Kuch nahi mila" jaisi ek-cell wali line data nahi hai */
+        return !(tr.cells.length === 1 && tr.cells[0].colSpan > 1);
+      }).map(function (tr) {
+        var o = { tr: tr, s: [], n: [], d: [] };
+        inst.cols.forEach(function (c) {
+          var td = tr.cells[c.ci];
+          var raw = td ? td.getAttribute('data-v') : null;
+          var s = td ? (raw === null ? txt(td) : raw) : '';
+          o.s[c.ci] = s;
+          o.n[c.ci] = (c.type === 'num') ? num(s) : NaN;
+          o.d[c.ci] = (c.type === 'date') ? iso(s) : '';
+        });
+        return o;
+      });
+      inst.busy = true;
+      inst.rows.forEach(function (r) { if (r.tr.parentNode) r.tr.parentNode.removeChild(r.tr); });
+      inst.busy = false;
+    }
+
+    function pass(r, c) {
+      if (c.type === 'text') { return !c.sel ? true : !!c.sel[r.s[c.ci] || '(blank)']; }
+      if (c.type === 'num') {
+        if (c.min === null && c.max === null) return true;
+        var v = r.n[c.ci]; if (isNaN(v)) return false;
+        if (c.min !== null && v < c.min) return false;
+        if (c.max !== null && v > c.max) return false;
+        return true;
+      }
+      if (c.type === 'date') {
+        if (!c.from && !c.to) return true;
+        var d = r.d[c.ci]; if (!d) return false;
+        if (c.from && d < c.from) return false;
+        if (c.to && d > c.to) return false;
+        return true;
+      }
+      return true;
+    }
+    function active(c) {
+      return c.type === 'text' ? !!c.sel
+           : c.type === 'num'  ? (c.min !== null || c.max !== null)
+           : c.type === 'date' ? !!(c.from || c.to) : false;
+    }
+    function filtered(skipCi) {
+      return inst.rows.filter(function (r) {
+        for (var i = 0; i < inst.cols.length; i++) {
+          var c = inst.cols[i];
+          if (c.ci === skipCi) continue;
+          if (!pass(r, c)) return false;
+        }
+        return true;
+      });
+    }
+
+    function apply() {
+      inst.view = filtered(-1);
+      var s = inst.sort;
+      if (s) {
+        var c = inst.cols[s.ci], k = s.dir === 'asc' ? 1 : -1;
+        inst.view.sort(function (a, b) {
+          var x, y;
+          if (c.type === 'num') {
+            x = a.n[c.ci]; y = b.n[c.ci];
+            if (isNaN(x) && isNaN(y)) return 0;
+            if (isNaN(x)) return 1; if (isNaN(y)) return -1;
+            return (x - y) * k;
+          }
+          x = (c.type === 'date' ? a.d[c.ci] : a.s[c.ci]).toLowerCase();
+          y = (c.type === 'date' ? b.d[c.ci] : b.s[c.ci]).toLowerCase();
+          return x < y ? -k : x > y ? k : 0;
+        });
+      }
+      paint();
+    }
+    function paint() {
+      var fr = document.createDocumentFragment();
+      for (var i = 0; i < inst.view.length; i++) {
+        var r = inst.view[i];
+        if (inst.indexCol >= 0) {
+          var td = r.tr.cells[inst.indexCol];
+          if (td) {
+            var sp = td.querySelector('.rank');
+            if (sp) sp.textContent = (i + 1); else td.textContent = (i + 1);
+          }
+        }
+        fr.appendChild(r.tr);
+      }
+      inst.busy = true;
+      tbody.innerHTML = '';
+      if (!inst.view.length)
+        tbody.innerHTML = '<tr><td colspan="' + inst.cols.length + '" class="cf-none">'
+                        + 'No row matches these filters.</td></tr>';
+      else tbody.appendChild(fr);
+      inst.busy = false;
+
+      inst.cols.forEach(function (c) {
+        var on = active(c) || (inst.sort && inst.sort.ci === c.ci);
+        c.th.classList.toggle('cf-on', !!on);
+        var m = c.th.querySelector('.cf-sortmark');
+        if (m) m.textContent = (inst.sort && inst.sort.ci === c.ci)
+          ? (inst.sort.dir === 'asc' ? '▲' : '▼') : '';
+      });
+      bar();
+    }
+
+    function bar() {
+      if (!inst.bar) return;
+      var on = inst.cols.filter(active);
+      var h = '<span class="cf-count">Showing <b>' + L10(inst.view.length)
+            + '</b> of ' + L10(inst.rows.length) + ' rows</span>';
+      if (on.length) {
+        h += '<span class="cf-chips">' + on.map(function (c) {
+          var d = c.type === 'text'
+            ? (function () { var k = Object.keys(c.sel); return k.length === 1 ? k[0] : k.length + ' selected'; })()
+            : c.type === 'num'
+              ? ((c.min !== null ? L10(c.min) : '…') + ' – ' + (c.max !== null ? L10(c.max) : '…'))
+              : ((c.from || '…') + ' – ' + (c.to || '…'));
+          return '<span class="cf-chip">' + esc(c.label) + ': ' + esc(d)
+               + '<i data-x="' + c.ci + '" title="Remove">×</i></span>';
+        }).join('') + '</span>'
+          + '<button class="cf-clr" data-clear-all>Clear all filters</button>';
+      }
+      inst.bar.innerHTML = h;
+      inst.bar.style.display = '';
+      var ca = inst.bar.querySelector('[data-clear-all]');
+      if (ca) ca.onclick = function () { clearAll(); };
+      [].forEach.call(inst.bar.querySelectorAll('.cf-chip i'), function (x) {
+        x.onclick = function () { clearCol(+x.getAttribute('data-x')); };
+      });
+    }
+
+    function clearCol(ci) {
+      var c = inst.cols[ci]; if (!c) return;
+      c.sel = null; c.min = c.max = null; c.from = c.to = '';
+      apply();
+    }
+    function clearAll() {
+      inst.cols.forEach(function (c) { c.sel = null; c.min = c.max = null; c.from = c.to = ''; });
+      inst.sort = null; close(); apply();
+    }
+
+    function build(c) {
+      var P = pop(), h = '';
+      h += '<div class="cf-sort">'
+         + '<button data-s="asc"' + (inst.sort && inst.sort.ci === c.ci && inst.sort.dir === 'asc' ? ' class="on"' : '') + '>'
+         + (c.type === 'num' ? 'Sort 1 → 9' : c.type === 'date' ? 'Oldest first' : 'Sort A → Z') + '</button>'
+         + '<button data-s="desc"' + (inst.sort && inst.sort.ci === c.ci && inst.sort.dir === 'desc' ? ' class="on"' : '') + '>'
+         + (c.type === 'num' ? 'Sort 9 → 1' : c.type === 'date' ? 'Newest first' : 'Sort Z → A') + '</button>'
+         + '</div>';
+      if (c.type === 'text') {
+        h += '<input type="text" data-q placeholder="Search ' + esc(c.label) + '…" autocomplete="off">'
+           + '<div class="cf-links"><a data-all>Select all</a><a data-none>Clear</a></div>'
+           + '<div class="cf-list" data-list></div>';
+      } else if (c.type === 'num') {
+        h += '<div class="cf-sec">Value is between</div>'
+           + '<div class="cf-row2"><input type="number" data-min placeholder="Min" value="'
+           + (c.min === null ? '' : c.min) + '"><input type="number" data-max placeholder="Max" value="'
+           + (c.max === null ? '' : c.max) + '"></div>'
+           + '<div class="cf-sec" style="margin-top:7px" data-rng></div>';
+      } else {
+        h += '<div class="cf-sec">Date between</div>'
+           + '<div class="cf-row2"><input type="date" data-from value="' + esc(c.from) + '">'
+           + '<input type="date" data-to value="' + esc(c.to) + '"></div>';
+      }
+      h += '<div class="cf-foot"><button data-clear>Clear filter</button>'
+         + '<button class="cf-apply" data-apply>Apply</button></div>';
+      P.innerHTML = h;
+
+      [].forEach.call(P.querySelectorAll('[data-s]'), function (b) {
+        b.onclick = function () {
+          var d = b.getAttribute('data-s');
+          inst.sort = (inst.sort && inst.sort.ci === c.ci && inst.sort.dir === d) ? null : { ci: c.ci, dir: d };
+          apply(); close();
+        };
+      });
+
+      if (c.type === 'text') {
+        var base = filtered(c.ci), cnt = {}, order = [];
+        base.forEach(function (r) {
+          var v = r.s[c.ci] || '(blank)';
+          if (cnt[v] === undefined) { cnt[v] = 0; order.push(v); }
+          cnt[v]++;
+        });
+        order.sort(function (a, b) {
+          try { return a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' }); }
+          catch (e) { return a < b ? -1 : a > b ? 1 : 0; }
+        });
+        var sel = c.sel ? Object.assign({}, c.sel) : null;
+        var list = P.querySelector('[data-list]'), q = P.querySelector('[data-q]');
+        function draw() {
+          var needle = (q.value || '').trim().toLowerCase();
+          var vis = order.filter(function (v) { return !needle || v.toLowerCase().indexOf(needle) >= 0; });
+          if (!vis.length) { list.innerHTML = '<div class="cf-empty">No match</div>'; return; }
+          list.innerHTML = vis.slice(0, 2000).map(function (v) {
+            var on = !sel || sel[v];
+            return '<label class="cf-it"><input type="checkbox" data-v="' + esc(v) + '"'
+                 + (on ? ' checked' : '') + '><span title="' + esc(v) + '">' + esc(v)
+                 + '</span><b>' + cnt[v] + '</b></label>';
+          }).join('');
+          [].forEach.call(list.querySelectorAll('input'), function (i) {
+            i.onchange = function () {
+              if (!sel) { sel = {}; order.forEach(function (v) { sel[v] = true; }); }
+              var v = i.getAttribute('data-v');
+              if (i.checked) sel[v] = true; else delete sel[v];
+            };
+          });
+        }
+        q.oninput = draw; draw();
+        setTimeout(function () {
+          try { q.focus({ preventScroll: true }); } catch (e) { try { q.focus(); } catch (e2) {} }
+        }, 10);
+        P.querySelector('[data-all]').onclick = function () { sel = null; draw(); };
+        P.querySelector('[data-none]').onclick = function () { sel = {}; draw(); };
+        P.querySelector('[data-apply]').onclick = function () {
+          var k = sel ? Object.keys(sel) : [];
+          c.sel = (!sel || k.length === order.length) ? null : sel;
+          close(); apply();
+        };
+      } else if (c.type === 'num') {
+        var lo = Infinity, hi = -Infinity;
+        inst.rows.forEach(function (r) {
+          var v = r.n[c.ci]; if (!isNaN(v)) { if (v < lo) lo = v; if (v > hi) hi = v; }
+        });
+        var rng = P.querySelector('[data-rng]');
+        if (rng && lo <= hi) rng.textContent = 'In data: ' + L10(lo) + ' – ' + L10(hi);
+        P.querySelector('[data-apply]').onclick = function () {
+          var a = P.querySelector('[data-min]').value, b = P.querySelector('[data-max]').value;
+          c.min = (a === '' ? null : +a); c.max = (b === '' ? null : +b);
+          if (c.min !== null && c.max !== null && c.min > c.max) { var t = c.min; c.min = c.max; c.max = t; }
+          close(); apply();
+        };
+      } else {
+        P.querySelector('[data-apply]').onclick = function () {
+          c.from = P.querySelector('[data-from]').value || '';
+          c.to = P.querySelector('[data-to]').value || '';
+          if (c.from && c.to && c.from > c.to) { var t = c.from; c.from = c.to; c.to = t; }
+          close(); apply();
+        };
+      }
+      P.querySelector('[data-clear]').onclick = function () { close(); clearCol(c.ci); };
+      return P;
+    }
+
+    function toggle(c) {
+      var was = OPEN && OPEN.th === c.th;
+      close();
+      if (was) return;
+      build(c).classList.add('show');
+      place(c.th);
+      c.th.classList.add('cf-open');
+      OPEN = { inst: inst, ci: c.ci, th: c.th };
+    }
+
+    inst.cols.forEach(function (c) {
+      if (c.type === 'none') return;
+      c.th.classList.add('cf-h');
+      if (!c.th.querySelector('.cf-sortmark')) {
+        var m = document.createElement('span'); m.className = 'cf-sortmark'; c.th.appendChild(m);
+      }
+      var b = document.createElement('button');
+      b.type = 'button'; b.className = 'cf-btn';
+      b.setAttribute('aria-label', 'Filter ' + c.label);
+      b.title = 'Filter / sort ' + c.label;
+      b.innerHTML = CHEV;
+      b.addEventListener('mousedown', function (e) { e.stopPropagation(); });
+      b.addEventListener('click', function (e) { e.preventDefault(); e.stopPropagation(); toggle(c); });
+      c.th.appendChild(b);
+    });
+
+    /* upar ki chhoti patti -- table ke theek pehle */
+    if (opts.bar !== false) {
+      var holder = table.parentNode;
+      if (holder) {
+        var bb = document.createElement('div');
+        bb.className = 'cf-bar';
+        holder.insertBefore(bb, table);
+        inst.bar = bb;
+      }
+    }
+
+    index(); apply();
+
+    inst.getRows  = function () { return inst.view.map(function (r) { return r.tr; }); };
+    inst.getData  = function () { return inst.view.map(function (r) { return r.s.slice(); }); };
+    inst.clearAll = clearAll;
+    inst.refresh  = function () { index(); apply(); };
+    return inst;
+  }
+
+  /* ================= auto-attach ================= */
+  /* Form wali, report-preview wali aur server-paginated table chhod do */
+  var SKIP_IN = ['rpPreview', 'sec-handle-req', 'profileModal', 'aiPanel', 'hrqCheck', 'hrqMine'];
+  var SKIP_TB = ['hrqManBody', 'haTwBody'];
+  function eligible(t) {
+    if (t._cf || t._cfNo) return false;
+    var tb = t.tBodies[0], th = t.tHead;
+    if (!th || !th.rows.length || !tb) return false;
+    if (tb.id && SKIP_TB.indexOf(tb.id) >= 0) { t._cfNo = 1; return false; }
+    var p = t.parentNode;
+    while (p && p !== document.body) {
+      if (p.id && SKIP_IN.indexOf(p.id) >= 0) { t._cfNo = 1; return false; }
+      if (p.classList && p.classList.contains('hrq-wrap')) { t._cfNo = 1; return false; }
+      p = p.parentNode;
+    }
+    if (th.rows[th.rows.length - 1].cells.length < 3) { t._cfNo = 1; return false; }
+    if (tb.querySelector('input,textarea,select')) { t._cfNo = 1; return false; }
+    var real = 0;
+    for (var i = 0; i < tb.rows.length; i++)
+      if (!(tb.rows[i].cells.length === 1 && tb.rows[i].cells[0].colSpan > 1)) real++;
+    return real >= 3;            /* 2-3 row wali chhoti table par filter bematlab hai */
+  }
+  function scan() {
+    var a = document.getElementsByTagName('table');
+    for (var i = 0; i < a.length; i++) {
+      try { if (eligible(a[i])) enable(a[i]); } catch (e) {}
+    }
+  }
+  W.cfScan = scan;
+
+  /* dashboard khud table dubara banata hai -> chup-chaap dubara index karo */
+  var tmr = null;
+  function later() { if (tmr) clearTimeout(tmr); tmr = setTimeout(work, 140); }
+  function work() {
+    tmr = null;
+    var a = document.getElementsByTagName('table');
+    for (var i = 0; i < a.length; i++) {
+      var t = a[i], inst = t._cf;
+      if (!inst) { try { if (eligible(t)) enable(t); } catch (e) {} continue; }
+      if (inst.busy) continue;
+      /* hamari rakhi hui row hat gayi = app ne tbody dubara likh diya */
+      var tb = t.tBodies[0];
+      if (!tb || tb !== inst.tbody) { delete t._cf; try { if (eligible(t)) enable(t); } catch (e) {} continue; }
+      var n = 0;
+      for (var j = 0; j < tb.rows.length; j++)
+        if (!(tb.rows[j].cells.length === 1 && tb.rows[j].cells[0].colSpan > 1)) n++;
+      if (n !== inst.view.length) { try { inst.refresh(); } catch (e) {} }
+    }
+  }
+  function boot() {
+    scan();
+    try {
+      new MutationObserver(function (ms) {
+        for (var i = 0; i < ms.length; i++) {
+          var t = ms[i].target;
+          if (!t || !t.tagName) continue;
+          var tag = t.tagName;
+          if (tag === 'TBODY' || tag === 'TABLE' || tag === 'TR' ||
+              (t.querySelector && t.querySelector('table'))) { later(); return; }
+        }
+      }).observe(document.body, { childList: true, subtree: true });
+    } catch (e) {}
+    /* tab badalne par naye table samne aate hain */
+    ['click', 'change'].forEach(function (ev) {
+      document.addEventListener(ev, function () { later(); }, true);
+    });
+    setTimeout(scan, 900); setTimeout(scan, 2500); setTimeout(scan, 6000);
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+  else boot();
+
+  enable.all = function (sel, opts) {
+    return [].slice.call(document.querySelectorAll(sel)).map(function (t) { return enable(t, opts); });
+  };
+  W.enableColumnFilters = enable;
+})(window);
+</script>

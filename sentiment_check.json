@@ -1,0 +1,49 @@
+{
+ "sentiment_column": "Sentiment",
+ "state_column": "State",
+ "category_column": "Category",
+ "all": {
+  "Negative": 43483,
+  "Pro-Govt": 34869,
+  "Neutral": 1396162,
+  "Positive": 305590,
+  "Pro-BJP": 46325,
+  "Anti-Govt": 29046,
+  "Anti-BJP": 3905
+ },
+ "up": {
+  "Anti-BJP": 224,
+  "Neutral": 248812,
+  "Negative": 4012,
+  "Anti-Govt": 1884,
+  "Positive": 30150,
+  "Pro-Govt": 3799,
+  "Pro-BJP": 6756
+ },
+ "punjab": {
+  "Positive": 2569,
+  "Neutral": 23382,
+  "Pro-BJP": 45,
+  "Pro-Govt": 3148,
+  "Negative": 821,
+  "Anti-BJP": 609,
+  "Anti-Govt": 636
+ },
+ "states_top": {
+  "(blank)": 325764,
+  "Uttar Pradesh": 295637,
+  "Gujarat": 172545,
+  "Maharashtra": 151506,
+  "Madhya Pradesh": 133770,
+  "Rajasthan": 114895,
+  "Bihar": 63967,
+  "Delhi": 62257,
+  "Andhra Pradesh": 57602,
+  "Karnataka": 49476,
+  "Chhattisgarh": 46276,
+  "Uttarakhand": 46009,
+  "Assam": 43324,
+  "Odisha": 41826,
+  "Haryana": 31925
+ }
+}

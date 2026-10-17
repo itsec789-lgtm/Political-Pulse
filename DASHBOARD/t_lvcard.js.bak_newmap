@@ -1,0 +1,349 @@
+/* t_lvcard.js -- LEVEL CARD ka handle count MAPPING se aata hai (poora count)
+   Chalao:  node t_lvcard.js                                               */
+'use strict';
+const fs = require('fs'), path = require('path');
+let P = 0, F = 0, FAILS = [];
+function ok(c, m) { if (c) { P++; console.log('  ok   ' + m); } else { F++; FAILS.push(m); console.log('  FAIL ' + m); } }
+function sec(t) { console.log('\n== ' + t + ' =='); }
+
+const SRC = fs.readFileSync(path.join(__dirname, 'server.js'), 'utf8');
+
+sec('1. server.js me MAPLVL banta hai');
+ok(/var MAPLVL = \{\};/.test(SRC), 'MAPLVL object banta hai');
+ok(SRC.indexOf('if (rec.alias_of) return;') > 0, 'alias (chhote-bade akshar) do baar nahi ginte');
+ok(SRC.indexOf('if (_gone[String(k).toLowerCase()]) return;') > 0, 'jaan-boojhkar hataye handle ginti me nahi');
+ok(SRC.indexOf("'CM': 'Chief Minister'") > 0, 'CM ka naam card ke naam me badalta hai');
+ok(SRC.indexOf('var MAPLVL') < SRC.indexOf('JSON.stringify(MAPLVL)'), 'pehle banta hai, phir bheja jaata hai');
+
+sec('2. mapping se asli ginti');
+const MAPL = require('./mapping_lib.js');
+const mp = MAPL.load() || {};
+const PRI = { 'CM': 0, 'Dy CM': 1, 'LS MP': 2, 'RS MP': 3, 'MLA': 4, 'MLC': 5, 'MLA Contestent': 6, 'Others': 7 };
+const CARD = { 'CM': 'Chief Minister', 'Dy CM': 'Dy CM' };
+let gone = {};
+try {
+  const j = JSON.parse(fs.readFileSync(path.join(__dirname, 'data', 'mapping_removed.json'), 'utf8'));
+  (j.handles || []).forEach(h => gone[String(h).trim().replace(/^@/, '').toLowerCase()] = 1);
+} catch (e) {}
+const MLV = {};
+Object.keys(mp).forEach(function (k) {
+  const rec = mp[k] || {};
+  if (rec.alias_of) return;
+  if (gone[String(k).toLowerCase()]) return;
+  let ls = rec.levels; if (!Array.isArray(ls) || !ls.length) ls = ['Others'];
+  let top = ls[0];
+  ls.forEach(L => { if ((PRI[L] === undefined ? 99 : PRI[L]) < (PRI[top] === undefined ? 99 : PRI[top])) top = L; });
+  top = CARD[top] || top;
+  MLV[top] = (MLV[top] || 0) + 1;
+});
+console.log('     ' + JSON.stringify(MLV));
+ok(MLV['Chief Minister'] === 31, 'Chief Ministers = 31 (mapping me jitne hain)  [mila ' + MLV['Chief Minister'] + ']');
+ok(MLV['Dy CM'] === 19, 'Dy CM = 19  [mila ' + MLV['Dy CM'] + ']');
+ok(MLV['MLA Contestent'] > 200, 'MLA Contestants 200+ (0 nahi)  [mila ' + MLV['MLA Contestent'] + ']');
+ok(MLV['LS MP'] > 500, 'LS MP 500+ (MP "Others" me nahi girte)  [mila ' + MLV['LS MP'] + ']');
+ok(MLV['RS MP'] > 200, 'RS MP 200+  [mila ' + MLV['RS MP'] + ']');
+ok(Object.keys(MLV).every(k => MLV[k] > 0), 'koi level khaali nahi');
+
+sec('3. @cm_nrangaswamy -- jiske tweet nahi hain, wo bhi ginta hai');
+const ci = {}; Object.keys(mp).forEach(k => ci[k.toLowerCase()] = k);
+const nr = mp[ci['cm_nrangaswamy']];
+ok(!!nr, 'mapping me maujood hai');
+ok(nr && (nr.levels || []).indexOf('CM') >= 0, 'uska level CM hai');
+let blobHas = true;
+try {
+  const B = JSON.parse(fs.readFileSync(path.join(__dirname, 'data', 'dashboard_data.json'), 'utf8'));
+  const U = (B.find ? (B.find(x => x.key === 'UNI') || {}).value : null) || {};
+  blobHas = (U.allHandles || []).some(r => String(r.h).toLowerCase() === 'cm_nrangaswamy');
+} catch (e) {}
+ok(blobHas === false, 'tweet data me nahi hai (isi wajah se card 30 dikhata tha)');
+
+sec('4. bheja hua browser-JS asli DOM par chala kar dekho');
+/* server.js ke string tukde jod kar chalaate hain -- sirf regex match nahi. */
+const beg = SRC.indexOf('+ "try{var MLV=');
+ok(beg > 0, 'JS block maujood hai');
+const endMark = '+ "}catch(e){}";';
+let end = SRC.indexOf('/* ---------- range-title', beg);
+const region = SRC.slice(beg, end);
+let js = '';
+region.split('\n').forEach(function (ln) {
+  if (!/^\s*\+\s*"/.test(ln)) return;                   /* sirf bheje jaane wale tukde */
+  ln = ln.replace('JSON.stringify(MAPLVL)', '"@@MLV@@"');
+  (ln.match(/"((?:[^"\\]|\\.)*)"/g) || []).forEach(function (q) {
+    js += q.slice(1, -1).replace(/\\"/g, '"').replace(/\\\\/g, '\\');
+  });
+});
+js = js.replace('@@MLV@@', JSON.stringify(MLV));
+ok(js.indexOf('_lvFix') > 0 && js.indexOf('toLocaleString') > 0, 'tukde theek jude');
+
+const els = {};
+['lvLSMPh','lvRSMPh','lvMLAh','lvMLCh','lvCMh','lvDyCMh','lvConth','lvOthersh']
+  .forEach(id => els[id] = { textContent: '-' });
+els.dashParty = { value: 'all' };
+const sandbox = {
+  document: { getElementById: id => els[id] || null, addEventListener: function () {} },
+  setTimeout: function () {},                 /* ek hi baar chalega */
+};
+sandbox.window = sandbox;
+sandbox.UNI = { allHandles: [
+  { h: 'x1', level: 'Chief Minister' },
+  { h: 'x2', level: 'Others' }, { h: 'x3', level: 'Others' },
+] };
+const vm = require('vm');
+vm.createContext(sandbox);
+vm.runInContext(js, sandbox);
+console.log('     lvCMh = ' + els.lvCMh.textContent + ' , lvConth = ' + els.lvConth.textContent);
+ok(els.lvCMh.textContent === '31 handles', 'CM card par "31 handles"  [mila ' + els.lvCMh.textContent + ']');
+ok(els.lvConth.textContent === MLV['MLA Contestent'].toLocaleString('en-IN') + ' handles', 'MLA Contestants card par mapping ka count');
+ok(els.lvMLAh.textContent === MLV['MLA'].toLocaleString('en-IN') + ' handles', 'MLA card par mapping ka count');
+ok(typeof sandbox.MAPLVL === 'object', 'window.MAPLVL page par maujood hai');
+ok(typeof sandbox._lvFix === 'function', '_lvFix dobara chalaya ja sakta hai');
+
+sec('5. JO BADA ho wahi -- mapping me nahi par tweet hain to count girta nahi');
+const els2 = {}; Object.keys(els).forEach(k => els2[k] = { textContent: '-' });
+els2.dashParty = { value: 'all' };
+const sb2 = { document: { getElementById: id => els2[id] || null, addEventListener: function () {} },
+              setTimeout: function () {} };
+sb2.window = sb2;
+const many = []; for (let i = 0; i < 9999; i++) many.push({ h: 'z' + i, level: 'MLC' });
+sb2.UNI = { allHandles: many };
+vm.createContext(sb2); vm.runInContext(js, sb2);
+ok(els2.lvMLCh.textContent === (9999).toLocaleString('en-IN') + ' handles',
+   'MLC: tweet-data bada tha to wahi dikha  [mila ' + els2.lvMLCh.textContent + ']');
+ok(els2.lvCMh.textContent === '31 handles', 'CM: mapping bada tha to wahi dikha');
+
+
+sec('6. mapGate() ko ASLI me chala kar dekho -- level mapping se theek hota hai');
+/* server.js se sirf mapGate() nikaal kar, nakli MAPL/removedSet ke saath chalate hain. */
+(function () {
+  const beg2 = SRC.indexOf('function mapGate(map) {');
+  let i = SRC.indexOf('{', beg2), depth = 0, end2 = -1;
+  for (let j = i; j < SRC.length; j++) {
+    if (SRC[j] === '{') depth++;
+    else if (SRC[j] === '}') { depth--; if (depth === 0) { end2 = j + 1; break; } }
+  }
+  const fnSrc = SRC.slice(beg2, end2);
+  ok(fnSrc.indexOf('map.UNI.level = _sum;') > 0, 'mapGate me level ka jod dobara banta hai');
+
+  const fakeMap = {
+    'myogiadityanath': { levels: ['CM', 'MLA'] },
+    'contestant1':     { levels: ['MLA Contestent'] },
+    'narendramodi':    { levels: ['LS MP'] },
+    'nobody':          { levels: ['Others'] },
+  };
+  for (let n = 0; n < 200; n++) fakeMap['f' + n] = { levels: ['MLA'] };   /* 100+ chahiye */
+  const sand = {
+    console: { log: function () {}, warn: function () {} },
+    MAPL: {
+      stats: () => ({ handles: Object.keys(fakeMap).length }),
+      has: h => !!fakeMap[String(h).toLowerCase()],
+      load: () => fakeMap,
+    },
+    removedSet: () => Object.create(null),
+  };
+  sand.global = sand;
+  vm.createContext(sand);
+  vm.runInContext(fnSrc + '\nthis.mapGate = mapGate;', sand);
+
+  const map = {
+    UNI: {
+      tot: { tw: 0, vw: 0, lk: 0, rt: 0 },
+      level: { 'MLA': 999999, 'Others': 5 },          /* purana (galat) jod */
+      allHandles: [
+        { h: 'myogiadityanath', level: 'MLA',    tw: 100, vw: 1, lk: 1, rt: 1 },
+        { h: 'contestant1',     level: 'MLA',    tw: 50,  vw: 1, lk: 1, rt: 1 },
+        { h: 'narendramodi',    level: 'Others', tw: 25,  vw: 1, lk: 1, rt: 1 },
+        { h: 'outsider',        level: 'LS MP',  tw: 7,   vw: 1, lk: 1, rt: 1 },
+      ],
+    },
+  };
+  const r = sand.mapGate(map);
+  ok(r.on === true, 'gate chala');
+  const byH = {}; map.UNI.allHandles.forEach(x => byH[x.h] = x);
+  ok(byH['myogiadityanath'].level === 'Chief Minister',
+     'Yogi ji ka level CM ho gaya (sabse uncha pad)  [mila ' + byH['myogiadityanath'].level + ']');
+  ok(byH['contestant1'].level === 'MLA Contestent',
+     'MLA Contestent wapas aaya  [mila ' + byH['contestant1'].level + ']');
+  ok(byH['narendramodi'].level === 'LS MP',
+     'Narendra Modi "Others" se LS MP me aaye  [mila ' + byH['narendramodi'].level + ']');
+  /* 10-Oct: mapping me na hone wala handle ab dikhta hi nahi */
+  ok(byH['outsider'] === undefined,
+     'mapping me nahi hai -> dashboard se hat gaya (pehle bacha rehta tha)');
+  ok(map.UNI.level['Chief Minister'] === 100 && map.UNI.level['MLA Contestent'] === 50
+     && map.UNI.level['LS MP'] === 25 && map.UNI.level['MLA'] === undefined,
+     'UNI.level ka jod naye level se bana, outsider ke 7 bahar  ['
+     + JSON.stringify(map.UNI.level) + ']');
+  ok(map.UNI.tot.tw === 175,
+     'KPI ka total bhi usi hisaab se (182 - 7 = 175)  [mila ' + map.UNI.tot.tw + ']');
+})();
+
+
+sec('7. updateLevelStrip() ke BAAD bhi number bana rehta hai');
+(function () {
+  const els3 = {};
+  ['lvLSMPh','lvRSMPh','lvMLAh','lvMLCh','lvCMh','lvDyCMh','lvConth','lvOthersh']
+    .forEach(id => els3[id] = { textContent: '-' });
+  els3.dashParty = { value: 'all' };
+  let timers = [];
+  const sb3 = {
+    document: { getElementById: id => els3[id] || null, addEventListener: function () {} },
+    setTimeout: function (fn) { timers.push(fn); },
+  };
+  sb3.window = sb3;
+  sb3.UNI = { allHandles: [{ h: 'a', level: 'Chief Minister' }] };
+  /* asli page jaisa: updateLevelStrip "476 handles" likh deta hai */
+  sb3.updateLevelStrip = function () {
+    els3.lvCMh.textContent = '30 handles';
+    els3.lvConth.textContent = '114 handles';
+  };
+  vm.createContext(sb3); vm.runInContext(js, sb3);
+  ok(sb3.updateLevelStrip._mapcnt === true, 'updateLevelStrip lapet diya gaya');
+  sb3.updateLevelStrip();                               /* page jaisa chalao */
+  ok(els3.lvCMh.textContent === '31 handles',
+     'uske baad bhi CM par 31 hi raha  [mila ' + els3.lvCMh.textContent + ']');
+  ok(els3.lvConth.textContent === MLV['MLA Contestent'].toLocaleString('en-IN') + ' handles',
+     'MLA Contestants bhi mapping ka count hi raha');
+  ok(timers.length > 0, 'thodi der tak dohraata bhi hai');
+
+  /* dobara lapetna nahi chahiye */
+  const before = sb3.updateLevelStrip;
+  timers.splice(0).forEach(fn => { try { fn(); } catch (e) {} });
+  ok(sb3.updateLevelStrip === before, 'baar-baar lapeta nahi jaata');
+})();
+
+sec('8. Party chuni ho to us party ki apni ginti hi dikhti hai');
+(function () {
+  const els4 = {};
+  ['lvLSMPh','lvRSMPh','lvMLAh','lvMLCh','lvCMh','lvDyCMh','lvConth','lvOthersh']
+    .forEach(id => els4[id] = { textContent: '-' });
+  els4.dashParty = { value: 'BJP' };
+  const sb4 = {
+    document: { getElementById: id => els4[id] || null, addEventListener: function () {} },
+    setTimeout: function () {},
+  };
+  sb4.window = sb4;
+  sb4.UNI = { allHandles: [{ h: 'a', level: 'Chief Minister' }] };
+  sb4.updateLevelStrip = function () { els4.lvCMh.textContent = '14 handles'; };
+  vm.createContext(sb4); vm.runInContext(js, sb4);
+  sb4.updateLevelStrip();
+  ok(els4.lvCMh.textContent === '14 handles',
+     'BJP chuni hai to 14 hi raha (31 nahi thopa)  [mila ' + els4.lvCMh.textContent + ']');
+})();
+
+
+sec('9. CM & Dy CM tab -- poori list mapping se (0 tweet wale bhi)');
+(function () {
+  const beg2 = SRC.indexOf('function mapGate(map) {');
+  let i = SRC.indexOf('{', beg2), depth = 0, end2 = -1;
+  for (let j = i; j < SRC.length; j++) {
+    if (SRC[j] === '{') depth++;
+    else if (SRC[j] === '}') { depth--; if (depth === 0) { end2 = j + 1; break; } }
+  }
+  const fnSrc = SRC.slice(beg2, end2);
+  const fakeMap = {
+    'yescm':   { levels: ['CM'],  name: 'Hai CM',    state: 'S1', party: 'P1' },
+    'notweet': { levels: ['CM'],  name: 'Bina Tweet', state: 'S2', party: 'P2' },
+    'dycm1':   { levels: ['MLA', 'Dy CM'], name: 'Dy Ek', state: 'S3', party: 'P3' },
+    'exdycm':  { levels: ['MLA'], name: 'Ab MLA',    state: 'S4', party: 'P4' },
+    'ALIASCM': { levels: ['CM'],  name: 'Alias',     alias_of: 'yescm' },
+    'Siddha':  { levels: ['MLA', 'CM'], name: 'Siddha', state: 'K', party: 'INC' },
+  };
+  for (let n = 0; n < 200; n++) fakeMap['f' + n] = { levels: ['MLA'] };
+  const sand = {
+    console: { log: function () {}, warn: function () {} },
+    MAPL: { stats: () => ({ handles: Object.keys(fakeMap).length }),
+            has: h => !!fakeMap[String(h)], load: () => fakeMap },
+    removedSet: () => Object.create(null),
+  };
+  vm.createContext(sand);
+  vm.runInContext(fnSrc + '\nthis.mapGate = mapGate;', sand);
+
+  const map = { UNI: { allHandles: [
+      { h: 'dycm1', tw: 7 },
+      { h: 'Siddha', tw: 730, vw: 5, lk: 4, rt: 3, followers: 9, name: 'Siddha', party: 'INC', state: 'K' },
+    ] },
+    CM_DATA: [
+    { handle: 'yescm',  level: 'Chief Minister',          tweets: 10 },
+    { handle: 'exdycm', level: 'Deputy Chief Minister',   tweets: 5 },
+    { handle: 'dycm1',  level: 'Chief Minister',          tweets: 7 },   /* galat pad */
+    { handle: 'bahari', level: 'Chief Minister',          tweets: 3 },   /* mapping me hi nahi */
+  ] };
+  sand.mapGate(map);
+  const by = {}; map.CM_DATA.forEach(r => by[r.handle] = r);
+  ok(!by['exdycm'], 'jiska pad ab sirf MLA hai, wo CM tab se hat gaya');
+  ok(!by['bahari'], 'jo mapping me hi nahi, wo CM tab me nahi dikhta');
+  ok(by['dycm1'] && by['dycm1'].level === 'Deputy Chief Minister',
+     'galat pad mapping se theek hua  [mila ' + (by['dycm1'] || {}).level + ']');
+  ok(!!by['notweet'], 'jiske tweet nahi, uski row bhi jud gayi');
+  ok(by['notweet'] && by['notweet'].tweets === 0 && by['notweet'].noData === true,
+     'uske number 0 hain aur "No tweets yet" ka nishaan laga hai');
+  ok(by['notweet'] && by['notweet'].name === 'Bina Tweet' && by['notweet'].state === 'S2',
+     'naam/state mapping se aaya');
+  ok(!by['ALIASCM'], 'alias row do baar nahi judi');
+  ok(!!by['Siddha'] && by['Siddha'].tweets === 730 && by['Siddha'].noData !== true,
+     'CM_DATA me nahi tha par tweet the -> asli number aaye, 0 nahi  [mila '
+       + ((by['Siddha'] || {}).tweets) + ']');
+  const cm = map.CM_DATA.filter(r => r.level === 'Chief Minister').length;
+  const dy = map.CM_DATA.filter(r => r.level === 'Deputy Chief Minister').length;
+  ok(cm === 3 && dy === 1, 'ginti mapping jaisi: 3 CM + 1 Dy CM  [mila ' + cm + ' + ' + dy + ']');
+})();
+
+sec('10. Template par "No tweets yet" dikhta hai');
+['dashboard.template.html', path.join('..', 'UP-DASHBOARD', 'dashboard.template.html')]
+  .forEach(function (f) {
+    let t = '';
+    try { t = fs.readFileSync(path.join(__dirname, f), 'utf8'); } catch (e) {}
+    ok(t.indexOf('No tweets yet') > 0, f.indexOf('UP') >= 0 ? 'UP template me' : 'All-India template me');
+  });
+
+
+sec('11. ASLI data par mapGate() -- CM tab 50 (31 + 19)');
+(function () {
+  const beg2 = SRC.indexOf('function mapGate(map) {');
+  let i = SRC.indexOf('{', beg2), depth = 0, end2 = -1;
+  for (let j = i; j < SRC.length; j++) {
+    if (SRC[j] === '{') depth++;
+    else if (SRC[j] === '}') { depth--; if (depth === 0) { end2 = j + 1; break; } }
+  }
+  const fnSrc = SRC.slice(beg2, end2);
+  function removedSet() {
+    try {
+      const j = JSON.parse(fs.readFileSync(path.join(__dirname, 'data', 'mapping_removed.json'), 'utf8'));
+      const s2 = Object.create(null);
+      (j.handles || []).forEach(h => s2[String(h).trim().replace(/^@/, '').toLowerCase()] = 1);
+      return s2;
+    } catch (e) { return Object.create(null); }
+  }
+  const MAPL2 = require('./mapping_lib.js');
+  const gate = new Function('MAPL', 'removedSet', 'console', 'fs', 'path', '__dirname',
+    fnSrc + ';return mapGate;')(MAPL2, removedSet, { log() {}, warn() {} }, fs, path, __dirname);
+  let blob = null;
+  try { blob = JSON.parse(fs.readFileSync(path.join(__dirname, 'data', 'dashboard_data.json'), 'utf8')); } catch (e) {}
+  if (!blob) { ok(false, 'dashboard_data.json padhi nahi gayi'); return; }
+  const map = {}; blob.forEach(x => map[x.key] = x.value);
+  gate(map);
+  const cm = map.CM_DATA.filter(r => r.level === 'Chief Minister').length;
+  const dy = map.CM_DATA.filter(r => r.level === 'Deputy Chief Minister').length;
+  console.log('     CM_DATA = ' + map.CM_DATA.length + ' (CM ' + cm + ' + Dy CM ' + dy + ')');
+  ok(cm === 31, 'asli data par CM = 31  [mila ' + cm + ']');
+  ok(dy === 19, 'asli data par Dy CM = 19  [mila ' + dy + ']');
+  ok(map.CM_DATA.length === 50, 'tile par 50 leaders aayenge  [mila ' + map.CM_DATA.length + ']');
+  const nd = map.CM_DATA.filter(r => r.noData).map(r => r.handle);
+  ok(nd.length === 1 && nd[0] === 'cm_nrangaswamy',
+     'sirf N. Rangasamy par "No tweets yet"  [' + nd.join(',') + ']');
+})();
+
+sec('12. UP-DASHBOARD/server.js me bhi wahi fix');
+(function () {
+  let u = '';
+  try { u = fs.readFileSync(path.join(__dirname, '..', 'UP-DASHBOARD', 'server.js'), 'utf8'); } catch (e) {}
+  ok(u.indexOf('map.CM_DATA = map.CM_DATA.filter') > 0, 'UP server CM tab mapping se banata hai');
+  ok(u.indexOf('noData: !u') > 0, 'UP server 0-tweet wali row bhi jodta hai');
+  ok(u.indexOf('map.UNI.level = _sum') > 0, 'UP server level ka jod dobara banata hai');
+  ok(u.indexOf('window.MAPLVL=MLV') > 0, 'UP server level card ka count mapping se bhejta hai');
+})();
+
+console.log('\n========================================================');
+console.log('  PASS ' + P + '   FAIL ' + F);
+if (F) { console.log('\n  FAIL hui:'); FAILS.forEach(m => console.log('   - ' + m)); }
+console.log('========================================================');
+process.exit(F ? 1 : 0);

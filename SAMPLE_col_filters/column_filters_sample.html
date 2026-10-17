@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Column Filters — Sample</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ===================================================================
+   SAMPLE PAGE CHROME  --  ye hissa sirf demo ke liye hai.
+   Asli dashboard me ye sab pehle se hai; integrate karte waqt yahan se
+   sirf "COLUMN FILTER" wala CSS block (neeche) le jaana hai.
+   =================================================================== */
+:root{--saffron:#E65100;--saffron2:#FF8F00;--bg:#F7F5F2;--card:#FFFFFF;
+      --border:#E5E0D8;--text:#1A1A1A;--muted:#666;--muted2:#999}
+body.dark{--bg:#0d1117;--card:#161b22;--border:#283039;--text:#e6edf3;
+          --muted:#9aa4b2;--muted2:#6b7480}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);
+     font-family:'DM Sans',system-ui,-apple-system,sans-serif;font-size:13px}
+main{padding:18px 24px;max-width:1600px;margin:0 auto}
+@media(max-width:600px){main{padding:10px 10px}}
+.sec-title{font-family:'Rajdhani',sans-serif;font-size:12px;font-weight:700;color:#444;
+  text-transform:uppercase;letter-spacing:1.5px;margin:0 0 10px;display:flex;
+  align-items:center;gap:8px;flex-wrap:wrap}
+body.dark .sec-title{color:#aeb9c4}
+.tbl-box{background:var(--card);border:1.5px solid var(--border);border-radius:14px;
+  padding:16px;margin-bottom:16px;overflow-x:auto;box-shadow:0 1px 8px rgba(0,0,0,.04)}
+table{width:100%;border-collapse:collapse}
+th{font-family:'Rajdhani',sans-serif;font-size:10px;font-weight:700;color:#555;
+  text-transform:uppercase;letter-spacing:.8px;padding:9px 12px;
+  border-bottom:2px solid var(--border);background:#f8f6f2;white-space:nowrap;text-align:left}
+td{padding:9px 12px;font-size:11px;border-bottom:1px solid #f2efe8;vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#fdfcfa}
+body.dark th{background:#1c2530;color:#aeb9c4}
+body.dark td{border-bottom-color:#232c37}
+body.dark tr:hover td{background:#1a212b}
+.rank{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:16px;color:var(--saffron);
+  min-width:20px;text-align:center;display:inline-block}
+.nv{font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700}
+.party-chip{display:inline-block;padding:2px 8px;border-radius:20px;font-size:9px;font-weight:700}
+.handle-cell{white-space:normal;max-width:150px;line-height:1.4;word-break:break-word}
+.hname{font-weight:700;font-size:11.5px}
+.hat{font-size:10px;color:var(--muted2)}
+.demo-note{background:#FFF7EC;border:1px solid #F0D7B4;border-left:4px solid var(--saffron);
+  border-radius:9px;padding:11px 14px;font-size:12px;line-height:1.6;margin-bottom:16px;color:#5A3310}
+body.dark .demo-note{background:#241a10;border-color:#5a3f20;color:#e4cdb2}
+.demo-note b{color:#B23400}
+body.dark .demo-note b{color:#ffb77a}
+.tbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 10px}
+.tbar .sp{flex:1}
+.btn{font-family:'DM Sans',sans-serif;font-size:11.5px;font-weight:600;color:var(--text);
+  background:var(--card);border:1.5px solid var(--border);border-radius:8px;
+  padding:6px 12px;cursor:pointer;transition:border-color .15s,color .15s}
+.btn:hover{border-color:var(--saffron);color:var(--saffron)}
+.btn[disabled]{opacity:.45;cursor:default}
+.btn[disabled]:hover{border-color:var(--border);color:var(--text)}
+
+/* ===================================================================
+   COLUMN FILTER  --  INTEGRATION KE LIYE YAHI CSS CHAHIYE
+   (variables --saffron / --card / --border / --text / --muted dashboard
+    me pehle se hain, isliye kuch naya define nahi kiya.)
+   =================================================================== */
+th.cf-h{position:relative;padding-right:26px;cursor:default;user-select:none}
+.cf-btn{position:absolute;top:50%;right:5px;transform:translateY(-50%);
+  width:17px;height:17px;display:flex;align-items:center;justify-content:center;
+  border:none;background:transparent;border-radius:4px;cursor:pointer;padding:0;
+  color:inherit;opacity:0;transition:opacity .13s,background .13s}
+th.cf-h:hover .cf-btn,.cf-btn:focus-visible{opacity:.75}
+.cf-btn:hover{background:rgba(0,0,0,.07);opacity:1}
+body.dark .cf-btn:hover{background:rgba(255,255,255,.1)}
+.cf-btn svg{width:9px;height:9px;display:block}
+/* active filter / sort -> Explorer jaisa highlighted header */
+th.cf-on{background:#FDEEE0;color:var(--saffron);border-bottom-color:#F3C49A}
+th.cf-on .cf-btn{opacity:1;color:var(--saffron)}
+body.dark th.cf-on{background:#2a1d12;color:#ffa96b;border-bottom-color:#5a3f20}
+th.cf-open .cf-btn{opacity:1;background:rgba(0,0,0,.07)}
+.cf-sortmark{font-size:9px;margin-left:3px;color:var(--saffron)}
+
+.cf-pop{position:fixed;z-index:9999;min-width:214px;max-width:min(320px,calc(100vw - 20px));
+  background:var(--card);border:1.5px solid var(--border);border-radius:12px;
+  box-shadow:0 10px 32px rgba(0,0,0,.18);padding:9px;
+  font-family:'DM Sans',system-ui,sans-serif;font-size:12px;color:var(--text);display:none}
+.cf-pop.show{display:block}
+.cf-pop .cf-sec{font-family:'Rajdhani',sans-serif;font-size:9.5px;font-weight:700;
+  letter-spacing:.9px;text-transform:uppercase;color:var(--muted2);margin:3px 2px 5px}
+.cf-pop input[type=text],.cf-pop input[type=number],.cf-pop input[type=date],.cf-pop select{
+  width:100%;font-family:inherit;font-size:11.5px;color:var(--text);background:var(--card);
+  border:1.5px solid var(--border);border-radius:7px;padding:6px 8px;outline:none}
+.cf-pop input:focus,.cf-pop select:focus{border-color:var(--saffron)}
+.cf-row2{display:flex;gap:6px}
+.cf-row2>*{flex:1;min-width:0}
+.cf-sort{display:flex;gap:6px;margin-bottom:8px}
+.cf-sort button{flex:1;font-family:inherit;font-size:11px;font-weight:600;color:var(--text);
+  background:var(--card);border:1.5px solid var(--border);border-radius:7px;
+  padding:5px 6px;cursor:pointer;white-space:nowrap}
+.cf-sort button:hover{border-color:var(--saffron);color:var(--saffron)}
+.cf-sort button.on{background:var(--saffron);border-color:var(--saffron);color:#fff}
+.cf-links{display:flex;gap:10px;margin:7px 2px 5px;font-size:11px}
+.cf-links a{color:var(--saffron);font-weight:600;cursor:pointer;text-decoration:none}
+.cf-links a:hover{text-decoration:underline}
+.cf-list{max-height:216px;overflow:auto;border:1.5px solid var(--border);
+  border-radius:8px;padding:3px}
+.cf-it{display:flex;align-items:center;gap:7px;padding:4px 6px;border-radius:6px;cursor:pointer}
+.cf-it:hover{background:rgba(230,81,0,.07)}
+.cf-it input{margin:0;accent-color:var(--saffron);flex-shrink:0}
+.cf-it span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cf-it b{font-family:'Rajdhani',sans-serif;font-weight:700;color:var(--muted2);font-size:11px}
+.cf-empty{padding:12px 6px;text-align:center;color:var(--muted2);font-size:11px}
+.cf-foot{display:flex;gap:7px;margin-top:9px}
+.cf-foot button{flex:1;font-family:inherit;font-size:11.5px;font-weight:700;border-radius:8px;
+  padding:7px 8px;cursor:pointer;border:1.5px solid var(--border);background:var(--card);color:var(--text)}
+.cf-foot .cf-apply{background:var(--saffron);border-color:var(--saffron);color:#fff}
+.cf-foot button:hover{filter:brightness(.96)}
+.cf-count{font-size:11.5px;font-weight:600;color:var(--muted)}
+.cf-count b{color:var(--saffron);font-family:'Rajdhani',sans-serif;font-size:13.5px}
+.cf-chips{display:flex;gap:6px;flex-wrap:wrap}
+.cf-chip{display:inline-flex;align-items:center;gap:5px;background:#FDEEE0;color:#B23400;
+  border:1px solid #F3C49A;border-radius:20px;padding:2px 5px 2px 9px;font-size:10.5px;font-weight:600}
+body.dark .cf-chip{background:#2a1d12;color:#ffa96b;border-color:#5a3f20}
+.cf-chip i{font-style:normal;cursor:pointer;font-weight:700;opacity:.7;padding:0 2px}
+.cf-chip i:hover{opacity:1}
+.cf-none{padding:26px 10px;text-align:center;color:var(--muted2);font-size:12px}
+.cf-pg{display:flex;align-items:center;gap:8px;justify-content:flex-end;margin-top:10px;
+  font-size:11.5px;color:var(--muted)}
+</style>
+</head>
+<body>
+<main>
+
+  <div class="demo-note">
+    <b>SAMPLE — abhi project me kuch nahi badla.</b> Ye alag file hai, sirf behaviour aur look
+    dekhne ke liye. Column header par maus le jaao → dayein taraf chhota <b>▾</b> dikhega → click karo.
+    Do table hain taaki dikh jaaye ki ek hi component dono par bilkul ek jaisa chalta hai.
+    Dark theme bhi dekh lijiye (upar dayein button).
+  </div>
+
+  <div class="tbar">
+    <div class="sec-title" style="margin:0">Top 540 Handles by Tweets — Apr–Oct 2026</div>
+    <div class="sp"></div>
+    <button class="btn" onclick="document.body.classList.toggle('dark')">Dark / Light</button>
+  </div>
+
+  <div class="tbar" id="bar1"></div>
+  <div class="tbl-box">
+    <table id="tbl1">
+      <thead><tr>
+        <th data-cf="none">#</th>
+        <th data-cf="text">State</th>
+        <th data-cf="text">PC / AC Name</th>
+        <th data-cf="text">Party</th>
+        <th data-cf="text">Designation</th>
+        <th data-cf="text">Name / Handle</th>
+        <th data-cf="num">Followers</th>
+        <th data-cf="num">Followings</th>
+        <th data-cf="num">Tweets</th>
+        <th data-cf="num">Retweets</th>
+        <th data-cf="num">Total Views</th>
+        <th data-cf="num">Avg Views/Post</th>
+        <th data-cf="num">Avg Likes/Post</th>
+        <th data-cf="date">Last Updated</th>
+      </tr></thead>
+      <tbody></tbody>
+    </table>
+    <div class="cf-pg" id="pg1"></div>
+  </div>
+
+  <div class="tbar" style="margin-top:26px">
+    <div class="sec-title" style="margin:0">Doosri table — wahi component, alag column</div>
+  </div>
+  <div class="tbar" id="bar2"></div>
+  <div class="tbl-box">
+    <table id="tbl2">
+      <thead><tr>
+        <th data-cf="text">State</th>
+        <th data-cf="text">Name</th>
+        <th data-cf="text">Designation</th>
+        <th data-cf="text">Party</th>
+        <th data-cf="num">Followers</th>
+        <th data-cf="num">Tweets</th>
+        <th data-cf="num">Avg Views/Post</th>
+        <th data-cf="date">Last Updated</th>
+      </tr></thead>
+      <tbody></tbody>
+    </table>
+    <div class="cf-pg" id="pg2"></div>
+  </div>
+
+</main>
+
+<!-- ===================================================================
+     REUSABLE COMPONENT  ::  integration ke waqt bas ye <script> aur
+     upar wala "COLUMN FILTER" CSS block dashboard me jaata hai.
+
+     Istemaal:
+        var api = enableColumnFilters(document.getElementById('tbl1'), {
+          toolbar : '#bar1',     // "Showing X of Y" + chips + Clear all
+          pager   : '#pg1',      // (optional) pagination
+          pageSize: 50,          // (optional) 0 = sab ek saath
+          indexCol: 0,           // (optional) "#" column -> dubara number hoga
+          onChange: function(rows){ ... }   // (optional)
+        });
+        api.getRows();      // filter ke baad bache hue rows (export ke liye)
+        api.clearAll();     // sab filter hata do
+        api.refresh();      // tbody naya bhara ho to dubara index bana lo
+
+     Column ka type: <th data-cf="text|num|date|none">.
+     data-cf na ho to component khud pehli 40 row dekh kar taad leta hai.
+     Formatted cell (jaise "1.2M", "28 Sep 2026") ke liye td par
+     data-v="<asli number ya YYYY-MM-DD>" de dein, sort/range usi se banega.
+     =================================================================== -->
+<script>
+(function (W) {
+  'use strict';
+
+  var CHEV = '<svg viewBox="0 0 10 10" aria-hidden="true"><path d="M1 3l4 4 4-4" '
+           + 'fill="none" stroke="currentColor" stroke-width="1.7" '
+           + 'stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+  /* ---------- ek hi popup, poore page ke liye ----------
+     body par lagta hai + position:fixed -> table ke overflow/scroll se
+     kabhi kat-ta nahi, aur z-index ki ladai bhi nahi hoti.          */
+  var POP = null, OPEN = null;           // OPEN = {inst, ci}
+  function pop() {
+    if (POP) return POP;
+    POP = document.createElement('div');
+    POP.className = 'cf-pop';
+    POP.setAttribute('role', 'dialog');
+    document.body.appendChild(POP);
+    POP.addEventListener('mousedown', function (e) { e.stopPropagation(); });
+    document.addEventListener('mousedown', function () { close(); });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' || e.keyCode === 27) close();
+    });
+    /* scroll/resize par popup band karna galat tha: browser khud hi
+       chevron ko dikhane ke liye table ko scroll kar deta hai (focus par),
+       aur popup khulte hi band ho jaata tha. Ab bas dubara jagah par rakh
+       dete hain; band tabhi jab uska header hi screen se bahar chala jaaye. */
+    function follow() {
+      if (!OPEN || !OPEN.th) return;
+      var r = OPEN.th.getBoundingClientRect();
+      if (r.bottom < 0 || r.top > W.innerHeight || r.right < 0 || r.left > W.innerWidth) close();
+      else place(OPEN.th);
+    }
+    W.addEventListener('resize', follow);
+    W.addEventListener('scroll', follow, true);
+    return POP;
+  }
+  function close() {
+    if (!OPEN) return;
+    POP.classList.remove('show');
+    try { OPEN.th.classList.remove('cf-open'); } catch (e) {}
+    OPEN = null;
+  }
+  /* screen ke andar hi rakho (mobile par bhi) */
+  function place(anchor) {
+    var r = anchor.getBoundingClientRect();
+    POP.style.left = '0px'; POP.style.top = '0px';
+    var w = POP.offsetWidth, h = POP.offsetHeight;
+    var L = Math.min(Math.max(8, r.left), W.innerWidth - w - 8);
+    var T = r.bottom + 5;
+    if (T + h > W.innerHeight - 8) T = Math.max(8, r.top - h - 5);
+    POP.style.left = L + 'px';
+    POP.style.top = T + 'px';
+  }
+
+  /* ---------- chhote helper ---------- */
+  function txt(td) { return (td.textContent || '').replace(/\s+/g, ' ').trim(); }
+  function num(v) {
+    if (v === null || v === undefined) return NaN;
+    var s = String(v).trim();
+    if (!s || s === '-' || s === '—') return NaN;
+    var m = s.replace(/[,\s ]/g, '').match(/^(-?\d*\.?\d+)\s*([KkMmBb])?$/);
+    if (!m) { var f = parseFloat(s.replace(/[^0-9.\-]/g, '')); return isNaN(f) ? NaN : f; }
+    var n = parseFloat(m[1]), u = (m[2] || '').toLowerCase();
+    return u === 'k' ? n * 1e3 : u === 'm' ? n * 1e6 : u === 'b' ? n * 1e9 : n;
+  }
+  var MON = { jan:1, feb:2, mar:3, apr:4, may:5, jun:6, jul:7, aug:8, sep:9, oct:10, nov:11, dec:12 };
+  function iso(v) {                       /* "28 Sep 2026" / "2026-09-28" -> "2026-09-28" */
+    var s = String(v == null ? '' : v).trim();
+    var m = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (m) return m[1] + '-' + m[2] + '-' + m[3];
+    m = s.match(/^(\d{1,2})[ \-\/]([A-Za-z]{3,})[ \-\/](\d{4})/);
+    if (m) { var mo = MON[m[2].slice(0, 3).toLowerCase()];
+             if (mo) return m[3] + '-' + ('0' + mo).slice(-2) + '-' + ('0' + m[1]).slice(-2); }
+    m = s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/);
+    if (m) return m[3] + '-' + ('0' + m[2]).slice(-2) + '-' + ('0' + m[1]).slice(-2);
+    return '';
+  }
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+  function el(sel) {
+    return (typeof sel === 'string') ? document.querySelector(sel) : (sel || null);
+  }
+
+  /* ================================================================ */
+  function enable(table, opts) {
+    opts = opts || {};
+    if (!table || table._cf) return table && table._cf;
+
+    var thead = table.tHead, tbody = table.tBodies[0];
+    if (!thead || !tbody) return null;
+    var ths = [].slice.call(thead.rows[thead.rows.length - 1].cells);
+
+    var inst = {
+      table: table, ths: ths, tbody: tbody,
+      cols: [], rows: [], view: [],
+      sort: null,                    /* {ci, dir} */
+      page: 1,
+      pageSize: +opts.pageSize || 0,
+      indexCol: (opts.indexCol === undefined ? -1 : opts.indexCol),
+      toolbar: el(opts.toolbar), pager: el(opts.pager),
+      onChange: opts.onChange || null
+    };
+    table._cf = inst;
+
+    /* ---- column ka type ---- */
+    function sniff(ci) {
+      var a = tbody.rows, n = Math.min(a.length, 40), nn = 0, dd = 0, tot = 0;
+      for (var i = 0; i < n; i++) {
+        var td = a[i].cells[ci]; if (!td) continue;
+        var raw = td.getAttribute('data-v'); var s = raw === null ? txt(td) : raw;
+        if (!s) continue;
+        tot++;
+        if (iso(s)) dd++; else if (!isNaN(num(s))) nn++;
+      }
+      if (!tot) return 'text';
+      if (dd / tot > 0.6) return 'date';
+      if (nn / tot > 0.6) return 'num';
+      return 'text';
+    }
+    ths.forEach(function (th, ci) {
+      var t = (th.getAttribute('data-cf') || '').toLowerCase();
+      if (!t) t = (ci === inst.indexCol) ? 'none' : sniff(ci);
+      inst.cols.push({ ci: ci, th: th, type: t,
+                       label: txt(th),
+                       sel: null,        /* text: {value:true} ya null */
+                       min: null, max: null, from: '', to: '' });
+    });
+    if (inst.indexCol >= 0 && inst.cols[inst.indexCol]) inst.cols[inst.indexCol].type = 'none';
+
+    /* ---- har row ka data ek baar nikaal lo (1000+ row par bhi tez) ---- */
+    function index() {
+      inst.rows = [].slice.call(tbody.rows).map(function (tr) {
+        var o = { tr: tr, s: [], n: [], d: [] };
+        inst.cols.forEach(function (c) {
+          var td = tr.cells[c.ci];
+          var raw = td ? td.getAttribute('data-v') : null;
+          var s = td ? (raw === null ? txt(td) : raw) : '';
+          o.s[c.ci] = s;
+          o.n[c.ci] = (c.type === 'num') ? num(s) : NaN;
+          o.d[c.ci] = (c.type === 'date') ? iso(s) : '';
+        });
+        return o;
+      });
+      inst.rows.forEach(function (r) { if (r.tr.parentNode) r.tr.parentNode.removeChild(r.tr); });
+    }
+    index();
+
+    /* ---- ek row kisi column ke filter par poori utarti hai? ---- */
+    function pass(r, c) {
+      if (c.type === 'text') {
+        if (!c.sel) return true;
+        return !!c.sel[r.s[c.ci] || '(blank)'];
+      }
+      if (c.type === 'num') {
+        if (c.min === null && c.max === null) return true;
+        var v = r.n[c.ci];
+        if (isNaN(v)) return false;
+        if (c.min !== null && v < c.min) return false;
+        if (c.max !== null && v > c.max) return false;
+        return true;
+      }
+      if (c.type === 'date') {
+        if (!c.from && !c.to) return true;
+        var d = r.d[c.ci];
+        if (!d) return false;
+        if (c.from && d < c.from) return false;
+        if (c.to && d > c.to) return false;
+        return true;
+      }
+      return true;
+    }
+    function active(c) {
+      return c.type === 'text' ? !!c.sel
+           : c.type === 'num'  ? (c.min !== null || c.max !== null)
+           : c.type === 'date' ? !!(c.from || c.to) : false;
+    }
+    /* skipCi = usi column ka filter chhod kar (Excel jaisi ginti popup me) */
+    function filtered(skipCi) {
+      return inst.rows.filter(function (r) {
+        for (var i = 0; i < inst.cols.length; i++) {
+          var c = inst.cols[i];
+          if (c.ci === skipCi) continue;
+          if (!pass(r, c)) return false;
+        }
+        return true;
+      });
+    }
+
+    /* ---- sort + paint ---- */
+    function apply(resetPage) {
+      inst.view = filtered(-1);
+      var s = inst.sort;
+      if (s) {
+        var c = inst.cols[s.ci], k = s.dir === 'asc' ? 1 : -1;
+        inst.view.sort(function (a, b) {
+          var x, y;
+          if (c.type === 'num') {
+            x = a.n[c.ci]; y = b.n[c.ci];
+            if (isNaN(x) && isNaN(y)) return 0;
+            if (isNaN(x)) return 1; if (isNaN(y)) return -1;
+            return (x - y) * k;
+          }
+          x = (c.type === 'date' ? a.d[c.ci] : a.s[c.ci]).toLowerCase();
+          y = (c.type === 'date' ? b.d[c.ci] : b.s[c.ci]).toLowerCase();
+          return x < y ? -k : x > y ? k : 0;
+        });
+      }
+      if (resetPage !== false) inst.page = 1;
+      paint();
+      if (inst.onChange) try { inst.onChange(inst.view.map(function (r) { return r.tr; }), inst); } catch (e) {}
+    }
+    function paint() {
+      var ps = inst.pageSize, tot = inst.view.length;
+      var pages = ps ? Math.max(1, Math.ceil(tot / ps)) : 1;
+      if (inst.page > pages) inst.page = pages;
+      var a = ps ? (inst.page - 1) * ps : 0, b = ps ? Math.min(tot, a + ps) : tot;
+
+      var fr = document.createDocumentFragment();
+      for (var i = a; i < b; i++) {
+        var r = inst.view[i];
+        if (inst.indexCol >= 0) {
+          var td = r.tr.cells[inst.indexCol];
+          if (td) {
+            var sp = td.querySelector('.rank');
+            if (sp) sp.textContent = (i + 1); else td.textContent = (i + 1);
+          }
+        }
+        fr.appendChild(r.tr);
+      }
+      tbody.innerHTML = '';
+      if (!tot) {
+        var cs = inst.cols.length;
+        tbody.innerHTML = '<tr><td colspan="' + cs + '" class="cf-none">'
+          + 'No row matches these filters.</td></tr>';
+      } else tbody.appendChild(fr);
+
+      inst.cols.forEach(function (c) {
+        var on = active(c) || (inst.sort && inst.sort.ci === c.ci);
+        c.th.classList.toggle('cf-on', !!on);
+        var m = c.th.querySelector('.cf-sortmark');
+        if (m) m.textContent = (inst.sort && inst.sort.ci === c.ci)
+          ? (inst.sort.dir === 'asc' ? '▲' : '▼') : '';
+      });
+      bar(tot);
+      pgbar(tot, pages);
+    }
+
+    /* ---- upar ki patti: ginti + chips + Clear all ---- */
+    function bar(tot) {
+      if (!inst.toolbar) return;
+      var on = inst.cols.filter(active);
+      var h = '<span class="cf-count">Showing <b>' + tot.toLocaleString('en-IN')
+            + '</b> of ' + inst.rows.length.toLocaleString('en-IN') + ' rows</span>';
+      if (on.length) {
+        h += '<span class="cf-chips">' + on.map(function (c) {
+          var d = c.type === 'text'
+            ? (function () { var k = Object.keys(c.sel); return k.length === 1 ? k[0] : k.length + ' selected'; })()
+            : c.type === 'num'
+              ? ((c.min !== null ? c.min.toLocaleString('en-IN') : '…') + ' – '
+                 + (c.max !== null ? c.max.toLocaleString('en-IN') : '…'))
+              : ((c.from || '…') + ' – ' + (c.to || '…'));
+          return '<span class="cf-chip">' + esc(c.label) + ': ' + esc(d)
+               + '<i data-x="' + c.ci + '" title="Remove">×</i></span>';
+        }).join('') + '</span>';
+        h += '<span class="sp"></span><button class="btn" data-clear-all>Clear all filters</button>';
+      } else {
+        h += '<span class="sp"></span><button class="btn" disabled>Clear all filters</button>';
+      }
+      inst.toolbar.innerHTML = h;
+      var ca = inst.toolbar.querySelector('[data-clear-all]');
+      if (ca) ca.onclick = function () { clearAll(); };
+      [].forEach.call(inst.toolbar.querySelectorAll('.cf-chip i'), function (x) {
+        x.onclick = function () { clearCol(+x.getAttribute('data-x')); };
+      });
+    }
+    function pgbar(tot, pages) {
+      if (!inst.pager) return;
+      if (!inst.pageSize || tot === 0) { inst.pager.innerHTML = ''; return; }
+      var a = (inst.page - 1) * inst.pageSize + 1, b = Math.min(tot, inst.page * inst.pageSize);
+      inst.pager.innerHTML = '<span>' + a + '–' + b + ' of ' + tot.toLocaleString('en-IN')
+        + '</span><button class="btn" data-pp ' + (inst.page <= 1 ? 'disabled' : '') + '>Prev</button>'
+        + '<span>Page ' + inst.page + ' / ' + pages + '</span>'
+        + '<button class="btn" data-pn ' + (inst.page >= pages ? 'disabled' : '') + '>Next</button>';
+      var p = inst.pager.querySelector('[data-pp]'), n = inst.pager.querySelector('[data-pn]');
+      if (p) p.onclick = function () { if (inst.page > 1) { inst.page--; paint(); } };
+      if (n) n.onclick = function () { if (inst.page < pages) { inst.page++; paint(); } };
+    }
+
+    /* ---- clear ---- */
+    function clearCol(ci) {
+      var c = inst.cols[ci]; if (!c) return;
+      c.sel = null; c.min = c.max = null; c.from = c.to = '';
+      apply();
+    }
+    function clearAll() {
+      inst.cols.forEach(function (c) { c.sel = null; c.min = c.max = null; c.from = c.to = ''; });
+      inst.sort = null;
+      close();
+      apply();
+    }
+
+    /* ================= POPUP ================= */
+    function build(c) {
+      var P = pop(), h = '';
+      if (c.type !== 'text' || true) {
+        h += '<div class="cf-sort">'
+           + '<button data-s="asc"' + (inst.sort && inst.sort.ci === c.ci && inst.sort.dir === 'asc' ? ' class="on"' : '') + '>'
+           + (c.type === 'num' ? 'Sort 1 → 9' : c.type === 'date' ? 'Oldest first' : 'Sort A → Z') + '</button>'
+           + '<button data-s="desc"' + (inst.sort && inst.sort.ci === c.ci && inst.sort.dir === 'desc' ? ' class="on"' : '') + '>'
+           + (c.type === 'num' ? 'Sort 9 → 1' : c.type === 'date' ? 'Newest first' : 'Sort Z → A') + '</button>'
+           + '</div>';
+      }
+      if (c.type === 'text') {
+        h += '<input type="text" data-q placeholder="Search ' + esc(c.label) + '…" autocomplete="off">'
+           + '<div class="cf-links"><a data-all>Select all</a><a data-none>Clear</a></div>'
+           + '<div class="cf-list" data-list></div>';
+      } else if (c.type === 'num') {
+        h += '<div class="cf-sec">Value is between</div>'
+           + '<div class="cf-row2"><input type="number" data-min placeholder="Min" value="'
+           + (c.min === null ? '' : c.min) + '">'
+           + '<input type="number" data-max placeholder="Max" value="'
+           + (c.max === null ? '' : c.max) + '"></div>'
+           + '<div class="cf-sec" style="margin-top:7px" data-rng></div>';
+      } else {
+        h += '<div class="cf-sec">Date between</div>'
+           + '<div class="cf-row2"><input type="date" data-from value="' + esc(c.from) + '">'
+           + '<input type="date" data-to value="' + esc(c.to) + '"></div>';
+      }
+      h += '<div class="cf-foot"><button data-clear>Clear filter</button>'
+         + '<button class="cf-apply" data-apply>Apply</button></div>';
+      P.innerHTML = h;
+
+      /* sort */
+      [].forEach.call(P.querySelectorAll('[data-s]'), function (b) {
+        b.onclick = function () {
+          var d = b.getAttribute('data-s');
+          inst.sort = (inst.sort && inst.sort.ci === c.ci && inst.sort.dir === d) ? null : { ci: c.ci, dir: d };
+          apply(false); close();
+        };
+      });
+
+      if (c.type === 'text') {
+        /* ginti baaki columns ke filter ke baad -- Excel jaisi */
+        var base = filtered(c.ci), cnt = {}, order = [];
+        base.forEach(function (r) {
+          var v = r.s[c.ci] || '(blank)';
+          if (cnt[v] === undefined) { cnt[v] = 0; order.push(v); }
+          cnt[v]++;
+        });
+        order.sort(function (a, b) { return a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' }); });
+        var sel = c.sel ? Object.assign({}, c.sel) : null;     /* null = sab */
+        var list = P.querySelector('[data-list]'), q = P.querySelector('[data-q]');
+
+        function draw() {
+          var needle = (q.value || '').trim().toLowerCase();
+          var vis = order.filter(function (v) { return !needle || v.toLowerCase().indexOf(needle) >= 0; });
+          if (!vis.length) { list.innerHTML = '<div class="cf-empty">No match</div>'; return; }
+          list.innerHTML = vis.slice(0, 2000).map(function (v) {
+            var on = !sel || sel[v];
+            return '<label class="cf-it"><input type="checkbox" data-v="' + esc(v) + '"'
+                 + (on ? ' checked' : '') + '><span title="' + esc(v) + '">' + esc(v)
+                 + '</span><b>' + cnt[v] + '</b></label>';
+          }).join('');
+          [].forEach.call(list.querySelectorAll('input'), function (i) {
+            i.onchange = function () {
+              if (!sel) { sel = {}; order.forEach(function (v) { sel[v] = true; }); }
+              var v = i.getAttribute('data-v');
+              if (i.checked) sel[v] = true; else delete sel[v];
+            };
+          });
+        }
+        q.oninput = draw;
+        draw();
+        setTimeout(function () { try { q.focus({ preventScroll: true }); } catch (e) { try { q.focus(); } catch (e2) {} } }, 10);
+
+        P.querySelector('[data-all]').onclick = function () { sel = null; draw(); };
+        P.querySelector('[data-none]').onclick = function () { sel = {}; draw(); };
+        P.querySelector('[data-apply]').onclick = function () {
+          var k = sel ? Object.keys(sel) : [];
+          c.sel = (!sel || k.length === order.length) ? null : sel;
+          close(); apply();
+        };
+      } else if (c.type === 'num') {
+        var lo = Infinity, hi = -Infinity;
+        inst.rows.forEach(function (r) {
+          var v = r.n[c.ci]; if (!isNaN(v)) { if (v < lo) lo = v; if (v > hi) hi = v; }
+        });
+        var rng = P.querySelector('[data-rng]');
+        if (rng && lo <= hi) rng.textContent = 'In data: ' + lo.toLocaleString('en-IN')
+          + ' – ' + hi.toLocaleString('en-IN');
+        P.querySelector('[data-apply]').onclick = function () {
+          var a = P.querySelector('[data-min]').value, b = P.querySelector('[data-max]').value;
+          c.min = (a === '' ? null : +a); c.max = (b === '' ? null : +b);
+          if (c.min !== null && c.max !== null && c.min > c.max) { var t = c.min; c.min = c.max; c.max = t; }
+          close(); apply();
+        };
+      } else {
+        P.querySelector('[data-apply]').onclick = function () {
+          c.from = P.querySelector('[data-from]').value || '';
+          c.to   = P.querySelector('[data-to]').value || '';
+          if (c.from && c.to && c.from > c.to) { var t = c.from; c.from = c.to; c.to = t; }
+          close(); apply();
+        };
+      }
+      P.querySelector('[data-clear]').onclick = function () { close(); clearCol(c.ci); };
+      return P;
+    }
+
+    function toggle(c, btn) {
+      var was = OPEN && OPEN.ci === c.ci;
+      close();
+      if (was) return;
+      build(c).classList.add('show');
+      place(c.th);
+      c.th.classList.add('cf-open');
+      OPEN = { inst: inst, ci: c.ci, th: c.th };
+    }
+
+    /* ---- header me chevron ---- */
+    inst.cols.forEach(function (c) {
+      if (c.type === 'none') return;
+      c.th.classList.add('cf-h');
+      if (!c.th.querySelector('.cf-sortmark')) {
+        var m = document.createElement('span'); m.className = 'cf-sortmark'; c.th.appendChild(m);
+      }
+      var b = document.createElement('button');
+      b.type = 'button'; b.className = 'cf-btn';
+      b.setAttribute('aria-label', 'Filter ' + c.label);
+      b.title = 'Filter / sort ' + c.label;
+      b.innerHTML = CHEV;
+      b.addEventListener('mousedown', function (e) { e.stopPropagation(); });
+      b.addEventListener('click', function (e) { e.preventDefault(); e.stopPropagation(); toggle(c, b); });
+      c.th.appendChild(b);
+    });
+
+    apply();
+
+    /* ---- bahar se kaam ki cheezein ---- */
+    inst.getRows   = function () { return inst.view.map(function (r) { return r.tr; }); };
+    inst.getData   = function () { return inst.view.map(function (r) { return r.s.slice(); }); };
+    inst.clearAll  = clearAll;
+    inst.refresh   = function () { index(); apply(); };
+    inst.destroy   = function () {
+      close();
+      inst.cols.forEach(function (c) {
+        c.th.classList.remove('cf-h', 'cf-on', 'cf-open');
+        var b = c.th.querySelector('.cf-btn'); if (b) b.remove();
+        var m = c.th.querySelector('.cf-sortmark'); if (m) m.remove();
+      });
+      tbody.innerHTML = '';
+      inst.rows.forEach(function (r) { tbody.appendChild(r.tr); });
+      delete table._cf;
+    };
+    return inst;
+  }
+
+  /* saari table ek saath: enableColumnFilters.all('.tbl-box table') */
+  enable.all = function (sel, opts) {
+    return [].slice.call(document.querySelectorAll(sel)).map(function (t) { return enable(t, opts); });
+  };
+  W.enableColumnFilters = enable;
+})(window);
+</script>
+
+
+<!-- =================== SAMPLE KA DUMMY DATA =================== -->
+<script>
+(function () {
+  var ST = ['Uttar Pradesh','Maharashtra','Bihar','Tamil Nadu','West Bengal','Gujarat','Karnataka',
+            'Rajasthan','Madhya Pradesh','Kerala','Delhi','Punjab','Haryana','Odisha','Telangana','Assam'];
+  var PT = ['BJP','INC','SP','AAP','TDP','DMK','TMC','JD(U)','RJD','BSP','SS(UBT)','NCP'];
+  var DG = ['Chief Minister','Dy CM','LS MP','RS MP','MLA','MLC','MLA Contestent','Others'];
+  var PC = ['Varanasi','Lucknow','Nagpur','Patna','Chennai South','Kolkata North','Ahmedabad East',
+            'Bengaluru Central','Jaipur','Indore','Thiruvananthapuram','New Delhi','Amritsar',
+            'Gurgaon','Puri','Hyderabad','Guwahati','Kanpur','Pune','Siliguri'];
+  var FN = ['Anil','Sunita','Rajesh','Meena','Vikram','Priya','Arjun','Kavita','Suresh','Deepa',
+            'Manoj','Rekha','Sanjay','Nisha','Ashok','Pooja','Ramesh','Geeta','Vijay','Shalini'];
+  var LN = ['Sharma','Yadav','Patel','Reddy','Singh','Nair','Das','Mishra','Verma','Joshi',
+            'Pillai','Gowda','Chauhan','Banerjee','Rao','Iyer'];
+  var COL = { BJP:'#E65100', INC:'#1565C0', SP:'#C62828', AAP:'#2E7D32', TDP:'#6A1B9A',
+              DMK:'#AD1457', TMC:'#00838F', 'JD(U)':'#4E342E', RJD:'#33691E', BSP:'#283593',
+              'SS(UBT)':'#EF6C00', NCP:'#00695C' };
+
+  /* dohraaya ja sake aisa random -- har baar wahi data */
+  var seed = 20261009;
+  function rnd() { seed = (seed * 1103515245 + 12345) % 2147483648; return seed / 2147483648; }
+  function pick(a) { return a[Math.floor(rnd() * a.length)]; }
+  function ri(a, b) { return Math.floor(a + rnd() * (b - a + 1)); }
+  function uf(n) {
+    return n >= 1e7 ? (n / 1e7).toFixed(2) + ' Cr'
+         : n >= 1e5 ? (n / 1e5).toFixed(2) + ' L'
+         : n >= 1e3 ? (n / 1e3).toFixed(1) + 'K' : String(n);
+  }
+  var MO = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  function dshow(s) { var p = s.split('-'); return p[2] + ' ' + MO[+p[1] - 1] + ' ' + p[0]; }
+
+  var ROWS = [];
+  for (var i = 0; i < 540; i++) {
+    var fn = pick(FN), ln = pick(LN), p = pick(PT);
+    var tw = ri(12, 5200), fol = ri(1800, 9800000), vw = tw * ri(300, 90000);
+    var d = ri(1, 9), m = ri(9, 10);
+    ROWS.push({
+      st: pick(ST), pc: pick(PC), p: p, dg: pick(DG),
+      nm: fn + ' ' + ln, hd: (fn + ln).toLowerCase() + ri(1, 99),
+      fol: fol, fng: ri(12, 4200), tw: tw, rt: Math.round(tw * (ri(10, 240) / 100)),
+      vw: vw, avv: Math.round(vw / tw), avl: ri(40, 26000),
+      up: '2026-' + ('0' + m).slice(-2) + '-' + ('0' + (m === 10 ? d : ri(1, 28))).slice(-2)
+    });
+  }
+
+  function chip(p) {
+    var c = COL[p] || '#777';
+    return '<span class="party-chip" style="background:' + c + '18;color:' + c + '">' + p + '</span>';
+  }
+  function n(v) { return '<span class="nv">' + v.toLocaleString('en-IN') + '</span>'; }
+
+  document.querySelector('#tbl1 tbody').innerHTML = ROWS.map(function (r, i) {
+    return '<tr>'
+      + '<td><span class="rank">' + (i + 1) + '</span></td>'
+      + '<td>' + r.st + '</td>'
+      + '<td>' + r.pc + '</td>'
+      + '<td>' + chip(r.p) + '</td>'
+      + '<td>' + r.dg + '</td>'
+      + '<td class="handle-cell"><div class="hname">' + r.nm + '</div>'
+        + '<div class="hat">@' + r.hd + '</div></td>'
+      + '<td data-v="' + r.fol + '">' + n(r.fol) + '</td>'
+      + '<td data-v="' + r.fng + '">' + n(r.fng) + '</td>'
+      + '<td data-v="' + r.tw + '">' + n(r.tw) + '</td>'
+      + '<td data-v="' + r.rt + '">' + n(r.rt) + '</td>'
+      + '<td data-v="' + r.vw + '"><span class="nv">' + uf(r.vw) + '</span></td>'
+      + '<td data-v="' + r.avv + '">' + n(r.avv) + '</td>'
+      + '<td data-v="' + r.avl + '">' + n(r.avl) + '</td>'
+      + '<td data-v="' + r.up + '">' + dshow(r.up) + '</td>'
+      + '</tr>';
+  }).join('');
+
+  document.querySelector('#tbl2 tbody').innerHTML = ROWS.slice(0, 120).map(function (r) {
+    return '<tr><td>' + r.st + '</td><td class="hname">' + r.nm + '</td><td>' + r.dg + '</td>'
+      + '<td>' + chip(r.p) + '</td>'
+      + '<td data-v="' + r.fol + '">' + n(r.fol) + '</td>'
+      + '<td data-v="' + r.tw + '">' + n(r.tw) + '</td>'
+      + '<td data-v="' + r.avv + '">' + n(r.avv) + '</td>'
+      + '<td data-v="' + r.up + '">' + dshow(r.up) + '</td></tr>';
+  }).join('');
+
+  /* ---- yahi do line asli dashboard me bhi jaayengi ---- */
+  enableColumnFilters(document.getElementById('tbl1'),
+    { toolbar: '#bar1', pager: '#pg1', pageSize: 50, indexCol: 0 });
+  enableColumnFilters(document.getElementById('tbl2'),
+    { toolbar: '#bar2', pager: '#pg2', pageSize: 25 });
+})();
+</script>
+</body>
+</html>

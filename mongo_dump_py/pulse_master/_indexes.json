@@ -1,0 +1,123 @@
+{
+ "access_requests": [],
+ "handles_seen": [],
+ "login_log": [
+  {
+   "name": "at_-1",
+   "key": [
+    [
+     "at",
+     -1
+    ]
+   ],
+   "unique": false
+  }
+ ],
+ "master_tweets": [
+  {
+   "name": "Tweet Date_1",
+   "key": [
+    [
+     "Tweet Date",
+     1
+    ]
+   ],
+   "unique": false
+  },
+  {
+   "name": "State_1",
+   "key": [
+    [
+     "State",
+     1
+    ]
+   ],
+   "unique": false
+  },
+  {
+   "name": "Handle_1",
+   "key": [
+    [
+     "Handle",
+     1
+    ]
+   ],
+   "unique": false
+  },
+  {
+   "name": "Category_1",
+   "key": [
+    [
+     "Category",
+     1
+    ]
+   ],
+   "unique": false
+  },
+  {
+   "name": "Party_1",
+   "key": [
+    [
+     "Party",
+     1
+    ]
+   ],
+   "unique": false
+  },
+  {
+   "name": "Total Views_-1",
+   "key": [
+    [
+     "Total Views",
+     -1
+    ]
+   ],
+   "unique": false
+  },
+  {
+   "name": "Total Likes_-1",
+   "key": [
+    [
+     "Total Likes",
+     -1
+    ]
+   ],
+   "unique": false
+  },
+  {
+   "name": "Total Retweets_-1",
+   "key": [
+    [
+     "Total Retweets",
+     -1
+    ]
+   ],
+   "unique": false
+  },
+  {
+   "name": "Total Comments_-1",
+   "key": [
+    [
+     "Total Comments",
+     -1
+    ]
+   ],
+   "unique": false
+  },
+  {
+   "name": "Category_1_Tweet Date_-1",
+   "key": [
+    [
+     "Category",
+     1
+    ],
+    [
+     "Tweet Date",
+     -1
+    ]
+   ],
+   "unique": false
+  }
+ ],
+ "portal_users": []
+}

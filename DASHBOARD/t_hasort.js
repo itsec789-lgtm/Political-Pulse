@@ -1,0 +1,94 @@
+/* t_hasort.js -- Handle Analytics ka dropdown A-Z me aaye */
+'use strict';
+var fs = require('fs');
+var P = 0, F = 0, FAILS = [];
+function ok(c, m) { if (c) P++; else { F++; FAILS.push(m); } console.log((c ? '  ok   ' : '  FAIL ') + m); }
+function sec(t) { console.log('\n== ' + t + ' =='); }
+
+var SRC = fs.readFileSync('./server.js', 'utf8');
+var TPL = fs.readFileSync('./dashboard.template.html', 'utf8');
+
+sec('1. Mongo se hi naam ke kram me aata hai');
+ok(/\.sort\(\{ name: 1, _id: 1 \}\)/.test(SRC), 'sort naam par (pehle tweets par tha)');
+ok(!/\.sort\(\{ tweets: -1 \}\)\.limit\(600\)/.test(SRC), 'purana "tweets se chhanto" hat gaya');
+ok(/\.collation\(\{ locale: 'en', strength: 1 \}\)/.test(SRC),
+   'bada/chhota akshar ka farak nahi (collation)');
+
+sec('2. Poori category aati hai, kat kar nahi');
+ok(/\.limit\(3000\)/.test(SRC), 'limit 600 -> 3000');
+var mlaCount = 2274;
+ok(3000 > mlaCount, 'sabse badi category (MLA ' + mlaCount + ') poori aa jaayegi');
+
+sec('3. Jo LIKHA dikhta hai, usi ke hisaab se kram');
+/* server ka sort function nikaal kar sach me chalao */
+/* DHYAN: 'res.json(out);' file me kai jagah hai -- isliye sort ke BAAD wala dhoondho */
+var _a = SRC.indexOf('out.sort(function (a, b) {');
+var _b = SRC.indexOf('res.json(out);', _a);
+ok(_a > 0 && _b > _a, 'server ka sort function mila');
+var fnSrc = SRC.slice(_a, _b).replace(/^out\.sort\(/, '').replace(/\)\s*;\s*$/, '');
+var sorter = new Function('return ' + fnSrc + ';')();
+ok(typeof sorter === 'function', 'wo sach me ek function hai');
+function run(list) { var c = list.slice(); c.sort(sorter); return c.map(function (o) { return o.name || o.h; }); }
+
+var got = run([
+  { h: 'zed', name: 'Zed Kumar' }, { h: 'amit', name: 'Amit Shah' },
+  { h: 'mohan', name: 'Mohan Yadav' }, { h: 'bhag', name: 'Bhagwant Mann' }
+]);
+ok(got.join(' | ') === 'Amit Shah | Bhagwant Mann | Mohan Yadav | Zed Kumar',
+   'seedha A-Z: ' + got.join(' | '));
+
+got = run([{ h: 'zz', name: 'anil kumar' }, { h: 'aa', name: 'Bharat' }, { h: 'bb', name: 'ANIL SHARMA' }]);
+ok(got.join(' | ') === 'anil kumar | ANIL SHARMA | Bharat',
+   'bada/chhota akshar se farak nahi: ' + got.join(' | '));
+
+got = run([{ h: 'noname2', name: '' }, { h: 'Apex', name: '' }, { h: 'mid', name: 'Mid Man' }]);
+ok(got.join(' | ') === 'Apex | Mid Man | noname2',
+   'naam khaali ho to handle se kram: ' + got.join(' | '));
+
+got = run([{ h: 'a', name: 'Item 10' }, { h: 'b', name: 'Item 2' }, { h: 'c', name: 'Item 1' }]);
+ok(got.join(' | ') === 'Item 1 | Item 2 | Item 10',
+   'number bhi theek se (2 pehle, 10 baad me): ' + got.join(' | '));
+
+/* screenshot wali list -- pehle jis kram me aa rahi thi */
+var shot = [
+  { h: 'purneshmodi', name: 'Purneshbhai Modi' },
+  { h: 'AnilSharma4BJP', name: 'Anil Kumar Sharma' },
+  { h: 'prakashbjp_', name: 'Prakash Chandra Dwivedi' },
+  { h: 'Narayan4bjp_', name: 'Narayan Singh Kushwah' },
+  { h: 'ranarandhirbjp', name: 'Rana Randhir Singh' },
+  { h: 'MlaGupta', name: 'Pankaj Gupta' },
+  { h: 'SureshKKhanna', name: 'Suresh Kumar Khanna' },
+  { h: 'MPLodha', name: 'Mangalprabhat Lodha' },
+  { h: 'manisha_vakil', name: 'Manishaben Vakil' }
+];
+var sorted = run(shot);
+ok(sorted[0] === 'Anil Kumar Sharma', 'screenshot wali list me ab sabse upar: ' + sorted[0]);
+ok(sorted[sorted.length - 1] === 'Suresh Kumar Khanna', 'sabse neeche: ' + sorted[sorted.length - 1]);
+var asc = sorted.every(function (x, i) {
+  return i === 0 || sorted[i - 1].toLowerCase() <= x.toLowerCase();
+});
+ok(asc, 'poori list A-Z: ' + sorted.join(' | '));
+
+sec('4. Dropdown wahi kram dikhata hai');
+ok(/LIST\.map\(function \(o\) \{/.test(TPL), 'option usi kram me bante hain jo server bhejta hai');
+ok(!/LIST\.sort|\.sort\(function/.test(TPL.slice(TPL.indexOf('window.haLoadHandles'),
+   TPL.indexOf('window.haPickSel'))), 'page dobara kram nahi badalta');
+ok(/sel\.value = keep \? CUR : LIST\[0\]\.h;/.test(TPL),
+   'pehla handle chun liya jaata hai (ab wo A-Z me pehla hoga)');
+
+sec('5. Search aur category -- dono par');
+/* ha-cat (13-Oct): filter ab Mongo me 'level' par nahi lagta -- Category
+   MAPPING se aati hai, isliye rows aane ke baad JS me chhanti hai. Niyam
+   wahi: 'ALL' ho to sab, warna sirf us Category ke handle. */
+ok(/rows = rows\.filter\(function \(r\) \{ return haCatOf\(r\._id\) === cat; \}\);/.test(SRC),
+   'category ka filter ab mapping ki Category se');
+ok(/if \(cat && cat !== 'ALL'\) \{/.test(SRC), "'ALL' par koi chhantai nahi");
+ok(/find\.\$or = \[\{ _id: rx \}, \{ name: rx \}\]/.test(SRC), 'search bhi waisa hi');
+ok(SRC.indexOf('.sort({ name: 1, _id: 1 })') > SRC.indexOf("find.$or = [{ _id: rx }, { name: rx }]"),
+   'kram dono par lagta hai -- category chuno ya dhoondho');
+
+console.log('\n========================================================');
+console.log('  PASS ' + P + '   FAIL ' + F);
+if (F) { console.log('\n  FAIL hui:'); FAILS.forEach(function (x) { console.log('   - ' + x); }); }
+console.log('========================================================');
+process.exit(F ? 1 : 0);

@@ -1,0 +1,9 @@
+{
+  "host": "smtp.gmail.com",
+  "port": 465,
+  "user": "politicalpulse03@gmail.com",
+  "pass": "vzcshfolynwbhdxr",
+  "from": "India Political Pulse <politicalpulse03@gmail.com>",
+  "url": "https://unripe-thwarting-chewable.ngrok-free.dev/login",
+  "_note": "pass = Gmail App Password (16 letters, bina space). url me apna current ngrok link rakhna -- mail ke button me yahi jaata hai. ngrok link badle to yahan bhi badal dena."
+}

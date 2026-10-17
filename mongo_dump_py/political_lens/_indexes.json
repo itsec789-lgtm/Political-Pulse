@@ -1,0 +1,96 @@
+{
+ "aggregates": [],
+ "meta": [],
+ "tweets": [
+  {
+   "name": "d_1",
+   "key": [
+    [
+     "d",
+     1
+    ]
+   ],
+   "unique": false
+  },
+  {
+   "name": "pt_1",
+   "key": [
+    [
+     "pt",
+     1
+    ]
+   ],
+   "unique": false
+  },
+  {
+   "name": "sn_1",
+   "key": [
+    [
+     "sn",
+     1
+    ]
+   ],
+   "unique": false
+  },
+  {
+   "name": "pc_1",
+   "key": [
+    [
+     "pc",
+     1
+    ]
+   ],
+   "unique": false
+  },
+  {
+   "name": "h_1",
+   "key": [
+    [
+     "h",
+     1
+    ]
+   ],
+   "unique": false
+  },
+  {
+   "name": "cat_1",
+   "key": [
+    [
+     "cat",
+     1
+    ]
+   ],
+   "unique": false
+  },
+  {
+   "name": "dg_1",
+   "key": [
+    [
+     "dg",
+     1
+    ]
+   ],
+   "unique": false
+  },
+  {
+   "name": "eng_1",
+   "key": [
+    [
+     "eng",
+     1
+    ]
+   ],
+   "unique": false
+  },
+  {
+   "name": "v_1",
+   "key": [
+    [
+     "v",
+     1
+    ]
+   ],
+   "unique": false
+  }
+ ]
+}

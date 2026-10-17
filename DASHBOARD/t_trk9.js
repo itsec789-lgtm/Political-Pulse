@@ -1,0 +1,113 @@
+/* t_trk9.js -- "mapping me pehle se hai" wali feedback aur
+   "Mapping.xlsx maine khud badal di" wala raasta. */
+'use strict';
+var fs = require('fs');
+var P = 0, F = 0, FAILS = [];
+function ok(c, m) { if (c) P++; else { F++; FAILS.push(m); } console.log((c ? '  ok   ' : '  FAIL ') + m); }
+function sec(t) { console.log('\n== ' + t + ' =='); }
+
+var TS = require('./tracker_section.js');
+var SRV = fs.readFileSync('./server.js', 'utf8');
+var J = TS.script(), H = TS.section('tracker');
+
+sec('1. Handle jodne se pehle "mapping me hai ya nahi"');
+ok(H.indexOf('Check mapping') >= 0, 'Check mapping button');
+ok(H.indexOf('id="trkChk"') >= 0, 'jawaab dikhane ki jagah');
+ok(J.indexOf('function trkCheck()') >= 0, 'trkCheck()');
+ok(J.indexOf('/admin/tracker/mapcheck?handles=') >= 0, 'mapcheck route call');
+ok(/app\.get\('\/admin\/tracker\/mapcheck', adminGuard/.test(SRV), 'route adminGuard ke peeche');
+ok(SRV.split("app.get('/admin/tracker/mapcheck'").length - 1 === 1, 'route ek hi baar');
+ok(/Already in mapping/.test(J), '"Already in mapping" saaf likha');
+ok(/Not in mapping/.test(J), '"Not in mapping" bhi');
+ok(/All of them are already in the mapping/.test(J), 'add ke baad bhi batata hai');
+ok(/their tweets will be held until you fill them in/.test(J), 'na ho to kya hoga, wo bhi');
+
+/* mapcheck ka asli vyavhaar */
+(function () {
+  var els = { trkIn: { value: '@myogiadityanath, koi_naya_xyz' }, trkChk: { innerHTML: '' },
+              trkStale: { innerHTML: '' } };
+  var got = null;
+  var fn = new Function('document', 'console', 'fetch',
+    J.replace(/if\(document\.getElementById\('sec-tracker'\)\)\{[\s\S]*$/, '') +
+    '\nreturn {trkCheck:trkCheck,trkStale:trkStale};');
+  var api = fn({ getElementById: function (i) { return els[i] || null; } }, console,
+    function (u) {
+      got = u;
+      return Promise.resolve({ json: function () { return Promise.resolve({
+        handles: [
+          { handle: 'myogiadityanath', mapped: true, name: 'Narendra Modi', party: 'BJP',
+            state: 'Uttar Pradesh', category: 'LS_MP' },
+          { handle: 'koi_naya_xyz', mapped: false }
+        ], fresh: { stale: false } }); } });
+    });
+  api.trkCheck();
+  setTimeout(function () {
+    ok(/handles=/.test(got), 'request me handle gaye: ' + String(got).slice(0, 60));
+    var h = els.trkChk.innerHTML;
+    ok(/@myogiadityanath/.test(h) && /@koi_naya_xyz/.test(h), 'dono handle dikhe');
+    ok(/✔ Already in mapping/.test(h), 'mapped par hara tick');
+    ok(/✖ Not in mapping/.test(h), 'unmapped par nishan');
+    ok(/Narendra Modi · BJP · Uttar Pradesh · LS_MP/.test(h),
+       'mapping me kya hai wo bhi dikha');
+    ok(/Handle Mapping tab after the first scrape/.test(h), 'aage kya hoga wo bataya');
+    step2();
+  }, 20);
+
+  function step2() {
+    sec('2. Mapping.xlsx khud badal di -> rebuild ka raasta');
+    /* trkStale ab sync ka haal bhi dikhata hai -> trkStale(f, m) */
+    ok(J.indexOf('function trkStale(f,m)') >= 0, 'trkStale()');
+    ok(J.indexOf('function trkMsync(m)') >= 0, 'sync ka haal bhi usi jagah dikhta hai');
+    ok(J.indexOf('function trkRebuild(btn)') >= 0, 'trkRebuild()');
+    ok(/app\.post\('\/admin\/tracker\/rebuild-mapping', adminGuard/.test(SRV), 'rebuild route');
+    ok(/rebuild_mapping\.py/.test(SRV), 'rebuild_mapping.py hi chalta hai (apna alag logic nahi)');
+    ok(/'--apply'/.test(SRV), '--apply ke saath');
+    ok(/MAPL\._reset\(\); MAPL\.load\(true\);/.test(SRV), 'rebuild ke baad cache taaza');
+    ok(/TRK\._clearLegacy\(\);/.test(SRV), 'purani unmapped list bhi saaf');
+    ok(/function mappingFreshness\(\)/.test(SRV), 'date ki tulna karne wala function');
+    ok(/out\.stale = a > b \+ 2000;/.test(SRV), 'Excel JSON se nayi ho to stale');
+
+    els.trkStale.innerHTML = '';
+    api.trkStale({ stale: false });
+    ok(els.trkStale.innerHTML === '', 'sab theek ho to kuch nahi dikhta');
+
+    api.trkStale({ stale: true, xlsxAt: new Date(Date.now() - 120000).toISOString(),
+                   jsonAt: new Date(Date.now() - 86400000).toISOString() });
+    var w = els.trkStale.innerHTML;
+    ok(/Mapping.xlsx has been edited/.test(w), 'badalne par saaf warning');
+    ok(/Rebuild mapping from Mapping.xlsx/.test(w), 'rebuild ka button');
+    ok(/2 min ago/.test(w), 'Excel kab badli: ' + (/Excel changed ([^,]+)/.exec(w) || [])[1]);
+    ok(/1 day ago/.test(w), 'mapping kab bani');
+    ok(/cannot see them until/.test(w), 'kyun zaroori hai wo bhi bataya');
+    done();
+  }
+
+  function done() {
+    sec('3. Tracked Accounts me MAPPING column');
+    ok(/<th>HANDLE<\/th><th>MAPPING<\/th><th>STATUS<\/th>/.test(J), 'MAPPING column HANDLE ke baad');
+    ok(/✔ In mapping/.test(J), 'mapped par tick');
+    ok(/✖ Not mapped/.test(J), 'warna nishan');
+    ok(/h\.mapped/.test(J), 'server se aaya flag use hota hai');
+    ok(/mapped = !!cm;/.test(SRV), 'server har handle par flag lagata hai');
+    ok(/h\.mapInfo = cm \?/.test(SRV), 'tooltip ke liye mapping ka saar bhi');
+
+    sec('4. Sentiment banner ka pip path');
+    var fn2 = new Function('document', 'console',
+      J.replace(/if\(document\.getElementById\('sec-tracker'\)\)\{[\s\S]*$/, '') +
+      '\nreturn {h:trkSentHtml};');
+    var a2 = fn2({ getElementById: function () { return null; } }, console);
+    var b = a2.h({ sentimentEngine: 'wordlist', sentimentTrained: false, sentimentStrict: true });
+    var pip = (/pip install[^<]*/.exec(b) || [''])[0];
+    ok(/\\sentiment_tagger-3\.0\.0/.test(pip), 'backslash bach gaya: ' + pip);
+    ok(/\.whl/.test(pip), 'seedha bundled wheel install hoti hai (source folder nahi)');
+    ok(!/Documentssentiment/.test(pip), 'path ab juda hua nahi dikhta');
+    ok(/probe-boot/.test(SRV), 'boot/state par engine probe hota hai');
+    ok(/await SENTL\.probeNow\(\);/.test(SRV), 'probeNow call hota hai -- "unknown" nahi rehta');
+
+    console.log('\n' + '='.repeat(56));
+    console.log('  PASS ' + P + '   FAIL ' + F);
+    if (F) { console.log('\n  FAIL hui:'); FAILS.forEach(function (f) { console.log('   - ' + f); }); }
+    console.log('='.repeat(56));
+    process.exit(F ? 1 : 0);
+  }
+})();

@@ -1,0 +1,90 @@
+# -*- coding: utf-8 -*-
+"""
+push_tweets.py  --  Reports ka data pool MongoDB 'tweets' collection me daalta hai.
+
+Ab ye pool = POORA ALL-INDIA data + Media House + Journalist (pehle sirf UP tha).
+Report tab yahi collection query karta hai.
+Ye Report tab ke keyword-search ke liye zaroori hai (server isi collection se data leta hai).
+
+Chalao (data update ke baad):
+    "C:\\Users\\arpan\\anaconda3\\python.exe" push_tweets.py
+
+Zaroorat: pip install pandas pymongo
+"""
+import os, sys
+import pandas as pd
+import src_chunks as _SRC
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+MASTER = os.path.join(HERE, "data", "master_tweets.csv")
+from mongo_conf import MONGO_URL  # <- central: db_config.json / MONGO_URL env (mongo_conf.py)
+DB_NAME = "up_pulse"
+SCOPE_STATE = None   # None = ALL INDIA (report pool = poora India + media/journalist)
+
+C = {'handle': 'Handle', 'url': 'Tweet URL', 'date': 'Tweet Date', 'text': 'Tweet Text',
+     'followers': 'Followers', 'likes': 'Total Likes', 'rts': 'Total Retweets', 'views': 'Total Views',
+     'sent': 'Sentiment', 'state': 'State', 'desig': 'Designation', 'name': 'Candidate Name', 'party': 'Party'}
+NEED = set(C.values()) | {'Category'}   # Category chahiye (media/journalist pehchanne ke liye)
+
+
+def level_of(desig):
+    x = str(desig).strip()
+    if x == 'Chief Minister': return 'cm'
+    if x == 'Deputy Chief Minister': return 'dcm'
+    if x in ('LS_MP', 'RS_MP', 'LS_MP CANDIDATE'): return 'mp'
+    if x in ('MLA', 'Mla', 'MLC'): return 'mla'
+    return ''
+
+
+def num(x):
+    try: return int(float(str(x).replace(',', '')))
+    except: return 0
+
+
+def main():
+    master = sys.argv[1] if len(sys.argv) > 1 else MASTER   # arg: "MONGO" ya CSV path
+    if not _SRC.is_mongo(master) and not os.path.exists(master):
+        sys.exit("master nahi mila: " + master)
+    from pymongo import MongoClient
+    print("Reading master  (scope: %s)...  (%s)" % (SCOPE_STATE or "ALL INDIA + media/journalist", master))
+    docs = []
+    for ch in _SRC.chunks(master, NEED):
+        ch = ch.rename(columns=lambda c: c.strip()).fillna('')
+        if SCOPE_STATE:
+            # UP ke tweets + MEDIA HOUSE/JOURNALIST bhi (ye kisi state ke nahi hote,
+            # par reports me inhe dikhana hai)
+            st = ch[C['state']].astype(str).str.strip() == SCOPE_STATE
+            cat = ch['Category'].astype(str).str.strip().str.lower() if 'Category' in ch.columns else None
+            ch = ch[st | (cat.isin(['media house', 'journalist']) if cat is not None else False)]
+        if len(ch) == 0: continue
+        for r in ch.itertuples(index=False):
+            d = dict(zip(ch.columns, r))
+            docs.append({
+                'h': str(d.get(C['handle'], '')).strip(), 'name': d.get(C['name'], ''),
+                'text': d.get(C['text'], ''), 'party': str(d.get(C['party'], '')).strip(),
+                'level': level_of(d.get(C['desig'], '')), 'sent': d.get(C['sent'], ''),
+                'date': str(d.get(C['date'], ''))[:10], 'lk': num(d.get(C['likes'])),
+                'rt': num(d.get(C['rts'])), 'vw': num(d.get(C['views'])),
+                'followers': num(d.get(C['followers'])), 'url': d.get(C['url'], ''),
+                'cat': str(d.get('Category', '')).strip()})   # Media House / Journalist / MLA ...
+    _up = sum(1 for d in docs if str(d.get('cat', '')).strip().lower() not in ('media house', 'journalist'))
+    _md = len(docs) - _up
+    print("  Reports pool: %d  (politicians: %d + media/journalist: %d)" % (len(docs), _up, _md))
+
+    cli = MongoClient(MONGO_URL); db = cli[DB_NAME]
+    db['tweets'].delete_many({})
+    B = 5000
+    for i in range(0, len(docs), B):
+        db['tweets'].insert_many(docs[i:i+B])
+    # helpful index (party/date). text search server memory me hota hai.
+    try:
+        db['tweets'].create_index('party'); db['tweets'].create_index('date')
+        db['tweets'].create_index('cat');   db['tweets'].create_index('h')
+    except Exception: pass
+    print("  MongoDB 'tweets':", db['tweets'].count_documents({}), "docs")
+    cli.close()
+    print("DONE. Ab server restart karo (npm start) -- Report tab kaam karega.")
+
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,87 @@
+<div class="page-section" id="sec-parties">
+<!-- parties-v2 (10-Oct): poora tab naye sire se. Ek shared filter state,
+     ek render(). Purane local date-pill (All/7D/3D) hata diye gaye hain --
+     ab Date Range hi ek-maatr maalik hai. -->
+<div class="parties-filter-bar">
+  <span class="filter-label">Date Range</span>
+  <select class="filter-select" id="pfDate" style="min-width:170px">
+    <option value="all">Full Range</option>
+    <option value="today">Today</option>
+    <option value="yest">Yesterday</option>
+    <option value="3d">3 Days</option>
+    <option value="7d">7 Days</option>
+    <option value="custom">Custom</option>
+  </select>
+  <div id="pfCustom">
+    <input type="date" class="filter-select" id="pfFrom">
+    <span class="filter-label" style="letter-spacing:0">to</span>
+    <input type="date" class="filter-select" id="pfTo">
+  </div>
+  <div class="filter-divider"></div>
+  <span class="filter-label">Level</span>
+  <select class="filter-select" id="pfLevel" style="min-width:150px"></select>
+  <div class="filter-divider"></div>
+  <span class="filter-label">State</span>
+  <select class="filter-select" id="pfState" style="min-width:175px"></select>
+  <div class="filter-divider"></div>
+  <span class="filter-label">Party</span>
+  <select class="filter-select" id="pfParty" style="min-width:150px"></select>
+  <div class="filter-info" style="margin-left:auto" id="pfInfo">&mdash;</div>
+</div>
+<main>
+  <div class="sec-title" id="pfOverviewTitle">Party Overview
+    <span style="font-size:9px;font-weight:400;color:var(--muted);text-transform:none;letter-spacing:0;margin-left:4px">
+      Click a party card to filter the charts below</span>
+  </div>
+
+  <div class="pf-chiprow">
+    <span class="pf-chip" id="pfChip"><span class="pf-dot"></span><span id="pfChipTxt">Showing: All Parties</span><i id="pfChipX" title="Clear" style="display:none">&#10005;</i></span>
+    <span style="font-size:10.5px;color:var(--muted2)" id="pfRangeTxt"></span>
+  </div>
+
+  <div class="party-grid" id="pfCards">
+    <div style="grid-column:1/-1;padding:18px;text-align:center;color:var(--muted);font-size:12px">Loading&hellip;</div>
+  </div>
+
+  <button class="pf-more" id="pfMore" type="button" style="display:none">Show all parties</button>
+
+  <div class="charts-2col" style="margin-bottom:16px">
+    <div class="chart-box">
+      <div class="chart-ttl"><div class="chart-ttl-left"><span>Daily Tweet Activity</span></div></div>
+      <div class="chart-sub-note" id="pfDailyNote">&nbsp;</div>
+      <div style="position:relative;height:210px"><canvas id="pfDailyChart"></canvas></div>
+    </div>
+    <div class="chart-box">
+      <div class="chart-ttl"><span>Hourly Pattern (IST)</span></div>
+      <div class="chart-sub-note" id="pfHourNote">&nbsp;</div>
+      <div style="position:relative;height:210px"><canvas id="pfHourChart"></canvas></div>
+    </div>
+  </div>
+
+  <div class="charts-2col" style="margin-bottom:16px">
+    <div class="chart-box">
+      <div class="chart-ttl"><span id="pfTopTitle">Top 8 Handles by Avg Views/Post</span></div>
+      <div class="chart-sub-note" id="pfTopNote">&nbsp;</div>
+      <div style="position:relative;height:320px"><canvas id="pfTopChart"></canvas></div>
+    </div>
+    <div class="chart-box">
+      <div class="chart-ttl"><span id="pfViewsTitle">Views Share by Party</span></div>
+      <div class="chart-sub-note" id="pfViewsNote">&nbsp;</div>
+      <div style="position:relative;height:300px"><canvas id="pfViewsChart"></canvas></div>
+    </div>
+  </div>
+
+  <div class="charts-2col">
+    <div class="chart-box">
+      <div class="chart-ttl"><span id="pfTweetTitle">Tweets by Party</span></div>
+      <div class="chart-sub-note" id="pfTweetNote">&nbsp;</div>
+      <div style="position:relative;height:260px"><canvas id="pfTweetChart"></canvas></div>
+    </div>
+    <div class="chart-box">
+      <div class="chart-ttl"><span id="pfSentTitle">Sentiment by Party</span></div>
+      <div class="chart-sub-note" id="pfSentNote">&nbsp;</div>
+      <div style="position:relative;height:300px"><canvas id="pfSentChart"></canvas></div>
+    </div>
+  </div>
+</main>
+</div>

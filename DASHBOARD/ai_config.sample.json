@@ -1,0 +1,6 @@
+{
+  "_instructions": "FREE AI key lene ke liye: (1) https://console.groq.com par jao, Google se free signup. (2) API Keys -> Create API Key -> copy karo (gsk_ se shuru). (3) Is file ka naam badal kar ai_config.json karo aur neeche key paste karo. (4) Server restart. Bas - reports me 'AI Analysis' section aane lagega. Key na ho to bhi report poori banti hai (sirf AI section nahi aata).",
+  "provider": "groq",
+  "key": "gsk_YAHA_APNI_KEY_PASTE_KARO",
+  "model": "llama-3.3-70b-versatile"
+}

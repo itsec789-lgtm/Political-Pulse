@@ -1,0 +1,281 @@
+/* t_trk6.js -- mapping gate ka poora test:
+     * mapping me na ho to tweet ROKE jaate hain (master_tweets me nahi)
+     * mapping me ho to attribute columns ke saath jaate hain
+     * mapping bharne ke baad roke hue tweet CHHOOT jaate hain
+     * sentiment trained engine se aata hai
+     * CSV parse / validate / template */
+'use strict';
+var fs = require('fs');
+var P = 0, F = 0, FAILS = [];
+function ok(c, m) { if (c) P++; else { F++; FAILS.push(m); } console.log((c ? '  ok   ' : '  FAIL ') + m); }
+function sec(t) { console.log('\n== ' + t + ' =='); }
+
+var XS = require('./x_scraper.js');
+var MAP = require('./mapping_lib.js');
+var SENT = require('./sentiment.js');
+var TS = require('./tracker_section.js');
+var SRV = fs.readFileSync('./server.js', 'utf8');
+var XSRC = fs.readFileSync('./x_scraper.js', 'utf8');
+
+/* ---------- nakli Mongo ---------- */
+function mkDb() {
+  var st = { master: {}, pending: {}, pendhand: {}, tracked: {}, counts: {} };
+  function coll(bag) {
+    return {
+      find: function (q) { return {
+        projection: null,
+        toArray: async function () {
+          var all = Object.keys(bag).map(function (k) { return bag[k]; });
+          if (q && q._id && q._id.$in) return all.filter(function (d) { return q._id.$in.indexOf(d._id) >= 0; });
+          if (q && q.handle && q.handle.$regex) {
+            var re = new RegExp(q.handle.$regex, q.handle.$options || '');
+            return all.filter(function (d) { return re.test(d.handle); });
+          }
+          return all;
+        },
+        sort: function () { return this; } }; },
+      bulkWrite: async function (ops) {
+        ops.forEach(function (o) {
+          var u = o.updateOne, id = u.filter._id;
+          var cur = bag[id] || { _id: id };
+          if (u.update.$set) Object.assign(cur, u.update.$set);
+          if (u.update.$max) Object.keys(u.update.$max).forEach(function (k) {
+            cur[k] = Math.max(Number(cur[k]) || 0, u.update.$max[k]); });
+          if (u.update.$inc) Object.keys(u.update.$inc).forEach(function (k) {
+            cur[k] = (Number(cur[k]) || 0) + u.update.$inc[k]; });
+          if (u.update.$setOnInsert && !bag[id]) Object.assign(cur, u.update.$setOnInsert);
+          if (u.update.$addToSet) Object.keys(u.update.$addToSet).forEach(function (k) {
+            cur[k] = cur[k] || []; if (cur[k].indexOf(u.update.$addToSet[k]) < 0) cur[k].push(u.update.$addToSet[k]); });
+          bag[id] = cur;
+        });
+      },
+      deleteMany: async function (q) {
+        (q._id.$in || []).forEach(function (id) { delete bag[id]; }); },
+      deleteOne: async function (q) { delete bag[q._id]; },
+      updateOne: async function () {}
+    };
+  }
+  var db = { collection: function (n) {
+    if (n === 'master_tweets') {
+      var c = coll(st.master);
+      c.aggregate = function (p) { st.aggPipe = p; return { toArray: async function () { return st.agg || []; } }; };
+      c.updateMany = async function () { return { modifiedCount: 0 }; };
+      c.countDocuments = async function (q) {
+        st.counted = (st.counted || []); st.counted.push(q.Handle);
+        return st.counts[q.Handle] || 0;
+      };
+      return c;
+    }
+    if (n === 'tracked_handles') return coll(st.tracked);
+    if (n === 'pending_tweets') return coll(st.pending);
+    if (n === 'pending_handles') return coll(st.pendhand);
+    return coll({});
+  } };
+  return { db: db, st: st };
+}
+function doc(id, handle, text) {
+  return { 'Handle': handle, 'Tweet ID': String(id),
+    'Tweet URL': 'https://x.com/' + handle + '/status/' + id,
+    'Tweet Date': '2026-10-05 10:00:00 IST', 'Tweet Text': text || 'hello',
+    'Followers': 10, 'Total Likes': 5, 'Sentiment': 'Neutral', 'Sentiment Score': 0 };
+}
+
+/* sentiment python ko test me nahi chalate -- stub.
+   ready() bhi stub karna zaroori hai: strict mode trained model na hone par
+   tag() bulata hi nahi (yahi uska kaam hai). */
+var SENT_CALLS = [];
+SENT.ready = function () { return true; };
+SENT.trained = function () { return true; };
+SENT.probeNow = async function () { return { engine: 'stub', trained: true, labels: [] }; };
+SENT.tag = async function (texts) {
+  SENT_CALLS.push(texts.slice());
+  return texts.map(function (t) {
+    return /great|win/.test(t) ? { label: 'Positive', score: 0.9 } : { label: 'Neutral', score: 0 };
+  });
+};
+
+(async function () {
+
+sec('1. Mapping me NA ho to tweet ROK liye jaate hain');
+(function () {})();
+var m = mkDb(), stats = { newCount: 0, updatedCount: 0 };
+MAP._reset();
+await XS.applySentiment([]);                 /* khaali par gire nahi */
+await (async function () {
+  var docs = [doc(1, 'bilkul_naya_handle', 'great win'), doc(2, 'bilkul_naya_handle', 'ordinary')];
+  await XS.saveTweets ? null : null;
+})();
+/* saveTweets export nahi hai -- runOnce ke raste jaayenge; seedha gate dekhne
+   ke liye releaseHandle + pendingHandles use karte hain (neeche). */
+ok(MAP.has('myogiadityanath'), 'asli mapping load hui (myogiadityanath mila)');
+ok(!MAP.has('bilkul_naya_handle'), 'naya handle mapping me nahi hai');
+
+sec('2. columnsFor: mapped handle ko saare attribute column milte hain');
+(function () {
+  var c = MAP.columnsFor('myogiadityanath');
+  ok(!!c, 'columns mile');
+  ['State', 'Party', 'Candidate Name', 'Category', 'Designation', 'Categories'].forEach(function (k) {
+    ok(c[k] !== undefined, 'column ' + k + ' = ' + JSON.stringify(c[k]));
+  });
+  ok(Array.isArray(c['Categories']), 'Categories ARRAY hai (Mongo me waise hi)');
+  ok(c['Status'] === 'Active', 'Status bhi aata hai (phase2_push jaisa)');
+  ok(MAP.columnsFor('@MYOGIADITYANATH') !== null, 'case aur @ se farak nahi padta');
+  ok(MAP.columnsFor('nahi_hai_ye') === null, 'anjaan handle par null');
+  /* khaali/'-' value column me aani hi nahi chahiye */
+  var rk = MAP.columnsFor('Rajkarankhatri');
+  ok(rk['Locations'] === undefined, "'-' wala Locations column me nahi aata (purana value mitne se bachav)");
+})();
+
+sec('3. buildOp: Categories array rehta hai, string nahi');
+(function () {
+  var op = XS.buildOp({ 'Tweet ID': '9', 'Handle': 'x', 'Categories': ['MLA', 'Top Leaders'],
+    'Total Likes': 7, 'State': 'UP', '_andar': 'ignore me' });
+  var set = op.updateOne.update.$set;
+  ok(Array.isArray(set['Categories']), 'Categories array rahi: ' + JSON.stringify(set['Categories']));
+  ok(set['Categories'][0] === 'MLA', 'sort hui: ' + set['Categories']);
+  ok(op.updateOne.update.$max['Total Likes'] === 7, 'numeric $max me gaya');
+  ok(set['_andar'] === undefined, 'andar ke _field Mongo me nahi jaate');
+  ok(op.updateOne.update.$addToSet['Source Folders'] === XS.SOURCE_TAG, 'Source Folders tag laga');
+})();
+
+sec('4. releaseHandle: mapping bharte hi roke hue tweet chhoot jaate hain');
+(function () {})();
+m = mkDb();
+m.st.pending['101'] = { _id: '101', handle: 'myogiadityanath', doc: doc(101, 'myogiadityanath', 'great win') };
+m.st.pending['102'] = { _id: '102', handle: 'MyogiAdityanath', doc: doc(102, 'MyogiAdityanath', 'ordinary') };
+m.st.pending['103'] = { _id: '103', handle: 'kisi_aur_ka', doc: doc(103, 'kisi_aur_ka', 'x') };
+m.st.pendhand['myogiadityanath'] = { _id: 'myogiadityanath', tweets: 2 };
+var r = await XS.releaseHandle(m.db, 'myogiadityanath');
+ok(r.ok === true, 'release ok');
+ok(r.released === 2, 'dono tweet chhoote (case alag hone par bhi): ' + r.released);
+ok(!!m.st.master['101'] && !!m.st.master['102'], 'dono master_tweets me pahunche');
+ok(m.st.master['101']['State'] === 'Uttar Pradesh', 'State mapping se laga: ' + m.st.master['101']['State']);
+ok(m.st.master['101']['Party'] === 'BJP', 'Party laga');
+ok(Array.isArray(m.st.master['101']['Categories']), 'Categories array ban kar gaya');
+ok(!m.st.pending['101'] && !m.st.pending['102'], 'pending se hat gaye');
+ok(!!m.st.pending['103'], 'DOOSRE handle ke tweet nahi chhede gaye');
+ok(!m.st.pendhand['myogiadityanath'], 'waiting list se bhi hat gaya');
+
+sec('5. Mapping na ho to release mana kar deta hai');
+m = mkDb();
+m.st.pending['201'] = { _id: '201', handle: 'abhi_bhi_naya', doc: doc(201, 'abhi_bhi_naya') };
+r = await XS.releaseHandle(m.db, 'abhi_bhi_naya');
+ok(r.ok === false, 'release nahi hua');
+ok(/still not in the mapping/.test(r.why), 'wajah saaf: ' + r.why);
+ok(!!m.st.pending['201'], 'tweet abhi bhi pending me surakshit hai');
+ok(Object.keys(m.st.master).length === 0, 'aadha-adhoora row master_tweets me NAHI gaya');
+
+sec('6. pendingHandles: panel ko kya dikhega');
+m = mkDb();
+m.st.pendhand['naya1'] = { _id: 'naya1', tweets: 12, sample: 'kuch text', firstSeen: new Date() };
+m.st.pendhand['myogiadityanath'] = { _id: 'myogiadityanath', tweets: 3 };
+m.st.tracked['PMOIndia'] = { _id: 'PMOIndia' };
+m.st.tracked['myogiadityanath'] = { _id: 'myogiadityanath' };
+m.st.counts['PMOIndia'] = 6;
+m.st.agg = [{ _id: 'PMOIndia', n: 6, sample: 'GST', last: 'z' }];
+XS._clearLegacy();
+var ph = await XS.pendingHandles(m.db, true);
+var byH = {}; ph.forEach(function (x) { byH[x.handle] = x; });
+ok(!!byH['naya1'], 'ruka hua handle aaya');
+ok(!byH['myogiadityanath'], 'jo mapping me HAI wo list me nahi aata (ab chhant jaata hai)');
+ok(!!byH['PMOIndia'], 'pehle se database me pada unmapped handle bhi aaya');
+ok(byH['naya1'].tweets === 12, 'held ki ginti');
+ok(byH['naya1'].held === true && byH['naya1'].inDb === false, 'naya1 sirf ruka hua hai');
+ok(byH['PMOIndia'].held === false && byH['PMOIndia'].inDb === true, 'PMOIndia sirf database me hai');
+ok(byH['PMOIndia'].dbTweets === 6, 'uske purane tweet gine gaye');
+ok(byH['naya1'].sample === 'kuch text', 'sample text aaya');
+ok(!m.st.aggPipe, 'aam list me 4 lakh row ki aggregation nahi chalti');
+ok((m.st.counted || []).indexOf('myogiadityanath') < 0,
+   'jo mapping me hai uski ginti bhi nahi ki jaati');
+
+/* poora scan (deep) maangne par aggregation wala raasta */
+m = mkDb();
+m.st.agg = [{ _id: 'kabhi_track_nahi_hua', n: 9, sample: 'purana', last: 'z' },
+            { _id: 'myogiadityanath', n: 50, sample: 'x', last: 'y' }];
+XS._clearLegacy();
+var phd = await XS.pendingHandles(m.db, true, true);
+var byD = {}; phd.forEach(function (x) { byD[x.handle] = x; });
+ok(!!byD['kabhi_track_nahi_hua'],
+   'deep scan me wo handle bhi milta hai jo tracked list me nahi hai');
+ok(byD['kabhi_track_nahi_hua'].dbTweets === 9, 'deep scan me ginti aayi');
+ok(!byD['myogiadityanath'], 'deep scan me bhi mapping wala chhant jaata hai');
+ok(!!m.st.aggPipe, 'deep scan aggregation chalata hai');
+
+sec('7. applySentiment: poore batch ka ek call');
+(function () {})();
+SENT_CALLS = [];
+var docs = [doc(1, 'a', 'great win today'), doc(2, 'a', 'normal day'), doc(3, 'a', 'win again')];
+await XS.applySentiment(docs);
+ok(SENT_CALLS.length === 1, '3 tweet par sirf 1 engine call (per-tweet nahi): ' + SENT_CALLS.length);
+ok(SENT_CALLS[0].length === 3, 'teeno text ek saath gaye');
+ok(docs[0]['Sentiment'] === 'Positive' && docs[0]['Sentiment Score'] === 0.9, 'label+score lag gaye');
+ok(docs[1]['Sentiment'] === 'Neutral', 'doosre par Neutral');
+
+/* engine gir jaaye to purana sentiment bacha rahe */
+var old = SENT.tag;
+SENT.tag = async function () { throw new Error('python gir gaya'); };
+var d2 = [doc(9, 'a', 'great win')];
+d2[0]['Sentiment'] = 'Positive'; d2[0]['Sentiment Score'] = 0.5;
+await XS.applySentiment(d2);
+ok(d2[0]['Sentiment'] === 'Positive', 'engine fail par fallback sentiment bacha raha');
+/* ginti galat ho to bhi kuch na bigde */
+SENT.tag = async function () { return [{ label: 'Positive', score: 1 }]; };
+var d3 = [doc(10, 'a', 'x'), doc(11, 'a', 'y')];
+await XS.applySentiment(d3);
+ok(d3[0]['Sentiment'] === 'Neutral', 'adhoora jawaab chup-chaap chhod diya gaya');
+SENT.tag = old;
+
+sec('8. mapping_lib: validate aur CSV');
+ok(MAP.validateRow({}).length === 2, 'khaali row par 2 zaroori column: ' + MAP.validateRow({}));
+ok(MAP.validateRow({ State: 'UP', Designation: 'MLA', 'Candidate Name': 'A', Category: 'MLA', Party: 'B' }).length === 0,
+   'bhari row paas');
+ok(MAP.validateRow({ State: '-', Designation: '-', 'Candidate Name': 'A', Category: 'MLA', Party: '-' }).length === 0,
+   "'-' ab State/Party/Designation me chalta hai (media house jaisa handle)");
+ok(MAP.validateRow({ State: 'UP', Designation: 'MLA', 'Candidate Name': '-', Category: 'MLA', Party: 'B' })[0] === 'Candidate Name',
+   "naam '-' ho to phir bhi rokta hai");
+(function () {
+  var c = MAP.csvObjects('Handle,State,Candidate Name\nfoo,UP,"Kumar, Ram"\nbar,Bihar,Simple');
+  ok(c.rows.length === 2, 'CSV ki 2 row padhi');
+  ok(c.rows[0]['Candidate Name'] === 'Kumar, Ram', 'naam me comma sambhal gaya');
+  ok(c.rows[0].__get('handle') === 'foo', 'header ka case maaf hai');
+  ok(c.rows[0].__get('CANDIDATE NAME') === 'Kumar, Ram', 'bada-chhota akshar maaf');
+  ok(MAP.csvObjects('A\n"say ""hi"""').rows[0].A === 'say "hi"', 'quote ke andar quote');
+  ok(MAP.csvObjects('﻿A,B\n1,2').headers[0] === 'A', 'Excel ka BOM hat gaya');
+  ok(MAP.csvObjects('A,B\n1,2\n\n\n').rows.length === 1, 'khaali line chhod di');
+  ok(MAP.csvCell('=cmd()')[1] === "'", 'CSV injection se bachav');
+})();
+
+sec('9. Panel: Handle Mapping tab');
+var H = TS.section('trkmap'), J = TS.script();
+ok(H.indexOf('id="sec-trkmap"') >= 0, 'section bana');
+ok(H.indexOf('Handle Mapping') >= 0, 'heading');
+ok(H.indexOf('map-template.csv') >= 0, 'template download link');
+ok(H.indexOf('id="tmpFile"') >= 0, 'CSV upload input');
+ok(H.indexOf('Check first, do not write') >= 0, 'pehle sirf jaanch wala option');
+ok(J.indexOf('/admin/tracker/map-upload') >= 0, 'upload route call hoti hai');
+ok(J.indexOf("'/admin/tracker/map'") >= 0, 'manual save route');
+ok(J.indexOf('/admin/tracker/pending') >= 0, 'pending list route');
+ok(/Save mapping and apply to/.test(J), 'button par saaf likha hai kya hoga');
+
+sec('10. Server: routes aur guard');
+[['get', '/admin/tracker/pending'], ['post', '/admin/tracker/map'],
+ ['get', '/admin/tracker/map-template.csv'], ['post', '/admin/tracker/map-upload']].forEach(function (r) {
+  var pat = "app." + r[0] + "('" + r[1] + "'";
+  ok(SRV.split(pat).length - 1 === 1, r[0].toUpperCase() + ' ' + r[1] + ' ek baar');
+  var i = SRV.indexOf(pat);
+  ok(SRV.slice(i, i + 160).indexOf('adminGuard') >= 0, r[1] + ' adminGuard ke peeche');
+});
+ok(/\{ id: 'trkmap'/.test(SRV), 'NAV me Handle Mapping');
+ok(/if \(bad\.length\) \{\s*return res\.json\(\{ ok: false, incomplete: true/.test(SRV),
+   'ek bhi adhoori row par KUCH nahi likha jaata');
+ok(/MAPL\._reset\(\); MAPL\.load\(true\);/.test(SRV), 'mapping cache release se pehle taaza hoti hai');
+ok(XSRC.indexOf("const COLL_PENDING = 'pending_tweets';") >= 0, 'staging collection');
+ok(/master_tweets me jaane ke BAAD hi pending se hatate hain/.test(XSRC),
+   'pehle likho phir mitao (beech me fail ho to tweet gaayab na ho)');
+
+console.log('\n' + '='.repeat(56));
+console.log('  PASS ' + P + '   FAIL ' + F);
+if (F) { console.log('\n  FAIL hui:'); FAILS.forEach(function (f) { console.log('   - ' + f); }); }
+console.log('='.repeat(56));
+process.exit(F ? 1 : 0);
+})().catch(function (e) { console.log('CRASH ' + (e && e.stack || e)); process.exit(1); });

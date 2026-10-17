@@ -1,0 +1,1741 @@
+####################################################################
+#  08-OCT KA NICHOD  --  pehle ye padho, phir neeche ka vistaar
+####################################################################
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!  AGAR "Import openpyxl failed" / "mapping banayi nahi ja saki" AAYE
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  Wajah: pandas bina openpyxl ke Excel (.xlsx) padh hi nahi sakta, aur
+         us system ke Python me openpyxl laga hi nahi hai.
+  Nuksan: KOI NAHI -- sync surakshit tarike se ruk jaata hai, dashboard
+         purani mapping par chalta rehta hai, kuch mitta nahi.
+
+  ILAAJ (ek hi baar):
+     DASHBOARD\FIX_EXCEL_READER.bat   par double-click
+  ya haath se:
+     "<aapka python.exe>" -m pip install openpyxl
+
+  Uske baad:  DASHBOARD\RUN_MAPPING_UPDATE.bat
+  (ya agli ghante wali Mapping Sync apne aap theek chal jaayegi)
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+CHALANE KA TARIKA (kram zaroori hai):
+  1. UPDATE_KARO.bat                   -> saari nayi file chali jaayengi
+                                          (purani ka backup khud banta hai)
+  2. DASHBOARD\FIX_EXCEL_READER.bat    -> Excel padhne wala purza (openpyxl)
+                                          [sirf ek baar. pehle se ho to bhi
+                                           chala sakte ho -- nuksan nahi]
+  3. DASHBOARD\RUN_MAPPING_UPDATE.bat  -> Mapping.xlsx -> handle_master ->
+                                          Mongo -> dashboard. 4 step hain,
+                                          beech me Y/N poochhegi.
+  4. START_LIVE.bat ko BAND karke dobara chalao  -> server.js badla hai
+     (startup par "BUILD: ..." line dikhegi -- wahi pehchan hai)
+  5. Browser me Ctrl + F5
+
+  DHYAN: step 2 aur 3 wali file APNE PROJECT ke DASHBOARD folder se
+  chalani hai --  C:\...\DASHBOARD\RUN_MAPPING_UPDATE.bat
+  UPDATE_07-OCT\nayi-files\DASHBOARD\ waali copy se NAHI (wahan Mapping
+  folder hota hi nahi). Galti se wahan se chalao to ab wo khud rok kar
+  sahi raasta bata deti hai.
+
+Galat ho jaaye to: WAPAS_KARO.bat  -> sab purana wapas.
+
+--------------------------------------------------------------------
+AAJ KYA-KYA BADLA (08-Oct)
+--------------------------------------------------------------------
+
+GINTI / MAPPING
+  * MP ka level wapas aaya -- nayi Excel me MP ka Party Designation "-" hai
+    aur mantri-pad Admin Designation me. 79 MP "Others" me gir gaye the
+    (Narendra Modi aur Rahul Gandhi samet). Ab Category se bhi level banta hai.
+  * "Mapping me nahi hai" ab kabhi "hata diya" nahi maana jaata. Gayab handle
+    sirf data\mapping_removed_candidates.json me dikhte hain.
+  * MLA Contestants ka card 0 nahi raha (ab 267 mapping me).
+  * Level card ka handle count ab MAPPING se -- Chief Ministers 31
+    (pehle 30 dikhta tha, kyunki ek CM ka ek bhi tweet nahi aaya).
+  * CM & Dy CM tab poori tarah mapping se: 50 leaders = 31 CM + 19 Dy CM.
+    Jinke tweet nahi aaye unki row "No tweets yet" ke saath aati hai.
+
+DASHBOARD
+  * "Profiles" tab ka naam ab "Leader Board".
+  * Admin Panel ka hak ab tick se milta hai (Active Logins -> Access ->
+    "Admin panel"). Tick lagte hi us user ke profile menu me "Admin Panel"
+    aa jaata hai. Naye user ko hak dene par server restart nahi chahiye.
+  * Top Leaders: table ke upar "Sort by" button -- Followers / Following /
+    Tweets / Total Views / Avg Views / Avg Likes. Table ab 50 handle ka.
+  * Executive Summary ke chaaron card ab date filter par bante hain
+    (Sentiment aur top hashtag bhi). Page par koi hardcoded aankda nahi.
+  * Har date filter ek jaisa: Full Range | Today | Yesterday | 3 Days |
+    7 Days | Custom.
+  * Server ka BUILD stamp: Admin Panel -> Active Logins par, aur
+    http://localhost:3000/api/build par.
+
+SAATH ME DI GAYI FILE
+  * Mapping_Me_Nahi_Hain_79_Handles_08Oct.csv -- 79 handle jinke tweet hain
+    par nayi Mapping.xlsx me nahi (12,156 tweets). Ye dashboard par pehle
+    jaise dikhte rahenge.
+  * Mapping_Summary_08Oct2026.xlsx -- mapping ka poora saaransh
+    (level-wise, state-wise, party-wise, saare 4,280 handle).
+
+####################################################################
+
+======================================================================
+  MAIN SYSTEM PAR UPDATE  --  05 se 07 October
+======================================================================
+
+Poora folder copy karne ki zaroorat nahi. 17 files badalti hain + 3
+saathi files jo sirf tab daali jaati hain jab wahan hain hi nahi.
+Ye package wahi files aur ek script hai.
+
+
+KYA KARNA HAI
+=============
+
+1. Ye poora folder "UPDATE_07-OCT" apne main system par
+   "Main Twitter Project" folder ke ANDAR rakho:
+
+       C:\Main Twitter Project\UPDATE_07-OCT\
+
+2. Server band kar do (jo black window chal raha hai).
+   Script khud bhi check karti hai -- chalta mila to ruk jaayegi.
+
+3. UPDATE_KARO.bat  par double-click.
+
+4. DASHBOARD\RUN_MAPPING_UPDATE.bat  chalao.   <-- YE MAT BHOOLNA
+   Ye Mapping.xlsx se handle_master.json banati hai. Sirf Excel
+   badalne se kuch nahi hota -- dashboard handle_master.json padhta
+   hai, Excel nahi.
+
+5. START_LIVE.bat chalao.
+
+6. Browser me Ctrl + F5 (dono dashboard par).
+
+7. Sentiment pehli baar laga rahe ho to ek baar:
+       DASHBOARD\INSTALL_SENTIMENT.bat
+
+Kuch galat lage to WAPAS_KARO.bat -- sab purana ho jaayega.
+
+
+======================================================================
+  ISME KYA-KYA AAYA HAI
+======================================================================
+
+
+A. HANDLE TRACKER / SCRAPING
+---------------------------
+
+  * 24 ghante chunne par 2 October ka data aa jaata tha. Wajah: handle
+    ka PINNED tweet saalon purana hota hai, aur us par scrape poora
+    handle chhod deta tha. Ab purana tweet sirf chhoda jaata hai, rukta
+    nahi. Tweet Database par date ka filter bhi lag gaya (pehle tha hi
+    nahi).
+
+  * Window ka dropdown apne aap "Pichhle 3 din" par wapas chala jaata
+    tha (har 5 second wala refresh use dobara likh deta tha). Ab jis
+    control ko aapne chhua hai use refresh haath nahi lagata.
+
+  * "Ek handle ki kitni page" wala control hat gaya -- ab kitna
+    peechhe jaana hai ye sirf date ki window se tay hota hai.
+
+  * Live Scrape Log aur Tweet Database ab apne-apne alag tab me hain.
+    Log ab upar se neeche padha jaata hai (pehle ulta tha), scraping ke
+    waqt progress bar aata hai, khatm hone par "Done" likha aata hai,
+    aur CSV download me poore 28 column aate hain (pehle 10 the).
+
+  * Admin panel me Hindi nahi rahi -- sab English.
+
+  * "operation exceeded time limit" wala error har 2 minute me dohra
+    raha tha. Wo ginti ab bhaari aggregation nahi chalati, do naye
+    index ban jaate hain, aur fail hone par 10 minute ka wait lagta hai
+    (pehle har refresh par dobara chal jaati thi). Poora database scan
+    ab maangne par: "Scan the whole database" button.
+
+
+B. SENTIMENT
+------------
+
+  * Ab aapke apne trained sentiment_tagger se sentiment aata hai, aur
+    poore 8 label aate hain:
+      Pro BJP, Anti BJP, Pro Govt., Anti Govt.,
+      Positive, Negative, Neutral, No Sentiments
+    (Ye naam package se hi padhe gaye hain -- haath se nahi likhe.)
+
+  * Trained model na mile to Sentiment ka khaana KHAALI chhoda jaata
+    hai. Pehle 3-label wala fallback likh deta tha, jisse database me
+    galat label chale jaate.
+
+  * Poore page ke tweets ek hi call me tag hote hain (pehle har tweet
+    par alag call).
+
+
+C. MAPPING
+----------
+
+  * Jo handle mapping me nahi hai uska data ab seedha database me nahi
+    jaata -- ruk jaata hai, aur admin panel mapping ke 11 column maangta
+    hai. Do raaste: haath se form, ya CSV upload (jaanch ke saath).
+    Mapping bharte hi uske purane row bhi theek ho jaate hain.
+
+  * '-' ab theek maana jaata hai (official page me state/AC/PC nahi
+    hota). Zaroori sirf do hain: Candidate Name aur Category.
+
+  * Koi handle atak jaaye to use list se hata sakte ho.
+
+  * Mapping.xlsx me seedha update kar do to admin panel dobara nahi
+    poochhta, aur batata hai ki handle pehle se mapping me hai.
+
+
+D. HANDLES TO BE ADDED  (dono dashboard par naya tab)
+----------------------------------------------------
+
+  * User template download karta hai, handle bharta hai, upload karta
+    hai. Upload par turant dikh jaata hai ki kaun sa handle pehle se
+    mapping me hai (uska AC/PC, party, sab) aur kaun sa naya hai.
+  * Bulk CSV bhi, aur haath se 2-3 entry bhi -- dono.
+  * Remarks likh kar request bhej sakta hai.
+  * Admin panel par request aati hai, wahan har khaana EDIT ho sakta
+    hai, phir Approve ya Reject. Approve par mapping apne aap update.
+  * User ko apni request ka haal dikhta rehta hai.
+
+  * (07 Oct) "Send request" dabane par "No valid handle in that file."
+    aa jaata tha -- chahe row bilkul theek ho. Yaani koi request ja hi
+    nahi rahi thi. Theek ho gaya.
+
+
+E. ADMIN PANEL KE TAB
+---------------------
+
+  * Login Requests + Handle Requests ab ek hi tab me.
+  * Scraping Report + Data Export bhi ek hi tab me.
+
+
+F. DASHBOARD KI TABLE AUR CHART  (07 Oct)
+-----------------------------------------
+
+  * "Today" ka alag button har filter bar se hata diya (7 jagah se).
+    QUICK dropdown me "Today" pehle ki tarah hai -- wahi se chuno.
+
+  * Har filter bar par ab saaf likha aata hai ki kaun si date se kaun si
+    tak chuni hai, jaise:   05 Oct 2026 -> 07 Oct 2026  -  3 days
+    (pehle sirf Overview par thi, aur "10-05" jaise ulajhne wale format
+     me. Ab mahina naam se aata hai, aur dono din ginte hain.)
+
+  * EXECUTIVE SUMMARY ab date filter maanta hai. Pehle Key Highlights,
+    Party Performance aur Sentiment Insights HAMESHA poori range ke
+    aankde dikhate the, chaahe upar "Last 3 Days" chuna ho. Ab wahi
+    hisaab chune hue dino par hota hai -- usi per-din data se jisse upar
+    ke KPI card bante hain.
+      - top handle, peak day, state ranking, party ranking: sab badalte hain
+      - sentiment ka per-din data kahin store hi nahi hota, isliye wo
+        poori range ka rehta hai AUR card par saaf likha aata hai
+        "full range" -- taaki galatfehmi na ho
+      - sentiment ke percentage ab poore 8 bucket par bante hain
+        (pehle sirf Positive+Neutral+Negative par -- isse har % bada
+         dikhta tha, jaise Neutral 77% jabki asli 65.8%)
+
+  * "Most Active - Tweets" chart ki jaanch ki: wo pehle se SAHI hai aur
+    data se hi banta hai. Pichhle 3 din me Modi ji ke sirf 9 tweet hain
+    (tweet-ginti me rank 1031), isliye wo top-6 me nahi aate. Un 3 dino
+    me VIEWS par Modi ji rank 1 par hain -- "Top Performers" wale chart
+    me dikhte hain. Chart badla nahi gaya, kyunki usme galti nahi thi.
+
+  * Data update hone wale dono message ab English me hain:
+      - header ki pill par hover karne par:
+        "When the data was last updated"   (pehle Hindi me tha)
+      - naya data aane par jo HARA banner aata hai:
+        "New data is in - refreshing..."
+        (pehle "Naya data aa gaya - refresh ho raha hai")
+    Rang, jagah aur kaam waisa ka waisa -- sirf shabd badle.
+
+  * Avg Views/Post aur Avg Likes/Post me "NaN" aa jaata tha jab us
+    range me koi post hi nahi hota (0 / 0). Ab 0 aata hai.
+
+  * Jis handle ne us range me kuch post nahi kiya, uski row ab table me
+    nahi dikhti. Neeche ek line aa jaati hai, jaise:
+      "12 handles hidden - no posts in the selected date range"
+    taaki aisa na lage ki handle gayab ho gaya.
+
+  * Top Performers chart chhoti range par khaali ho jaata tha. Usme
+    shart thi "kam se kam 10 tweet" -- 6 mahine par theek, par 3 din
+    par koi 10 tweet nahi karta. Ab shart range ke hisaab se banti hai:
+    3 din par 1, 7 din par 3, 30+ din par 10 (pehle jaisi).
+
+  * FROM / TO ke date box ab sirf tab dikhte hain jab QUICK me
+    "Custom" chuna jaaye. Jahan QUICK hai hi nahi, wahan pehle ki
+    tarah dikhte rahenge. Kaam me kuch nahi badla.
+
+
+F2. LOGIN KARNE WALE KA PROFILE  --  ab header ke daayein kone me
+------------------------------------------------------------------
+
+  * Pehle profile sidebar me tha aur usme sirf ROLE dikhta tha --
+    yaani "India Pulse", chaahe login kisi ne bhi kiya ho.
+
+  * Ab wo sabse upar, daayein kone me hai (Download PDF ke baad):
+      - gol avatar me login karne wale ke naam ka PEHLA AKSHAR
+        (rohit se login -> R)
+      - uske saath uska naam (Rohit)
+
+    Naam kahan se aata hai, isi kram me:
+      1. portal_users me jo naam hai (panel se approve hue users)
+      2. base account ka label (Admin / India Pulse / Uttar Pradesh...)
+      3. email ka pehla hissa -- rohit.sharma@... -> "Rohit Sharma"
+
+  * Us par click karne par chhota menu khulta hai:
+      Request   -> seedha "Handles To Be Added" tab khul jaata hai
+      (admin ko doosre dashboard ke link bhi dikhte hain)
+      Logout
+
+  * Menu bahar click karne par ya Esc dabane par band ho jaata hai.
+
+  * Sidebar me ab dobara "India Political Pulse" likha aayega,
+    kyunki profile wahan se hat gaya.
+
+  * Chhoti screen par sirf gol avatar dikhta hai, naam chhip jaata hai.
+
+
+F3. SIDEBAR KE TAB  --  naya kram, See more, aur AI chat bandh
+----------------------------------------------------------------
+
+  * Tab ab is kram me hain:
+      1  Dashboard                8  Tweet Intelligence
+      2  Top Leaders              9  Breaking News
+      3  States & CM             10  Growth
+      4  Elected Representatives 11  Hashtags
+      5  Parties                 12  Sentiment
+      6  Handle Analytics        13  Reports
+      7  Profiles                14  Word Cloud
+
+  * "Handles To Be Added" ab sidebar me NAHI hai.
+    Wo sirf upar daayein kone wale profile ke menu me "Request" se
+    khulta hai. Tab khud hataya nahi gaya -- bas list se nikala hai.
+
+  * Nav ki scrollbar chhupi hui hai, isliye pata nahi chalta tha ki
+    neeche aur tab bache hain. Ab neeche "See more" aur ek halka
+    hilta hua teer aata hai. Wo SIRF tab dikhta hai jab sach me neeche
+    aur bacha ho, aur click karne par neeche le jaata hai. Sab tab
+    ek saath dikh rahe hon to wo aata hi nahi.
+
+  * AI chat (neeche daayein wala gol button aur uska panel) abhi ke
+    liye chhupa diya gaya hai. Code hataya NAHI gaya.
+    Wapas chalu karna ho to server.js me dhoondho:   AI_OFF
+    aur use true se false kar do -- bas itna hi.
+
+  * Teeno cheezein server.js se hoti hain, isliye dono dashboard
+    (All India aur UP) par apne aap ek jaisi lagti hain.
+
+
+F4. TEEN AUR SUDHAAR
+--------------------
+
+  * "Top 15 Handles by Views" ka heading hamesha POORI range dikhata
+    tha (Apr-Oct 2026), chaahe upar 3 din chune hon. Ab wo chuni hui
+    date ke hisaab se badalta hai:
+        3 din      ->  Oct 05-07, 2026
+        do mahine  ->  Sep 28 - Oct 07, 2026
+        ek din     ->  Oct 07, 2026
+    Poori range chunne par wahi purana text wapas aa jaata hai.
+
+  * Ek aadmi ke KAI PAD ab saath dikhte hain. Yogi Adityanath CM bhi
+    hain aur MLA bhi -- pehle sirf ek dikhta tha. Ab Designation me
+    "Chief Minister / MLA" aata hai. Aise 96 handle hain (Rekha Gupta,
+    Pawan Kalyan, Bhupendra Patel, Pramod Sawant...).
+
+    Ye data MAPPING se hi uthaya jaata hai (handle_master.json), yaani
+    pipeline dobara chalane ki zaroorat nahi. Mapping me kisi ka pad
+    jodo ya hatao -- RUN_MAPPING_UPDATE.bat ke baad yahan apne aap
+    dikhne lagega.
+
+  * "See more" pehle nav ke ANDAR chipka tha, isliye aakhri tab
+    (Breaking News) ke UPAR chadh jaata tha aur uska gehra orange rang
+    bhadka lagta tha. Ab wo nav ke BAAHAR, uske theek neeche apni alag
+    jagah leta hai -- kisi tab ko dhakta nahi. Rang bhi halka kiya:
+    safed ki halki jhalak, upar ek patli lakeer, hover par thoda saaf.
+
+
+F5. 07 Oct RAAT ke baad ke changes (ye bhi isi package me hain)
+----------------------------------------------------------------
+
+  * HEADER ME PROFILE (sabse upar daayein kone me)
+      - gol avatar me login karne wale ke naam ka pehla akshar
+        (rohit se login -> R), saath me naam
+      - click par menu: Request / (admin ko doosre dashboard) / Logout
+      - Request seedha "Handles To Be Added" khol deta hai
+      - menu header ke bahar (body me) khulta hai, kyunki header par
+        overflow:hidden hai -- warna dropdown kat jaata tha
+      - profile sidebar se hat gaya, wahan dobara title aa gaya
+
+  * SIDEBAR KE TAB -- naya kram (F3 me poori list hai),
+    "Handles To Be Added" nav se hata (ab sirf profile menu me),
+    neeche hilta hua SAFFRON teer (26px) jo batata hai ki aur tab
+    bache hain, aur AI chat abhi chhupa hua.
+
+  * TOP LEADERS
+      - heading ab chuni hui date dikhata hai (3 din -> Oct 05-07, 2026)
+      - ek aadmi ke KAI PAD saath dikhte hain
+        (Yogi Adityanath -> "Chief Minister / MLA"), 96 handles
+      - jin handles ki sirf spelling alag hai (@amitshah / @AmitShah)
+        wo ab ek hi row me jud jaate hain
+
+  * Data update hone wale dono message English me
+    ("New data is in - refreshing..." aur "When the data was last
+     updated")
+
+  * Avg columns me NaN nahi, khaali row chhant jaati hai,
+    FROM/TO sirf Custom par, Top Performers chhoti range par bhi bharta
+    hai -- in sabka vivaran F aur F4 me hai.
+
+  NOTE: ye saare changes DASHBOARD\server.js aur dono
+  dashboard.template.html me hain -- teeno is package me maujood hain.
+
+
+F6. HANDLE ANALYTICS -- handle ki list ab A se Z
+------------------------------------------------
+
+  * Category chunne par jo HANDLE wali list aati thi, wo tweet ki
+    ginti ke hisaab se lagi hoti thi -- isliye kram bemaani lagta tha
+    aur kisi ko dhoondhna mushkil tha.
+    Ab wo NAAM ke hisaab se A se Z aati hai. Bada/chhota akshar se
+    farak nahi padta, aur jis handle ka naam nahi hai uske liye handle
+    se kram lagta hai.
+
+  * Saath me ek dikkat aur theek hui: list me zyada se zyada 600
+    handle aate the. MLA category me 2,274 handle hain -- A-Z karne
+    par baaki sab kat jaate. Ab 3,000 tak aate hain, yaani sabse badi
+    category bhi poori dikhti hai.
+
+  * Yahi kram search par bhi lagta hai.
+
+
+G. MAP-GATE  --  dashboard ab Mapping ko maanta hai  (07 Oct)
+------------------------------------------------------------
+
+  Pehle har table SIRF scrape kiye hue tweets se banti thi. Mapping se
+  handle hatane par uske purane tweet database me pade rehte the,
+  isliye handle table me dikhta hi rehta tha.
+
+  Ab ek nayi file hai:
+      DASHBOARD\data\mapping_removed.json
+      UP-DASHBOARD\data\mapping_removed.json
+
+  Usme sirf wo handle jaate hain jo Mapping.xlsx se JAAN-BOOJHKAR
+  hataye gaye. Gate SIRF usi list ko dekhta hai, aur un handles ko har
+  table aur chart se nikal deta hai.
+
+  >> Gate "jo mapping me nahi hai" ko NAHI hatata -- aur ye jaan-boojh
+     kar hai. 84 aise handle hain jinke tweets to hain par wo kabhi
+     Mapping.xlsx me aaye hi nahi (Narendra Modi, BJP4India, Anupriya
+     Patel, Ravi Kishan...). Unhe hatana galat hota.
+     Poori list isi folder me hai:
+         Mapping_Me_Nahi_Hain_84_Handles_07Oct.csv
+     Jo rakhne hain unhe Mapping.xlsx me jod lo (column wahi hain).
+
+  Ye list apne aap bharti hai -- RUN_MAPPING_UPDATE.bat har baar purani
+  aur nayi mapping ka farak dekh kar usme likh deti hai, aur jo handle
+  wapas mapping me aa jaaye use nikal bhi deti hai. Chahe to file khud
+  bhi edit kar sakte ho, seedhi-saadi list hai.
+
+  >> Is package me list KHAALI hai. Yaani install karte hi koi handle
+     gayab nahi hoga. Iske baad Mapping.xlsx se jo bhi hataoge, wo
+     dashboard se bhi hat jaayega.
+
+  >> Agar is system par mapping_removed.json pehle se hai to script use
+     CHHUTI NAHI -- aapki list surakshit rahegi.
+
+
+H. MAPPING.XLSX  --  ek row ke baare me
+---------------------------------------
+
+  Test system par Mapping.xlsx se ek row hatai gayi thi:
+      Gujarat / Ellisbridge / "Amitbhai Shah" / https://x.com/amitshah
+  Wahi aadmi Gandhinagar / LS_MP wali row me pehle se the, isliye
+  dashboard par do alag naam dikh rahe the.
+
+  Mapping.xlsx is package me NAHI bheji gayi -- wo aapki master file
+  hai aur main system par alag ho sakti hai. Agar wahan bhi dono row
+  hain to Ellisbridge wali hata do, phir RUN_MAPPING_UPDATE.bat.
+
+
+======================================================================
+  BADLI FILES
+======================================================================
+
+  DASHBOARD\server.js
+  DASHBOARD\dashboard.template.html
+  DASHBOARD\x_scraper.js
+  DASHBOARD\x_live.js
+  DASHBOARD\tracker_section.js
+  DASHBOARD\hreq_lib.js
+  DASHBOARD\hreq_admin.js
+  DASHBOARD\mapping_lib.js
+  DASHBOARD\mapping_add.py
+  DASHBOARD\rebuild_mapping.py
+  DASHBOARD\update_dashboard.py
+  DASHBOARD\sentiment.js
+  DASHBOARD\sentiment_cli.py
+  DASHBOARD\INSTALL_SENTIMENT.bat
+  DASHBOARD\sentiment_tagger-3.0.0-py3-none-any.whl
+  UP-DASHBOARD\dashboard.template.html
+  UP-DASHBOARD\update_dashboard.py
+
+  Sirf tab daali jaayengi jab wahan hain hi nahi:
+  DASHBOARD\sentiment_labels.json
+  DASHBOARD\data\mapping_removed.json
+  UP-DASHBOARD\data\mapping_removed.json
+
+
+COOKIE / CONFIG
+---------------
+  Koi config file is package me nahi hai. x_config.json, ai_config.json
+  aur auth_secret.json jaisi files jaan-boojh kar NAHI bheji gayin --
+  unme aapke token aur password hote hain. Jo wahan pehle se hain wahi
+  chalti rahengi.
+
+
+====================================================================
+08-OCT (dopahar) -- LEVEL CARD (LS MP / RS MP / MLA CONTESTANTS) ka fix
+====================================================================
+
+1) MP ka level wapas aa gaya.
+   Nayi Mapping.xlsx me MP ka "Party Designation" khaali (-) hai aur
+   mantri-pad "Admin Designation" me (Prime Minister / Cabinet / MOS /
+   Top Leaders / NA). Level sirf designation se banta tha, isliye 79 MP
+   "Others" me gir gaye the -- Narendra Modi aur Rahul Gandhi samet.
+   Ab Category (LS_MP / RS_MP / MLC / MLA / MLA Contestent) se bhi level
+   banta hai. LS MP 480 -> 560, RS MP 206 -> 232, Others 289 -> 188.
+
+2) "Mapping me nahi hai" ab kabhi "hata diya" nahi maana jaata.
+   rebuild_mapping.py khud se data/mapping_removed.json me kuch NAHI
+   jodta. Jo handle nayi mapping me na mile, wo sirf dekhne ke liye
+   data/mapping_removed_candidates.json me likhe jaate hain.
+   Sach me hatana ho to unhe mapping_removed.json ke "handles" me
+   KHUD daalo -- tabhi dashboard se hatenge.
+
+3) Nayi Mapping.xlsx me 79 purane handle nahi hain (12,156 tweets).
+   List: Mapping_Me_Nahi_Hain_79_Handles_08Oct.csv
+   Ye dashboard par pehle jaise dikhte rahenge.
+
+Badli hui file: DASHBOARD\rebuild_mapping.py
+Chalane ka tarika: UPDATE_KARO.bat -> RUN_MAPPING_UPDATE.bat -> START_LIVE.bat
+
+====================================================================
+08-OCT (shaam) -- LEVEL CARD ka handle count ab MAPPING se (poora count)
+====================================================================
+
+Pehle card sirf un handles ko ginta tha jinke tweet mile. Mapping me 31 CM
+hain, par @cm_nrangaswamy (Puducherry) ka ek bhi tweet data me nahi aaya --
+isliye card 30 dikhata tha. Ab ginti MAPPING se hoti hai:
+
+  - Chief Ministers 31 (jitne mapping me hain)
+  - Alias (ek hi handle chhote-bade akshar me) do baar nahi ginta
+  - mapping_removed.json me daale handle ginti me nahi aate
+  - Jo bada ho WAHI dikhta hai: mapping ka count ya tweet-data ka count
+    (79 handle aise hain jo mapping me nahi par tweet unke hain)
+  - Tweet ka number waisa hi -- wo asli data se aata hai
+
+Saath me: level (pad) ab page bante waqt mapping se theek hota hai, isliye
+mapping badalne par card turant sahi dikhte hain -- pipeline ka intezaar
+nahi karna padta. "Total Tweets by Level" ka jod bhi usi se banta hai.
+
+Badli hui files: DASHBOARD\server.js, UP-DASHBOARD\server.js,
+                 DASHBOARD\rebuild_mapping.py
+ZAROORI: server.js badla hai -> START_LIVE.bat band karke dobara chalao,
+         phir Ctrl + F5.
+
+====================================================================
+08-OCT (shaam-2) -- LEVEL CARD aur CM TAB ab poori tarah MAPPING se
+====================================================================
+
+1) Level card ka "N handles" asli me updateLevelStrip() likhta hai (date ya
+   party badalne par chalta hai). Ab usi ko lapet kar mapping ka poora
+   count dikhaya jaata hai. "All parties" par mapping ka count; koi party
+   chuni ho to us party ki apni ginti (tabhi wo sahi hai).
+
+2) CM & Dy CM tab:
+   - pad mapping se tay hota hai
+   - jo mapping me CM/Dy CM nahi rahe wo hat jaate hain
+     (ChownaMeinBJP, p_sahibsingh, sanghaviharsh, YKhemchandSingh,
+      KipgenNemcha -- mapping me ab sirf MLA; VDSatheesan mapping me hai hi nahi)
+   - jo mapping me hain par list me chhoot gaye the wo jud jaate hain
+     (N. Biren Singh, Siddaramaiah, Pinarayi Vijayan, Udhayanidhi Stalin)
+   - jiske tweet hi nahi aaye (N. Rangasamy) uski row 0 ke saath aati hai,
+     "No tweets yet" likha hua
+   Nateeja: 50 leaders = 31 CM + 19 Dy CM
+
+Badli hui files: DASHBOARD\server.js, DASHBOARD\dashboard.template.html,
+                 UP-DASHBOARD\dashboard.template.html
+ZAROORI: START_LIVE.bat band karke dobara chalao, phir Ctrl + F5.
+
+====================================================================
+08-OCT (raat) -- 3 naye badlaav
+====================================================================
+
+1) "Profiles" tab ka naam ab "Leader Board" hai.
+   (andar ka naam waisa hi hai, isliye purane link/tab nahi toote)
+
+2) Admin Panel ka hak ab tick se milta hai.
+   Admin Panel -> Active Logins -> har user ke Access wale khaane me ek
+   "Admin panel" ka tick hai. Tick lagakar "save" dabao -- us user ke
+   profile menu (upar daayein kone) me "Admin Panel" aa jaayega aur wo
+   seedha switch kar lega. Tick hatao to hak bhi chala jaata hai.
+   Hak Mongo me rakha hai (portal_users.adminPanel), isliye server
+   restart ki zaroorat nahi -- turant lag jaata hai.
+
+3) Top Leaders tab me table ke theek UPAR ek "Sort by" button hai.
+   Click karte hi list khulti hai: Followers / Following / Tweets /
+   Total Views / Avg Views per Post / Avg Likes per Post.
+   Jo chuna, usi se table chhantta hai AUR "Top 15" bhi usi hisaab se
+   aate hain. Heading bhi wahi metric bolti hai. Chuna hua browser me
+   yaad rehta hai.
+
+Badli hui files: DASHBOARD\server.js,
+                 DASHBOARD\dashboard.template.html,
+                 UP-DASHBOARD\dashboard.template.html
+Template ke liye sirf Ctrl + F5 kaafi hai; server.js badla hai isliye
+START_LIVE.bat dobara chalana hoga (BUILD line se pata chal jaayega).
+
+====================================================================
+08-OCT (raat-2) -- Executive Summary ab poori tarah DATE FILTER par chalta hai
+====================================================================
+
+Chaaron card -- Key Highlights, Sentiment Insights, Party Performance,
+Top Performers -- ab chuni hui date range se bante hain. Page par ab koi
+hardcoded aankda nahi hai: shuru me "Loading..." likha rehta hai aur asli
+number aate hi bhar jaata hai.
+
+Kya-kya range se banta hai:
+  - Top handle, top party ka share, peak day, top states  -> per-din data se
+  - Sentiment ke teeno percentage -> SENT_DAILY blob ke per-din aankde se
+    (pehle ye hamesha poori range ka dikhta tha)
+  - Total likes -> PHD ke per-din likes se
+  - Top hashtag -> HTFULL me har tag ka per-din count hai, usse
+  - Party Performance ki saari lines aur Top Performers ki 5 lines
+
+Sirf ek cheez poori range ki rehti hai: "Peak tweeting hour" -- ghante ka
+aankda sirf poore daur ka jama hota hai. Uspar saaf likha aata hai
+"(full range)".
+
+Khaali range chuno to ab galat purana number nahi, saaf message aata hai
+("No activity in this date range").
+
+Badli hui files: DASHBOARD\dashboard.template.html,
+                 UP-DASHBOARD\dashboard.template.html
+Sirf Ctrl + F5 kaafi hai (server.js nahi badla).
+
+====================================================================
+08-OCT (raat-3) -- Date filter har jagah ek jaisa + Top Leaders ab 50 ka
+====================================================================
+
+1) Jitne bhi date filter hain (Dashboard, Top Leaders, CM, MLA, Hashtags,
+   Profiles, UP bar, Trending, Explorer) -- sabme ab bilkul yahi 6 option,
+   isi kram me:
+        Full Range | Today | Yesterday | 3 Days | 7 Days | Custom
+   Pehle har tab ka apna set tha (kahin "Last 14 Days", kahin "Last 30
+   Days", kahin "Today (1 Jul)") aur "Yesterday" kahin tha hi nahi.
+   Hisaab bhi ab ek hi jagah se hota hai (window.pRange).
+   Agar kisi tab me pehle "14/30 Days" chuna tha, wo "Custom" ban jaata
+   hai -- dikhayi de rahi date range waisi ki waisi rehti hai.
+
+2) Top Leaders ka table ab 15 ki jagah 50 handle dikhata hai
+   (heading bhi "Top 50 Handles by Views"). Sort button se jo metric
+   chuna hoga, top 50 usi hisaab se aayenge.
+
+Badli hui files: DASHBOARD\dashboard.template.html,
+                 UP-DASHBOARD\dashboard.template.html
+Sirf Ctrl + F5 kaafi hai (server.js nahi badla).
+
+====================================================================
+09-OCT -- openpyxl wali dikkat ka pakka ilaaj
+====================================================================
+
+1) DASHBOARD\FIX_EXCEL_READER.bat (NAYI FILE)
+   Double-click karo -- jis bhi Python me pandas hai, usme openpyxl daal
+   deti hai. Ek baar chalana kaafi hai.
+
+2) rebuild_mapping.py ab Excel kholne se PEHLE jaanchta hai. openpyxl na
+   ho to lambi python traceback ki jagah saaf likhta hai: kaunsa Python
+   hai, kya command chalani hai, aur ye ki data mita nahi.
+
+3) mapping_sync.py ki FAIL line me ab seedha ilaaj likha aata hai.
+
+4) Dashboard par ab ek patti dikhti hai jab mapping sync ruki ho:
+   "Mapping sync ruki hui hai -- neeche ki handle ginti PURANI mapping ki
+   hai" + wajah + ilaaj. Pehle ye baat sirf server ki black window me
+   likhi aati thi, isliye kisi ko pata hi nahi chalta tha.
+
+5) Python dhoondhne ka tarika: pehle sirf C:\Users\hp\... dekha jaata tha.
+   Ab jo bhi user logged-in hai uske folder me Python313/312/311 dekhe
+   jaate hain -- isliye kisi bhi system par chalega.
+
+Badli hui files: DASHBOARD\server.js, DASHBOARD\rebuild_mapping.py,
+                 DASHBOARD\mapping_sync.py, DASHBOARD\FIX_EXCEL_READER.bat (nayi)
+
+====================================================================
+09-OCT (2) -- "Mapping khaali hai ya padhi nahi gayi" ka fix
+====================================================================
+
+Ye galti SIRF PEHLI BAAR aati thi -- jab data\mapping_synced.json
+(Mongo me aakhri baar bheji gayi mapping ki copy) banI hi nahi hoti.
+CHECK mode us khaali copy ko hi "nayi mapping" maan leta tha, aur phir
+khud hi keh deta tha ki mapping khaali hai.
+
+Ab CHECK mode abhi wali handle_master.json dekhta hai. Mapping bilkul
+theek ho to RUN_MAPPING_UPDATE.bat ka STEP 1 ab aaram se nikal jaata hai.
+
+Badli hui file: DASHBOARD\mapping_sync.py
+
+====================================================================
+09-OCT (3) -- 6 UI/data badlaav
+====================================================================
+
+1) Sidebar ka hilta hua teer thoda aur neeche (bottom:-10px).
+
+2) Upar daayein kone se "Download PDF" button hata diya.
+   (Reports tab ka apna download button waisa hi hai -- wo alag cheez hai)
+
+3) Breaking News tab se wo line hat gayi jo likhti thi ki handles kahan
+   se aate hain.
+
+4) Parties tab ka "Top 5", Leader Board ka Party column, aur Top Leaders
+   ka State column -- teeno ki jad ek hi thi: party/state purane blob se
+   aate the, sirf level hi mapping se theek hota tha. Ab bhejte waqt
+   party, state, seat ka naam aur khaali naam -- sab MAPPING se theek ho
+   jaate hain. Mapping me jo value khaali ya "-" ho, usse kuch nahi
+   badalta (yaani galat data kabhi nahi thopa jaata).
+   Jaanch me: khaali State 78 se 0 ho gaye, Top 5 = BJP, INC, TDP, SP, AAP.
+
+Badli hui files: DASHBOARD\server.js,
+                 DASHBOARD\dashboard.template.html,
+                 UP-DASHBOARD\dashboard.template.html
+server.js badla hai -> START_LIVE.bat dobara chalana hoga.
+
+====================================================================
+09-OCT (4) -- NAYA LAYOUT: header hamesha upar + header me hamburger
+====================================================================
+
+(Sample pehle dikhaya gaya tha -- v3 approve hone ke baad lagaya hai.
+ DEPLOY nahi kiya -- wo aap jab kahenge tab.)
+
+1) HEADER ab FIXED hai. Scroll karne par ya sidebar khulne/band hone par
+   bilkul nahi hilta. Uski asli unchai JS naap kar --header-h me daalta
+   hai; sidebar ka top aur main ka padding-top usi se bante hain.
+
+2) Header me sabse baayein HAMBURGER (3 lakeerein):
+      [ = ]  [emblem]  India Political Pulse - X Analytics
+   Ek click par sidebar band (content poori chaudai), dobara click par
+   wapas. Hamburger header me hai, isliye hamesha dikhta hai.
+   Tooltip "Toggle menu", hover ka halka asar, aur keyboard se bhi chalta
+   hai (asli <button>, aria-expanded + aria-controls).
+
+3) Sidebar se hat gaya: "India Political Pulse" naam, pin button, baayein
+   kinare wali hover-patti, aur upar ka KESARI BAND (sb-wave/sbBand).
+   Ab sidebar me sirf menu hai -- saaf halka cream background, aur orange
+   sirf chuni hui tab ki apni pill par. Pehla tab header ke theek neeche.
+   HEADER ki orange wave waisi ki waisi hai.
+
+4) Khula/band localStorage me yaad rehta hai. Default: desktop par khula,
+   phone par band. Phone (<=820px) par sidebar drawer banta hai -- peeche
+   parda, aur parda / menu item / hamburger / Esc -- chaaron se band.
+
+Badli hui files: DASHBOARD\dashboard.template.html,
+                 UP-DASHBOARD\dashboard.template.html,
+                 DASHBOARD\server.js
+server.js badla hai -> START_LIVE.bat dobara chalana hoga.
+
+====================================================================
+09-OCT (5) -- Parties tab ka "Top 5" ab sach me aankdo se
+====================================================================
+
+DIKKAT: Parties tab ke party card HTML me hi likhe pade the --
+  All-India: BJP, INC, SP, DMK, AAP, OTHER
+  UP       : BJP, INC, SP, BSP, RLD
+Ye aankdo se nahi bante the, isliye galat "Top 5" dikhta tha.
+Asli ginti (tweets se): BJP, INC, TDP, SP, AAP -- yaani TDP (#3) list me
+tha hi nahi, aur DMK (#8) upar baitha tha.
+
+FIX:
+  1. Hardcoded card poore hata diye. Ab card sirf data se bante hain
+     (shuru me "Loading..." likha rehta hai).
+  2. Parties tab khulte hi card dobara bante hain (pehle sirf page load
+     par bante the, aur ek chart gir jaata to bante hi nahi the).
+  3. INIT ki har call ab apne try me -- ek gir jaaye to baaki chalte rahein.
+  4. Ginti se khaali/"-"/Unknown wali party hata di.
+  5. Kram: tweets se (sabse zyada upar). All-India par 5 card, kisi state
+     par 6. UP dashboard me yahi logic hai -- wahan UP ka apna data aata
+     hai, isliye ginti UP ki hi hoti hai (jaanch: BJP, SP, INC, AD(S),
+     NISHAD, BSP).
+
+Badli hui files: DASHBOARD\dashboard.template.html,
+                 UP-DASHBOARD\dashboard.template.html
+Sirf Ctrl + F5 kaafi hai (server.js nahi badla).
+
+====================================================================
+09-OCT (6) -- kuch tab ke upar wale filter header ke peeche chhup rahe the
+====================================================================
+
+Header FIXED hone ke baad page ko uski unchai jitna neeche se shuru karna
+padta hai. Wo faasla pehle sirf <main> par laga tha. Par 4 tab aise hain
+jinka filter-bar <main> se BAHAR, uske UPAR hota hai:
+   Parties, Reports, Tweet Intelligence, Handles To Be Added
+Un chaaron ke filter header ke peeche chale jaate the.
+
+FIX: ab faasla PAGE-SECTION par lagta hai, isliye dono tarah ke tab theek
+rehte hain. Sidebar khula ho to poora section daayein khiskta hai (pehle
+sirf main khiskta tha, filter-bar sidebar ke neeche aa jaata tha).
+Map wali grid ki unchai bhi ab asli header unchai se banti hai (pehle 66px
+hardcoded tha).
+
+Badli hui files: DASHBOARD\dashboard.template.html,
+                 UP-DASHBOARD\dashboard.template.html
+Sirf Ctrl + F5 kaafi hai.
+
+====================================================================
+09-OCT (7) -- 7 badlaav (Breaking News se Sentiment Insights tak)
+====================================================================
+
+1. Breaking News se "LIVE / DELAYED 10 hours / STALE" wali chip hata di.
+
+2. Parties tab me state chunte hi USI state ki top party dikhti hain
+   (card ab aankdo se bante hain -- pichhle fix ka hi hissa).
+
+3. Tab badalte hi page SABSE UPAR se khulta hai (pehle pichhle tab ka
+   scroll bana rehta tha).
+
+4. Parties tab ka sentiment chart ab bilkul wahi hai jo Hashtags tab ke
+   "Hashtag Sentiment Split" me hai -- stacked bar, aur teen nahi POORE
+   8 sentiment.
+
+5+6. Dashboard ka PARTY filter ab in par bhi lagta hai:
+   - Tweet Share by Party  -> party chuni ho to sirf wahi party
+   - Sentiment Mix         -> sirf us party ka sentiment
+   - Executive Summary     -> us party ke handles se banta hai
+   (Daily Activity, Heatmap, Engagement, Top Performers, Most Active,
+    Top States, Level cards par ye filter pehle se lagta tha.)
+
+7. Sentiment Insights ab POORE 8 sentiment dikhata hai -- har ek ke saath
+   tweets, percentage aur uska MATLAB (ek line me). Sabse bada sentiment
+   sabse upar, aur neeche kul ginti.
+
+EK SAAF BAAT (jaan-boojhkar aise rakha hai):
+   Per-din sentiment pipeline me STATE-wise jama hota hai, PARTY-wise
+   nahi. Isliye:
+     - koi party NA chuni ho  -> sentiment chuni hui DATE RANGE ka
+     - party chuni ho         -> us party ka POORE DAUR ka
+   Dono haalat me card par saaf likh diya jaata hai ki kaunsa hisaab hai.
+   Agar party-wise per-din sentiment chahiye to pipeline me wo jama karna
+   padega -- bata dijiyega.
+
+Badli hui files: DASHBOARD\dashboard.template.html,
+                 UP-DASHBOARD\dashboard.template.html
+Sirf Ctrl + F5 kaafi hai (server.js nahi badla).
+
+
+====================================================================
+09-OCT (8) -- donut wapas, poora UI English, Sentiment Insights chhota
+====================================================================
+
+1. TWEET SHARE BY PARTY KA DONUT WAPAS AA GAYA
+   Dikkat: chart me sirf legend (party ke naam) dikh rahe the, beech ka
+   gol hissa (arcs) gayab tha.
+   Wajah: kal ka ek wrapper (ovFilterCharts) chart ka PEHLA data cache
+   kar leta tha. Chart banta hai khaali data ke saath aur ovRefresh()
+   use baad me bharta hai -- par cache uss khaali pal me ban jaata tha,
+   aur phir har baar wahi khaali cache chart par chipak jaata tha.
+   Fix: cache poori tarah hata diya. Party ka filter ab wahin lagta hai
+   jahan chart ka data banta hai (ovRefresh ke andar) -- ek hi jagah,
+   koi doosri copy nahi.
+   Jaanch: t_fin3.js chart ka asli code chala kar dekhta hai -- rang
+   array ho, undefined ho, ya function ho, teeno haalat me arcs bache
+   rehte hain; dobara chalane par bhi.
+
+2. POORA DASHBOARD UI AB ENGLISH ME
+   Jahan bhi Hinglish/Hindi text tha -- button, heading, label, khaali
+   haalat ka sandesh ("Nothing found"), tooltip, error line, AI chat ka
+   swagat sandesh, Report ke band/heading, sentiment ke matlab -- sab
+   English me. server.js ke browser par dikhne wale sandesh bhi
+   (mapping-sync wali peeli patti, login expire, permission, AI wali
+   galti). AI ab jawaab bhi English me deta hai.
+   JO NAHI BADLA (jaanbujhkar): tweet ka asli text / handle ka naam --
+   wo scrape kiya hua data hai, jaisa aaya waisa hi rehta hai. Code ke
+   andar ke comment aur server terminal ke log bhi waise hi (unse UI
+   par kuch nahi dikhta).
+
+3. SENTIMENT INSIGHTS AB CHHOTA AUR SANTULIT
+   - 7 sentiment (No-Sentiment waali line hata di gayi -- aapne kaha tha
+     koi khaali-haalat line nahi dikhani). Percentage in 7 ke jod par
+     banta hai, isliye jod theek 100% aata hai.
+   - Har sentiment ek hi patli line me: rang ka dot, naam, bar,
+     percentage, tweets. Matlab (definition) us line ke TOOLTIP me hai
+     (maus le jaane par dikhta hai) -- isse card ki lambai aadhi ho gayi.
+   - Neeche ek chhoti footer line: kitne tweets gine gaye, kaunsi party,
+     kaunsa daur.
+   - Alag "kul jod" wali Sigma line hata di (lambai bachane ke liye).
+   - Ab Key Highlights aur Sentiment Insights lagbhag barabar lambe hain,
+     isliye beech ki badi khaali jagah khatam.
+   - Chhoti screen (620px se kam) par bar aur tweets ki ginti chhup jaati
+     hain, sirf naam aur percentage rehte hain.
+   - Sirf POORE DAUR ka sentiment -- aapne kaha per-din party-wise nahi
+     chahiye, isliye wo jhanjhat hi nahi raha.
+
+Badli hui files: DASHBOARD\dashboard.template.html
+                 UP-DASHBOARD\dashboard.template.html
+                 DASHBOARD\server.js
+                 UP-DASHBOARD\server.js
+
+CHALANE KA TARIKA:
+   1. UPDATE_KARO.bat
+   2. START_LIVE.bat ko BAND karke dobara chalao   <-- server.js badla hai
+   3. Browser me Ctrl + F5
+
+
+====================================================================
+09-OCT (9) -- Sentiment Insights ab sach me party/date filter maanta hai
+====================================================================
+
+SHIKAYAT: party ya date badlo, Sentiment Insights ka aankda wahi ka wahi.
+
+ASLI WAJAH (chhoti si, par poori baat):
+   Blob is tarah aata hai -->   const SENT_DAILY = "...";
+   JavaScript me `const` SIRF usi <script> block ke andar dikhta hai.
+   Sentiment Insights ka code DOOSRE <script> block me hai, isliye wahan
+   window.SENT_DAILY khaali (undefined) milta tha. Code chupchaap peeche
+   hat kar poore daur ka aankda (UNI.sent) dikha deta tha -- na koi error,
+   na koi nishaan. Isi liye date badalne se kuch nahi hota tha.
+   (Yahi jaal pehle D aur UNI ke saath bhi tha -- unka export pehle se
+    laga hua hai; ab SENT_DAILY ka bhi laga diya.)
+
+ILAAJ: const ke theek neeche, usi block me --
+   try{window.SENT_DAILY=SENT_DAILY;}catch(e){}
+
+AB KYA HOTA HAI:
+   * Party nahi chuni + date range  -> us range ka PAKKA aankda
+                                       (SENT_DAILY ke per-din ginti se)
+   * Party chuni + poora daur       -> us party ka PAKKA aankda
+   * Party chuni + chhoti range     -> ANDAAZA: har handle ka sentiment
+                                       usi anupaat me liya jaata hai
+                                       jitne uske tweet un dino me hain.
+                                       Footer par saaf "approx." likha
+                                       jaata hai (hover karo to wajah).
+   Footer har baar batata hai: kitne tweets, kaunsi party, kaunsa daur.
+
+   Wajah ki per-din sentiment pipeline me STATE-wise jama hota hai,
+   PARTY-wise nahi. Agar aage chal kar party-wise bhi chahiye to pipeline
+   me jodna padega -- bata dijiyega, chhota kaam hai.
+
+JAANCH: naya t_fin4.js -- template ka asli code, asli blob data par
+   chalta hai aur sach me ginti karke milata hai:
+     3 din            = 48,961 tweets   (poori range 20,59,344)
+     BJP poora daur   = 15,58,588       (UNI.party.BJP se bilkul milta hai)
+     BJP + 3 din      = 37,350          (approx. ka thappa lagta hai)
+   Chaaron haalat ka card alag dikhta hai.
+
+Badli hui file: DASHBOARD\dashboard.template.html
+                UP-DASHBOARD\dashboard.template.html
+Sirf Ctrl + F5 kaafi hai (server.js is baar nahi badla).
+
+
+====================================================================
+09-OCT (10) -- HAR TABLE ke column header par filter (Explorer jaisa)
+====================================================================
+
+Windows File Explorer ki tarah ab har data table ke column header par
+chhota chevron (v) aata hai. Hover karo to dikhta hai; filter lagte hi
+hamesha dikhta hai aur header orange ho jaata hai.
+
+KIS COLUMN PAR KYA MILTA HAI:
+  Text (State, PC/AC Name, Party, Designation, Name/Handle)
+      -> search box + checkbox list (har value ke saamne ginti)
+         + "Select all" / "Clear"
+  Number (Followers, Tweets, Views, Avg Views/Post ...)
+      -> Sort 1->9 / 9->1  aur  Min-Max range
+         (2.35 Cr / 1.80 L / 4.2K jaise number bhi theek samjhe jaate hain)
+  Date (Last Updated jaisa koi bhi column)
+      -> Oldest / Newest  aur  from - to
+  "#" column -> koi filter nahi; filter ke baad number dubara 1 se.
+
+AUR:
+  * Kai column ek saath = AND (State = Delhi AND Party = BJP).
+  * Table ke upar patti: "Showing 25 of 540 rows", lage hue filter ke
+    chip (chip par x dabao to wahi filter hatta hai), aur
+    "Clear all filters".
+  * Popup Esc se ya bahar click karne se band; ek waqt me ek hi.
+  * Popup page par alag se lagta hai, isliye table ke scroll me kat-ta
+    nahi -- aur phone par bhi screen ke andar hi rehta hai.
+  * Jo table dashboard khud dubara banata hai (date/party filter ya sort
+    dabane par), uspar filter apne aap wapas lag jaata hai.
+  * Export ab filter ke baad wali rows deta hai.
+
+KAUNSI TABLE CHHODI GAYI (jaanbujhkar):
+  - "Handles To Be Added" wali bharne wali table (usme input box hain)
+  - Report preview / PDF wali table
+  - Handle Analytics ka "Latest Tweets" (wo server se page-by-page aata
+    hai, to sirf dikhne wale page par filter lagana dhoka hota)
+  - 2-3 row wali chhoti table (wahan filter bematlab hai)
+
+DARK THEME: aapne kaha tha nahi chahiye -- is feature me koi dark rule
+nahi daala gaya.
+
+JAANCH: asli Chrome me 38 jaanch chalayi gayi (filter, AND, range, sort,
+clear, popup, re-render ke baad filter bachna, mobile, raftaar, console) --
+sab paas. Project me t_colf.js (88 jaanch) bhi juda.
+Sample file: SAMPLE_col_filters\column_filters_sample.html (sirf dekhne ke
+liye, dashboard isse nahi chalta).
+
+Badli hui file: DASHBOARD\dashboard.template.html
+                UP-DASHBOARD\dashboard.template.html
+Sirf Ctrl + F5 kaafi hai (server.js nahi badla).
+
+
+====================================================================
+10-OCT -- Dashboard ab ek baar banta hai (speed + crash se bachav)
+====================================================================
+
+DIKKAT KYA THI:
+  Har page load par poora kaam DOBARA hota tha --
+     * Mongo se ~8 MB data uthana
+     * template padhna, 17 blob chipkaana
+     * 7-9 MB ki string banana, phir use gzip karna
+  Lagbhag 1.5-2 second CPU, aur Node ek hi thread par -- isliye log
+  kataar me lag jaate the. Aur har request ~130 MB ka kooda banati thi,
+  to 25-30 log ek saath aate hi memory bhar kar SERVER GIR JAATA tha.
+  Girne ke baad khud wapas nahi aata tha -- koi jaa kar START_LIVE.bat
+  dobara chalata, tab tak dashboard band.
+
+AB KYA HOTA HAI (2 badlaav):
+
+1. DASH-CACHE -- page ek baar banta hai
+   Bhaari hissa (jo har user ke liye bilkul ek jaisa hai) ek baar ban kar
+   memory me rehta hai. Naya tabhi banta hai jab:
+       - pipeline naya data laaye (meta.lastUpdate badle), ya
+       - dashboard.template.html badle  (yaani template edit + Ctrl+F5
+         ab bhi pehle jaisa hi kaam karta hai)
+   Taiyaar GZIP buffer bhi cache hota hai, isliye dobara kholne ya
+   refresh karne par kaam lagbhag shoonya -- bas buffer bhej dena.
+
+   SABSE ZAROORI: ek waqt me EK hi build chalta hai. 200 request ek saath
+   aa jaayein to build ek hi hoga, baaki usi ka intezaar karenge.
+   Pehle 200 build ek saath chalte the -- yahi crash ki asli jad thi.
+
+   Cache khud saaf hota hai. Zabardasti saaf karna ho to:  /refresh
+
+   Kaam kar raha hai ya nahi, ye dekho:   http://localhost:3000/api/build
+   Usme ab "cache" bhi aata hai:
+       builds     -> ab tak kitni baar page bana (kam hona chahiye)
+       gzHits     -> kitni baar taiyaar page seedha bheja gaya (zyada)
+       gzMiss     -> kitni baar naya banana pada
+       gzMB       -> cache ne kitni memory li
+   Dashboard do-teen baar refresh karo -- builds wahi rahega aur gzHits
+   badhta jaayega. Yahi iska sabut hai.
+
+2. AUTO-RESTART -- server gir jaaye to khud wapas
+   Nayi file: DASHBOARD\RUN_SERVER.bat
+   Ye server ko loop me chalati hai. Kabhi gir jaaye to 5 second me khud
+   dobara chalu. Window ka naam "All-India Dashboard Server" hoga.
+   Server band hi rakhna ho to us window ko X se band kar dein.
+   Saath me Node ki memory hadd 3 GB aur gzip ke liye zyada thread.
+
+   START_LIVE.bat me ek line badalni padti hai -- par wo file aapke
+   system ki apni hai (usme aapka Python path aur ngrok ka token hai),
+   isliye use package me NAHI bheja gaya. Uski jagah ek chhoti file hai:
+
+       DASHBOARD\PATCH_START_LIVE.bat     <-- ek hi baar chalani hai
+
+   Ye aapki START_LIVE.bat me sirf wahi ek line badalti hai, backup
+   bhi bana deti hai (START_LIVE.bat.bak_before_autorestart), aur baaki
+   sab -- Python path, ngrok domain/token, ghante wala loop -- waise ke
+   waise chhod deti hai. Dobara chalao to kuch nahi hota.
+
+KITNA FARAK PADEGA:
+       aaj                       ->  5-10 log ek saath, 30 par crash
+       in badlaav ke baad        ->  50-80 log (upload speed par nirbhar)
+                                     crash nahi, error nahi
+  Asli naap: 200 request ek saath -> 405 ms me sab, 0 error (RAM se).
+
+JAANCH: naya t_colf/t_cache -- 56 jaanch, aur poora suite FAIL 0.
+
+CHALANE KA TARIKA (is baar 4 kadam):
+   1. UPDATE_KARO.bat
+   2. DASHBOARD\PATCH_START_LIVE.bat      <-- ek hi baar, auto-restart ke liye
+   3. START_LIVE.bat band karke dobara chalao   (server.js badla hai)
+      startup par "BUILD: 2026-10-10 dash-cache ..." dikhna chahiye
+   4. Browser me Ctrl + F5
+
+Badli hui file: DASHBOARD\server.js
+Nayi file:      DASHBOARD\RUN_SERVER.bat
+                DASHBOARD\PATCH_START_LIVE.bat
+
+
+====================================================================
+10-OCT (2) -- Mapping hi sach: bahar wale handle hide + designation
+====================================================================
+
+DO SHIKAYATEIN THIN:
+  1. Top Leaders me kuch handle dikhte the jo Mapping.xlsx me hain hi nahi
+     (kuch ka to naam bhi "nan" dikhta tha)
+  2. Jo mapping me hain unki designation galat -- @BJP4India ki Category
+     mapping me "Page" hai par chip "Leader" dikha raha tha
+
+-------- 1. MAPPING ME NAHI = DASHBOARD PAR NAHI --------
+
+Pehle code me jaanbujhkar likha tha: "mapping me nahi hai -- itna kaafi
+nahi", kyunki 84 handle aise the jinke tweet to the par wo Mapping.xlsx me
+the hi nahi (Narendra Modi jaise), aur unhe hatana galat hota.
+
+08-Oct ke baad wo wajah khatam ho gayi -- Category se bhi level banne laga
+aur Modi, Rahul, Amit Shah, Yogi sab mapping me aa gaye. Jaanch ki to
+sirf 112 handle bache the jo sach me mapping me nahi hain (112 me se
+sirf 2 me "_" ka farak tha, baaki 110 bilkul gayab).
+
+Ab seedha niyam: MAPPING ME NAHI = DASHBOARD PAR NAHI.
+
+  * 112 handle hide ho gaye (31 to wahi the jinka naam "nan" dikhta tha)
+  * Un sab ke 30,473 tweets ab ginti me nahi (kul ka 1.5%)
+  * MongoDB me data waise ka waisa pada hai -- KUCH MITA NAHI
+  * Mapping.xlsx me jodte hi handle apne aap wapas dikhne lagega
+
+  Poori list: UPDATE_07-OCT\MAPPING_ME_NAHI_110_HANDLES_10Oct.csv
+
+  SAARE JOD AAPAS ME MILTE HAIN (ye khaas dhyan se kiya gaya):
+  handle sirf table se hatana kaafi nahi hota -- Dashboard tab ke chart
+  aur KPI alag jagah se jod lete hain, to table me handle gayab hota aur
+  chart me uske tweet shaamil -- do alag-alag number. Isliye D.handles se
+  bhi hataya gaya, aur party-wise per-din jod me se un handles ka hissa
+  PHD (per-handle per-din aankde) se ghata diya gaya.
+      tweets : allHandles 20,29,144 = partyDaily 20,29,144  (milte hain)
+      views  : dono taraf 7,19,79,06,160                    (milte hain)
+
+-------- 2. DESIGNATION KA CHIP AB MAPPING SE --------
+
+Chip pehle HROLE blob se aata tha, jo pipeline banati hai. Ab mapping ka
+pad upar rakha jaata hai:
+      1. Designation (kai hon to "Chief Minister / MLA")
+      2. Designation na ho to Category   (@BJP4India -> "Page")
+
+  Misaalein (asli data par jaanch ki gayi):
+      @BJP4India        Leader  ->  Page
+      @BJP4UP           Leader  ->  Page
+      @KirenRijiju      MP      ->  LS MP
+      @myogiadityanath          ->  Chief Minister / MLA
+      @narendramodi             ->  Prime Minister / LS MP
+
+  "LS_MP" jaise kachche naam ab saaf dikhte hain ("LS MP"), aur jo handle
+  mapping me hain par blob me nahi the, unka chip bhi ab jud jaata hai.
+
+JAANCH: naya t_mapfix.js (40 jaanch) -- server.js ka asli mapGate() nikaal
+kar asli data par chalaya gaya. Teen purane test (t_maptbl, t_lvcard,
+t_cache) purane niyam par tike the, unhe naye sach par update kiya.
+Poora suite: 41 JS + 4 Python file, FAIL 0.
+
+CHALANE KA TARIKA:
+   1. UPDATE_KARO.bat
+   2. START_LIVE.bat band karke dobara chalao     <-- server.js badla hai
+      startup par "BUILD: 2026-10-10b mapping hi sach ..." dikhna chahiye
+   3. Browser me Ctrl + F5
+
+Badli hui file: DASHBOARD\server.js
+
+
+====================================================================
+10-OCT (3) -- Har table ka apna scroll (page ruka rehta hai)
+====================================================================
+
+KYA HOTA HAI AB:
+  * Maus/ungli TABLE par ho aur scroll karein -> sirf ROWS chalti hain,
+    poora page apni jagah par ruka rehta hai.
+  * Table ke BAHAR scroll karein -> page pehle jaisa hi chalta hai.
+  * Table ke ANT tak pahunch kar aur scroll karein -> page phir bhi nahi
+    khiskta (yahi "overscroll contain" hai -- scroll page ko pakadta nahi).
+  * Header hamesha dikhta rehta hai (chipka hua).
+  * Jin table me bahut column hain, unka dayein-bayein scroll bhi usi
+    dibbe me hota hai -- page ko chaudai me nahi kheenchta.
+  * Row kam hon to dibba apni asli unchai leta hai -- koi khaali jagah
+    nahi, koi bekaar ka scrollbar nahi.
+  * Scrollbar patla aur halka hai, dashboard ke rang se milta hua.
+
+UNCHAI EK HI JAGAH SE BADALTI HAI:
+  CSS me  :root{--table-max-height:70vh}
+  Chhoti chahiye to 70vh ki jagah 50vh ya 420px kar dein -- SAARI table
+  ek saath badal jaayengi. Design, rang, badge, font, gol kone -- kuch
+  nahi badla, sirf scroll ka vyavhaar juda hai.
+
+KAUNSI TABLE CHHODI GAYI (jaanbujhkar):
+  - "Handles To Be Added" wali bharne wali table (usme input box hain)
+  - Report preview / PDF wali table (print tootta)
+  - Profile wala popup aur AI chat
+  Print karte waqt table poori chhap jaati hai (@media print me scroll hat
+  jaata hai) -- aadhi table nahi chhapegi.
+
+DO CHHOTI PAR ZAROORI BAATEIN (ye khud pakadni padin):
+
+  1. Sticky header ka border gayab ho jaata hai.
+     border-collapse:collapse ke saath position:sticky lagane par Chrome
+     header ki neeche wali line scroll me kha jaata hai. Isliye wo line
+     ab border se nahi, inset shadow se banti hai -- dikhne me bilkul wahi.
+
+  2. Column filter ki patti ("Showing 25 of 540 rows") dibbe ke BAHAR
+     rehni chahiye, warna wo bhi rows ke saath upar chali jaati aur dikhna
+     band ho jaati. Isliye lapetne me SIRF <table> andar jaata hai, aur
+     col-filter wala code apni patti dibbe se pehle lagata hai.
+
+  Teesri baat: .tbl-box aur .data-table-wrap par pehle se overflow-x:auto
+  tha. Ab wo kaam andar wala dibba karta hai, warna do-do scrollbar aate.
+
+JAANCH: asli Chrome me 30 jaanch -- template ka ASLI CSS+JS nikaal kar:
+  maus table par -> rows 0->320 chalin, page scrollY 0->0 (bilkul nahi hila)
+  table ke ant par aur scroll -> page phir bhi 0
+  bahar scroll -> page chala
+  420px scroll ke baad bhi header dibbe ke sabse upar (farak 0.0px)
+  3 row wali table -> scrollbar nahi (139px = 139px)
+  filter ke saath, mobile par, aur baad me bani table par bhi theek
+  koi console error nahi
+Project me t_tscroll.js (63 jaanch) bhi juda. Poora suite: 42 JS + 4 Python,
+FAIL 0.
+Sample file: SAMPLE_table_scroll\table_scroll_sample.html (sirf dekhne ke liye)
+
+CHALANE KA TARIKA:
+   1. UPDATE_KARO.bat
+   2. Browser me Ctrl + F5         <-- server.js nahi badla, restart nahi chahiye
+
+Badli hui file: DASHBOARD\dashboard.template.html
+                UP-DASHBOARD\dashboard.template.html
+
+
+========================================================================
+10-OCT (4) -- Header ki do animation (swoosh wave + logo coin flip)
+========================================================================
+
+KYA BADLA:
+  Header ka design bilkul nahi badla -- na rang, na font, na jagah, na
+  shabd. Sirf do animation jodi gayi hain.
+
+  1. SWOOSH WAVE
+     - Page khulte hi kesari wave aur uske upar ki golden line baayein se
+       andar aati hai -- 1.5 second, ease-out. Uske turant baad title,
+       chips aur Admin button ek-ek karke halke se ubharte hain.
+     - Uske baad wave hamesha ke liye bahut halki si chalti rehti hai:
+       8 second ka ek chakkar, 6 unit ki drift aur 1.4% ka morph. Itni
+       dhimi ki dhyaan nahi kheenchti, par header zinda lagta hai.
+     - Golden line par ek chamak baayein se daayein chalti rehti hai
+       (7 second). Ye chamak SIRF transform se bani hai: ek chhoti khidki
+       aage chalti hai aur andar ka stroke utna hi ulta, isliye line khud
+       hilti nahi aur browser ko kuch dobara banana nahi padta.
+     - Wave pehle se hi text ke PEECHE hai (wave 0, text 2) aur click
+       nahi kha sakti, isliye padhne me kabhi dikkat nahi.
+
+  2. LOGO COIN FLIP
+     - Logo par click (ya mobile par tap) karte hi wo sikke ki tarah poora
+       360 degree ghoomta hai -- 0.9 second, beech me zara sa bada hota
+       hai, jaise asli sikka uchhla ho.
+     - Tab se logo chun kar Enter ya Space se bhi ghoomta hai, aur Space
+       se page scroll nahi hota.
+     - Flip chalte waqt dobara click kaam nahi karta; khatam hote hi phir
+       chal jaata hai. Gol shape aur golden border jyon ke tyon rehte hain.
+
+  3. SPLASH LOADER KE BAAD CHALTI HAI (zaroori sudhaar)
+     Pehli baar jab ye laga to intro dikhti hi nahi thi -- kyunki page
+     khulte hi wo chal padti thi, aur us waqt upar splash loader (#loader)
+     chhaya hota hai. 1.5 second ki intro loader ke PEECHE khatam ho jaati
+     thi, aur loader hatne par wave pehle se hi apni jagah par hoti thi.
+     Ab saari animation shuru me ruki (paused) rehti hain. Jaise hi loader
+     par hiding class lagti hai, body par hdr-go lag jaata hai aur tabhi
+     intro chalti hai -- yani user ko poori dikhti hai.
+     hideLoader() ko haath nahi lagaya: header-anim khud MutationObserver
+     se loader par nazar rakhta hai. Agar kisi wajah se loader kabhi na
+     hate, to 7 second ka fallback hai -- header phir bhi dikh jaayega.
+     Jinke yahan animation band hai (reduced-motion), unke liye ye gate
+     bemaani hai -- unka header pehle se hi poora dikhta hai.
+
+TIMING BADALNI HO TO:
+  Sirf 5 CSS variable, ek hi jagah (:root me) --
+     --swoosh-intro-duration    1.5s
+     --swoosh-idle-duration     8s
+     --swoosh-shimmer-duration  7s
+     --logo-flip-duration       .9s
+     --hdr-fade-duration        .65s
+
+DHYAAN DENE WALI BAATEN:
+  Jinke computer par "animation band" setting lagi hai
+  (prefers-reduced-motion), unke yahan intro, drift aur chamak apne aap
+  band rehti hain aur logo ka flip ek chhote fade me badal jaata hai.
+
+  PDF / report capture ke waqt header par hdr-capturing class lag jaati
+  hai, jisse animation ek pal ke liye ruk jaati hai -- isliye image me
+  wave hamesha apni asli jagah par aati hai.
+
+JAANCH: asli Chromium me 45 jaanch, DONO template ke liye alag-alag,
+  template ka ASLI CSS + markup + JS nikaal kar:
+     intro: wave -525 par shuru -> 1.5s baad theek 0 par
+     drift: 3.6 unit, scaleY 1.008 -- utni hi halki
+     chamak: khidki aur stroke ka jod 0.00 (stroke hila hi nahi)
+     title ke pixel par elementFromPoint = logo-text (wave upar nahi aayi)
+     saare keyframes me sirf transform/opacity
+     animation ke dauraan header ka box bilkul same -- koi layout shift nahi
+     desktop aur 390px mobile -- koi horizontal scrollbar nahi
+     flip: beech me m11 = -1.100 aur is2D = false (asli 3D), ant me saamne
+     dobara-click band, Enter/Space, aur reduced-motion -- sab theek
+     koi console error nahi
+  Splash gate par 17 aur jaanch (asli loader ke saath, dono template):
+     loader ke peeche animation paused aur wave -820 par hi rahi
+     loader hatte hi (2236ms) hdr-go laga aur intro CHALTI hui dikhi
+     300ms baad wave -188 par (yani beech me), phir 0 par aakar ruki
+     loader ke bina -> turant chalu; reduced-motion me header turant poora
+Project me t_hdranim.js (161 jaanch) bhi juda. Poora suite: 41 JS +
+4 Python, FAIL 0.
+Sample file: SAMPLE_header_anim\header_anim_sample.html (sirf dekhne ke liye)
+
+CHALANE KA TARIKA:
+   1. UPDATE_KARO.bat
+   2. Browser me Ctrl + F5         <-- server.js nahi badla, restart nahi chahiye
+
+Badli hui file: DASHBOARD\dashboard.template.html
+                UP-DASHBOARD\dashboard.template.html
+
+
+========================================================================
+10-OCT (5) -- Parties tab naye sire se + mapping ka cache fix
+========================================================================
+
+A. PARTY KPI CARD
+
+  HATA DIYA: card ke andar ka "Sentiment Breakdown" (wo 8 patti wali
+  list). Sentiment ab SIRF neeche wale "Sentiment by Party" chart me
+  hai -- waha poori 8 category, legend, aur tooltip me count + % dono.
+
+  JAISA THA WAISA HI: party ka badge, naam, poora naam, handles ki
+  ginti, aur Tweets / Views / Likes / Retweets ke 4 box.
+
+  NAYA: Total Followers aur Total Following ke do box (usi style me),
+  aur uske neeche "Handles by Designation" ke chhote tile.
+     - tile MAPPING se bante hain (handle_master.json -> HROLE), kisi
+       fixed list se nahi. Jiska pad mapping me nahi likha, uske liye
+       uska level dikh jaata hai.
+     - jis handle ke do pad hain (jaise "Prime Minister / LS MP"), wo
+       DONO me gina jaata hai, aur card ke neeche chhota sa note aata
+       hai: "a handle can hold multiple designations".
+     - 0 wale tile nahi dikhte. Mapping me kai bar 20-25 alag-alag pad
+       hote hain, isliye upar ke 8 tile dikhte hain aur baaki ek
+       "+N more roles" me sameta jaata hai -- uspar maus le jaane se
+       poori list naam aur ginti ke saath dikh jaati hai.
+     - desktop par 3 tile ek line me, mobile par 2.
+  Ek row ke saare card ab barabar unchai ke hote hain.
+
+B. FILTER (Date Range -> Level -> State -> Party)
+
+  Date Range ke option ab is kram me: Full Range, Today, Yesterday,
+  3 Days, 7 Days, Custom. Today/Yesterday/3/7 IST se gine jaate hain.
+  Custom tabhi lagta hai jab dono date chun li jayein.
+
+  Chaaron dropdown ek doosre se bandhe hain: har dropdown me sirf wahi
+  option aate hain jinke paas pehle wale chunav ke saath sach me data
+  hai. Purana chunav valid ho to bacha rehta hai, warna default par
+  chala jaata hai. Kuch na mile to saaf likha aata hai "No data for
+  this selection" -- khaali ya toota hua card/chart nahi.
+
+  Level ke option ab DATA se bante hain (pehle HTML me fixed likhe the
+  LS_MP / RS_MP / CM / DyCM, jabki data me LS MP, RS MP, Chief
+  Minister, Dy CM, MLA, MLC, Others hain -- isliye wo chalte hi nahi
+  the).
+
+C. KAUN SA NUMBER KIS FILTER SE BADALTA HAI
+
+  Tweets aur Views        -> Level/State/Party AUR Date, dono se.
+                             Ye roz ka data hai, isliye BILKUL THEEK.
+  Likes aur Retweets      -> Level/State/Party se theek. Date range par
+                             tweet-share se baante jaate hain, isliye
+                             box par chhota "approx." likha aata hai
+                             (sirf tab, jab poora range na chuna ho).
+  Sentiment               -> waisa hi: date range par approx.
+  Followers / Following   -> JAAN-BOOJH KAR date se nahi bandhe. Ye
+                             snapshot hain ("us hafte ke followers"
+                             hote hi nahi). Ye sirf is baat par
+                             nirbhar hain ki kaun se handle chune gaye.
+  Hourly Pattern          -> kisi filter se nahi badalta, aur chart ke
+                             neeche yahi saaf likha hai. Ghante-war
+                             data party/state/din ke hisaab se kahin
+                             store hi nahi hota (sirf ek global curve
+                             hai). Isko exact banane ke liye pipeline
+                             badalni padegi -- aapne abhi rehne diya.
+
+D. PARTY CHUNNE KA TARIKA
+
+  Kuch na chuna      -> saare card, aur chart me sab milakar.
+  Dropdown se chuni  -> sirf us party ka card; chart us party par.
+  Card par click     -> BAAKI CARD BHI DIKHTE RAHTE HAIN, sirf click
+                        kiya hua card apne rang se ghir jaata hai aur
+                        neeche ke chart us party par chale jaate hain.
+                        Wahi card dobara = deselect. Card ke andar
+                        stat box ya designation tile par click bhi
+                        wahi card chunta hai.
+  Dropdown ka hak upar hai: dropdown badalte hi card ka chunav saaf.
+  Filter badalne par agar chuni hui party bachi hi nahi, to chunav
+  apne aap hat jaata hai. Upar chhoti chip hamesha batati hai:
+  "Showing: BJP" ya "Showing: All Parties".
+
+E. CHART
+
+  - "Daily Tweet Activity" ke apne All / Last 7D / Last 3D button HATA
+    diye -- wo upar wale Date Range se ladte the. Ab ek hi maalik hai.
+  - Chart ke subtitle ki date ab chune hue range se banti hai; koi
+    fixed "Apr-Jul 2026" nahi bacha.
+  - Chhote range (Today / Yesterday / 3 Days) par Daily chart ka
+    x-axis GHANTE ka ho jaata hai; lambe range par label apne aap kam
+    ho jaate hain, isliye aapas me chipakte nahi.
+  - Views Share / Tweets / Sentiment: ek party chunne par bhi SAARI
+    party dikhti hain -- chuni hui apne rang me, baaki halki grey.
+    (Warna donut 100% ka ek bekaar tukda ban jaata tha.)
+  - Data me 70+ party hain. Chart me top 8 + "Others" dikhte hain
+    (Others ka jod poora bachta hai, kuch gira nahi). Card me top 12
+    dikhte hain aur neeche "Show all 71 parties" ka button hai.
+  - Pehle in 4 chart ke numbers HTML me HARDCODE pade the. Ab sab
+    asli handles se bante hain -- isliye kuch numbers badle hue
+    dikhenge; pehle wale galat the.
+
+F. MAPPING KA CACHE FIX (server.js)
+
+  Designation/party/level mapping se serve ke waqt chipakte hain,
+  isliye inhe badalne ke liye pipeline chalane ki zaroorat nahi. Par
+  dash-cache ko iski khabar nahi thi: uski key me sirf pipeline ka
+  lastUpdate aur template ki tareekh thi. Isliye Mapping.xlsx badalne
+  ke baad bhi purana bana-banaya page milta rehta tha.
+  Ab handle_master.json ki tareekh bhi key me hai, aur mapping sync ke
+  turant baad bana-banaya page phenk diya jaata hai. Matlab mapping
+  badli -> agle Ctrl+F5 par naya designation.
+
+G. MLA TRACKER -- dohri designation hat gayi
+
+  MLA Tracker ki table me jis handle ka asli pad CM/Dy CM hai, uske
+  saamne ek aur "MLA" ka chip apne aap lag jaata tha. Wo tab zaroori
+  tha jab mapping se sirf EK pad aata tha (jaise sirf "CM") -- batana
+  padta tha ki ye MLA bhi hai. Ab mapping khud "MLA / Chief Minister"
+  deti hai, to wahi baat do baar dikhti thi:
+        [ MLA / Chief Minister ]
+        [ MLA ]
+  Ab wo extra chip tabhi lagta hai jab designation me MLA pehle se
+  likha na ho. "Chief Minister" ya "Dy CM" jaise maamlo me do chip
+  waisa hi rahega -- wahan MLA batana sach me zaroori hai.
+
+H. DESIGNATION KA COLUMN AB PATLA
+
+  Mapping se ab lambe pad aate hain -- jaise "Deputy Chief Minister /
+  MLA Contestent" ya "Chairman, Media & Publicity Dept / National
+  Spokesperson". Teen jagah par chip me white-space:nowrap likha tha,
+  isliye ye ek hi line me khinch jaate the aur Designation ka column
+  poori table ko chauda kar deta tha:
+     States & CM ki table (.td-desig)
+     MLA Tracker (_mlaDesigCell)
+     Leader Board ka chip
+  Ab teeno lipat jaate hain (max 124-132px). Top Leaders pehle se hi
+  lipatta tha -- wo waisa hi hai.
+
+JAANCH: asli Chromium me 71 jaanch, ASLI data ke saath -- template me
+  Mongo ka poora data bhar kar (9.5 MB, 3289 handle, 71 party):
+     har card ke handles / tweets / following / designation UNI aur D
+       se ALAG SE ginkar milaye -- sab theek
+     7 Days par tweets theek, approx. nishaan aaya, followers nahi badle
+     Today -> 24 ghante, 3 Days -> 72 ghante, Full -> 192 din
+     cascading: CM chunne par sirf wahi state, phir sirf wahi party
+     Case A / B / C, deselect, tile aur stat box par click, chip
+     Sentiment ki har party ki har category ka number sach
+     Others milakar poora total bachta hai
+     Top Leaders aur UP tab bhi bina kisi error ke khule
+     mobile 390px, aur ek row ke card barabar unchai ke
+  mla-dup par 12 aur jaanch (asli MLA Tracker table me HROLE badal kar):
+     "MLA / Chief Minister", "Chief Minister / MLA", chhote akshar wala
+       "mla / chief minister", aur "MLA Contestant" -> sab par EK hi chip
+     "Chief Minister" aur "Dy CM" -> do chip (purana kaam bacha)
+     poori table me kahin dohri designation nahi
+  desig-wrap par 13 aur jaanch: har handle ko lamba pad dekar Top
+  Leaders, States & CM, MLA Tracker aur Growth -- chaaro tab me chip
+  lipta hua, koi chip 135px se chauda nahi, page kahin bhi daayein-
+  baayein scroll nahi karta. Seedha naap: 38 akshar ke pad par chip
+  81px chauda aur 3 line ka hua, table ki chaudai 1403px se badli nahi.
+  map-cache ko chala kar bhi dekha: mapping ki tareekh badalte hi
+  cache ki key badal jaati hai.
+Project me t_parties.js (176 jaanch) juda. Poora suite: 42 JS +
+4 Python, FAIL 0.
+Sample file: SAMPLE_parties\parties_sample.html (sirf dekhne ke liye)
+
+CHALANE KA TARIKA:
+   1. UPDATE_KARO.bat
+   2. START_LIVE.bat band karke DOBARA chalao   <-- server.js badli hai
+   3. Browser me Ctrl + F5
+
+Badli hui file: DASHBOARD\dashboard.template.html
+                UP-DASHBOARD\dashboard.template.html
+                DASHBOARD\server.js
+
+
+========================================================================
+10-OCT (6) -- PUNJAB : assistant hataya + pipeline me catch-up
+========================================================================
+
+A. "POLITICAL LENS ASSISTANT" HAT GAYA (sirf Punjab se)
+
+  Punjab dashboard se wo floating chat button aur uska popup poori tarah
+  hata diya gaya -- markup, JavaScript aur CSS, teeno.
+     public\index.html     -- button + popup ka block nikala
+     public\assistant.js    -- khaali kar di (asli content _removed_assistant\ me)
+     public\assistant-ai.js -- khaali kar di
+     public\ai-settings.js  -- NAYI
+     public\wire.js         -- wireAssistant() hataya
+     public\style.css       -- assistant ka ~4,900 akshar ka CSS hataya
+     server.js              -- POST /api/ask hataya
+
+  JO JAAN-BOOJH KAR BACHAYA (warna Reports tab tooth jaata):
+     /api/ai/status, /api/ai/key, /api/ai/models, /api/ai/narrative
+     Settings ka Gemini key + model panel
+  assistant-ai.js me chat ke saath Settings ka panel bhi pada tha. Isliye
+  use delete nahi kiya -- do hisson me kaat kar Settings wala hissa nayi
+  file ai-settings.js me nikal liya. Settings card ka text ab Reports ke
+  baare me hai, assistant ke nahi.
+
+  Doosre kisi dashboard ka assistant NAHI chhua.
+
+B. PIPELINE : PUNJAB AB PEECHE NAHI REH SAKTA
+
+  Pehle kya hota tha:
+     run_pipeline.py me All India + UP + Punjab teeno ek saath push hote
+     hain. Par Punjab agar FAIL ho jaata (build crash, python na mile,
+     Mongo timeout) to wo bas ek line log me likh kar chup ho jaata tha.
+     Uske turant baad "sab ho gaya" maan liya jaata tha. Agle ghante agar
+     koi nayi file na aati to raasta yahan se jaata tha --
+         if added == 0 and not pending:  ->  "Naya data nahi -> push skip."
+     -- aur Punjab wahin ka wahin reh jaata, jabki All India aur UP taaza
+     ho chuke hote. Bina kisi warning ke.
+
+  Ab:
+     Punjab fail hone par .punjab_pending ka nishaan lag jaata hai, aur
+     agle run me -- chahe ek bhi nayi file na aayi ho -- SIRF Punjab
+     akela dobara push ho jaata hai.
+
+  Dhyaan rahe: Punjab pehle se hi All India ka filter view hai aur usi
+  ghante wali cycle par chalta hai. Ye badlav usse tez nahi karta --
+  bas us ek haalat ko theek karta hai jisme wo chup-chaap peeche reh
+  jaata tha.
+
+JAANCH:
+  Assistant hatane ki jaanch asli Chromium me, 17 jaanch: button, popup,
+  input, "Political Lens Assistant" text, dono script file aur poora CSS
+  -- sab gayab; Settings ka key panel, model dropdown, Save/Clear, status
+  tag aur Reports ka AI button -- sab salaamat; koi JS error nahi.
+  Catch-up ki jaanch: push_punjab() ko asli file se nikaal kar nakli
+  subprocess ke saath chalaya (koi asli build nahi, Mongo ko haath nahi) --
+     push theek chala      -> True, nishaan hat gaya
+     push fail (code 1)    -> False, nishaan LAG gaya
+     poora crash           -> False, nishaan lag gaya
+     sirf refresh fail     -> True (push to ho hi gaya tha)
+     agla run, nayi file nahi, nishaan laga -> Punjab akela push hua
+Project me t_pjcatch.py (31 jaanch) juda. Poora suite: 42 JS + 5 Python,
+FAIL 0.
+
+SAATH ME EK CHECK SCRIPT:
+  PunjabLens\_fix\CHECK_PUNJAB_DATA.bat  -- sirf PADHTA hai. Batata hai
+  source me Punjab ka kitna data hai, sabse naya din, pichhle 24 ghante
+  aur 7 din me kitna aaya, political_lens me kya bana, dashboard ke teen
+  number milte hain ya nahi, aur duplicate/khaali field/date format.
+  (Ye package me nahi jaata -- sirf is system par hai.)
+
+CHALANE KA TARIKA:
+   1. UPDATE_KARO.bat
+   2. START_LIVE.bat band karke DOBARA chalao   <-- server.js + pipeline badli
+   3. Browser me Ctrl + F5  (teeno par: / , /up , /punjab/)
+
+Badli hui file: DASHBOARD\run_pipeline.py
+                PunjabLens\server.js
+                PunjabLens\public\index.html
+                PunjabLens\public\ai-settings.js   (nayi)
+                PunjabLens\public\wire.js
+                PunjabLens\public\style.css
+                PunjabLens\public\assistant.js
+                PunjabLens\public\assistant-ai.js
+                PunjabLens\public\punjab_dashboard_template.html
+
+
+========================================================================
+12-OCT -- "Cannot GET /punjab/" ka fix (Punjab ab package se khud banta hai)
+========================================================================
+
+DIKKAT:
+  Main system par chaaro step chalane ke baad /punjab/ kholne par
+  "Cannot GET /punjab/" aa raha tha.
+
+WAJAH:
+  Main server Punjab ko aise jodta hai (DASHBOARD\server.js, line ~1921):
+
+      try {
+        var punjabApp = require('../PunjabLens/server.js');
+        app.use('/punjab', punjabApp);
+        console.log('  Punjab dashboard juda: /punjab  (db: political_lens)');
+      } catch (e) {
+        console.log('  [PUNJAB] mount skip: ' + e.message);
+      }
+
+  Wo require fail ho jaye to /punjab ka route banta hi nahi, aur Express
+  seedha "Cannot GET" de deta hai. Chala kar dono haalat dohrayi gayin:
+
+      PunjabLens\node_modules nahi   ->  mount skip: Cannot find module 'express'
+      PunjabLens folder hi nahi      ->  mount skip: Cannot find module '...server.js'
+
+  Pehle package me Punjab ki sirf 8 file thi (HTML/CSS/JS + server.js).
+  Wo tabhi kaam karti jab Punjab us system par pehle se laga ho. Main
+  system par laga hi nahi tha -- isliye UPDATE_KARO.bat ne Punjab ka
+  hissa chhod diya aur page par "Cannot GET" aata raha.
+
+AB:
+  Package me Punjab ki SAARI source files hain -- 31 files:
+     server.js, aggregate.js, build_punjab_data.py, mongo_conf.js,
+     mongo_conf.py, package.json, package-lock.json, requirements.txt,
+     UPDATE_DATA.bat, config.json, aur poora public\ (18 file +
+     assets\lib\xlsx.full.min.js)
+  UPDATE_KARO.bat folder na hone par ab khud bana deta hai, aur baad me
+  jaanch kar ke batata hai ki node packages lagane baaki hain ya nahi.
+
+  NAYI FILE: PunjabLens\SETUP_PUNJAB.bat
+     Ek baar chalani hai. express + mongodb install karti hai (npm),
+     phir jaanch kar ke batati hai sab theek hai ya nahi. Dobara chalao
+     to khud keh deti hai "pehle se lage hue hain".
+
+  NAHI BHEJE (jaan-boojh kar):
+     node_modules   -- 100+ MB, SETUP_PUNJAB.bat khud laata hai
+     ai_config.json -- usme Gemini key hoti hai. Na ho to Reports ka AI
+                       band rahega, baaki sab chalega. Key Settings se
+                       daal dena.
+     .session_secret, START.bat, SCHEDULE_DAILY.bat
+                    -- Punjab ab main server ke andar chalta hai, iski
+                       apni window ki zaroorat nahi.
+     config.json BHEJI hai par ":ifmiss" se -- jo pehle se ho use chhua
+     nahi jaata, taaki aapki settings na mite.
+
+JAANCH:
+  Package wali Punjab files se ek KHAALI jagah par taaza install banaya
+  (31 files + node_modules) aur usi tarah require kiya jaise main server
+  karta hai:
+     require OK          -> function
+     startBuildWatcher   -> function
+     CFG.targetDb        -> political_lens
+     13 routes bane; /api/data aur /api/status maujood
+     POST /api/ask HAT chuka hai (assistant wala)
+     POST /api/ai/narrative maujood (Reports ka AI)
+  index.html jo 15 file maangti hai, sab package me hain.
+
+CHALANE KA TARIKA (main system par, isi kram me):
+   1. UPDATE_07-OCT\UPDATE_KARO.bat
+   2. DASHBOARD\RUN_MAPPING_UPDATE.bat
+   3. DASHBOARD\PATCH_START_LIVE.bat
+   4. PunjabLens\SETUP_PUNJAB.bat        <-- NAYA, sirf pehli baar
+   5. DASHBOARD\START_LIVE.bat
+   6. Ctrl + F5  (/ , /up , /punjab/)
+
+  START_LIVE ki window me ye line dikhni chahiye:
+      Punjab dashboard juda: /punjab  (db: political_lens)
+  Uski jagah "[PUNJAB] mount skip: ..." dikhe to wahi line bhej dena --
+  usme asli wajah likhi hoti hai.
+
+
+================================================================================
+  12-OCT (2)  --  Fix.md ke 5 kaam (All India + UP dono)
+================================================================================
+
+(1) LOADER KA CHIP
+    All India par "STATES" likha aata tha -- usme Delhi, J&K jaise UT bhi
+    gine jaate hain. Ab "STATES + UT". UP par "DISTRICTS".
+    server.js me wo jagah bhi theek ki jahan label dhoondha jaata hai:
+    "States + UT" me '+' regex ka khaas akshar hai, isliye ab escape
+    hota hai -- warna ginti khaali reh jaati.
+
+(2) HAR GHANTE WALA REFRESH AB JAGAH NAHI CHHUDATA   [phase 1]
+    Pehle naya data aate hi page poora reload ho jaata tha: tab wapas
+    Dashboard, filter saaf, sort default, scroll sabse upar. Agar aap
+    Legislators me Bihar chhaan kar neeche the, sab gaya.
+
+    Ab page band hone se pehle ek chhoti parchi (sessionStorage) me
+    rakh liya jaata hai -- kaun sa tab, har filter/date/search ki value,
+    Top Leaders ka sort, page ka aur table ke andar ka scroll. Reload ke
+    baad loader hatte hi wahi wapas lag jaata hai. Beech me aapne khud
+    kuch chhua to restore ruk jaata hai -- dakhal nahi deta.
+    Manual F5 par bhi yahi faayda milta hai. Naya browser tab kholne par
+    saaf page hi milta hai (ye jaan-boojh kar hai).
+
+    NOTE: ye jhatka KAM karta hai, mitata nahi. Asli ilaaj -- per-tab API,
+    jisme page reload hoga hi nahi -- phase 2 me alag se aayega.
+
+(3) ELECTED REPRESENTATIVES ME SIRF ANDHRA PRADESH DIKHTA THA
+    Data poora tha (saare legislators) -- dikkat sort ki thi. Table state
+    ke NAAM se A->Z sorted thi aur ek page par 40 rows, isliye page 1
+    hamesha Andhra Pradesh se bhar jaata tha.
+    Ab default sort = Total Views (zyada se kam), to page 1 par poore
+    desh ke sabse bade handle aate hain. State se dekhna ho to State
+    filter maujood hai (UP par wo District filter hai).
+    Upar jo "Showing 40 of 40 rows" wali patti aati thi wo jhooth bolti
+    thi (sirf is PAGE ki rows ginti thi) -- is table se hata di. Pager
+    pehle se sach bolta hai: "Showing 1-40 of 3,029 legislators".
+
+(4) TOP LEADERS
+    - Party ke baad ek aur filter: All India par State, UP par District.
+      Party + Quick ke saath milkar chalta hai.
+    - Default sort ab "Avg Views/Post" (pehle Total Views). Aapka apna
+      chuna hua sort yaad rehta hai.
+    - Reset ab location bhi saaf karta hai aur sort wapas default par.
+
+(5) UP PAR "STATE" KI JAGAH "DISTRICT"
+    UP dashboard me har handle ka state 'Uttar Pradesh' hi hota hai, to
+    "State" column kuch batata hi nahi tha.
+    Ab teen table (Top 50 Handles, Legislators Tracker, Top Handles-UP)
+    me doosra column "District" hai aur usme asli jagah aati hai
+    (Varanasi, Rae Bareli, Gorakhpur...). Teesra column "PC / AC Name"
+    wahi cheez dobara dikhata tha, isliye CSS se chhupa diya -- wapas
+    chahiye to UP ke template me "up-terms" wala <style> block hata
+    dijiye.
+    Parties tab ka filter bhi ab "District" hai ("All Districts").
+
+    YE JAAN-BOOJHKAR WAISE KE WAISE HAIN (inme sach me state ki baat hai):
+      India Map "CM Twitter Presence by State", "State CMs" panel aur
+      uska dropdown, CM detail ka "State / UT", aur Handle-Request form
+      ka "State" column -- wo Mapping.xlsx ke asli column ka naam hai.
+
+JAANCH
+    Poora suite: 3,190 jaanch, ek bhi fail nahi.
+    Iske alawa asli Chromium me, asli data se banaya hua page chalakar:
+      - item 5 : 36 jaanch (dono dashboard; dikhi hui value sach me usi
+                 handle ka loc hai, ye data se mila kar dekha gaya)
+      - item 2 : 13 jaanch (sach me reload karke -- tab, filter, rows,
+                 table ka scroll, sort, aur "user chhue to ruk jao")
+      - item 3 : 14 jaanch, item 4 : 17 jaanch
+    Naye test suite me jud gaye: t_upterms.js, t_statekeep.js
+
+CHALANE KA TARIKA -- WAHI HAI, BADLA NAHI:
+   1. UPDATE_07-OCT\UPDATE_KARO.bat
+   2. DASHBOARD\RUN_MAPPING_UPDATE.bat
+   3. DASHBOARD\PATCH_START_LIVE.bat
+   4. PunjabLens\SETUP_PUNJAB.bat        (sirf pehli baar)
+   5. DASHBOARD\START_LIVE.bat
+   6. Ctrl + F5  (/ , /up , /punjab/)
+
+
+================================================================================
+  13-OCT  --  Growth tab hata diya (dono dashboard)
+================================================================================
+
+  Sidebar se "Growth" wala button nikal diya gaya hai -- All India par bhi
+  aur UP par bhi. Ab wo tab kahin se khulta nahi.
+
+  Section ka markup (#sec-growth) aur uska JS jaan-boojh kar waise ka waisa
+  chhoda hai -- us section ke andar ke kuch ids doosri jagah ka code bhi
+  chhoota hai, poora markup kaat dene se kahin null aa sakta tha. Button na
+  hone se wo kabhi dikhta nahi.
+
+  Wapas chahiye? Template me "growth-off (13-Oct)" dhoondhiye -- neeche wala
+  <div class="mnav-tab" data-tab="growth"> block comment me pada hai, usse
+  comment hata dijiye. server.js ki tab-kram wali list me bhi 'growth' wapas
+  jod dijiye (usi nishaan ke paas).
+
+  Ek baat aur: agar kisi ka browser pichhli baar Growth tab par khula tha, to
+  state-keep (12-Oct wali parchi) usme wapas le jaata. Ab wo sirf usi tab par
+  jaata hai jiska button sach me maujood ho.
+
+  JAANCH: poora suite 3,200 jaanch / 0 fail (t_nav.js me naya kram aur
+  "Growth kahin se khulta nahi" wali jaanch jud gayi), aur asli Chromium me
+  dono page chalakar 12 jaanch -- button nahi, baaki saare tab chalte hain,
+  koi JS error nahi.

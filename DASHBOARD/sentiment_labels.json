@@ -1,0 +1,21 @@
+{
+  "note": "sentiment_tagger 3.0.0 ke ASLI 8 label (package ke st.LABELS se seedha liye gaye, haath se nahi likhe). Har scrape ke baad panel jaanchta hai ki model ne koi aisa label to nahi diya jo is list me nahi hai -- waisa label database me to chala jaata hai par dashboard ke filter use pehchante hi nahi. Khaali list = koi jaanch nahi.",
+  "labels": [
+    "Pro BJP",
+    "Anti BJP",
+    "Pro Govt.",
+    "Anti Govt.",
+    "Positive",
+    "Negative",
+    "Neutral",
+    "No Sentiments"
+  ],
+  "matching": "Milaan me bada-chhota akshar, space, hyphen aur point (.) nahi dekhe jaate. Yaani 'Pro BJP', 'PRO-BJP', 'pro bjp' aur 'Pro Govt.' vs 'PRO-GOVT' -- sab ek hi maane jaate hain. Isse purana hyphen wala data bhi pass ho jaata hai.",
+  "aapne_jo_bheja_tha": {
+    "PRO-BJP": "Pro BJP", "ANTI-BJP": "Anti BJP", "PRO-GOVT": "Pro Govt.",
+    "ANTI-GOVT": "Anti Govt.", "POSITIVE": "Positive", "NEUTRAL": "Neutral",
+    "NEGETIVE": "Negative  <- aapne NEGETIVE likha tha; model 'Negative' deta hai",
+    "NO- SENTIMENTS": "No Sentiments"
+  },
+  "legacy": "Package me 7-class purani scheme bhi hai (st.to_legacy_label / legacy_labels=True) jisme hyphen wale naam aate hain, par usme 'No Sentiments' ko 'Neutral' me mila diya jaata hai -- yaani 8 ke bajaye 7 reh jaate hain. Isliye hum package ki apni 8-class scheme hi use karte hain."
+}

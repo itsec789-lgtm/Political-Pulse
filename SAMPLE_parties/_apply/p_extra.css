@@ -1,0 +1,67 @@
+/* ===== parties-v2 (10-Oct) : sirf NAYA CSS. Purana kuch nahi badla. ===== */
+
+/* card ek flex column -> ek row ke saare card barabar unchai ke */
+.party-grid{align-items:stretch}
+.pcard{display:flex;flex-direction:column}
+.pcard .pcard-spacer{flex:1 1 auto}
+
+/* -- Followers / Following ki patti: wahi .pstat style, bas 2 box -- */
+.pfol{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px}
+
+/* -- Handles by Designation -- */
+.pdesig{margin-top:2px}
+.pdesig-title{font-family:'Rajdhani',sans-serif;font-size:9.5px;font-weight:700;letter-spacing:1px;
+  text-transform:uppercase;color:var(--muted2);margin-bottom:6px}
+.pdesig-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}
+.pdtile{background:var(--pc-tint,#f8f6f2);border:1px solid var(--border);border-radius:8px;
+  padding:6px 7px;min-width:0;cursor:pointer}
+.pdtile-val{font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:700;line-height:1;color:var(--pc)}
+.pdtile-lbl{font-size:8.5px;color:var(--muted);margin-top:2px;line-height:1.2;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pdesig-note{font-size:8px;color:var(--muted2);margin-top:6px;font-style:italic}
+@media(max-width:600px){.pdesig-grid{grid-template-columns:repeat(2,1fr)}}
+
+/* chhota "approx." nishaan -- jahan number poora theek nahi hai */
+.pstat-ap{font-size:7.5px;font-weight:700;color:var(--muted2);letter-spacing:.4px;
+  text-transform:uppercase;margin-left:3px;vertical-align:1px}
+
+/* "Showing: BJP" wali chhoti chip */
+.pf-chip{display:inline-flex;align-items:center;gap:7px;background:#FDEEE0;border:1px solid #F3C49A;
+  color:#B23400;border-radius:20px;padding:3px 6px 3px 11px;font-size:10.5px;font-weight:700;
+  font-family:'DM Sans',sans-serif}
+.pf-chip .pf-dot{width:8px;height:8px;border-radius:50%;background:var(--pc,#E65100);flex:0 0 auto}
+.pf-chip i{font-style:normal;cursor:pointer;font-weight:700;opacity:.65;padding:0 4px}
+.pf-chip i:hover{opacity:1}
+.pf-chiprow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 12px}
+
+/* khaali natija */
+.pf-empty{grid-column:1/-1;padding:28px 16px;text-align:center;color:var(--muted);
+  font-size:12.5px;background:var(--card);border:1.5px dashed var(--border);border-radius:14px}
+.pf-empty b{display:block;font-family:'Rajdhani',sans-serif;font-size:15px;color:var(--text);margin-bottom:4px}
+.chart-empty{display:flex;align-items:center;justify-content:center;height:100%;
+  color:var(--muted2);font-size:11.5px;text-align:center;padding:10px}
+
+/* data badalte waqt halka sa dhundhla -- flicker ki jagah */
+.pf-busy{opacity:.55;transition:opacity .12s ease;pointer-events:none}
+.pf-ready{opacity:1;transition:opacity .18s ease}
+
+/* custom date ke do box -- default me chhupe */
+#pfCustom{display:none;align-items:center;gap:6px}
+#pfCustom.show{display:flex}
+
+/* tile/stat par click bhi card hi chune -- koi alag behaviour nahi */
+.pcard .pstat,.pcard .pdtile{-webkit-tap-highlight-color:transparent}
+
+@media (prefers-reduced-motion: reduce){
+  .pf-busy,.pf-ready{transition:none}
+}
+
+/* "Show all N parties" ka button -- purane filter button jaisa hi */
+.pf-more{display:block;margin:-4px auto 16px;font-family:'DM Sans',sans-serif;font-size:11.5px;
+  font-weight:700;color:var(--text);background:var(--card);border:1.5px solid var(--border);
+  border-radius:9px;padding:7px 16px;cursor:pointer}
+.pf-more:hover{border-color:#E65100;color:#E65100}
+
+/* "+N more roles" -- baaki pad yahan sameta jaata hai (tooltip me poori list) */
+.pdtile-more{background:#f8f6f2 !important;border-style:dashed}
+.pdtile-more .pdtile-val{color:var(--muted)}

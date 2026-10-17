@@ -1,0 +1,12 @@
+Yahan ye 8 CSV files daal do:
+
+  Export_2026-08-13_2026-07.csv
+  Export_2026-08-13_2026-08.csv
+  #ChhatronKiGoonj.csv
+  #छात्रोंकीगूंज.csv
+  #StudentIssues.csv
+  #StudentsRights.csv
+  #StudentsWithRahul.csv
+  #YouthEmployment.csv
+
+Daalne ke baad chat me likh dena "daal di" -- main padh kar report bana dunga.

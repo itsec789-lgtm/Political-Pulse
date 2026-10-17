@@ -1,0 +1,1034 @@
+/* ===========================================================================
+   x_scraper.js  --  Handle Tracker ka engine
+
+   Kya karta hai:
+     * jin handle ko track karna hai unki list rakhta hai
+       (pulse_master.tracked_handles)
+     * har handle ki X timeline padhta hai (UserTweets GraphQL)
+     * har tweet ko SEEDHE pulse_master.master_tweets me daal deta hai --
+       wahi merge rules jo run_pipeline.py use karta hai, isliye scraped
+       data dono dashboard (All-India + UP) aur Handle Analytics me waise
+       hi dikhne lagta hai jaise network folder se aaya data.
+     * chalte waqt ka haal aur log rakhta hai, jo Admin Panel dikhata hai
+
+   MERGE RULES (master_to_mongo.py se hu-ba-hu):
+     _id              = Tweet ID (URL me se)  -> duplicate ban hi nahi sakta
+     numeric columns  -> $max   (ginti kabhi ghatti nahi)
+     text columns     -> $set   sirf jab naya value khaali na ho
+     Source Folders   -> $addToSet
+     _first           -> $setOnInsert  (humare paas kab aaya)
+
+   Cookie wahi hai jo x_config.json me hai (x_live.js se aati hai) --
+   do jagah cookie rakhne se ek jagah badalne par doosri reh jaati.
+
+   X par bojh na pade iske liye:
+     * ek waqt me ek hi run (single flight)
+     * har call ke beech thoda ruko
+     * 429/401 par turant ruk jao aur saaf batao
+   =========================================================================== */
+'use strict';
+
+const https = require('https');
+const XL = require('./x_live.js');
+/* map-gate */
+const MAP = require('./mapping_lib.js');
+const SENT = require('./sentiment.js');
+
+const DB = 'pulse_master';
+const COLL_TWEETS = 'master_tweets';
+const COLL_HANDLES = 'tracked_handles';
+const COLL_CFG = 'tracker_cfg';
+/* map-gate : mapping me na mile handle ka data yahan RUKTA hai --
+   master_tweets me nahi jaata. Mapping bharte hi release ho jaata hai. */
+const COLL_PENDING = 'pending_tweets';
+const COLL_PENDHAND = 'pending_handles';
+
+const GQL_TWEETS = '/i/api/graphql/pQHADmT91zIY83UbK0x4Lw/UserTweets';
+const SOURCE_TAG = 'Admin Tracker';       // Source Folders me yahi naam jaata hai
+
+const DEFAULTS = {
+  windowHours: 72,        // kitna peeche tak (UI se badal sakte ho)
+  intervalMin: 30,        // kitni der me dobara
+  gapMs: 600,             // do call ke beech
+  /* sent-strict : true = sentiment SIRF aapke trained model (sentiment_tagger)
+     se likho. Wo na mile to Sentiment column chhod do -- likho hi mat.
+     Kyun default true: textblob/wordlist sirf Positive/Negative/Neutral dete
+     hain, par aapke model ke label alag hain (jaise "Anti-BJP"), 7-8 class.
+     Teen galat label 4 lakh row me chale jaana, column khaali rehne se kahin
+     zyada bura hai -- baad me pata hi nahi chalta kaunsa asli hai.
+     Panel se band kar sakte ho (tab fallback ke 3 label likhe jaayenge). */
+  sentimentStrict: true,
+  /* window-depth : "kitni page" ka setting jaanbujh kar hata diya gaya.
+     Gehrai sirf windowHours se tay hoti hai -- pagesFor() neeche. */
+  autoStart: true
+};
+
+/* window-depth -- RUNAWAY GUARD, gehrai ki limit nahi.
+   Gehrai window se tay hoti hai (jab tak window ke andar tweet mil rahe hain,
+   aage padho). Par kisi gadbad me -- cursor loop, X ka ajeeb jawaab -- anant
+   page na padhte rahein, isliye ek bahut dhili upar-wali seema.
+   Normal haalat me ye seema kabhi nahi lagti; lagti hai to log me dikhta hai. */
+function pagesFor(windowHours) {
+  return Math.max(10, Math.min(120, Math.ceil(Number(windowHours) / 24 * 30)));
+}
+
+const NUM_COLS = ['Followers', 'Followings', 'Total Posts', 'Total Comments',
+  'Total Likes', 'Total Retweets', 'Total Views', 'Total Bookmark Tweets Times'];
+
+/* ======================= LOG ======================= */
+/* Aakhri 400 line memory me -- Admin Panel yahi dikhata hai. Ye jaanbujh kar
+   memory me hai: har line Mongo me likhna is kaam ke liye bekaar bhaari hai. */
+const LOG_MAX = 400;
+let LOG = [];
+
+function log(msg, kind) {
+  const line = { t: new Date().toISOString(), k: kind || 'info', m: String(msg).slice(0, 300) };
+  LOG.push(line);
+  if (LOG.length > LOG_MAX) LOG = LOG.slice(-LOG_MAX);
+  console.log('  [TRACKER] ' + line.m);
+  return line;
+}
+function logs(limit) { return LOG.slice(-(limit || 120)).reverse(); }
+
+/* ======================= HAAL (status) ======================= */
+const STATE = {
+  running: false,
+  startedAt: 0,
+  finishedAt: 0,
+  lastResult: null,        // { ok, newCount, updatedCount, handles, errors, ms }
+  current: '',             // abhi kis handle par
+  done: 0, total: 0,
+  /* eng-progress : live progress bar ke liye. Pehle sirf done/total tha,
+     jo ek hi handle par 0% se seedha gayab ho jaata tha -- kuch dikhta hi
+     nahi tha. Ab page aur tweet ki ginti bhi chalti rehti hai. */
+  page: 0, pages: 0, tweets: 0, newCount: 0, updatedCount: 0, handleTweets: 0,
+  heldCount: 0,                     /* map-gate : mapping ke intezaar me */
+  sentCounts: {},                   /* label-check : is run me kaunsa label kitni baar */
+  oddLabels: [],                    /* label-check : list se bahar ke label */
+  stopAsked: false,
+  lastError: '',
+  nextAt: 0
+};
+
+function status() {
+  return {
+    running: STATE.running,
+    startedAt: STATE.startedAt || null,
+    finishedAt: STATE.finishedAt || null,
+    current: STATE.current,
+    done: STATE.done, total: STATE.total,
+    page: STATE.page, pages: STATE.pages, tweets: STATE.tweets,
+    newCount: STATE.newCount, updatedCount: STATE.updatedCount,
+    handleTweets: STATE.handleTweets,
+    heldCount: STATE.heldCount,
+    sentimentEngine: SENT.engine(),      /* map-gate : panel par dikhta hai */
+    sentimentTrained: SENT.ready(),      /* sent-strict : AAPKA model chal raha hai? */
+    sentimentLabels: SENT.labels(),
+    sentimentExpected: SENT.expected(),
+    sentimentPython: SENT.pyInfo(),
+    sentimentCounts: STATE.sentCounts,
+    sentimentOdd: STATE.oddLabels,
+    sentimentStrict: STRICT,
+    mapping: MAP.stats(),
+    elapsedMs: STATE.running ? (Date.now() - STATE.startedAt) : 0,
+    lastResult: STATE.lastResult,
+    lastError: STATE.lastError,
+    nextAt: STATE.nextAt || null,
+    cookieOk: XL.ready(),
+    cookieState: XL.state('')
+  };
+}
+
+/* ======================= HTTP ======================= */
+function post(path, body, handle) {
+  return new Promise(function (resolve) {
+    const h = XL.headersFor(handle);
+    if (!h) return resolve({ code: 0, err: 'NOCFG' });
+    const data = JSON.stringify(body);
+    h['content-length'] = Buffer.byteLength(data);
+    const req = https.request({ host: XL.GQL_HOST, path: path, method: 'POST', headers: h },
+      function (r) {
+        let buf = '';
+        r.setEncoding('utf8');
+        r.on('data', function (d) { buf += d; if (buf.length > 8e6) r.destroy(); });
+        r.on('end', function () { resolve({ code: r.statusCode, text: buf }); });
+      });
+    req.setTimeout(25000, function () { req.destroy(); resolve({ code: 0, err: 'timeout' }); });
+    req.on('error', function (e) { resolve({ code: 0, err: String(e.message || e).slice(0, 80) }); });
+    req.end(data);
+  });
+}
+
+const FEATURES = {
+  rweb_video_screen_enabled: false, rweb_cashtags_enabled: true,
+  profile_label_improvements_pcf_label_in_post_enabled: true,
+  responsive_web_profile_redirect_enabled: false, rweb_tipjar_consumption_enabled: false,
+  verified_phone_label_enabled: true, creator_subscriptions_tweet_preview_api_enabled: true,
+  responsive_web_graphql_timeline_navigation_enabled: true,
+  responsive_web_graphql_skip_user_profile_image_extensions_enabled: false,
+  premium_content_api_read_enabled: false,
+  communities_web_enable_tweet_community_results_fetch: true,
+  c9s_tweet_anatomy_moderator_badge_enabled: true,
+  responsive_web_grok_analyze_button_fetch_trends_enabled: false,
+  responsive_web_grok_analyze_post_followups_enabled: true,
+  rweb_cashtags_composer_attachment_enabled: false, responsive_web_jetfuel_frame: true,
+  responsive_web_grok_share_attachment_enabled: true,
+  responsive_web_grok_annotations_enabled: true, articles_preview_enabled: true,
+  responsive_web_edit_tweet_api_enabled: true,
+  graphql_is_translatable_rweb_tweet_is_translatable_enabled: true,
+  view_counts_everywhere_api_enabled: true, longform_notetweets_consumption_enabled: true,
+  responsive_web_twitter_article_tweet_consumption_enabled: true,
+  content_disclosure_indicator_enabled: true,
+  content_disclosure_ai_generated_indicator_enabled: true,
+  responsive_web_grok_show_grok_translated_post: true,
+  responsive_web_grok_analysis_button_from_backend: true,
+  post_ctas_fetch_enabled: true, freedom_of_speech_not_reach_fetch_enabled: true,
+  standardized_nudges_misinfo: true,
+  tweet_with_visibility_results_prefer_gql_limited_actions_policy_enabled: true,
+  longform_notetweets_rich_text_read_enabled: true,
+  longform_notetweets_inline_media_enabled: false,
+  responsive_web_grok_image_annotation_enabled: true,
+  responsive_web_grok_imagine_annotation_enabled: true,
+  responsive_web_grok_community_note_auto_translation_is_enabled: true,
+  responsive_web_enhance_cards_enabled: false
+};
+
+function RateLimit(msg) { const e = new Error(msg); e.rate = true; return e; }
+
+async function timelinePage(userId, handle, cursor) {
+  const variables = {
+    userId: String(userId), count: 20, includePromotedContent: true,
+    withQuickPromoteEligibilityTweetFields: true, withVoice: true
+  };
+  if (cursor) variables.cursor = cursor;
+  const r = await post(GQL_TWEETS,
+    { variables: variables, features: FEATURES, fieldToggles: { withArticlePlainText: false } },
+    handle);
+  if (r.code === 429) throw RateLimit('X rate-limited us (429)');
+  if (r.code === 401 || r.code === 403) throw RateLimit('X rejected the cookie (' + r.code + ') -- put a fresh cookie in x_config.json');
+  if (r.code !== 200) { log('@' + handle + ' -- HTTP ' + (r.code || r.err), 'err'); return null; }
+  try { return JSON.parse(r.text); } catch (e) { return null; }
+}
+
+/* ======================= TWEET NIKAALO ======================= */
+function istString(d) {
+  /* master_tweets me date "YYYY-MM-DD HH:MM:SS IST" shakl me hoti hai
+     (phase2_push.to_ist_series wahi banata hai) -- wahi shakl rakhte hain,
+     warna dashboard ka date filter is data ko pehchanta hi nahi. */
+  const ist = new Date(d.getTime() + 5.5 * 3600 * 1000);
+  const p = function (n) { return (n < 10 ? '0' : '') + n; };
+  return ist.getUTCFullYear() + '-' + p(ist.getUTCMonth() + 1) + '-' + p(ist.getUTCDate())
+    + ' ' + p(ist.getUTCHours()) + ':' + p(ist.getUTCMinutes()) + ':' + p(ist.getUTCSeconds()) + ' IST';
+}
+
+const POS = ['good','great','amazing','excellent','win','success','happy','love','best','positive',
+  'growth','support','congratulations','proud','strong','improve','vikas','samman','jeet'];
+const NEG = ['bad','worst','fail','failure','crisis','angry','sad','hate','negative','loss',
+  'corrupt','scandal','attack','threat','weak','crash','virodh','bhrashtachar'];
+
+function sentiment(text) {
+  const w = String(text).toLowerCase().replace(/[^a-z\s]/g, ' ').split(/\s+/).filter(Boolean);
+  if (!w.length) return ['Neutral', 0];
+  let p = 0, n = 0;
+  w.forEach(function (x) { if (POS.indexOf(x) >= 0) p++; if (NEG.indexOf(x) >= 0) n++; });
+  const sc = (p - n) / w.length;
+  return [sc > 0.02 ? 'Positive' : (sc < -0.02 ? 'Negative' : 'Neutral'),
+          Math.round(sc * 10000) / 10000];
+}
+
+function extract(res, handle) {
+  try {
+    if (res && res.__typename === 'TweetWithVisibilityResults') res = res.tweet;
+    const lg = res && res.legacy;
+    if (!lg) return null;
+    const when = new Date(lg.created_at);
+    if (isNaN(when.getTime())) return null;
+
+    let author = {};
+    try { author = res.core.user_results.result.legacy || {}; } catch (e) {}
+
+    /* Retweet par asli tweet ke number lo (wahi X dikhata hai) */
+    let st = lg, views = res.views || {};
+    if (lg.retweeted_status_id_str) {
+      try {
+        let rt = res.retweeted_status_result.result;
+        if (rt.__typename === 'TweetWithVisibilityResults') rt = rt.tweet;
+        if (rt.legacy) { st = rt.legacy; views = rt.views || {}; }
+      } catch (e) {}
+    }
+
+    const id = lg.id_str || '';
+    if (!id) return null;
+    const screen = author.screen_name || handle;
+    const text = (lg.full_text || '').replace(/\s+/g, ' ').trim();
+    const sen = sentiment(text);
+
+    return {
+      when: when,
+      doc: {
+        'Handle': screen,
+        'Tweet URL': 'https://x.com/' + screen + '/status/' + id,
+        'Tweet ID': id,
+        'Tweet Date': istString(when),
+        'Tweet Text': text,
+        'Followers': author.followers_count || 0,
+        'Followings': author.friends_count || 0,
+        'Date of Joining': author.created_at || '',
+        'Total Posts': author.statuses_count || 0,
+        'Total Comments': st.reply_count || 0,
+        'Total Likes': st.favorite_count || 0,
+        'Total Retweets': st.retweet_count || 0,
+        'Total Views': Number(views.count || 0) || 0,
+        'Total Bookmark Tweets Times': st.bookmark_count || 0,
+        'Sentiment': sen[0],
+        'Sentiment Score': sen[1]
+      }
+    };
+  } catch (e) { return null; }
+}
+
+/* ======================= MONGO ======================= */
+/* master_to_mongo.py jaisi hi merge op */
+function buildOp(d) {
+  const UpdateOne = require('mongodb').UpdateOne;
+  const setd = {}, maxd = {};
+  Object.keys(d).forEach(function (k) {
+    const v = d[k];
+    if (k.charAt(0) === '_') return;                 /* map-gate : andar ka field */
+    if (NUM_COLS.indexOf(k) >= 0) {
+      const n = Number(String(v).replace(/,/g, '').trim());
+      if (isFinite(n)) maxd[k] = Math.round(n);
+    } else if (Array.isArray(v)) {
+      /* map-gate : 'Categories' Mongo me ARRAY hai, string nahi
+         (master_to_mongo.py line 93 -- server.js usme $or match karta hai
+         aur .join(', ') se dikhata hai). String bana dete to Category
+         filter chup-chaap toot jaata. */
+      const a = v.map(function (x) { return String(x).trim(); }).filter(Boolean);
+      if (a.length) setd[k] = a.slice().sort();
+    } else if (String(v === null || v === undefined ? '' : v).trim() !== '') {
+      setd[k] = String(v).trim();
+    }
+  });
+  const upd = {};
+  if (Object.keys(setd).length) upd.$set = setd;
+  if (Object.keys(maxd).length) upd.$max = maxd;
+  upd.$addToSet = { 'Source Folders': SOURCE_TAG };
+  upd.$setOnInsert = { _first: new Date().toISOString().slice(0, 10) };
+  return { updateOne: { filter: { _id: d['Tweet ID'] }, update: upd, upsert: true } };
+}
+
+/* map-gate : poore page ke tweet ka sentiment EK SAATH.
+   Har tweet par alag python chalana 20 tweet = 20 process ban jaata.
+   extract() pehle hi ek fallback sentiment daal chuka hai, isliye python
+   na chale to bhi column khaali nahi rehta. */
+async function applySentiment(docs) {
+  if (!docs.length) return;
+
+  /* sent-strict : aapka trained model nahi mila -> Sentiment likho hi mat.
+     extract() ne ek fallback label daal rakha hai, use yahin hata dete hain,
+     warna wo chup-chaap database me chala jaata. */
+  if (STRICT && !SENT.ready()) {
+    await SENT.probeNow();                       /* ek baar pakka kar lo */
+    if (!SENT.ready()) {
+      docs.forEach(function (d) {
+        delete d['Sentiment']; delete d['Sentiment Score'];
+      });
+      if (!_strictWarned) {
+        _strictWarned = true;
+        log('\u26A0 sentiment_tagger not found (engine: ' + SENT.engine() + ') -- '
+          + 'leaving the Sentiment column empty. The fallback only produces 3 labels '
+          + '(Positive / Negative / Neutral); your trained model produces its own '
+          + '(for example "Anti-BJP"), so writing the fallback would put wrong labels '
+          + 'in the database. Install it with:  pip install -e "...\\sentiment_tagger_pkg"  '
+          + '-- or turn off "Strict sentiment" in the Tracker settings.', 'warn');
+      }
+      return;
+    }
+  }
+
+  try {
+    const res = await SENT.tag(docs.map(function (d) { return d['Tweet Text'] || ''; }));
+    if (res && res.length === docs.length) {
+      for (let i = 0; i < docs.length; i++) {
+        docs[i]['Sentiment'] = res[i].label;
+        docs[i]['Sentiment Score'] = res[i].score;
+        STATE.sentCounts[res[i].label] = (STATE.sentCounts[res[i].label] || 0) + 1;
+      }
+      /* label-check : model ne koi aisa label diya jo sentiment_labels.json
+         me nahi hai? Ek baar saaf bata do. Aisa label chup-chaap database me
+         chala jaata aur dashboard ke filter se bahar reh jaata. */
+      const odd = SENT.unexpected(res.map(function (r) { return r.label; }));
+      odd.forEach(function (x) {
+        if (STATE.oddLabels.indexOf(x) >= 0) return;
+        STATE.oddLabels.push(x);
+        log('\u26A0 Sentiment label "' + x + '" is not listed in sentiment_labels.json '
+          + '-- it will still be stored, but add it to that file so the dashboards expect it.', 'warn');
+      });
+    }
+  } catch (e) {
+    log('Sentiment engine failed (' + String(e.message || e).slice(0, 80)
+      + ') -- kept the fallback sentiment', 'warn');
+  }
+}
+
+/* map-gate : jo handle mapping me hai uske tweet par attribute columns
+   (State, Party, AC/PC ...) wahin chipka dete hain -- bilkul waise jaise
+   phase2_push.py karta hai. Pehle tracker ka data in columns ke BINA
+   master_tweets me jaata tha, to dashboard ke State/Party/Category filter
+   me wo tweet dikhte hi nahi the. */
+async function registerPending(db, counts, sample) {
+  const names = Object.keys(counts);
+  if (!names.length) return;
+  const now = new Date();
+  const ops = names.map(function (h) {
+    return { updateOne: { filter: { _id: h },
+      update: { $inc: { tweets: counts[h] },
+                $set: { lastSeen: now, sample: sample[h] || '' },
+                $setOnInsert: { firstSeen: now } },
+      upsert: true } };
+  });
+  try { await db.collection(COLL_PENDHAND).bulkWrite(ops, { ordered: false }); }
+  catch (e) { log('Could not record the pending handle: ' + e.message, 'warn'); }
+}
+
+async function saveTweets(db, docs, stats) {
+  if (!docs.length) return;
+
+  await applySentiment(docs);
+
+  /* map-gate : mapped aur unmapped alag karo */
+  const ready = [], held = [], counts = {}, sample = {};
+  for (const d of docs) {
+    const cols = MAP.columnsFor(d['Handle']);
+    if (cols) { Object.assign(d, cols); ready.push(d); }
+    else {
+      const h = String(d['Handle'] || '').trim();
+      counts[h] = (counts[h] || 0) + 1;
+      if (!sample[h]) sample[h] = String(d['Tweet Text'] || '').slice(0, 160);
+      held.push(d);
+    }
+  }
+
+  if (held.length) {
+    /* Rok kar rakho -- master_tweets me tab tak nahi jaayega jab tak panel
+       se mapping nahi bhar di jaati. _id wahi Tweet ID hai, isliye dobara
+       scrape hone par duplicate nahi banta. */
+    const ops = held.map(function (d) {
+      return { updateOne: { filter: { _id: d['Tweet ID'] },
+        update: { $set: { doc: d, handle: d['Handle'], at: new Date() } },
+        upsert: true } };
+    });
+    try {
+      const pc = db.collection(COLL_PENDING);
+      for (let i = 0; i < ops.length; i += 500) {
+        await pc.bulkWrite(ops.slice(i, i + 500), { ordered: false });
+      }
+      await registerPending(db, counts, sample);
+      stats.heldCount = (stats.heldCount || 0) + held.length;
+      STATE.heldCount = stats.heldCount;
+    } catch (e) {
+      log('Could not store the held tweets: ' + e.message, 'err');
+    }
+  }
+
+  docs = ready;
+  if (!docs.length) return;
+  const c = db.collection(COLL_TWEETS);
+  /* pehle dekho kaun pehle se hai -- "naya" aur "update" alag ginne ke liye */
+  const ids = docs.map(function (d) { return d['Tweet ID']; });
+  let have = {};
+  try {
+    const found = await c.find({ _id: { $in: ids } }, { projection: { _id: 1 } }).toArray();
+    found.forEach(function (f) { have[f._id] = 1; });
+  } catch (e) {}
+  const ops = docs.map(buildOp);
+  for (let i = 0; i < ops.length; i += 500) {
+    await c.bulkWrite(ops.slice(i, i + 500), { ordered: false });
+  }
+  docs.forEach(function (d) {
+    if (have[d['Tweet ID']]) stats.updatedCount++; else stats.newCount++;
+  });
+  /* eng-progress : panel har 2-3 sec me status poochhta hai -- ginti
+     run ke beech me hi badhti dikhni chahiye, ant me nahi. */
+  STATE.newCount = stats.newCount;
+  STATE.updatedCount = stats.updatedCount;
+  STATE.tweets = stats.newCount + stats.updatedCount;
+}
+
+/* map-gate : mapping bhar jaane ke baad roke hue tweet chhodo.
+   Mapping ab bhi na mile to kuch nahi karte -- aadha-adhoora row
+   master_tweets me daalna sabse bura hota. */
+async function releaseHandle(db, handle) {
+  const h = clean(handle);
+  const cols = MAP.columnsFor(h);
+  if (!cols) return { ok: false, handle: h, why: 'still not in the mapping' };
+
+  const rx = { $regex: '^' + h.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '$', $options: 'i' };
+
+  /* legacy-unmapped : jo tweet pehle se master_tweets me pade hain unke upar
+     bhi ab attribute column lag jaate hain. Warna PMOIndia jaisa handle
+     mapping bharne ke baad bhi dashboard ke filter me nahi aata.
+     Sirf wahi field likhte hain jo mapping me ASLI hain -- '-' / khaali par
+     Mongo ka purana value chhua tak nahi jaata (push_mapping_to_mongo.py
+     wali hi savdhani; isi galti se pehle AC/PC No ud gaye the). */
+  let patched = 0;
+  try {
+    const r = await db.collection(COLL_TWEETS).updateMany({ Handle: rx }, { $set: cols });
+    patched = r.modifiedCount || 0;
+    if (patched) log('  @' + h + ' -- mapping applied to ' + patched + ' row(s) already in the database');
+    _clearLegacy();
+  } catch (e) {
+    log('Could not apply the mapping to existing rows: ' + e.message, 'warn');
+  }
+
+  const pc = db.collection(COLL_PENDING);
+  const rows = await pc.find({ handle: rx }).toArray();
+  if (!rows.length) {
+    await db.collection(COLL_PENDHAND).deleteOne({ _id: h });
+    return { ok: true, handle: h, released: 0, patched: patched,
+             note: patched ? (patched + ' existing rows updated') : 'no held tweets for this handle' };
+  }
+
+  const docs = rows.map(function (r) { return Object.assign({}, r.doc, cols); });
+  const stats = { newCount: 0, updatedCount: 0 };
+  const c = db.collection(COLL_TWEETS);
+  const ids = docs.map(function (d) { return d['Tweet ID']; });
+  let have = {};
+  try {
+    const found = await c.find({ _id: { $in: ids } }, { projection: { _id: 1 } }).toArray();
+    found.forEach(function (f) { have[f._id] = 1; });
+  } catch (e) {}
+  const ops = docs.map(buildOp);
+  for (let i = 0; i < ops.length; i += 500) {
+    await c.bulkWrite(ops.slice(i, i + 500), { ordered: false });
+  }
+  docs.forEach(function (d) { if (have[d['Tweet ID']]) stats.updatedCount++; else stats.newCount++; });
+
+  /* master_tweets me jaane ke BAAD hi pending se hatate hain -- ulta karte
+     to beech me fail hone par tweet dono jagah se gaayab ho jaate. */
+  await pc.deleteMany({ _id: { $in: ids } });
+  await db.collection(COLL_PENDHAND).deleteOne({ _id: h });
+
+  log('\u2714 @' + h + ' mapped -- released ' + docs.length + ' held tweet(s) into the database ('
+    + stats.newCount + ' new, ' + stats.updatedCount + ' updated)');
+  return { ok: true, handle: h, released: docs.length, patched: patched,
+           newCount: stats.newCount, updatedCount: stats.updatedCount };
+}
+
+/* legacy-unmapped : gate lagne se PEHLE jo tweet master_tweets me chale gaye
+   the, unke handle wahin pade hain -- bina State/Party/Category ke. Gate unhe
+   pakad nahi sakta (wo to naye tweet rokta hai). Isliye yahan dono dikhate
+   hain: ruke hue BHI, aur pehle se andar pade hue BHI.
+   Sirf Tracker ka laaya hua data dekhte hain (Source Folders), warna poori
+   4 lakh row ki aggregation har baar chalegi. */
+let _legacyCache = null, _legacyAt = 0;
+const LEGACY_TTL = 5 * 60 * 1000;
+
+async function legacyUnmapped(db, force) {
+  if (!force && _legacyCache && (Date.now() - _legacyAt) < LEGACY_TTL) return _legacyCache;
+  const out = [];
+  try {
+    const rows = await db.collection(COLL_TWEETS).aggregate([
+      { $match: { 'Source Folders': SOURCE_TAG } },
+      { $group: { _id: '$Handle', n: { $sum: 1 },
+                  sample: { $first: '$Tweet Text' }, last: { $max: '$Tweet Date' } } },
+      { $sort: { n: -1 } }, { $limit: 500 }
+    ], { allowDiskUse: true, maxTimeMS: 30000 }).toArray();
+    rows.forEach(function (r) {
+      if (!r._id || MAP.has(r._id)) return;
+      out.push({ handle: r._id, tweets: r.n || 0,
+                 sample: String(r.sample || '').slice(0, 160),
+                 lastSeen: r.last || null, inDb: true });
+    });
+    _legacyCache = out; _legacyAt = Date.now();
+  } catch (e) {
+    log('Could not count the already-stored unmapped handles: ' + e.message, 'warn');
+    return _legacyCache || [];
+  }
+  return out;
+}
+
+/* skip-handle : jis handle ki mapping nahi bharni, use list se hata do.
+   mode:
+     'hide'  -- sirf waiting list se hatao. Uske roke hue tweet
+                pending_tweets me SURAKSHIT pade rehte hain; handle dobara
+                scrape hua to wapas list me aa jaayega.
+     'stop'  -- waiting list se bhi hatao aur tracked_handles se bhi, taaki
+                aage scrape hi na ho. Tweet phir bhi mitte nahi.
+     'drop'  -- upar wala sab, aur uske roke hue tweet bhi hata do.
+                YAHI EK AISA HAI JISME DATA JAATA HAI, isliye panel is par
+                alag se confirm maangta hai. */
+async function skipHandle(db, handle, mode) {
+  const h = clean(handle);
+  if (!h) return { ok: false, why: 'no handle given' };
+  const out = { ok: true, handle: h, mode: mode || 'hide', removedTweets: 0, untracked: false };
+
+  if (mode === 'drop') {
+    const rx = { $regex: '^' + h.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '$', $options: 'i' };
+    try {
+      const r = await db.collection(COLL_PENDING).deleteMany({ handle: rx });
+      out.removedTweets = r.deletedCount || 0;
+    } catch (e) { out.ok = false; out.why = e.message; }
+  }
+  if (mode === 'stop' || mode === 'drop') {
+    try {
+      await db.collection(COLL_HANDLES).deleteOne({ _id: h });
+      out.untracked = true;
+    } catch (e) {}
+  }
+  try { await db.collection(COLL_PENDHAND).deleteOne({ _id: h }); } catch (e) {}
+  _clearLegacy();
+
+  log('\u23ED @' + h + ' skipped from the mapping list ('
+    + (mode === 'drop' ? out.removedTweets + ' held tweet(s) deleted, no longer tracked'
+       : mode === 'stop' ? 'no longer tracked; held tweets kept'
+       : 'held tweets kept; it will come back if scraped again') + ')',
+    mode === 'drop' ? 'warn' : 'info');
+  return out;
+}
+
+/* map-gate : panel ke "Handle Mapping" tab ke liye */
+async function pendingHandles(db, force) {
+  const rows = await db.collection(COLL_PENDHAND).find({}).sort({ tweets: -1 }).toArray();
+  const byH = {};
+  rows.forEach(function (r) {
+    if (MAP.has(r._id)) return;          /* beech me map ho gaya */
+    byH[r._id.toLowerCase()] = { handle: r._id, tweets: r.tweets || 0,
+      sample: r.sample || '', firstSeen: r.firstSeen || null,
+      lastSeen: r.lastSeen || null, held: true, inDb: false };
+  });
+  const legacy = await legacyUnmapped(db, force);
+  legacy.forEach(function (l) {
+    const k = l.handle.toLowerCase();
+    if (byH[k]) { byH[k].inDb = true; byH[k].dbTweets = l.tweets; }
+    else byH[k] = { handle: l.handle, tweets: 0, dbTweets: l.tweets,
+                    sample: l.sample, lastSeen: l.lastSeen, held: false, inDb: true };
+  });
+  return Object.keys(byH).map(function (k) { return byH[k]; })
+    .sort(function (a, b) { return (b.tweets + (b.dbTweets || 0)) - (a.tweets + (a.dbTweets || 0)); });
+}
+
+function _clearLegacy() { _legacyCache = null; _legacyAt = 0; }
+
+/* ======================= TRACKED HANDLES ======================= */
+function clean(raw) {
+  let s = String(raw || '').trim().replace(/\/+$/, '');
+  if (s.indexOf('x.com/') >= 0 || s.indexOf('twitter.com/') >= 0) s = s.split('/').pop();
+  return s.replace(/^@+/, '').split('?')[0].trim();
+}
+
+async function listHandles(db) {
+  return await db.collection(COLL_HANDLES).find({}).sort({ _id: 1 }).toArray();
+}
+
+async function addHandles(db, csv) {
+  const names = String(csv || '').split(/[,\s]+/).map(clean).filter(Boolean);
+  const uniq = names.filter(function (h, i) { return names.indexOf(h) === i; });
+  if (!uniq.length) return { added: 0, handles: [] };
+  const now = new Date();
+  const ops = uniq.map(function (h) {
+    return { updateOne: { filter: { _id: h },
+      update: { $setOnInsert: { active: true, addedAt: now, lastRun: null, status: 'New', tweets: 0 } },
+      upsert: true } };
+  });
+  const r = await db.collection(COLL_HANDLES).bulkWrite(ops, { ordered: false });
+  const added = (r.upsertedCount || 0);
+  log('+ Added ' + added + ' handle(s): ' + uniq.join(', '));
+  return { added: added, handles: uniq };
+}
+
+async function setActive(db, handle, active) {
+  await db.collection(COLL_HANDLES).updateOne({ _id: clean(handle) },
+    { $set: { active: !!active, status: active ? 'Active' : 'Paused' } });
+  log((active ? '▶ ' : '⏸ ') + '@' + clean(handle) + (active ? ' resumed' : ' paused'));
+  return true;
+}
+
+async function removeHandle(db, handle) {
+  await db.collection(COLL_HANDLES).deleteOne({ _id: clean(handle) });
+  log('✖ @' + clean(handle) + ' removed from the tracked list (its tweets stay in the database)');
+  return true;
+}
+
+/* window-depth : kisi ek handle ka apna window (khaali = default) */
+async function setHandleWindow(db, handle, windowHours) {
+  const h = clean(handle);
+  const n = Number(windowHours);
+  if (!n) {
+    await db.collection(COLL_HANDLES).updateOne({ _id: h }, { $unset: { windowHours: '' } });
+    log('\u2699 @' + h + ' scrape window reset to the default');
+  } else {
+    const v = Math.max(1, Math.min(2160, Math.round(n)));
+    await db.collection(COLL_HANDLES).updateOne({ _id: h }, { $set: { windowHours: v } });
+    log('\u2699 @' + h + ' scrape window set to ' + v + ' hours');
+  }
+  return true;
+}
+
+/* window-depth : Tweet Database tab ke liye -- scrape hua data padho.
+   Note: ye wahi master_tweets hai jisme pipeline ka data bhi hai; only=true
+   par sirf Tracker se aaya data (Source Folders me humara tag). */
+/* csv-export : filter ek hi jagah banta hai -- table aur CSV download dono
+   wahi query use karte hain, warna screen par kuch aur, file me kuch aur. */
+function tweetQuery(opts) {
+  opts = opts || {};
+  const q = {};
+  if (opts.handle) q['Handle'] = clean(opts.handle);
+  if (opts.only) q['Source Folders'] = SOURCE_TAG;
+  /* tweet-date-filter -- SABSE ZAROORI BAAT:
+     scrape window sirf ye tay karta hai ki NAYA kya laana hai. Jo tweet
+     pehle aa chuke hain wo master_tweets me pade rehte hain (aur rehne
+     bhi chahiye -- yahi poora data hai). Isliye "Today (24 hours)" chun
+     kar bhi is table me purane din dikh jaate the. Ab table ka apna
+     date filter hai.
+     'Tweet Date' "YYYY-MM-DD HH:MM:SS IST" shakl me hai, jo seedhe
+     string compare par theek se sort/compare hoti hai -- isliye
+     $gte/$lte string par hi lagate hain, koi date parsing nahi. */
+  const dr = {};
+  if (opts.from) dr.$gte = String(opts.from).slice(0, 10);
+  if (opts.to)   dr.$lte = String(opts.to).slice(0, 10) + ' 23:59:59 IST';
+  if (dr.$gte || dr.$lte) q['Tweet Date'] = dr;
+  if (opts.q) {
+    /* user ka text regex na ban jaaye -- sab special char escape */
+    const esc = String(opts.q).slice(0, 80).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    q['Tweet Text'] = { $regex: esc, $options: 'i' };
+  }
+  return q;
+}
+
+/* csv-fullcols : master_tweets ke SAARE column.
+   Pehle yahan sirf 10 column the, isliye CSV download me bhi 10 hi aate the --
+   Tweet ID, Followings, Date of Joining, Total Posts, Bookmark, Sentiment Score
+   aur mapping wale saare column file me aate hi nahi the.
+   Ye list server.js ke RAW_COLS se hu-ba-hu mel khaati hai. */
+const TWEET_COLS = ['Handle', 'Tweet URL', 'Tweet ID', 'Tweet Date', 'Tweet Text',
+  'Followers', 'Followings', 'Date of Joining', 'Total Posts', 'Total Comments',
+  'Total Likes', 'Total Retweets', 'Total Views', 'Total Bookmark Tweets Times',
+  'Sentiment', 'Sentiment Score',
+  'State', 'Locations', 'AC/PC No', 'AC Name', 'PC Name', 'Designation',
+  'Candidate Name', 'Category', 'Categories', 'Party', 'Status', 'Source Folders'];
+
+const TWEET_PROJ = (function () {
+  const p = {};
+  TWEET_COLS.forEach(function (c) { p[c] = 1; });
+  return p;
+})();
+
+/* csv-export : download ke liye cursor -- poora result memory me nahi aata,
+   seedha response me behta hai (4 lakh row par yahi farak karta hai). */
+function tweetCursor(db, opts, cap) {
+  return db.collection(COLL_TWEETS)
+    .find(tweetQuery(opts), { projection: TWEET_PROJ })
+    .sort({ 'Tweet Date': -1 })
+    .limit(Math.max(1, Math.min(500000, Number(cap) || 200000)));
+}
+
+async function recentTweets(db, opts) {
+  opts = opts || {};
+  const limit = Math.max(1, Math.min(200, Number(opts.limit) || 50));
+  const page = Math.max(0, Number(opts.page) || 0);
+  const q = tweetQuery(opts);
+  /* limit+1 maangte hain -- isse pata chal jaata hai aage page hai ya nahi,
+     bina poore collection ko count karne ke (wo 4 lakh row par bhaari hai). */
+  const rows = await db.collection(COLL_TWEETS).find(q, { projection: TWEET_PROJ })
+    .sort({ 'Tweet Date': -1 }).skip(page * limit).limit(limit + 1)
+    .maxTimeMS(25000).toArray();
+  const more = rows.length > limit;
+  return {
+    page: page, limit: limit, more: more,
+    rows: rows.slice(0, limit).map(function (r) {
+      return { id: String(r._id), handle: r['Handle'] || '', date: r['Tweet Date'] || '',
+        text: r['Tweet Text'] || '', url: r['Tweet URL'] || '',
+        likes: r['Total Likes'] || 0, comments: r['Total Comments'] || 0,
+        retweets: r['Total Retweets'] || 0, views: r['Total Views'] || 0 };
+    })
+  };
+}
+
+/* ======================= SETTINGS ======================= */
+async function getCfg(db) {
+  let d = null;
+  try { d = await db.collection(COLL_CFG).findOne({ _id: 'tracker' }); } catch (e) {}
+  const c = Object.assign({}, DEFAULTS, d || {});
+  delete c._id;
+  delete c.maxPages;   /* window-depth : ab ye setting nahi hai */
+  return c;
+}
+
+async function setCfg(db, patch) {
+  const ok = {};
+  if (patch.windowHours !== undefined) ok.windowHours = Math.max(1, Math.min(2160, Number(patch.windowHours) || DEFAULTS.windowHours));
+  if (patch.intervalMin !== undefined) ok.intervalMin = Math.max(5, Math.min(1440, Number(patch.intervalMin) || DEFAULTS.intervalMin));
+  if (patch.autoStart !== undefined) ok.autoStart = !!patch.autoStart;
+  if (patch.sentimentStrict !== undefined) ok.sentimentStrict = !!patch.sentimentStrict;
+  /* window-depth : maxPages jaanbujh kar nahi liya jaata -- purani UI se
+     aaya ho to chup-chaap chhod dete hain. */
+  await db.collection(COLL_CFG).updateOne({ _id: 'tracker' }, { $set: ok }, { upsert: true });
+  log('⚙ Settings saved: ' + JSON.stringify(ok));
+  return await getCfg(db);
+}
+
+/* sent-strict : runOnce shuru hote hi cfg se set hota hai, taaki saveTweets
+   ko cfg aage pass na karna pade. */
+let STRICT = true;
+let _strictWarned = false;
+
+const sleep = function (ms) { return new Promise(function (r) { setTimeout(r, ms); }); };
+
+/* ======================= EK RUN ======================= */
+/* getDb() -> { db, close } ; server.js apna pool deta hai */
+async function runOnce(getDb, opts) {
+  if (STATE.running) {
+    /* Do scrape ek saath nahi chalne dete -- warna dono X ko hit karte,
+       rate-limit jaldi lagta, aur ginti (naya/update) bhi uljh jaati.
+       Purana result lautana bhram paida karta tha, isliye saaf bolte hain. */
+    log('A scrape is already running -- this request was skipped', 'warn');
+    return { ok: false, skipped: true, reason: 'already running',
+             current: STATE.current, done: STATE.done, total: STATE.total };
+  }
+  if (!XL.ready()) {
+    STATE.lastError = 'No cookie found in x_config.json';
+    log('✖ ' + STATE.lastError + ' -- the tracker cannot run', 'err');
+    return { ok: false, error: STATE.lastError };
+  }
+  opts = opts || {};
+  STATE.running = true; STATE.stopAsked = false; STATE.startedAt = Date.now();
+  STATE.done = 0; STATE.total = 0; STATE.current = ''; STATE.lastError = '';
+  STATE.page = 0; STATE.pages = 0; STATE.tweets = 0;
+  STATE.newCount = 0; STATE.updatedCount = 0; STATE.handleTweets = 0;
+  STATE.heldCount = 0;
+  STATE.sentCounts = {}; STATE.oddLabels = [];
+
+  const t0 = Date.now();
+  const stats = { newCount: 0, updatedCount: 0, handles: 0, errors: 0, pages: 0,
+                  skipped: 0, heldCount: 0 };
+  let conn = null;
+  try {
+    conn = await getDb();
+    const db = conn.db;
+    const cfg = await getCfg(db);
+    STRICT = cfg.sentimentStrict !== false;      /* sent-strict */
+    _strictWarned = false;
+    const windowHours = Number(opts.windowHours) || cfg.windowHours;
+    /* forced-window : jab user panel par window chun kar khud "Scrape now"
+       dabata hai, to wahi window sab par lagta hai -- per-handle override
+       bhi us ek run ke liye nahi chalta. Warna "24 ghante" dabane ke baad
+       bhi kuch handle 7 din khinch laate aur bharosa toot jaata. */
+    const forcedWin = Number(opts.windowHours) > 0;
+    const only = opts.only ? [].concat(opts.only).map(clean) : null;
+
+    let hs = await listHandles(db);
+    hs = hs.filter(function (h) { return h.active !== false; });
+    if (only) hs = hs.filter(function (h) { return only.indexOf(h._id) >= 0; });
+    STATE.total = hs.length;
+
+    if (!hs.length) {
+      log('No active handles -- add a handle first', 'warn');
+      STATE.lastResult = { ok: true, newCount: 0, updatedCount: 0, handles: 0, errors: 0, ms: 0, note: 'no handles' };
+      return STATE.lastResult;
+    }
+
+    log('▶ SCRAPE STARTED -- ' + hs.length + ' handle(s), default window '
+      + windowHours + ' hours (depth follows the window; no fixed page count)');
+
+    for (let i = 0; i < hs.length; i++) {
+      if (STATE.stopAsked) { log('⏹ Stop requested -- stopping here', 'warn'); break; }
+      const handle = hs[i]._id;
+      STATE.current = handle;
+      /* window-depth : is handle ka apna window ho to wahi, warna default */
+      const hWin = Math.max(1, Math.min(2160,
+        forcedWin ? windowHours : (Number(hs[i].windowHours) || windowHours)));
+      const cutoff = Date.now() - hWin * 3600 * 1000;
+      const pageCap = pagesFor(hWin);
+
+      try {
+        const prof = await XL.fetchProfile(handle);
+        await sleep(cfg.gapMs || DEFAULTS.gapMs);
+        if (!prof.ok) {
+          stats.errors++;
+          await db.collection(COLL_HANDLES).updateOne({ _id: handle },
+            { $set: { status: 'Error: ' + prof.why, lastRun: new Date() } });
+          log('✖ @' + handle + ' -- profile not found (' + prof.why + ')', 'err');
+          if (prof.why === 'RATE' || prof.why === 'AUTH') { STATE.lastError = prof.why; break; }
+          STATE.done++;
+          continue;
+        }
+        const userId = prof.prof && prof.prof.userId;
+        if (!userId) {
+          /* x_live.pick me rest_id nahi aata -- id alag se le aate hain */
+          const r2 = await post('/i/api/graphql/Yka-W8dz7RaEuQNkroPkYw/UserByScreenName',
+            { variables: { screen_name: handle, withSafetyModeUserFields: true },
+              features: {}, fieldToggles: { withAuxiliaryUserLabels: false } }, handle);
+          try { hs[i]._uid = JSON.parse(r2.text).data.user.result.rest_id; } catch (e) {}
+        }
+        const uid = userId || hs[i]._uid;
+        if (!uid) {
+          stats.errors++;
+          log('✖ @' + handle + ' -- could not resolve user id', 'err');
+          STATE.done++; continue;
+        }
+
+        let cursor = null, found = 0, stop = false, dry = 0;
+        STATE.page = 0; STATE.handleTweets = 0;
+        for (let page = 0; page < pageCap && !stop; page++) {
+          if (STATE.stopAsked) break;
+          const j = await timelinePage(uid, handle, cursor);
+          stats.pages++;
+          STATE.page = page + 1; STATE.pages = stats.pages;
+          await sleep(cfg.gapMs || DEFAULTS.gapMs);
+          if (!j) break;
+
+          let instr;
+          try { instr = j.data.user.result.timeline.timeline.instructions; } catch (e) { break; }
+
+          const batch = [];
+          let next = null, inWin = 0;
+          for (const ins of instr) {
+            if (ins.type !== 'TimelineAddEntries') continue;
+            for (const en of (ins.entries || [])) {
+              const eid = en.entryId || '', ct = en.content || {};
+              if (eid.indexOf('cursor-bottom') === 0) { next = ct.value; continue; }
+              const cand = [];
+              if (eid.indexOf('tweet-') === 0) {
+                try { cand.push(ct.itemContent.tweet_results.result); } catch (e) {}
+              } else if (eid.indexOf('profile-conversation-') === 0) {
+                (ct.items || []).forEach(function (it) {
+                  try { cand.push(it.item.itemContent.tweet_results.result); } catch (e) {}
+                });
+              }
+              for (const cr of cand) {
+                const t = extract(cr, handle);
+                if (!t) continue;
+                /* Pehle yahan pehla purana tweet dekh kar hi ruk jaate the.
+                   Galat tha: pinned tweet sabse upar aata hai aur saalon
+                   purana ho sakta hai -- us ek tweet se poora handle chhoot
+                   jaata tha. Ab purane tweet chhodte hain, rukne ka faisla
+                   poore page ko dekh kar hota hai. */
+                if (t.when.getTime() < cutoff) continue;
+                batch.push(t.doc);
+                inWin++; found++; STATE.handleTweets = found;
+              }
+            }
+          }
+          if (batch.length) await saveTweets(db, batch, stats);
+
+          /* window-depth -- GEHRAI KA FAISLA.
+             Page ka koi fix number nahi: jab tak window ke andar tweet mil
+             rahe hain, aage padhte jao.
+               * page me andar ka ek bhi tweet nahi, aur pehle mil chuke the
+                 -> hum window se peeche nikal gaye, bas.
+               * shuru se hi kuch nahi (sirf pinned/promoted) -> ek page aur
+                 dekh lo, phir chhodo. */
+          if (inWin === 0) {
+            if (found > 0) {
+              log('  @' + handle + ' -- reached the end of the window after ' + (page + 1) + ' page(s)');
+              break;
+            }
+            dry++;
+            if (dry >= 2) {
+              log('  @' + handle + ' -- nothing inside the window');
+              break;
+            }
+          } else dry = 0;
+
+          if (!next || next === cursor) break;
+          cursor = next;
+          if (page + 1 >= pageCap)
+            log('  @' + handle + ' -- hit the page safety limit (' + pageCap + ')', 'warn');
+        }
+
+        stats.handles++;
+        await db.collection(COLL_HANDLES).updateOne({ _id: handle },
+          { $set: { status: 'Active', lastRun: new Date(), name: (prof.prof && prof.prof.name) || '' },
+            $inc: { tweets: found } });
+        log('✓ @' + handle + ' -- ' + found + ' tweet(s) in window');
+      } catch (e) {
+        stats.errors++;
+        if (e && e.rate) {
+          STATE.lastError = e.message;
+          log('⏳ ' + e.message + ' -- stopping this run; it will retry on the next schedule', 'err');
+          break;
+        }
+        log('✖ @' + handle + ' -- ' + String(e.message || e).slice(0, 120), 'err');
+      }
+      STATE.done++;
+    }
+
+    const ms = Date.now() - t0;
+    STATE.lastResult = { ok: true, newCount: stats.newCount, updatedCount: stats.updatedCount,
+      handles: stats.handles, errors: stats.errors, pages: stats.pages, ms: ms,
+      heldCount: stats.heldCount, sentimentEngine: SENT.engine(),
+      at: new Date().toISOString() };
+    /* eng-progress : run ke ant me ek saaf, dhoondhne-laayak line.
+       Pehle "Poora hua" tha -- user ko log me "DONE" chahiye tha. */
+    log((STATE.stopAsked ? '⏹ STOPPED' : '✔ DONE')
+      + ' -- ' + stats.newCount + ' new, ' + stats.updatedCount + ' updated, '
+      + stats.handles + '/' + STATE.total + ' handles, ' + stats.pages + ' pages, '
+      + (stats.heldCount ? stats.heldCount + ' held for mapping, ' : '')
+      + stats.errors + ' error(s), ' + Math.round(ms / 1000) + 's',
+      stats.errors ? 'warn' : 'info');
+    return STATE.lastResult;
+  } catch (e) {
+    STATE.lastError = String(e.message || e).slice(0, 200);
+    log('✖ SCRAPE FAILED -- ' + STATE.lastError, 'err');
+    STATE.lastResult = { ok: false, error: STATE.lastError, at: new Date().toISOString() };
+    return STATE.lastResult;
+  } finally {
+    STATE.running = false;
+    STATE.current = '';
+    STATE.finishedAt = Date.now();
+    if (conn && conn.close) { try { await conn.close(); } catch (e) {} }
+  }
+}
+
+/* ======================= LOOP ======================= */
+let TIMER = null;
+
+async function schedule(getDb) {
+  clearTimeout(TIMER);
+  let mins = DEFAULTS.intervalMin;
+  try {
+    const conn = await getDb();
+    try { mins = (await getCfg(conn.db)).intervalMin; }
+    finally { if (conn.close) { try { await conn.close(); } catch (e) {} } }
+  } catch (e) {}
+  STATE.nextAt = Date.now() + mins * 60000;
+  TIMER = setTimeout(function () { tick(getDb); }, mins * 60000);
+  if (TIMER.unref) TIMER.unref();
+}
+
+async function tick(getDb) {
+  try { await runOnce(getDb); } catch (e) { log('Loop error: ' + e.message, 'err'); }
+  schedule(getDb);
+}
+
+async function start(getDb, immediate) {
+  if (!XL.ready()) {
+    log('Tracker did not start -- no cookie in x_config.json', 'warn');
+    return false;
+  }
+  log('Tracker started');
+  if (immediate) tick(getDb); else schedule(getDb);
+  return true;
+}
+
+function stop() {
+  clearTimeout(TIMER); TIMER = null; STATE.nextAt = 0;
+  STATE.stopAsked = true;
+  log('⏹ Tracker stopped');
+  return true;
+}
+
+function running() { return !!TIMER || STATE.running; }
+
+module.exports = {
+  runOnce, start, stop, running, status, logs, log,
+  listHandles, addHandles, setActive, removeHandle,
+  setHandleWindow, recentTweets, pagesFor, tweetQuery, tweetCursor, TWEET_PROJ, TWEET_COLS,
+  releaseHandle, pendingHandles, legacyUnmapped, _clearLegacy, skipHandle,
+  applySentiment, registerPending,
+  COLL_PENDING, COLL_PENDHAND, MAP, SENT,
+  getCfg, setCfg, clean, extract, sentiment, istString, buildOp,
+  DEFAULTS, DB, COLL_TWEETS, COLL_HANDLES, COLL_CFG, SOURCE_TAG,
+  _state: STATE
+};

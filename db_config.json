@@ -1,0 +1,11 @@
+{
+  "_1_kya_hai": "MongoDB ka connection string. SAARE script (Python + Node) yahi se lete hain -- pipeline, teeno dashboard, backup, export, sab.",
+  "_2_kya_karna_hai": "Neeche 'mongo_url' me apna asli connection string paste karo (PASTE_... hata kar). Uske baad START_LIVE.bat dobara chalao. Bas.",
+  "_3_shakl": "mongodb://USERNAME:PASSWORD@localhost:27017/?authSource=admin",
+  "_4_password_me_special_character": "Agar password me @ : / ? # [ ] % jaisa koi character hai to use percent-encode karna padta hai, warna URI tut jaata hai. @ -> %40 , : -> %3A , / -> %2F , # -> %23 , % -> %25 . Misaal: password 'Pa@ss' -> 'Pa%40ss'.",
+  "_5_authSource": "authSource wahi database hai jisme user banaya tha -- aam taur par 'admin'. Agar user 'pulse_master' me banaya tha to ?authSource=pulse_master likho.",
+  "_6_khaali_chhodo_to": "PASTE_... waisa hi rehne do ya khaali kar do -- to purana vyavhaar (mongodb://localhost:27017, bina password) chalega. Yaani auth band kar do to kuch aur badalna nahi padega.",
+  "_7_SECRET": "Isme password khula padta hai. Ye file kisi ko mat bhejna -- folder share karte waqt hata dena. mongo_dump_py / USB me bhi na jaaye.",
+  "_8_jaanch": "Sahi hai ya nahi dekhne ke liye:  cd DASHBOARD  phir  python mongo_conf.py  -- wo connection test karke tweet ki ginti dikha dega.",
+  "mongo_url": "mongodb://localhost:27017"
+}

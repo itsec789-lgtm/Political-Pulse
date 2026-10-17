@@ -1,0 +1,549 @@
+/* ===========================================================================
+   x_scraper.js  --  Handle Tracker ka engine
+
+   Kya karta hai:
+     * jin handle ko track karna hai unki list rakhta hai
+       (pulse_master.tracked_handles)
+     * har handle ki X timeline padhta hai (UserTweets GraphQL)
+     * har tweet ko SEEDHE pulse_master.master_tweets me daal deta hai --
+       wahi merge rules jo run_pipeline.py use karta hai, isliye scraped
+       data dono dashboard (All-India + UP) aur Handle Analytics me waise
+       hi dikhne lagta hai jaise network folder se aaya data.
+     * chalte waqt ka haal aur log rakhta hai, jo Admin Panel dikhata hai
+
+   MERGE RULES (master_to_mongo.py se hu-ba-hu):
+     _id              = Tweet ID (URL me se)  -> duplicate ban hi nahi sakta
+     numeric columns  -> $max   (ginti kabhi ghatti nahi)
+     text columns     -> $set   sirf jab naya value khaali na ho
+     Source Folders   -> $addToSet
+     _first           -> $setOnInsert  (humare paas kab aaya)
+
+   Cookie wahi hai jo x_config.json me hai (x_live.js se aati hai) --
+   do jagah cookie rakhne se ek jagah badalne par doosri reh jaati.
+
+   X par bojh na pade iske liye:
+     * ek waqt me ek hi run (single flight)
+     * har call ke beech thoda ruko
+     * 429/401 par turant ruk jao aur saaf batao
+   =========================================================================== */
+'use strict';
+
+const https = require('https');
+const XL = require('./x_live.js');
+
+const DB = 'pulse_master';
+const COLL_TWEETS = 'master_tweets';
+const COLL_HANDLES = 'tracked_handles';
+const COLL_CFG = 'tracker_cfg';
+
+const GQL_TWEETS = '/i/api/graphql/pQHADmT91zIY83UbK0x4Lw/UserTweets';
+const SOURCE_TAG = 'Admin Tracker';       // Source Folders me yahi naam jaata hai
+
+const DEFAULTS = {
+  windowHours: 72,        // kitna peeche tak (UI se badal sakte ho)
+  intervalMin: 30,        // kitni der me dobara
+  maxPages: 4,            // ek handle ki kitni page
+  gapMs: 600,             // do call ke beech
+  autoStart: true
+};
+
+const NUM_COLS = ['Followers', 'Followings', 'Total Posts', 'Total Comments',
+  'Total Likes', 'Total Retweets', 'Total Views', 'Total Bookmark Tweets Times'];
+
+/* ======================= LOG ======================= */
+/* Aakhri 400 line memory me -- Admin Panel yahi dikhata hai. Ye jaanbujh kar
+   memory me hai: har line Mongo me likhna is kaam ke liye bekaar bhaari hai. */
+const LOG_MAX = 400;
+let LOG = [];
+
+function log(msg, kind) {
+  const line = { t: new Date().toISOString(), k: kind || 'info', m: String(msg).slice(0, 300) };
+  LOG.push(line);
+  if (LOG.length > LOG_MAX) LOG = LOG.slice(-LOG_MAX);
+  console.log('  [TRACKER] ' + line.m);
+  return line;
+}
+function logs(limit) { return LOG.slice(-(limit || 120)).reverse(); }
+
+/* ======================= HAAL (status) ======================= */
+const STATE = {
+  running: false,
+  startedAt: 0,
+  finishedAt: 0,
+  lastResult: null,        // { ok, newCount, updatedCount, handles, errors, ms }
+  current: '',             // abhi kis handle par
+  done: 0, total: 0,
+  stopAsked: false,
+  lastError: '',
+  nextAt: 0
+};
+
+function status() {
+  return {
+    running: STATE.running,
+    startedAt: STATE.startedAt || null,
+    finishedAt: STATE.finishedAt || null,
+    current: STATE.current,
+    done: STATE.done, total: STATE.total,
+    lastResult: STATE.lastResult,
+    lastError: STATE.lastError,
+    nextAt: STATE.nextAt || null,
+    cookieOk: XL.ready(),
+    cookieState: XL.state('')
+  };
+}
+
+/* ======================= HTTP ======================= */
+function post(path, body, handle) {
+  return new Promise(function (resolve) {
+    const h = XL.headersFor(handle);
+    if (!h) return resolve({ code: 0, err: 'NOCFG' });
+    const data = JSON.stringify(body);
+    h['content-length'] = Buffer.byteLength(data);
+    const req = https.request({ host: XL.GQL_HOST, path: path, method: 'POST', headers: h },
+      function (r) {
+        let buf = '';
+        r.setEncoding('utf8');
+        r.on('data', function (d) { buf += d; if (buf.length > 8e6) r.destroy(); });
+        r.on('end', function () { resolve({ code: r.statusCode, text: buf }); });
+      });
+    req.setTimeout(25000, function () { req.destroy(); resolve({ code: 0, err: 'timeout' }); });
+    req.on('error', function (e) { resolve({ code: 0, err: String(e.message || e).slice(0, 80) }); });
+    req.end(data);
+  });
+}
+
+const FEATURES = {
+  rweb_video_screen_enabled: false, rweb_cashtags_enabled: true,
+  profile_label_improvements_pcf_label_in_post_enabled: true,
+  responsive_web_profile_redirect_enabled: false, rweb_tipjar_consumption_enabled: false,
+  verified_phone_label_enabled: true, creator_subscriptions_tweet_preview_api_enabled: true,
+  responsive_web_graphql_timeline_navigation_enabled: true,
+  responsive_web_graphql_skip_user_profile_image_extensions_enabled: false,
+  premium_content_api_read_enabled: false,
+  communities_web_enable_tweet_community_results_fetch: true,
+  c9s_tweet_anatomy_moderator_badge_enabled: true,
+  responsive_web_grok_analyze_button_fetch_trends_enabled: false,
+  responsive_web_grok_analyze_post_followups_enabled: true,
+  rweb_cashtags_composer_attachment_enabled: false, responsive_web_jetfuel_frame: true,
+  responsive_web_grok_share_attachment_enabled: true,
+  responsive_web_grok_annotations_enabled: true, articles_preview_enabled: true,
+  responsive_web_edit_tweet_api_enabled: true,
+  graphql_is_translatable_rweb_tweet_is_translatable_enabled: true,
+  view_counts_everywhere_api_enabled: true, longform_notetweets_consumption_enabled: true,
+  responsive_web_twitter_article_tweet_consumption_enabled: true,
+  content_disclosure_indicator_enabled: true,
+  content_disclosure_ai_generated_indicator_enabled: true,
+  responsive_web_grok_show_grok_translated_post: true,
+  responsive_web_grok_analysis_button_from_backend: true,
+  post_ctas_fetch_enabled: true, freedom_of_speech_not_reach_fetch_enabled: true,
+  standardized_nudges_misinfo: true,
+  tweet_with_visibility_results_prefer_gql_limited_actions_policy_enabled: true,
+  longform_notetweets_rich_text_read_enabled: true,
+  longform_notetweets_inline_media_enabled: false,
+  responsive_web_grok_image_annotation_enabled: true,
+  responsive_web_grok_imagine_annotation_enabled: true,
+  responsive_web_grok_community_note_auto_translation_is_enabled: true,
+  responsive_web_enhance_cards_enabled: false
+};
+
+function RateLimit(msg) { const e = new Error(msg); e.rate = true; return e; }
+
+async function timelinePage(userId, handle, cursor) {
+  const variables = {
+    userId: String(userId), count: 20, includePromotedContent: true,
+    withQuickPromoteEligibilityTweetFields: true, withVoice: true
+  };
+  if (cursor) variables.cursor = cursor;
+  const r = await post(GQL_TWEETS,
+    { variables: variables, features: FEATURES, fieldToggles: { withArticlePlainText: false } },
+    handle);
+  if (r.code === 429) throw RateLimit('X ne rate-limit laga diya (429)');
+  if (r.code === 401 || r.code === 403) throw RateLimit('Cookie reject ho gayi (' + r.code + ') -- x_config.json me nayi cookie daalo');
+  if (r.code !== 200) { log('@' + handle + ' -- HTTP ' + (r.code || r.err), 'err'); return null; }
+  try { return JSON.parse(r.text); } catch (e) { return null; }
+}
+
+/* ======================= TWEET NIKAALO ======================= */
+function istString(d) {
+  /* master_tweets me date "YYYY-MM-DD HH:MM:SS IST" shakl me hoti hai
+     (phase2_push.to_ist_series wahi banata hai) -- wahi shakl rakhte hain,
+     warna dashboard ka date filter is data ko pehchanta hi nahi. */
+  const ist = new Date(d.getTime() + 5.5 * 3600 * 1000);
+  const p = function (n) { return (n < 10 ? '0' : '') + n; };
+  return ist.getUTCFullYear() + '-' + p(ist.getUTCMonth() + 1) + '-' + p(ist.getUTCDate())
+    + ' ' + p(ist.getUTCHours()) + ':' + p(ist.getUTCMinutes()) + ':' + p(ist.getUTCSeconds()) + ' IST';
+}
+
+const POS = ['good','great','amazing','excellent','win','success','happy','love','best','positive',
+  'growth','support','congratulations','proud','strong','improve','vikas','samman','jeet'];
+const NEG = ['bad','worst','fail','failure','crisis','angry','sad','hate','negative','loss',
+  'corrupt','scandal','attack','threat','weak','crash','virodh','bhrashtachar'];
+
+function sentiment(text) {
+  const w = String(text).toLowerCase().replace(/[^a-z\s]/g, ' ').split(/\s+/).filter(Boolean);
+  if (!w.length) return ['Neutral', 0];
+  let p = 0, n = 0;
+  w.forEach(function (x) { if (POS.indexOf(x) >= 0) p++; if (NEG.indexOf(x) >= 0) n++; });
+  const sc = (p - n) / w.length;
+  return [sc > 0.02 ? 'Positive' : (sc < -0.02 ? 'Negative' : 'Neutral'),
+          Math.round(sc * 10000) / 10000];
+}
+
+function extract(res, handle) {
+  try {
+    if (res && res.__typename === 'TweetWithVisibilityResults') res = res.tweet;
+    const lg = res && res.legacy;
+    if (!lg) return null;
+    const when = new Date(lg.created_at);
+    if (isNaN(when.getTime())) return null;
+
+    let author = {};
+    try { author = res.core.user_results.result.legacy || {}; } catch (e) {}
+
+    /* Retweet par asli tweet ke number lo (wahi X dikhata hai) */
+    let st = lg, views = res.views || {};
+    if (lg.retweeted_status_id_str) {
+      try {
+        let rt = res.retweeted_status_result.result;
+        if (rt.__typename === 'TweetWithVisibilityResults') rt = rt.tweet;
+        if (rt.legacy) { st = rt.legacy; views = rt.views || {}; }
+      } catch (e) {}
+    }
+
+    const id = lg.id_str || '';
+    if (!id) return null;
+    const screen = author.screen_name || handle;
+    const text = (lg.full_text || '').replace(/\s+/g, ' ').trim();
+    const sen = sentiment(text);
+
+    return {
+      when: when,
+      doc: {
+        'Handle': screen,
+        'Tweet URL': 'https://x.com/' + screen + '/status/' + id,
+        'Tweet ID': id,
+        'Tweet Date': istString(when),
+        'Tweet Text': text,
+        'Followers': author.followers_count || 0,
+        'Followings': author.friends_count || 0,
+        'Date of Joining': author.created_at || '',
+        'Total Posts': author.statuses_count || 0,
+        'Total Comments': st.reply_count || 0,
+        'Total Likes': st.favorite_count || 0,
+        'Total Retweets': st.retweet_count || 0,
+        'Total Views': Number(views.count || 0) || 0,
+        'Total Bookmark Tweets Times': st.bookmark_count || 0,
+        'Sentiment': sen[0],
+        'Sentiment Score': sen[1]
+      }
+    };
+  } catch (e) { return null; }
+}
+
+/* ======================= MONGO ======================= */
+/* master_to_mongo.py jaisi hi merge op */
+function buildOp(d) {
+  const UpdateOne = require('mongodb').UpdateOne;
+  const setd = {}, maxd = {};
+  Object.keys(d).forEach(function (k) {
+    const v = d[k];
+    if (NUM_COLS.indexOf(k) >= 0) {
+      const n = Number(String(v).replace(/,/g, '').trim());
+      if (isFinite(n)) maxd[k] = Math.round(n);
+    } else if (String(v === null || v === undefined ? '' : v).trim() !== '') {
+      setd[k] = String(v).trim();
+    }
+  });
+  const upd = {};
+  if (Object.keys(setd).length) upd.$set = setd;
+  if (Object.keys(maxd).length) upd.$max = maxd;
+  upd.$addToSet = { 'Source Folders': SOURCE_TAG };
+  upd.$setOnInsert = { _first: new Date().toISOString().slice(0, 10) };
+  return { updateOne: { filter: { _id: d['Tweet ID'] }, update: upd, upsert: true } };
+}
+
+async function saveTweets(db, docs, stats) {
+  if (!docs.length) return;
+  const c = db.collection(COLL_TWEETS);
+  /* pehle dekho kaun pehle se hai -- "naya" aur "update" alag ginne ke liye */
+  const ids = docs.map(function (d) { return d['Tweet ID']; });
+  let have = {};
+  try {
+    const found = await c.find({ _id: { $in: ids } }, { projection: { _id: 1 } }).toArray();
+    found.forEach(function (f) { have[f._id] = 1; });
+  } catch (e) {}
+  const ops = docs.map(buildOp);
+  for (let i = 0; i < ops.length; i += 500) {
+    await c.bulkWrite(ops.slice(i, i + 500), { ordered: false });
+  }
+  docs.forEach(function (d) {
+    if (have[d['Tweet ID']]) stats.updatedCount++; else stats.newCount++;
+  });
+}
+
+/* ======================= TRACKED HANDLES ======================= */
+function clean(raw) {
+  let s = String(raw || '').trim().replace(/\/+$/, '');
+  if (s.indexOf('x.com/') >= 0 || s.indexOf('twitter.com/') >= 0) s = s.split('/').pop();
+  return s.replace(/^@+/, '').split('?')[0].trim();
+}
+
+async function listHandles(db) {
+  return await db.collection(COLL_HANDLES).find({}).sort({ _id: 1 }).toArray();
+}
+
+async function addHandles(db, csv) {
+  const names = String(csv || '').split(/[,\s]+/).map(clean).filter(Boolean);
+  const uniq = names.filter(function (h, i) { return names.indexOf(h) === i; });
+  if (!uniq.length) return { added: 0, handles: [] };
+  const now = new Date();
+  const ops = uniq.map(function (h) {
+    return { updateOne: { filter: { _id: h },
+      update: { $setOnInsert: { active: true, addedAt: now, lastRun: null, status: 'New', tweets: 0 } },
+      upsert: true } };
+  });
+  const r = await db.collection(COLL_HANDLES).bulkWrite(ops, { ordered: false });
+  const added = (r.upsertedCount || 0);
+  log('+ ' + added + ' handle jude: ' + uniq.join(', '));
+  return { added: added, handles: uniq };
+}
+
+async function setActive(db, handle, active) {
+  await db.collection(COLL_HANDLES).updateOne({ _id: clean(handle) },
+    { $set: { active: !!active, status: active ? 'Active' : 'Paused' } });
+  log((active ? '▶ ' : '⏸ ') + '@' + clean(handle) + (active ? ' chaalu' : ' roka gaya'));
+  return true;
+}
+
+async function removeHandle(db, handle) {
+  await db.collection(COLL_HANDLES).deleteOne({ _id: clean(handle) });
+  log('✖ @' + clean(handle) + ' list se hata diya (uske tweets database me rahenge)');
+  return true;
+}
+
+/* ======================= SETTINGS ======================= */
+async function getCfg(db) {
+  let d = null;
+  try { d = await db.collection(COLL_CFG).findOne({ _id: 'tracker' }); } catch (e) {}
+  const c = Object.assign({}, DEFAULTS, d || {});
+  delete c._id;
+  return c;
+}
+
+async function setCfg(db, patch) {
+  const ok = {};
+  if (patch.windowHours !== undefined) ok.windowHours = Math.max(1, Math.min(2160, Number(patch.windowHours) || DEFAULTS.windowHours));
+  if (patch.intervalMin !== undefined) ok.intervalMin = Math.max(5, Math.min(1440, Number(patch.intervalMin) || DEFAULTS.intervalMin));
+  if (patch.autoStart !== undefined) ok.autoStart = !!patch.autoStart;
+  if (patch.maxPages !== undefined) ok.maxPages = Math.max(1, Math.min(25, Number(patch.maxPages) || DEFAULTS.maxPages));
+  await db.collection(COLL_CFG).updateOne({ _id: 'tracker' }, { $set: ok }, { upsert: true });
+  log('⚙ Settings badli: ' + JSON.stringify(ok));
+  return await getCfg(db);
+}
+
+const sleep = function (ms) { return new Promise(function (r) { setTimeout(r, ms); }); };
+
+/* ======================= EK RUN ======================= */
+/* getDb() -> { db, close } ; server.js apna pool deta hai */
+async function runOnce(getDb, opts) {
+  if (STATE.running) {
+    /* Do scrape ek saath nahi chalne dete -- warna dono X ko hit karte,
+       rate-limit jaldi lagta, aur ginti (naya/update) bhi uljh jaati.
+       Purana result lautana bhram paida karta tha, isliye saaf bolte hain. */
+    log('Pehle se ek scrape chal raha hai -- ye baar chhod diya', 'warn');
+    return { ok: false, skipped: true, reason: 'pehle se chal raha hai',
+             current: STATE.current, done: STATE.done, total: STATE.total };
+  }
+  if (!XL.ready()) {
+    STATE.lastError = 'x_config.json me cookie nahi mili';
+    log('✖ ' + STATE.lastError + ' -- Tracker chal nahi sakta', 'err');
+    return { ok: false, error: STATE.lastError };
+  }
+  opts = opts || {};
+  STATE.running = true; STATE.stopAsked = false; STATE.startedAt = Date.now();
+  STATE.done = 0; STATE.total = 0; STATE.current = ''; STATE.lastError = '';
+
+  const t0 = Date.now();
+  const stats = { newCount: 0, updatedCount: 0, handles: 0, errors: 0, pages: 0, skipped: 0 };
+  let conn = null;
+  try {
+    conn = await getDb();
+    const db = conn.db;
+    const cfg = await getCfg(db);
+    const windowHours = Number(opts.windowHours) || cfg.windowHours;
+    const maxPages = Number(opts.maxPages) || cfg.maxPages;
+    const only = opts.only ? [].concat(opts.only).map(clean) : null;
+
+    let hs = await listHandles(db);
+    hs = hs.filter(function (h) { return h.active !== false; });
+    if (only) hs = hs.filter(function (h) { return only.indexOf(h._id) >= 0; });
+    STATE.total = hs.length;
+
+    if (!hs.length) {
+      log('Koi active handle nahi -- pehle upar se handle add karo', 'warn');
+      STATE.lastResult = { ok: true, newCount: 0, updatedCount: 0, handles: 0, errors: 0, ms: 0, note: 'koi handle nahi' };
+      return STATE.lastResult;
+    }
+
+    const cutoff = Date.now() - windowHours * 3600 * 1000;
+    log('▶ Scrape shuru -- ' + hs.length + ' handle, pichhle ' + windowHours + ' ghante');
+
+    for (let i = 0; i < hs.length; i++) {
+      if (STATE.stopAsked) { log('⏹ Rokne ko kaha gaya -- yahin ruk rahe hain', 'warn'); break; }
+      const handle = hs[i]._id;
+      STATE.current = handle;
+
+      try {
+        const prof = await XL.fetchProfile(handle);
+        await sleep(cfg.gapMs || DEFAULTS.gapMs);
+        if (!prof.ok) {
+          stats.errors++;
+          await db.collection(COLL_HANDLES).updateOne({ _id: handle },
+            { $set: { status: 'Error: ' + prof.why, lastRun: new Date() } });
+          log('✖ @' + handle + ' -- profile nahi mili (' + prof.why + ')', 'err');
+          if (prof.why === 'RATE' || prof.why === 'AUTH') { STATE.lastError = prof.why; break; }
+          STATE.done++;
+          continue;
+        }
+        const userId = prof.prof && prof.prof.userId;
+        if (!userId) {
+          /* x_live.pick me rest_id nahi aata -- id alag se le aate hain */
+          const r2 = await post('/i/api/graphql/Yka-W8dz7RaEuQNkroPkYw/UserByScreenName',
+            { variables: { screen_name: handle, withSafetyModeUserFields: true },
+              features: {}, fieldToggles: { withAuxiliaryUserLabels: false } }, handle);
+          try { hs[i]._uid = JSON.parse(r2.text).data.user.result.rest_id; } catch (e) {}
+        }
+        const uid = userId || hs[i]._uid;
+        if (!uid) {
+          stats.errors++;
+          log('✖ @' + handle + ' -- user id nahi mila', 'err');
+          STATE.done++; continue;
+        }
+
+        let cursor = null, found = 0, stop = false;
+        for (let page = 0; page < maxPages && !stop; page++) {
+          if (STATE.stopAsked) break;
+          const j = await timelinePage(uid, handle, cursor);
+          stats.pages++;
+          await sleep(cfg.gapMs || DEFAULTS.gapMs);
+          if (!j) break;
+
+          let instr;
+          try { instr = j.data.user.result.timeline.timeline.instructions; } catch (e) { break; }
+
+          const batch = [];
+          let next = null;
+          for (const ins of instr) {
+            if (ins.type !== 'TimelineAddEntries') continue;
+            for (const en of (ins.entries || [])) {
+              const eid = en.entryId || '', ct = en.content || {};
+              if (eid.indexOf('cursor-bottom') === 0) { next = ct.value; continue; }
+              const cand = [];
+              if (eid.indexOf('tweet-') === 0) {
+                try { cand.push(ct.itemContent.tweet_results.result); } catch (e) {}
+              } else if (eid.indexOf('profile-conversation-') === 0) {
+                (ct.items || []).forEach(function (it) {
+                  try { cand.push(it.item.itemContent.tweet_results.result); } catch (e) {}
+                });
+              }
+              for (const cr of cand) {
+                const t = extract(cr, handle);
+                if (!t) continue;
+                if (t.when.getTime() < cutoff) { stop = true; continue; }
+                batch.push(t.doc);
+                found++;
+              }
+            }
+            if (stop) break;
+          }
+          if (batch.length) await saveTweets(db, batch, stats);
+          if (!next || next === cursor) break;
+          cursor = next;
+        }
+
+        stats.handles++;
+        await db.collection(COLL_HANDLES).updateOne({ _id: handle },
+          { $set: { status: 'Active', lastRun: new Date(), name: (prof.prof && prof.prof.name) || '' },
+            $inc: { tweets: found } });
+        log('✓ @' + handle + ' -- ' + found + ' tweet mile');
+      } catch (e) {
+        stats.errors++;
+        if (e && e.rate) {
+          STATE.lastError = e.message;
+          log('⏳ ' + e.message + ' -- ye run yahin rok rahe hain, agli baar se phir chalega', 'err');
+          break;
+        }
+        log('✖ @' + handle + ' -- ' + String(e.message || e).slice(0, 120), 'err');
+      }
+      STATE.done++;
+    }
+
+    const ms = Date.now() - t0;
+    STATE.lastResult = { ok: true, newCount: stats.newCount, updatedCount: stats.updatedCount,
+      handles: stats.handles, errors: stats.errors, pages: stats.pages, ms: ms,
+      at: new Date().toISOString() };
+    log('✔ Poora hua -- ' + stats.newCount + ' naye, ' + stats.updatedCount
+      + ' update, ' + stats.handles + ' handle, ' + stats.errors + ' error ('
+      + Math.round(ms / 1000) + 's)');
+    return STATE.lastResult;
+  } catch (e) {
+    STATE.lastError = String(e.message || e).slice(0, 200);
+    log('✖ Scrape fail: ' + STATE.lastError, 'err');
+    STATE.lastResult = { ok: false, error: STATE.lastError, at: new Date().toISOString() };
+    return STATE.lastResult;
+  } finally {
+    STATE.running = false;
+    STATE.current = '';
+    STATE.finishedAt = Date.now();
+    if (conn && conn.close) { try { await conn.close(); } catch (e) {} }
+  }
+}
+
+/* ======================= LOOP ======================= */
+let TIMER = null;
+
+async function schedule(getDb) {
+  clearTimeout(TIMER);
+  let mins = DEFAULTS.intervalMin;
+  try {
+    const conn = await getDb();
+    try { mins = (await getCfg(conn.db)).intervalMin; }
+    finally { if (conn.close) { try { await conn.close(); } catch (e) {} } }
+  } catch (e) {}
+  STATE.nextAt = Date.now() + mins * 60000;
+  TIMER = setTimeout(function () { tick(getDb); }, mins * 60000);
+  if (TIMER.unref) TIMER.unref();
+}
+
+async function tick(getDb) {
+  try { await runOnce(getDb); } catch (e) { log('loop error: ' + e.message, 'err'); }
+  schedule(getDb);
+}
+
+async function start(getDb, immediate) {
+  if (!XL.ready()) {
+    log('Tracker chaalu nahi hua -- x_config.json me cookie nahi hai', 'warn');
+    return false;
+  }
+  log('Tracker chaalu');
+  if (immediate) tick(getDb); else schedule(getDb);
+  return true;
+}
+
+function stop() {
+  clearTimeout(TIMER); TIMER = null; STATE.nextAt = 0;
+  STATE.stopAsked = true;
+  log('⏹ Tracker band kiya gaya');
+  return true;
+}
+
+function running() { return !!TIMER || STATE.running; }
+
+module.exports = {
+  runOnce, start, stop, running, status, logs, log,
+  listHandles, addHandles, setActive, removeHandle,
+  getCfg, setCfg, clean, extract, sentiment, istString, buildOp,
+  DEFAULTS, DB, COLL_TWEETS, COLL_HANDLES, COLL_CFG, SOURCE_TAG,
+  _state: STATE
+};

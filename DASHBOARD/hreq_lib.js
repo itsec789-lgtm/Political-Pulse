@@ -1,0 +1,350 @@
+/* ===========================================================================
+   hreq_lib.js  --  "Handles To Be Added" -- dashboard ka request flow.
+
+   KAHANI:
+     User (dashboard par)  : template download -> bhar kar upload -> jo handle
+                             mapping me pehle se hain wo turant dikh jaate
+                             hain -> remarks likho -> Send request
+     Admin (backend panel) : request dekho -> Approve ya Reject
+     Approve par           : naye handle Mapping.xlsx me jaate hain (wahi
+                             mapping_add.py), rebuild chalta hai, aur us
+                             handle ke roke hue tweet chhoot jaate hain.
+     User ko               : apni har request ka haal dikhta rehta hai.
+
+   Ye file sirf HTML/JS string banati hai. Dashboard ke dono template
+   (All-India + UP) me yahi inject hota hai, taaki do jagah do alag copy
+   na palni padein.
+   =========================================================================== */
+'use strict';
+
+/* Wahi column jo mapping me jaate hain (user ki di hui list) */
+/* Ye wahi column hain jo aapki nayi Mapping.xlsx me hain (10 column).
+   Excel ka 'Twitter Account' yahan 'Handle' kehlata hai -- user ko @handle
+   likhna aasan lagta hai, aur Excel me jaate waqt wo URL ban jaata hai. */
+const COLS = ['Handle', 'State', 'AC/PC No', 'AC/PC NAME', 'Candidate Name',
+  'Gender', 'Political Party', 'Category', 'Party Designation',
+  'Admin Designation'];
+
+/* Sirf ye do sach me zaroori -- baaki me '-' chalta hai.
+   (handle_master.json: Candidate Name aur Category 4422/4422 bhare hain,
+   jabki State 156 par '-', Party 69 par '-', AC Name 1080 par '-'.) */
+const REQUIRED = ['Candidate Name', 'Category'];
+
+const STATUS = { pending: 'Pending review', approved: 'Approved', rejected: 'Rejected' };
+
+/* manual-rows : haath se itni row. Isse zyada ho to CSV hi theek hai. */
+const MAX_MANUAL = 5;
+
+/* ---------------- sidebar ka tab ---------------- */
+function navTab() {
+  return '\n  <div class="mnav-tab" data-tab="handle-req" onclick="switchTab(\'handle-req\')">'
+    + '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">'
+    + '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>'
+    + '<line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>'
+    + '\n    Handles To Be Added\n  </div>\n';
+}
+
+/* ---------------- page ka section ---------------- */
+function section() {
+  return '\n<!-- handle-req : naye handle ki request -->\n'
+  + '<div class="page-section" id="sec-handle-req">\n'
+  + '<div class="hrq-wrap">'
+
+  + '<div class="hrq-head"><h2>Handles To Be Added</h2>'
+  + '<p>Request new handles to be tracked. Download the template, fill it in, upload it back, '
+  + 'and send it for review. Our team checks each one and you will see the result right here.</p></div>'
+
+  /* 1. template */
+  + '<div class="hrq-card"><h3><span class="hrq-n">1</span> Download the template</h3>'
+  + '<p class="hrq-p">One row per handle. These are the columns the mapping uses:</p>'
+  + '<div class="hrq-cols">' + COLS.map(function (c) {
+      return '<span class="hrq-chip' + (REQUIRED.indexOf(c) >= 0 ? ' req' : '')
+        + '">' + c + (REQUIRED.indexOf(c) >= 0 ? ' *' : '') + '</span>'; }).join('') + '</div>'
+  + '<p class="hrq-p"><b>Handle</b>, <b>Candidate Name</b> and <b>Category</b> are needed. '
+  + 'Everything else can stay <code>-</code> &mdash; an official page or a news handle has no '
+  + 'state, no seat and no party, and that is fine.</p>'
+  + '<a class="hrq-btn" href="/api/handle-request/template.csv" download>&#x2B07; Download template</a>'
+  + '</div>'
+
+  /* 2. upload */
+  + '<div class="hrq-card"><h3><span class="hrq-n">2</span> Upload the filled file</h3>'
+  + '<p class="hrq-p">We check it the moment you upload &mdash; you will see which handles are '
+  + 'already in the mapping (with their current details) before anything is sent.</p>'
+  + '<label class="hrq-btn o">&#x2B06; Choose filled CSV'
+  + '<input type="file" id="hrqFile" accept=".csv,text/csv" style="display:none" '
+  + 'onchange="hrqUpload(this)"></label>'
+  + '<span id="hrqFileName" class="hrq-note"></span>'
+  + '<div id="hrqCheck"></div>'
+  + '</div>'
+
+  /* manual-rows : sirf 2-3 handle ke liye poori CSV banana bekaar hai */
+  + '<div class="hrq-card"><h3><span class="hrq-n">2b</span> Or just type a few</h3>'
+  + '<p class="hrq-p">For two or three handles a spreadsheet is more trouble than it is worth. '
+  + 'Type them here instead &mdash; you can use this together with an uploaded file.</p>'
+  + '<div class="hrq-manual-wrap"><table class="hrq-tbl" id="hrqManTbl"><thead><tr>'
+  + COLS.map(function (c) {
+      return '<th>' + c.toUpperCase() + (REQUIRED.indexOf(c) >= 0 || c === 'Handle' ? ' *' : '') + '</th>';
+    }).join('') + '<th></th></tr></thead><tbody id="hrqManBody"></tbody></table></div>'
+  + '<div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">'
+  + '<button class="hrq-btn" onclick="hrqManAdd()">+ Add row</button>'
+  + '<button class="hrq-btn o" onclick="hrqManCheck()">Check these</button>'
+  + '<span id="hrqManMsg" class="hrq-note"></span></div>'
+  + '<p class="hrq-note" style="display:block;margin-top:8px">Up to ' + MAX_MANUAL
+  + ' rows at a time. Optional columns are pre-filled with <code>-</code>.</p>'
+  + '</div>'
+
+  /* 3. bhejo */
+  + '<div class="hrq-card" id="hrqSendCard" style="display:none">'
+  + '<h3><span class="hrq-n">3</span> Add a note and send</h3>'
+  + '<p class="hrq-p">Anything the reviewer should know &mdash; why these handles matter, where '
+  + 'they came from, or what to do about the ones already in the mapping.</p>'
+  + '<textarea id="hrqRemarks" rows="3" placeholder="Remarks or suggestions (optional)"></textarea>'
+  + '<div style="margin-top:10px"><button class="hrq-btn g" id="hrqSendBtn" onclick="hrqSend()">'
+  + 'Send request</button> <span id="hrqSendMsg" class="hrq-note"></span></div>'
+  + '</div>'
+
+  /* 4. meri request */
+  + '<div class="hrq-card"><h3>Your requests</h3>'
+  + '<div id="hrqMine"><p class="hrq-note">Loading…</p></div></div>'
+
+  + '</div></div>\n';
+}
+
+/* ---------------- CSS ---------------- */
+function css() {
+  return '\n/* handle-req */\n'
+  + '.hrq-wrap{max-width:1100px;margin:0 auto;padding:4px 2px 40px}\n'
+  + '.hrq-head h2{font-family:\'Rajdhani\',sans-serif;font-size:27px;font-weight:700;color:#7A2E0A;margin:0 0 4px}\n'
+  + '.hrq-head p{font-size:13px;color:#8B6B55;margin:0 0 18px;line-height:1.6;max-width:760px}\n'
+  + '.hrq-card{background:#fff;border:1.5px solid #F0E3D4;border-radius:14px;padding:18px 20px;margin-bottom:16px;box-shadow:0 1px 3px rgba(120,70,20,.04)}\n'
+  + '.hrq-card h3{font-family:\'Rajdhani\',sans-serif;font-size:17px;font-weight:700;color:#7A2E0A;margin:0 0 10px;display:flex;align-items:center;gap:9px}\n'
+  + '.hrq-n{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:#EA580C;color:#fff;font-size:12px;font-weight:700}\n'
+  + '.hrq-p{font-size:12.5px;color:#8B6B55;line-height:1.65;margin:0 0 12px;max-width:820px}\n'
+  + '.hrq-cols{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}\n'
+  + '.hrq-chip{background:#FDF6EE;border:1px solid #F0E3D4;color:#7A5C45;font-size:11px;padding:4px 9px;border-radius:20px;font-weight:600}\n'
+  + '.hrq-chip.req{background:#FFF1E6;border-color:#EA580C;color:#C2410C}\n'
+  + '.hrq-btn{display:inline-flex;align-items:center;gap:7px;background:#EA580C;color:#fff;border:none;padding:9px 18px;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;text-decoration:none;font-family:inherit}\n'
+  + '.hrq-btn:hover{background:#C0430D}.hrq-btn.o{background:#7A2A06}.hrq-btn.g{background:#1B6B45}\n'
+  + '.hrq-btn.g:hover{background:#145436}.hrq-btn:disabled{opacity:.55;cursor:default}\n'
+  + '.hrq-note{font-size:12px;color:#9A7A63;margin-left:8px}\n'
+  + '.hrq-wrap textarea{width:100%;border:1.5px solid #F0E3D4;border-radius:9px;padding:9px 11px;font-family:inherit;font-size:13px;color:#5A4433;resize:vertical}\n'
+  + '.hrq-tbl{width:100%;border-collapse:collapse;font-size:12px;margin-top:10px}\n'
+  + '.hrq-tbl th{background:#FDF6EE;color:#8B6B55;font-size:10px;text-transform:uppercase;letter-spacing:.7px;padding:8px 10px;text-align:left;border-bottom:1.5px solid #F0E3D4}\n'
+  + '.hrq-tbl td{padding:8px 10px;border-bottom:1px solid #F7EFE6;vertical-align:top;color:#5A4433}\n'
+  + '.hrq-ok{color:#1B6B45;font-weight:700}.hrq-warn{color:#A8761F;font-weight:700}.hrq-bad{color:#A83224;font-weight:700}\n'
+  + '.hrq-box{border-radius:10px;padding:11px 14px;font-size:12.5px;line-height:1.6;margin-top:12px}\n'
+  + '.hrq-box.ok{background:#EAF6EF;border-left:4px solid #1B6B45;color:#19543A}\n'
+  + '.hrq-box.warn{background:#FFF6E6;border-left:4px solid #A8761F;color:#6E4E12}\n'
+  + '.hrq-box.bad{background:#FDECEA;border-left:4px solid #A83224;color:#7D2318}\n'
+  + '.hrq-pill{display:inline-block;font-size:10.5px;font-weight:700;padding:3px 9px;border-radius:20px;letter-spacing:.4px}\n'
+  + '.hrq-pill.pending{background:#FFF1D6;color:#8A5A12}\n'
+  + '.hrq-pill.approved{background:#DCF0E4;color:#19543A}\n'
+  + '.hrq-pill.rejected{background:#FBDDD8;color:#7D2318}\n'
+  + '.hrq-manual-wrap{overflow-x:auto;border:1.5px solid #F0E3D4;border-radius:10px}\n'
+  + '.hrq-manual-wrap .hrq-tbl{margin-top:0;min-width:1000px}\n'
+  + '.hrq-manual-wrap input{width:100%;min-width:92px;border:1px solid #F0E3D4;border-radius:6px;padding:5px 7px;font-family:inherit;font-size:12px;color:#5A4433;background:#fff}\n'
+  + '.hrq-manual-wrap input:focus{outline:none;border-color:#EA580C}\n'
+  + '.hrq-xbtn{background:none;border:none;color:#A83224;cursor:pointer;font-size:15px;line-height:1;padding:2px 6px}\n';
+}
+
+/* ---------------- browser ki JS ---------------- */
+function script() {
+  return `
+/* ================= Handles To Be Added ================= */
+(function(){
+  var ROWS=null, CHECKED=null;
+
+  function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+  function api(p,o){return fetch(p,o||{}).then(function(r){return r.json();});}
+  function ago(v){if(!v)return '';var t=Date.parse(v);if(!t)return '';
+    var s=Math.max(0,(Date.now()-t)/1000);if(s<60)return 'just now';
+    var m=Math.round(s/60);if(m<60)return m+' min ago';
+    var h=Math.round(m/60);if(h<24)return h+' hr ago';
+    var d=Math.round(h/24);return d+(d===1?' day ago':' days ago');}
+
+  /* manual-rows : haath se bhari hui row */
+  var MANCOLS=${JSON.stringify(COLS)}, MANREQ=${JSON.stringify(REQUIRED)}, MANMAX=${MAX_MANUAL};
+
+  window.hrqManAdd=function(){
+    var body=document.getElementById('hrqManBody');if(!body)return;
+    if(body.rows.length>=MANMAX){
+      document.getElementById('hrqManMsg').textContent='That is the limit \u2014 use the CSV for more.';
+      return;}
+    var tr=document.createElement('tr');
+    tr.innerHTML=MANCOLS.map(function(c){
+      var req=(c==='Handle'||MANREQ.indexOf(c)>=0);
+      return '<td><input data-col="'+c+'" placeholder="'
+        +(c==='Handle'?'@handle':(req?'required':'-'))+'"'
+        +(req?'':' value="-"')+'></td>';}).join('')
+      +'<td><button class="hrq-xbtn" title="Remove this row" '
+      +'onclick="this.closest(\\'tr\\').remove()">\u2715</button></td>';
+    body.appendChild(tr);
+    document.getElementById('hrqManMsg').textContent='';};
+
+  window.hrqManCheck=function(){
+    var body=document.getElementById('hrqManBody');
+    var msg=document.getElementById('hrqManMsg');
+    var rows=[];
+    Array.prototype.forEach.call(body.rows,function(tr){
+      var o={},any=false;
+      Array.prototype.forEach.call(tr.querySelectorAll('input'),function(i){
+        var v=String(i.value||'').trim();
+        o[i.dataset.col]=v;
+        if(v&&v!=='-')any=true;});
+      if(any)rows.push(o);});
+    if(!rows.length){msg.style.color='#A83224';
+      msg.textContent='Nothing typed yet.';return;}
+    msg.style.color='#8B6B55';msg.textContent='Checking\u2026';
+    fetch('/api/handle-request/check',{method:'POST',
+      headers:{'Content-Type':'application/json'},body:JSON.stringify({rows:rows})})
+     .then(function(r){return r.json();}).then(function(d){
+       if(d.error){msg.style.color='#A83224';msg.textContent=d.error;return;}
+       msg.style.color='#1B6B45';
+       msg.textContent=(d.rows||[]).length+' row(s) checked \u2014 see below.';
+       mergeCheck(d);})
+     .catch(function(e){msg.style.color='#A83224';msg.textContent=String(e);});};
+
+  /* CSV aur haath wali row saath chal sakti hain -- handle par dedupe,
+     baad wali jeetti hai (user ne abhi wahi bhari hai). */
+  function mergeCheck(d){
+    var old=(ROWS||[]).slice(), add=d.rows||[];
+    var seen={};
+    add.forEach(function(r){ if(r.handle) seen[r.handle.toLowerCase()]=1; });
+    var keep=old.filter(function(r){
+      return !(r.handle && seen[r.handle.toLowerCase()]); });
+    paintCheck({ rows: keep.concat(add) });}
+
+  window.hrqUpload=function(inp){
+    var f=inp.files&&inp.files[0];if(!f)return;
+    document.getElementById('hrqFileName').textContent=f.name;
+    var box=document.getElementById('hrqCheck');
+    box.innerHTML='<p class="hrq-note">Checking\\u2026</p>';
+    var fr=new FileReader();
+    fr.onload=function(){
+      fetch('/api/handle-request/check',{method:'POST',
+        headers:{'Content-Type':'text/csv'},body:fr.result})
+       .then(function(r){return r.json();}).then(function(d){
+         if(d.error)return paintCheck(d);
+         mergeCheck(d);})
+       .catch(function(e){box.innerHTML='<div class="hrq-box bad">Could not read that file: '
+         +esc(String(e))+'</div>';})
+       .then(function(){inp.value='';});};
+    fr.onerror=function(){box.innerHTML='<div class="hrq-box bad">Could not read that file.</div>';};
+    fr.readAsText(f);};
+
+  function paintCheck(d){
+    var box=document.getElementById('hrqCheck');
+    var card=document.getElementById('hrqSendCard');
+    if(d.error){box.innerHTML='<div class="hrq-box bad">'+esc(d.error)+'</div>';
+      card.style.display='none';ROWS=null;return;}
+    var rows=d.rows||[];
+    if(!rows.length){box.innerHTML='<div class="hrq-box bad">No rows found in that file.</div>';
+      card.style.display='none';ROWS=null;return;}
+
+    var nNew=0,nHave=0,nBad=0;
+    rows.forEach(function(r){if(r.missing&&r.missing.length)nBad++;
+      else if(r.exists)nHave++;else nNew++;});
+
+    var h='<table class="hrq-tbl"><tr><th>HANDLE</th><th>STATUS</th>'
+      +'<th>WHAT WE HAVE / WHAT YOU SENT</th></tr>'
+      +rows.map(function(r){
+        var st,info;
+        if(r.missing&&r.missing.length){
+          st='<span class="hrq-bad">\\u2716 Incomplete</span>';
+          info='Missing: '+esc(r.missing.join(', '));
+        }else if(r.exists){
+          st='<span class="hrq-warn">\\u25CF Already in mapping</span>';
+          info='<b>In the mapping:</b> '+esc(r.have||'\\u2014');
+        }else{
+          st='<span class="hrq-ok">\\u2714 New</span>';
+          info=esc(r.sent||'\\u2014');
+        }
+        return '<tr><td><b>@'+esc(r.handle||'?')+'</b>'
+          +(r.line?'<div style="color:#A89480;font-size:10.5px">CSV line '+r.line+'</div>':'')
+          +'</td><td>'+st+'</td><td style="white-space:normal">'+info+'</td></tr>';}).join('')
+      +'</table>';
+
+    if(nBad){h+='<div class="hrq-box bad"><b>'+nBad+' row(s) are incomplete.</b> '
+      +'Handle, Candidate Name and Category are needed on every row. '
+      +'You can still send the request, but incomplete rows will be sent as they are and the '
+      +'reviewer will have to fill them in.</div>';}
+    if(nHave){h+='<div class="hrq-box warn"><b>'+nHave+' handle(s) are already in the mapping.</b> '
+      +'They are not added again. If what we have looks wrong, say so in the note below and the '
+      +'reviewer will correct it.</div>';}
+    if(nNew){h+='<div class="hrq-box ok"><b>'+nNew+' new handle(s)</b> ready to request.</div>';}
+
+    box.innerHTML=h;
+    ROWS=rows;CHECKED=d;
+    card.style.display='';
+    document.getElementById('hrqSendMsg').textContent='';
+    document.getElementById('hrqSendBtn').disabled=false;}
+
+  window.hrqSend=function(){
+    if(!ROWS||!ROWS.length)return;
+    var btn=document.getElementById('hrqSendBtn'),msg=document.getElementById('hrqSendMsg');
+    btn.disabled=true;msg.style.color='#8B6B55';msg.textContent='Sending\\u2026';
+    api('/api/handle-request/submit',{method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({rows:ROWS,
+        remarks:(document.getElementById('hrqRemarks')||{}).value||''})})
+     .then(function(r){
+       if(!r.ok){msg.style.color='#A83224';msg.textContent=r.error||'Could not send';
+         btn.disabled=false;return;}
+       msg.style.color='#1B6B45';
+       msg.textContent='Request sent \\u2014 you will see the result below.';
+       document.getElementById('hrqRemarks').value='';
+       document.getElementById('hrqCheck').innerHTML='';
+       document.getElementById('hrqFileName').textContent='';
+       document.getElementById('hrqSendCard').style.display='none';
+       ROWS=null;hrqMine();})
+     .catch(function(e){msg.style.color='#A83224';msg.textContent=String(e);
+       btn.disabled=false;});};
+
+  function hrqMine(){
+    var box=document.getElementById('hrqMine');if(!box)return;
+    api('/api/handle-request/mine').then(function(d){
+      var rs=d.requests||[];
+      if(!rs.length){box.innerHTML='<p class="hrq-note">You have not sent any requests yet.</p>';return;}
+      box.innerHTML=rs.map(function(r){
+        var st=r.status||'pending';
+        var head='<div style="display:flex;justify-content:space-between;align-items:center;'
+          +'gap:10px;flex-wrap:wrap;margin-bottom:6px">'
+          +'<b>'+ (r.count||0) +' handle'+((r.count===1)?'':'s')+'</b>'
+          +'<span><span class="hrq-pill '+st+'">'+esc(({pending:'PENDING REVIEW',
+            approved:'APPROVED',rejected:'REJECTED'})[st]||st.toUpperCase())+'</span>'
+          +' <span class="hrq-note">'+ago(r.at)+'</span></span></div>';
+        var body='<div class="hrq-note" style="margin:0 0 6px">'
+          +esc((r.handles||[]).map(function(x){return '@'+x;}).join(', '))+'</div>';
+        if(r.remarks)body+='<div class="hrq-note" style="margin:0 0 6px">'
+          +'<b>Your note:</b> '+esc(r.remarks)+'</div>';
+        var tail='';
+        if(st==='approved')tail='<div class="hrq-box ok">'
+          +'<b>\\u2714 Request successfully approved.</b>'
+          +(r.added?' '+r.added+' handle(s) added to the mapping.':'')
+          +(r.adminNote?'<br>Reviewer: '+esc(r.adminNote):'')
+          +'<br><span style="font-size:11.5px">They are tracked from the next scrape onward.</span></div>';
+        else if(st==='rejected')tail='<div class="hrq-box bad"><b>\\u2716 Request rejected.</b>'
+          +(r.adminNote?'<br>Reason: '+esc(r.adminNote):'')+'</div>';
+        else tail='<div class="hrq-box warn">Waiting for review.</div>';
+        return '<div style="border:1.5px solid #F0E3D4;border-radius:11px;padding:12px 14px;'
+          +'margin-bottom:10px">'+head+body+tail+'</div>';}).join('');
+    }).catch(function(e){
+      box.innerHTML='<p class="hrq-note">Could not load your requests: '+esc(String(e))+'</p>';});}
+
+  window.hrqMine=hrqMine;
+
+  /* tab khulte hi apni request list taaza karo */
+  var orig=window.switchTab;
+  if(typeof orig==='function'){
+    window.switchTab=function(name){
+      var out=orig.apply(this,arguments);
+      if(name==='handle-req')hrqMine();
+      return out;};}
+  if(document.getElementById('sec-handle-req')){hrqMine();
+    if(window.hrqManAdd)hrqManAdd();}
+})();
+`;
+}
+
+module.exports = { navTab, section, css, script, COLS, REQUIRED, STATUS, MAX_MANUAL };

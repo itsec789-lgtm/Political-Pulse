@@ -1,0 +1,11 @@
+{
+  "_1_kya_hai": "X (Twitter) se handle ki PHOTO, COVER aur BIO laane ke liye aapke apne X login ke tokens. Ye sirf aap bhar sakte ho -- kisi aur ko mat dena.",
+  "_2_kahan_se_milega": "Chrome me x.com par login karo -> F12 (DevTools) -> Application tab -> Storage -> Cookies -> https://x.com . Wahan teen cookie dikhengi: auth_token, ct0, twid. Teeno ki VALUE copy karke neeche paste kar do.",
+  "_3_kya_karna_hai": "Is file ka naam badal kar x_config.json kar do, phir neeche teeno value bhar do. Uske baad chalao: python fetch_x_profiles.py",
+  "_4_SECRET": "Isme aapke X account ka access hai. Ye file kisi ko mat bhejna, folder share karte waqt hata dena, aur mongo_dump / USB me na jaaye.",
+  "_5_agar_na_bharo": "Koi dikkat nahi -- Handle Analytics tab tab bhi poora chalega, bas photo ki jagah naam ke initials dikhenge.",
+
+  "auth_token": "9afd33e3d7e7d7e14b7f0874111934eeb65b39ae",
+  "ct0": "55a5824e189cbcbe9067163f723fde389ea63c7fcb8353ef2c95576cdd9e8858f2220eafd8f7e7f94160b6fd8ca70c6f485f66811caaa730b4a1f9a4ad73e0a3d0cfeb779c659b9067fe02643e9e1e93",
+  "twid": "u%3D1092804968841654272"
+}

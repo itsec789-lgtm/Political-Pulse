@@ -1,0 +1,231 @@
+/* ===========================================================================
+   sentiment.js  --  sentiment_cli.py ko Node se chalata hai.
+
+   Kyun Python? Kyunki sentiment aapke TRAINED package (sentiment_tagger) se
+   aana chahiye -- wahi jo notebook me hai. Us model ko JS me dobara likhna
+   galat hota: do jagah do alag sentiment, aur dashboard ka bharosa khatam.
+
+   Kaam ka tarika:
+     * Ek PAGE ke saare tweet ek saath bhejte hain (ek tweet = ek python call
+       hota to 20 tweet par 20 process -- bahut dheema).
+     * Python ka command ek baar dhoondh kar yaad rakh lete hain.
+     * Python na chale / der kare / kachra lautaye -> chup-chaap wordlist par
+       aa jaate hain. Sentiment ki wajah se scrape kabhi nahi rukta.
+     * engine() batata hai abhi kaunsa engine hai -- panel wahi dikhata hai.
+   =========================================================================== */
+'use strict';
+
+const { spawn } = require('child_process');
+const path = require('path');
+
+const CLI = path.join(__dirname, 'sentiment_cli.py');
+const TIMEOUT_MS = 60000;        /* ek batch ke liye kaafi se zyada */
+const PROBE_MS = 20000;
+const MAX_BATCH = 200;           /* isse bada batch tod dete hain */
+
+/* python ka naam har system par alag: Windows par aksar 'py', kahin 'python' */
+const CANDIDATES = process.platform === 'win32'
+  ? ['python', 'py', 'python3']
+  : ['python3', 'python'];
+
+let PY = null;          /* jo command chal gaya */
+let ENGINE = 'unknown'; /* sentiment_tagger | textblob | wordlist | unavailable */
+/* trained-flag : "engine chal raha hai" aur "AAPKA model chal raha hai" do
+   alag baatein hain. textblob/wordlist sirf Positive/Negative/Neutral dete
+   hain; aapke model ke label alag hain (jaise "Anti-BJP"), 7-8 class. Isliye
+   sirf engine ka naam kaafi nahi -- ye flag alag se rakhte hain. */
+let TRAINED = false;
+let LABELS = [];
+/* PYINFO : kaunsa python chal raha hai aur import kyun fail hua.
+   Sabse aam galti yahi hai -- package Anaconda me install hota hai aur
+   dashboard kisi aur python ko bulata hai. Bina ye bataye user ghanton
+   "install to kiya tha" me atka rehta hai. */
+let PYINFO = {};
+let probed = null;      /* probe ka promise -- do baar probe na ho */
+
+/* ---------- wordlist (aakhri sahara, python ke bina) ---------- */
+const POS = ['good','great','amazing','excellent','win','success','happy','love','best',
+  'positive','growth','support','congratulations','proud','strong','improve','vikas',
+  'samman','jeet'];
+const NEG = ['bad','worst','fail','failure','crisis','angry','sad','hate','negative','loss',
+  'corrupt','scandal','attack','threat','weak','crash','virodh','bhrashtachar'];
+
+function wordlist(text) {
+  const w = String(text == null ? '' : text).toLowerCase()
+    .replace(/[^a-z\s]/g, ' ').split(/\s+/).filter(Boolean);
+  if (!w.length) return { label: 'Neutral', score: 0 };
+  let p = 0, n = 0;
+  w.forEach(function (x) { if (POS.indexOf(x) >= 0) p++; if (NEG.indexOf(x) >= 0) n++; });
+  const sc = (p - n) / w.length;
+  return { label: sc > 0.02 ? 'Positive' : (sc < -0.02 ? 'Negative' : 'Neutral'),
+           score: Math.round(sc * 10000) / 10000 };
+}
+
+/* ---------- python chalao ---------- */
+function runPy(cmd, args, stdin, ms) {
+  return new Promise(function (resolve) {
+    let ch;
+    try { ch = spawn(cmd, args, { windowsHide: true }); }
+    catch (e) { return resolve({ ok: false, err: String(e.message || e) }); }
+
+    let out = '', err = '', done = false;
+    const finish = function (r) { if (!done) { done = true; resolve(r); } };
+    const t = setTimeout(function () {
+      try { ch.kill(); } catch (e) {}
+      finish({ ok: false, err: 'timeout' });
+    }, ms);
+    if (t.unref) t.unref();
+
+    ch.on('error', function (e) { clearTimeout(t); finish({ ok: false, err: String(e.message || e) }); });
+    ch.stdout.on('data', function (d) { out += d; if (out.length > 8e6) ch.kill(); });
+    ch.stderr.on('data', function (d) { err += String(d).slice(0, 2000); });
+    ch.on('close', function (code) {
+      clearTimeout(t);
+      if (code !== 0) return finish({ ok: false, err: 'exit ' + code + ' ' + err.slice(0, 200) });
+      finish({ ok: true, out: out });
+    });
+
+    if (stdin != null) {
+      ch.stdin.on('error', function () {});   /* python pehle mar gaya to EPIPE */
+      ch.stdin.end(stdin);
+    } else {
+      ch.stdin.end();
+    }
+  });
+}
+
+/* ---------- ek baar: python aur engine dhoondo ---------- */
+function probe() {
+  if (probed) return probed;
+  probed = (async function () {
+    for (const cmd of CANDIDATES) {
+      const r = await runPy(cmd, [CLI, '--engine'], null, PROBE_MS);
+      if (!r.ok) continue;
+      try {
+        const j = JSON.parse(String(r.out).trim());
+        if (j && j.engine) {
+          PY = cmd; ENGINE = j.engine;
+          TRAINED = !!j.trained; LABELS = j.labels || [];
+          PYINFO = { cmd: cmd, path: j.python || '', version: j.version || '', why: j.why || '' };
+          return ENGINE;
+        }
+      } catch (e) {}
+    }
+    PY = null; ENGINE = 'unavailable'; TRAINED = false; LABELS = [];
+    PYINFO = { why: 'Python mila hi nahi (python / py / python3 -- teeno)' };
+    return ENGINE;
+  })();
+  return probed;
+}
+
+/* ---------- bahar ka darwaza ---------- */
+/* texts: string[]  ->  [{label, score}]  (hamesha utne hi, usi tarteeb me) */
+async function tag(texts) {
+  const list = (texts || []).map(function (t) { return String(t == null ? '' : t); });
+  if (!list.length) return [];
+
+  await probe();
+  if (!PY) return list.map(wordlist);
+
+  const out = [];
+  for (let i = 0; i < list.length; i += MAX_BATCH) {
+    const part = list.slice(i, i + MAX_BATCH);
+    const r = await runPy(PY, [CLI], JSON.stringify({ texts: part }), TIMEOUT_MS);
+    let got = null;
+    if (r.ok) {
+      try {
+        const j = JSON.parse(String(r.out).trim());
+        if (j && Array.isArray(j.results) && j.results.length === part.length) {
+          if (j.engine) ENGINE = j.engine;
+          TRAINED = !!j.trained;
+          got = j.results.map(function (x) {
+            return { label: String(x.label || 'Neutral'),
+                     score: Number(x.score) || 0 };
+          });
+        }
+      } catch (e) {}
+    }
+    /* Galat/adhoora jawaab -> us batch ko wordlist se bhar do. Row chhodna
+       ya throw karna dono bure hain: pehle me tweet bina sentiment ke chala
+       jaata, doosre me poora scrape gir jaata. */
+    if (!got) {
+      if (ENGINE !== 'unavailable') ENGINE = 'wordlist (python fail)';
+      TRAINED = false;
+      got = part.map(wordlist);
+    }
+    for (const g of got) out.push(g);
+  }
+  return out;
+}
+
+/* label-check : aapke model ke saare label sentiment_labels.json me likhe
+   ja sakte hain. Fayda: agar model koi aisa label de jo list me nahi hai, to
+   panel turant bata deta hai -- warna wo label chup-chaap database me chala
+   jaata aur dashboard ke filter se bahar reh jaata.
+   Khaali list = koi jaanch nahi (default). */
+const LBL_FILE = require('path').join(__dirname, 'sentiment_labels.json');
+let _lbl = null, _lblAt = 0;
+
+function expected() {
+  try {
+    const st = require('fs').statSync(LBL_FILE);
+    if (!_lbl || st.mtimeMs !== _lblAt) {
+      const j = JSON.parse(require('fs').readFileSync(LBL_FILE, 'utf8'));
+      _lbl = Array.isArray(j.labels) ? j.labels.map(String).filter(Boolean) : [];
+      _lblAt = st.mtimeMs;
+    }
+  } catch (e) { _lbl = _lbl || []; }
+  return _lbl.slice();
+}
+
+/* jo label model se aaye par list me na ho */
+/* Milaan ke liye saaf karo: bada-chhota akshar, aage-peeche ki space, aur
+   hyphen ke aas-paas ki space -- teeno maaf. Isse "NO- SENTIMENTS" aur
+   "NO-SENTIMENTS" ek hi maane jaate hain. Baaki spelling waisi hi chahiye:
+   zyada safai kar dete to asli galti ("NEGATIVE" bनाम "NEGETIVE") chhip
+   jaati, aur wahi to pakadni hai. */
+function norm(x) {
+  /* Package "Pro BJP" / "Pro Govt." deta hai (space aur point ke saath),
+     jabki purane 7-class scheme me "Pro-BJP" / "Pro-Govt" the. Dono ek hi
+     cheez hain, isliye milaan me space, hyphen aur point ginte hi nahi.
+     Spelling phir bhi ginti hai -- "Negetive" vs "Negative" pakda jaayega,
+     aur wahi to pakadna hai. */
+  return String(x == null ? '' : x).toLowerCase()
+    .replace(/[.\-_]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function unexpected(seen) {
+  const want = expected();
+  if (!want.length) return [];
+  const low = {};
+  want.forEach(function (x) { low[norm(x)] = 1; });
+  const out = {};
+  (seen || []).forEach(function (x) {
+    const v = String(x || '').trim();
+    if (v && !low[norm(v)]) out[v] = 1;
+  });
+  return Object.keys(out);
+}
+
+function engine() { return ENGINE; }
+function labels() { return LABELS.slice(); }
+/* ready() = AAPKA trained model chal raha hai. textblob/wordlist "chalte to
+   hain" par wo aapke label de hi nahi sakte, isliye wo ready nahi maane jaate. */
+function ready() { return TRAINED === true; }
+function trained() { return TRAINED === true; }
+async function probeNow() {
+  await probe();
+  return { engine: ENGINE, trained: TRAINED, labels: LABELS.slice(),
+           python: PY, info: Object.assign({}, PYINFO) };
+}
+function pyInfo() { return Object.assign({}, PYINFO); }
+function _reset() { PY = null; ENGINE = 'unknown'; TRAINED = false; LABELS = []; PYINFO = {}; probed = null; }
+
+/* python ka command jo chal gaya -- mapping_add.py bhi yahi use karta hai,
+   taaki do jagah do alag python na dhoondhe jaayein. */
+async function pyCmd() { await probe(); return PY; }
+
+module.exports = { tag, engine, labels, expected, unexpected, norm, pyInfo, ready, trained,
+                   probeNow, wordlist, _reset, pyCmd, CLI, MAX_BATCH, LBL_FILE };

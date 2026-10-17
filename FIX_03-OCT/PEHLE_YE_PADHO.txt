@@ -1,0 +1,82 @@
+======================================================================
+  PIPELINE FIX  --  03 October
+======================================================================
+
+DO ALAG ERROR THEEK KARTA HAI. DONO MERI GALTI THEEN.
+
+
+ERROR 1:  ModuleNotFoundError: No module named 'mongo_conf'
+----------------------------------------------------------
+Do alag files hain, naam lagbhag ek jaisa:
+
+    mongo_conf.js   ->  Node ke liye  (server.js)
+    mongo_conf.py   ->  Python ke liye (pipeline)
+
+01 October ke package me maine sirf .JS wali bheji thi. Server chal
+gaya, par pipeline ka push wala hissa har baar yahin ruk gaya.
+
+Saath me src_chunks.py bhi chahiye (update_dashboard.py aur
+push_tweets.py use maangte hain), wo bhi daal rahe hain.
+
+
+ERROR 2:  NameError: name 'MARK' is not defined
+-----------------------------------------------
+Ye mere apne patch ka nishaan tha jo push_all_scopes.py me chhoot
+gaya. Ek comment likhte waqt mera placeholder text file me reh gaya
+aur wo Python code ban gaya.
+
+Khaas baat: ye galti SYNTAX check me pakdi nahi jaati -- file
+vyakaran ke hisaab se bilkul sahi hai, bas chalte waqt phatti hai.
+Maine sirf syntax check kiya tha, isliye chhoot gayi.
+
+Ab maine har file ko ASLI me import/require karke dekha hai, sirf
+syntax nahi. Aage se yahi tareeka rahega.
+
+
+KYA KARNA HAI
+-------------
+1. Ye poora folder "FIX_03-OCT" apne project folder ke ANDAR rakho --
+   wahi folder jisme DASHBOARD aur UP-DASHBOARD hain.
+
+2. FIX_KARO.bat  par double-click.
+
+3. START_LIVE.bat chalao.
+
+4. Browser me kholo:  http://localhost:3000/healthz
+
+Server band karne ki zaroorat nahi -- ye sirf Python files chhoota
+hai, server (Node) ko haath nahi lagata.
+
+
+KYA-KYA JAAYEGA
+---------------
+BADLI JAAYEGI (backup lekar):
+    DASHBOARD\push_all_scopes.py        <- MARK wali galti theek
+
+DAALI JAAYEGI (sirf agar wahan nahi hai):
+    DASHBOARD\mongo_conf.py
+    DASHBOARD\src_chunks.py
+    UP-DASHBOARD\mongo_conf.py
+    UP-DASHBOARD\src_chunks.py
+
+Jo file pehle se wahan hai, use chhuta hi nahi (push_all_scopes.py
+ko chhod kar, jo badalni hi hai).
+
+Phir 26 zaroori files ki list check karta hai -- Python aur Node
+dono -- aur koi missing ho to naam bata deta hai.
+
+
+ATKA HUA DATA APNE AAP CHALA JAAYEGA
+------------------------------------
+Jo tweets Mongo me pade hain aur dashboard tak nahi pahunche, wo
+agle hi run me chale jaayenge. Pipeline ne ".push_pending" nishaan
+laga rakha hai, jiska matlab "pichhli baar push adhoora reh gaya".
+Agla run use dekh kar khud push kar dega.
+
+
+CHALANE KE BAAD
+---------------
+http://localhost:3000/healthz  me "all" aur "up" ka lastUpdate
+BILKUL EK JAISA hona chahiye. Alag ho to pipeline.log ki aakhri 20
+line bhej dena.
+======================================================================

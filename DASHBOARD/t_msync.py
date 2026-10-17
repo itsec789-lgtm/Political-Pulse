@@ -1,0 +1,284 @@
+# -*- coding: utf-8 -*-
+"""t_msync.py -- Mapping sync ke test (user ke Test 1-12)."""
+import io, json, os, sys, importlib.util
+HERE = os.path.dirname(os.path.abspath(__file__))
+spec = importlib.util.spec_from_file_location('msync', os.path.join(HERE, 'mapping_sync.py'))
+M = importlib.util.module_from_spec(spec); spec.loader.exec_module(M)
+
+P = F = 0; FAILS = []
+def ok(c, m):
+    global P, F
+    if c: P += 1
+    else:
+        F += 1; FAILS.append(m)
+    print(('  ok   ' if c else '  FAIL ') + m)
+def sec(t): print('\n== %s ==' % t)
+
+def H(**kw):
+    d = {'handle': kw.get('handle', 'abc'), 'state': 'Uttar Pradesh', 'ac_pc_no': 'AC_1',
+         'ac_pc_name': 'ABC', 'ac_name': 'ABC', 'pc_name': '-', 'name': 'Someone',
+         'gender': '-', 'party': 'BJP', 'category': 'MLA',
+         'party_designation': 'MLA', 'admin_designation': '-'}
+    d.update(kw); return d
+
+sec('Handle ek hi pehchaan (@ / case / URL)')
+for v in ['@ExampleUser', 'exampleuser', 'EXAMPLEUSER', '  @ExampleUser  ',
+          'https://twitter.com/ExampleUser', 'https://x.com/ExampleUser/',
+          'https://x.com/ExampleUser?lang=en']:
+    ok(M.norm_handle(v) == 'exampleuser', '%-38r -> exampleuser' % v)
+
+sec('Test 1 -- Political Party badla (BJP -> Congress)')
+d = M.diff({'abc': H(party='BJP')}, {'abc': H(party='Congress')})
+ok(len(d['modified']) == 1, 'ek handle modified')
+ch = d['modified'][0]['changes']
+ok(ch[0]['field'] == 'Political Party', 'field: ' + ch[0]['field'])
+ok(ch[0]['old'] == 'BJP' and ch[0]['new'] == 'Congress', 'BJP -> Congress')
+
+sec('Test 2 -- Party Designation badla (MLA -> MP)')
+d = M.diff({'abc': H(party_designation='MLA')}, {'abc': H(party_designation='MP')})
+f = [c['field'] for c in d['modified'][0]['changes']]
+ok(f == ['Party Designation'], 'sirf Party Designation: ' + str(f))
+
+sec('Test 2b -- Admin Designation ALAG field hai')
+d = M.diff({'abc': H(admin_designation='-')}, {'abc': H(admin_designation='Cabinet Minister')})
+f = [c['field'] for c in d['modified'][0]['changes']]
+ok(f == ['Admin Designation'], 'sirf Admin Designation: ' + str(f))
+d = M.diff({'abc': H(party_designation='MLA', admin_designation='X')},
+           {'abc': H(party_designation='MP', admin_designation='X')})
+f = [c['field'] for c in d['modified'][0]['changes']]
+ok(f == ['Party Designation'], 'ek badle to dusra chhua nahi jaata: ' + str(f))
+
+sec('Test 3 -- AC/PC No badla')
+d = M.diff({'abc': H(ac_pc_no='AC_123')}, {'abc': H(ac_pc_no='AC_124')})
+ok([c['field'] for c in d['modified'][0]['changes']] == ['AC/PC No'], 'AC/PC No pakda')
+
+sec('Test 4 -- AC/PC NAME badla')
+d = M.diff({'abc': H(ac_pc_name='Old', ac_name='Old')},
+           {'abc': H(ac_pc_name='New', ac_name='New')})
+f = sorted(c['field'] for c in d['modified'][0]['changes'])
+ok(f == ['AC Name', 'AC/PC NAME'], 'naam aur raw dono: ' + str(f))
+
+sec('Test 5 -- Candidate Name badla')
+d = M.diff({'abc': H(name='Purana Naam')}, {'abc': H(name='Naya Naam')})
+ok([c['field'] for c in d['modified'][0]['changes']] == ['Candidate Name'], 'Candidate Name pakda')
+ok(len(d['added']) == 0 and len(d['removed']) == 0,
+   'naam badalne se naya record NAHI banta (handle hi pehchaan hai)')
+
+sec('Test 6 -- Category badla')
+d = M.diff({'abc': H(category='MLA')}, {'abc': H(category='Top Leaders')})
+ok([c['field'] for c in d['modified'][0]['changes']] == ['Category'], 'Category pakda')
+
+sec('Test 7 -- State badla')
+d = M.diff({'abc': H(state='Uttar Pradesh')}, {'abc': H(state='Punjab')})
+ok([c['field'] for c in d['modified'][0]['changes']] == ['State'], 'State pakda')
+
+sec('Test 7b -- Gender badla')
+d = M.diff({'abc': H(gender='-')}, {'abc': H(gender='Female')})
+ok([c['field'] for c in d['modified'][0]['changes']] == ['Gender'], 'Gender pakda')
+
+sec('Test 8 -- naya handle juda')
+d = M.diff({'abc': H()}, {'abc': H(), 'naya': H(handle='naya')})
+ok(d['added'] == ['naya'], 'added: ' + str(d['added']))
+ok(not d['modified'] and not d['removed'], 'baaki kuch nahi chheda')
+
+sec('Test 9 -- handle hata')
+d = M.diff({'abc': H(), 'gaya': H(handle='gaya')}, {'abc': H()})
+ok(d['removed'] == ['gaya'], 'removed: ' + str(d['removed']))
+
+sec('Test 10 -- ek saath kai badlaav')
+old = {'a': H(handle='a', party='BJP'), 'b': H(handle='b', state='Bihar'),
+       'c': H(handle='c'), 'd': H(handle='d')}
+new = {'a': H(handle='a', party='Congress'),
+       'b': H(handle='b', state='Jharkhand', category='MLC', name='Naya'),
+       'c': H(handle='c'), 'e': H(handle='e')}
+d = M.diff(old, new)
+ok(d['added'] == ['e'], 'ek juda: ' + str(d['added']))
+ok(d['removed'] == ['d'], 'ek hata: ' + str(d['removed']))
+ok(len(d['modified']) == 2, 'do badle: %d' % len(d['modified']))
+bb = [m for m in d['modified'] if m['handle'] == 'b'][0]
+ok(sorted(c['field'] for c in bb['changes']) == ['Candidate Name', 'Category', 'State'],
+   'b ke teeno field: ' + str(sorted(c['field'] for c in bb['changes'])))
+
+sec('Test 11 -- bilkul wahi mapping -> koi badlaav nahi')
+same = {'abc': H(), 'xyz': H(handle='xyz')}
+d = M.diff(same, json.loads(json.dumps(same)))
+ok(not d['added'] and not d['modified'] and not d['removed'], 'kuch nahi badla')
+d2 = M.diff(same, json.loads(json.dumps(same)))
+ok(d == d2, 'dobara chalane par bhi wahi (duplicate nahi bante)')
+
+sec('Test 12 -- mapping na mile / kharab ho')
+e, w = M.validate({})
+ok(e and 'khaali' in e[0], 'khaali mapping par ERROR: ' + str(e))
+e, w = M.validate({'a': H()})
+ok(e, 'bahut chhoti mapping par bhi ERROR (purana data nahi mitta): ' + str(e))
+big = {('h%d' % i): H(handle='h%d' % i) for i in range(200)}
+e, w = M.validate(big)
+ok(not e, 'theek mapping par koi error nahi')
+
+sec('Alias (ek hi aadmi, alag case) galti nahi maana jaata')
+al = {'PratapGrewal2': H(handle='PratapGrewal2'), 'pratapgrewal2': H(handle='pratapgrewal2')}
+al.update({('h%d' % i): H(handle='h%d' % i) for i in range(200)})
+e, w = M.validate(al)
+dups = [x for x in w if 'Duplicate' in x]
+ok(not dups, 'ek jaisa data -> duplicate ki shikayat nahi: ' + str(dups))
+al['pratapgrewal2'] = H(handle='pratapgrewal2', party='Congress')
+e, w = M.validate(al)
+dups = [x for x in w if 'Duplicate' in x]
+ok(len(dups) == 1 and 'Political Party' in dups[0],
+   'data ALAG ho to shikayat hoti hai: ' + str(dups))
+
+sec('Khaali aur dash ek jaisa maana jaata hai')
+d = M.diff({'abc': H(gender='')}, {'abc': H(gender='-')})
+ok(not d['modified'], "'' aur '-' me farak nahi (bekaar ka badlaav nahi dikhta)")
+d = M.diff({'abc': H(gender='-')}, {'abc': H(gender='Male')})
+ok(len(d['modified']) == 1, "'-' se asli value par badlaav dikhta hai")
+
+
+# ---------------- server + panel ki jaanch ----------------
+SRC = io.open(os.path.join(HERE, 'server.js'), encoding='utf-8').read()
+TS  = io.open(os.path.join(HERE, 'tracker_section.js'), encoding='utf-8').read()
+AU  = io.open(os.path.join(HERE, 'auto_update.py'), encoding='utf-8').read()
+RB  = io.open(os.path.join(HERE, 'rebuild_mapping.py'), encoding='utf-8').read()
+PM  = io.open(os.path.join(HERE, 'push_mapping_to_mongo.py'), encoding='utf-8').read()
+ML  = io.open(os.path.join(HERE, 'mapping_lib.js'), encoding='utf-8').read()
+
+sec('Nayi 10-column Mapping.xlsx padhi jaati hai')
+ok("'AC/PC NAME'" in RB and "'Political Party'" in RB, 'naye column ke naam')
+ok("'Party Designation'" in RB and "'Admin Designation'" in RB, 'dono designation')
+ok("'Gender'" in RB, 'Gender bhi')
+ok('OLD_NEED' in RB and 'NEW_ALT' in RB, 'purani 9-column Excel bhi chalti hai')
+ok("('Political Party',   ['Political Party', 'Party'])" in RB,
+   "column ka naam 'Party' ho ya 'Political Party' -- dono chalte hain")
+# newmap (13-Oct): Admin Designation ab saaf shreni me badal kar aata hai
+# ('Cabiniet Minister' -> 'Cabinet Minister'), isliye line thodi badal gayi.
+# Niyam wahi hai: Admin Designation pehle, na ho to Party Designation, aur
+# Excel ka '-' khaali hi maana jaata hai (clean()).
+ok("d['desig'] = [(an or clean(pp))" in RB,
+   "Admin Designation pehle, na ho to Party Designation")
+ok("d['adesig_norm'] = [' | '.join(adm_buckets(a)) for a in d['adesig']]" in RB,
+   "Admin Designation saaf shreni me badalta hai (asli likhavat bachi rehti hai)")
+ok("'admin_designation_raw'" in RB, "Excel ki asli likhavat alag rakhi jaati hai")
+ok("('AC/PC No',          ['AC/PC No', 'AC/PC NO', 'AC PC No'," in RB
+   and "'AC No/PC No'" in RB, "nayi Excel ke header ke naam bhi chalte hain")
+ok("SHEETS_OK = ['Sheet1', 'Working Data']" in RB,
+   "'Working Data' sheet bhi padhi jaati hai")
+ok("u.startswith('PC')" in RB and "u.startswith('AC')" in RB,
+   "AC_1 -> AC Name, PC_1 -> PC Name (aapka rule)")
+
+sec('Naye field aage tak jaate hain')
+ok("('gender',             'Gender')" in PM, 'Gender Mongo tak')
+ok("('party_designation',  'Party Designation')" in PM, 'Party Designation Mongo tak')
+ok("('admin_designation',  'Admin Designation')" in PM, 'Admin Designation Mongo tak')
+ok("['Gender',             'gender']" in ML, 'Gender panel/scraper tak')
+ok("['Party Designation',  'party_designation']" in ML, 'Party Designation wahan tak')
+
+sec('Sync kab chalti hai')
+ok("runMappingSync('server chalu" in SRC, 'server chalu hote hi')
+ok('setTimeout(function () { runMappingSync(' in SRC, 'port khulne ke baad')
+ok('mapping_sync.py' in AU, 'har ghante auto_update ke saath')
+# DHYAN: 'No new files' comment me bhi hai -- asli LOG line se naapo
+ok(AU.index('mapping_sync.py') < AU.index('log("No new files'),
+   'naye tweet na hon tab bhi chalti hai (zaroori)')
+ok("app.post('/admin/mapping/sync'" in SRC, 'panel se haath se bhi')
+ok('_msyncRunning' in SRC, 'do sync ek saath nahi chalti')
+
+sec('Haal dikhta hai, chup-chaap fail nahi hoti')
+ok('msync: msyncStatus()' in SRC, 'state ke saath haal bhi jaata hai')
+ok(SRC.count('msync: msyncStatus()') == 2, 'dono state route par')
+ok('Mapping Sync: Failed' in TS, 'fail hone par saaf likha aata hai')
+ok('last mapping that synced cleanly' in TS, 'aur batata hai ki purani mapping chal rahi hai')
+ok('Mapping Sync: Updated' in TS, 'badlaav par Updated')
+ok('Mapping Sync: Checked' in TS, 'bina badlaav ke Checked')
+ok('Sync mapping now' in TS, 'haath se chalane ka button')
+ok('trkMsyncNow' in TS, 'button ka kaam bhi juda hai')
+
+sec('Fail hone par purana data nahi mitta')
+MS = io.open(os.path.join(HERE, 'mapping_sync.py'), encoding='utf-8').read()
+ok('Mongo ko haath nahi lagaya' in MS, 'kharab mapping par Mongo chhua nahi jaata')
+ok(MS.index('errs, warns = validate(after)') < MS.index("run('push_mapping_to_mongo.py'"),
+   'pehle jaanch, phir Mongo (kram sahi)')
+ok('if check:' in MS, '--check mode se bina badle dekh sakte ho')
+ok("elif not changed:" in MS, 'koi badlaav na ho to Mongo chhua hi nahi jaata')
+
+sec('Suraksha -- "mapping me nahi hai" ko hatana nahi maana jaata')
+ok('LIMIT = 0' in RB, 'hadd 0 hai -- khud se list me kuch nahi jodta')
+ok('gone = []' in RB, 'hadd paar hone par list me kuch nahi daalta')
+ok('mapping_removed_candidates.json' in RB, 'gayab handle sirf candidates file me dikhte hain')
+ok('Excel ka dhaancha' in RB, 'wajah bhi batata hai')
+
+sec('Category se bhi level banta hai (MP ka Party Designation "-" hota hai)')
+ok("if c and LVL.get(str(c).upper()) and c.lower() not in seen" in RB,
+   'Category ka level desigs me JUD jaata hai')
+ok("'LS_MP': 'LS MP'" in RB and "'RS_MP': 'RS MP'" in RB, 'LS_MP/RS_MP category LVL me hain')
+ok(RB.index('seen.add(c.lower()); desigs.append(c)') < RB.index('levels, ls = [], set()'),
+   'level ginne se PEHLE judta hai (kram sahi)')
+ok("mapping_removed.json me khud jod do" in RB, 'sach me hatana ho to raasta bhi batata hai')
+rmj = json.load(io.open(os.path.join(HERE, 'data', 'mapping_removed.json'), encoding='utf-8'))
+ok(isinstance(rmj.get('handles'), list), 'list maujood hai')
+print('     (abhi list me %d handle hain -- ye dashboard se hat jaayenge)'
+      % len(rmj.get('handles') or []))
+
+sec('Farak kis se naapa jaata hai  <-- yahi galat tha')
+MS2 = io.open(os.path.join(HERE, 'mapping_sync.py'), encoding='utf-8').read()
+ok("SYNCED = os.path.join(HERE, 'data', 'mapping_synced.json')" in MS2,
+   'Mongo me aakhri bheji gayi mapping ki alag copy rakhi jaati hai')
+ok('before = load(SYNCED)' in MS2, 'farak USI copy se naapa jaata hai')
+ok('before = load(MAPJSON)' not in MS2,
+   'handle_master se NAHI -- use to rebuild kabhi bhi dobara likh deta hai')
+ok('first = not before' in MS2, 'pehli baar poori mapping Mongo bhejta hai')
+ok("'--force' in sys.argv" in MS2, '--force se zabardasti bhi bhej sakte ho')
+ok(MS2.index('json.dump(after, f') > MS2.index("pushed = True"),
+   'snapshot Mongo ME JAANE KE BAAD sambhali jaati hai (fail par nahi)')
+
+AU2 = io.open(os.path.join(HERE, 'auto_update.py'), encoding='utf-8').read()
+sec('Mapping JEETTI hai -- purani CSV value par bhi')
+UD = io.open(os.path.join(HERE, 'update_dashboard.py'), encoding='utf-8').read()
+UUD = io.open(os.path.join(HERE, '..', 'UP-DASHBOARD', 'update_dashboard.py'), encoding='utf-8').read()
+for nm, src in [('All-India', UD), ('UP', UUD)]:
+    ok("m['party'] = (from_master(h, 'party') or row[C['party']])" in src,
+       nm + ': party pehle MAPPING se, phir CSV se')
+    ok("m['state'] = (from_master(h, 'state') or _first(row[C['state']]) or DASH)" in src,
+       nm + ': state bhi')
+    ok("from_master(h, 'designation_raw')" in src, nm + ': designation bhi')
+    ok("m['name'] = (from_master(h, 'name')" in src, nm + ': candidate name bhi')
+    ok("m['pcName'] = (from_master(h, 'pc_name', 'ac_name')" in src, nm + ': AC/PC name bhi')
+    ok("m['party'] = row[C['party']]" not in src,
+       nm + ': purana "sirf CSV se" wala tareeka hat gaya')
+
+sec('Naye tweet na aayein tab bhi dashboard banta hai')
+ok('_map_changed' in AU2, 'mapping badli ya nahi, ye dekha jaata hai')
+ok('MAPPING badli hai -> dashboard dobara banate hain' in AU2, 'badli ho to dobara banta hai')
+ok(AU2.index('_map_changed') < AU2.index('if not newf:'), 'return se pehle pata chal jaata hai')
+ok('PA.push_all(MASTER, log=log)' in AU2.split('if not newf:')[1][:900],
+   'naye tweet ke bina bhi dono dashboard dobara bante hain')
+ok('mapping bhi wahi' in AU2, 'kuch na badle to bekaar me kaam nahi karta')
+
+sec('MLA Contestants ka card 0 ho gaya tha')
+ok("'mla contestant': 'MLA Contestent'" in RB, "'Contestant' spelling bhi chalti hai")
+ok("'lsmp': 'LS_MP', 'rsmp': 'RS_MP'" in RB, "bina underscore wali LSMP/RSMP bhi")
+ok("if c == 'MLA Contestent' and (not d or d.upper() == 'MLA')" in RB,
+   'Category "MLA Contestent" ho to level bhi wahi (Party Designation "MLA" likha ho tab bhi)')
+
+# asli mapping se ginti
+mp = json.load(io.open(os.path.join(HERE, 'data', 'handle_master.json'), encoding='utf-8'))
+lv = {}
+for o in mp.values():
+    for L in (o.get('levels') or []):
+        lv[L] = lv.get(L, 0) + 1
+ok(lv.get('MLA Contestent', 0) > 0,
+   'mapping me MLA Contestent ka level hai: %d' % lv.get('MLA Contestent', 0))
+cats = {}
+for o in mp.values():
+    cats[o.get('category')] = cats.get(o.get('category'), 0) + 1
+ok('RSMP' not in cats and 'LSMP' not in cats,
+   'bina underscore wali spelling saaf ho gayi')
+ok(cats.get('RS_MP', 0) > 0 and cats.get('LS_MP', 0) > 0,
+   'RS_MP %d / LS_MP %d' % (cats.get('RS_MP', 0), cats.get('LS_MP', 0)))
+
+print('\n========================================================')
+print('  PASS %d   FAIL %d' % (P, F))
+if F:
+    print('\n  FAIL hui:')
+    for x in FAILS: print('   - ' + x)
+print('========================================================')
+sys.exit(1 if F else 0)

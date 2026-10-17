@@ -1,0 +1,89 @@
+/* t_hamap.js -- Handle Analytics ki value MAPPING se aaye, aur
+   mapping sync har ghante / file badalne par khud chale */
+'use strict';
+var fs = require('fs');
+var P = 0, F = 0, FAILS = [];
+function ok(c, m) { if (c) P++; else { F++; FAILS.push(m); } console.log((c ? '  ok   ' : '  FAIL ') + m); }
+function sec(t) { console.log('\n== ' + t + ' =='); }
+var SRC = fs.readFileSync('./server.js', 'utf8');
+var MAPL = require('./mapping_lib.js');
+
+sec('1. haMap() -- mapping ki value upar');
+var haMap = new Function('MAPL',
+  (SRC.match(/function haMap\(r\) \{[\s\S]*?\n\}/) || [''])[0] + '; return haMap;')(MAPL);
+ok(typeof haMap === 'function', 'haMap() hai');
+
+/* asli mapping se -- Yogi */
+var r = haMap({ h: 'myogiadityanath', name: 'PURANA NAAM', party: 'PURANI PARTY',
+                state: 'PURANA STATE', cat: 'Others', pcName: 'PURANI SEAT' });
+ok(r.name === 'Yogi Adityanath', 'naam mapping se: ' + r.name);
+ok(r.party === 'BJP', 'party mapping se: ' + r.party);
+ok(r.state === 'Uttar Pradesh', 'state mapping se: ' + r.state);
+/* seat ka naam Excel me badal sakta hai -- isliye naam nahi, ye jaancho
+   ki wo MAPPING se aaya (purani 'PURANI SEAT' nahi) */
+var mSeat = (MAPL.columnsFor('myogiadityanath') || {})['AC Name'];
+ok(r.pcName === mSeat && r.pcName !== 'PURANI SEAT',
+   'seat mapping se: ' + r.pcName);
+ok(r.acpc === 'AC_322', 'AC/PC No bhi: ' + r.acpc);
+ok(/Chief Minister/.test(r.desig), 'designation bhi: ' + r.desig);
+ok(r.inMapping === true, 'inMapping true');
+
+sec('2. Party badli ho to turant dikhti hai (pipeline ka intezaar nahi)');
+var k = haMap({ h: 'pinarayivijayan', party: 'CPI(M)', name: '-', state: '', cat: '' });
+ok(k.party === 'CPI', 'CPI(M) -> CPI (mapping se): ' + k.party);
+ok(k.name && k.name !== '-', 'naam bhi theek hua: ' + k.name);
+
+sec('3. Mapping me na ho to uska apna data bacha rehta hai');
+var u = haMap({ h: 'koi_bhi_nahi_xyz', name: 'Apna Naam', party: 'XYZ', state: 'Bihar' });
+ok(u.party === 'XYZ' && u.state === 'Bihar', 'party/state waise ke waise');
+ok(u.inMapping === false, 'inMapping false');
+var dash = haMap({ h: 'c_raveendranath_test', name: '-', party: 'CPI(M)' });
+ok(dash.name === 'c_raveendranath_test',
+   'naam "-" ho to handle dikhta hai, "-" nahi: ' + dash.name);
+
+sec('4. Mapping ki khaali value purana data nahi mitati');
+var e = haMap({ h: 'myogiadityanath', party: '', state: '', name: '', cat: 'PURANI CAT' });
+ok(e.party === 'BJP', 'khaali ko mapping bhar deti hai');
+ok(e.cat === 'MLA', 'category bhi mapping se: ' + e.cat);
+
+sec('5. Dono jagah lagta hai -- list aur profile card');
+ok(/return haMap\(\{ h: r\._id/.test(SRC), 'dropdown ki list par');
+ok(/var _haM = haMap\(\{ h: h/.test(SRC), 'profile card par');
+ok(/name: _haM\.name/.test(SRC), 'card ka naam mapping se');
+ok(/party: _haM\.party/.test(SRC), 'card ki party mapping se');
+ok(/desig: _haM\.desig/.test(SRC), 'card me designation bhi jaata hai');
+ok(/acpc: _haM\.acpc/.test(SRC), 'AC/PC No bhi');
+
+sec('6. Sync khud chalti hai');
+ok(/setInterval\(function \(\) \{ runMappingSync\('har ghante ki jaanch'\); \}, 60 \* 60 \* 1000\)/.test(SRC),
+   'har ghante -- pipeline chale ya na chale');
+ok(/Mapping\.xlsx badli hai -- turant sync/.test(SRC), 'file badalte hi turant');
+ok(/\}, 2 \* 60 \* 1000\)/.test(SRC), 'har 2 minute me file ki tareekh dekhta hai');
+ok(/runMappingSync\('server chalu/.test(SRC), 'server chalu hote hi');
+ok(/app\.post\('\/admin\/mapping\/sync'/.test(SRC), 'panel ke button se bhi');
+ok(/_msyncRunning/.test(SRC), 'do sync ek saath nahi chalti');
+
+sec('7. Pipeline bhi apni taraf se');
+var AU = fs.readFileSync('./auto_update.py', 'utf8');
+ok(/mapping_sync\.py/.test(AU), 'har data update par mapping sync');
+ok(/MAPPING badli hai -> dashboard dobara banate hain/.test(AU),
+   'mapping badli to table/KPI/chart dobara bante hain');
+
+sec('8. Sahi python chunta hai (warna sync chup-chaap fail hoti)');
+ok(/var PY_CANDIDATES = \(function \(\)/.test(SRC)
+   && SRC.indexOf('process.env.USERPROFILE') > 0,
+   'python ke kai raaste aajmata hai (har user ke folder me bhi)');
+ok(/Python313\\\\python\.exe/.test(SRC), 'wahi python jo RUN_MAPPING_UPDATE.bat chalati hai');
+ok(/'-c', 'import pandas'/.test(SRC), 'jo pandas sach me import kar le, wahi chunta hai');
+ok(/process\.env\.PYTHON/.test(SRC), 'PYTHON env se khud bhi bata sakte ho');
+ok(/pandas wala python nahi mila/.test(SRC), 'na mile to saaf batata hai');
+ok(/dashboard purani mapping par chalta rahega/.test(SRC), 'aur purani mapping chalti rehti hai');
+ok(/_pyFound/.test(SRC), 'ek baar dhoondh kar yaad rakhta hai');
+ok(SRC.indexOf('var py = findPython();') < SRC.indexOf('_msyncRunning = true;'),
+   'python na mile to "chal rahi hai" wala taala nahi lagta');
+
+console.log('\n========================================================');
+console.log('  PASS ' + P + '   FAIL ' + F);
+if (F) { console.log('\n  FAIL hui:'); FAILS.forEach(function (x) { console.log('   - ' + x); }); }
+console.log('========================================================');
+process.exit(F ? 1 : 0);

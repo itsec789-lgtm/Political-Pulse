@@ -1,0 +1,86 @@
+<script>/* ===== table-scroll (10-Oct) =============================================
+   Har table ko ek scroll-wale dibbe me lapet deta hai. Design, rang, badge,
+   font, gol kone -- kuch nahi badalta, bas scroll ka vyavhaar judta hai.
+
+   * Table par maus/ungli ho to SIRF rows chalti hain, page ruka rehta hai.
+     Table ke ant par pahunch kar aur scroll karo to bhi page nahi khiskta
+     (overscroll-behavior:contain -- scroll page ko "pakadta" nahi).
+   * Table ke bahar page pehle jaisa hi chalta hai.
+   * Header chipka rehta hai; dayein-bayein bhi usi dibbe me scroll hota hai.
+   * Row kam hon to dibba apni asli unchai leta hai -- koi khaali jagah nahi,
+     koi scrollbar nahi.
+   * Unchai ek hi jagah se: CSS me --table-max-height (default 70vh).
+
+   DHYAN (do chhoti par zaroori baatein):
+   1. Column filter ki patti ("Showing 25 of 540 rows") dibbe ke BAHAR rehni
+      chahiye, warna wo bhi rows ke saath upar chali jaati hai. Isliye lapetne
+      me SIRF <table> andar jaata hai, aur col-filter wala code apni patti
+      dibbe se pehle lagata hai.
+   2. .tbl-box / .data-table-wrap par pehle se overflow-x:auto tha. Ab wo kaam
+      andar wala dibba karta hai, warna do-do scrollbar aa jaate.
+   ======================================================================== */
+(function (W) {
+  'use strict';
+  if (W.tableScroll) return;
+
+  /* form wali, report-preview wali aur modal ki table chhod do */
+  var SKIP_IN = ['rpPreview', 'sec-handle-req', 'profileModal', 'aiPanel', 'hrqCheck', 'hrqMine'];
+  function skip(t) {
+    if (!t || t._ts) return true;
+    var p = t.parentNode;
+    while (p && p !== document.body) {
+      if (p.classList && p.classList.contains('table-scroll')) { t._ts = 1; return true; }
+      if (p.id && SKIP_IN.indexOf(p.id) >= 0) { t._ts = 1; return true; }
+      if (p.classList && p.classList.contains('hrq-wrap')) { t._ts = 1; return true; }
+      p = p.parentNode;
+    }
+    return false;
+  }
+
+  function wrap(t) {
+    if (skip(t)) return null;
+    var host = t.parentNode;
+    if (!host) return null;
+    var box = document.createElement('div');
+    box.className = 'table-scroll';
+    host.insertBefore(box, t);
+    box.appendChild(t);              /* SIRF table -- patti/bar bahar hi rehti hai */
+    t._ts = 1;
+    /* host ka apna overflow-x hata do, warna do scrollbar */
+    try {
+      var ox = W.getComputedStyle(host).overflowX;
+      if (ox === 'auto' || ox === 'scroll') host.style.overflowX = 'visible';
+    } catch (e) {}
+    return box;
+  }
+
+  function scan(root) {
+    var a = (root || document).getElementsByTagName('table'), out = [];
+    for (var i = 0; i < a.length; i++) {
+      try { var b = wrap(a[i]); if (b) out.push(b); } catch (e) {}
+    }
+    return out;
+  }
+  W.tableScroll = { wrap: wrap, scan: scan };
+
+  /* tab khulne par nayi table banti hai -- use bhi lapet do */
+  var tmr = null;
+  function later() { if (tmr) clearTimeout(tmr); tmr = setTimeout(function () { tmr = null; scan(); }, 160); }
+  function boot() {
+    scan();
+    try {
+      new MutationObserver(function (ms) {
+        for (var i = 0; i < ms.length; i++) {
+          var t = ms[i].target;
+          if (!t || !t.tagName) continue;
+          if (t.tagName === 'TABLE' || (t.querySelector && t.querySelector('table'))) { later(); return; }
+        }
+      }).observe(document.body, { childList: true, subtree: true });
+    } catch (e) {}
+    document.addEventListener('click', later, true);
+    setTimeout(scan, 900); setTimeout(scan, 2500); setTimeout(scan, 6000);
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+  else boot();
+})(window);
+</script>

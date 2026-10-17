@@ -1,0 +1,286 @@
+# -*- coding: utf-8 -*-
+"""
+run_pipeline.py  --  SAB KUCH EK JAGAH (Mongo-first). Kuch manual nahi.
+
+Har run me:
+  1. Network ke SAARE folders scan (Media Houses + journalist bhi)
+     - nayi/badli file hi padhta hai (state-tracked)
+  2. Raw se Handle->Sentiment Score, baaki columns MAPPING se
+     (media/journalist -> State/AC/PC blank, Category = Media House / Journalist)
+  3. Naye rows -> MongoDB  pulse_master.master_tweets   (SOURCE OF TRUTH)
+     _id = Tweet ID -> duplicate ban hi nahi sakte
+     numeric = $max (count kabhi ghatta nahi), text = sirf non-blank par set
+  4. Dono dashboard build+push SEEDHA MONGO SE  (india_Pulse + up_pulse)
+  5. CSV BACKUP: month-wise split files (Excel-safe) -- default roz ek baar
+
+Chalao:
+  python run_pipeline.py                 # normal (hourly loop isi ko bulata hai)
+  python run_pipeline.py --backup        # backup abhi (chahe aaj ho chuka ho)
+  python run_pipeline.py --no-backup     # backup skip
+  python run_pipeline.py --rescan        # saari files dobara padho (state reset)
+"""
+import os, sys, json, time, datetime, importlib
+import pandas as pd
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+DATA = os.path.join(HERE, "data")
+STATE = os.path.join(HERE, "auto_state.json")
+NEEDMAP = os.path.join(HERE, "needs_mapping.csv")
+LOG = os.path.join(HERE, "pipeline.log")
+BACKUP_DIR = r"\\192.168.2.85\d\Social Media\master_backup"
+BACKUP_MARK = os.path.join(HERE, ".last_backup")
+
+sys.path.insert(0, HERE)
+import phase2_push as P2
+import master_to_mongo as M2
+
+DATE_FROM = datetime.date(2026, 4, 1)      # is date se aage ka data (media ke liye bhi)
+
+
+def log(m):
+    line = "[" + datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + "] " + str(m)
+    print(line, flush=True)
+    try: open(LOG, "a", encoding="utf-8").write(line + "\n")
+    except Exception: pass
+
+
+def load_state():
+    try: return json.load(open(STATE, encoding="utf-8"))
+    except Exception: return {"processed": {}}
+
+def save_state(s):
+    try: json.dump(s, open(STATE, "w", encoding="utf-8"))
+    except Exception as e: log("  (state save fail: %s)" % e)
+
+
+def find_new(state):
+    out = []
+    for f in P2.find_files():
+        try: st = os.stat(f)
+        except Exception: continue
+        mt, sz = st.st_mtime, st.st_size
+        p = state["processed"].get(f)
+        if p and p.get("mtime") == mt and p.get("size") == sz: continue
+        out.append((f, mt, sz))
+    return out
+
+
+def backup_csv(coll, log=log):
+    """Mongo master -> month-wise CSV parts (Excel-safe)."""
+    outdir = BACKUP_DIR if os.path.isdir(os.path.dirname(BACKUP_DIR)) else os.path.join(os.path.dirname(HERE), "master_backup")
+    os.makedirs(outdir, exist_ok=True)
+    COLS = M2.SCHEMA
+    log("CSV backup -> " + outdir)
+    files, counts = {}, {}
+    import csv as _csv
+    for d in coll.find({}, {k: 1 for k in COLS}).batch_size(5000):
+        ym = str(d.get('Tweet Date', ''))[:7] or 'other'
+        if ym not in files:
+            p = os.path.join(outdir, "master_%s.csv" % ym)
+            fh = open(p, 'w', encoding='utf-8-sig', newline='')
+            w = _csv.writer(fh); w.writerow(COLS)
+            files[ym] = (fh, w); counts[ym] = 0
+        fh, w = files[ym]
+        w.writerow([('' if d.get(k) is None else str(d.get(k, ''))) for k in COLS])
+        counts[ym] += 1
+    for ym, (fh, w) in files.items(): fh.close()
+    for ym in sorted(counts): log("   master_%s.csv  %s rows" % (ym, f"{counts[ym]:,}"))
+    open(BACKUP_MARK, 'w').write(datetime.date.today().isoformat())
+    log("  backup done (%s parts, %s rows)" % (len(counts), f"{sum(counts.values()):,}"))
+
+
+def main():
+    t0 = time.time()
+    if '--rescan' in sys.argv and os.path.exists(STATE):
+        os.remove(STATE); log("state reset -> saari files dobara padhi jaayengi")
+
+    # --since YYYY-MM-DD  -> us date ke baad badli files ko dobara padho
+    if '--since' in sys.argv:
+        try:
+            i = sys.argv.index('--since')
+            since = datetime.datetime.strptime(sys.argv[i + 1], '%Y-%m-%d').timestamp()
+            st0 = load_state(); drop = [f for f, v in st0.get('processed', {}).items()
+                                        if (v.get('mtime') or 0) >= since]
+            for f in drop: st0['processed'].pop(f, None)
+            save_state(st0)
+            log("RESCAN since %s -> %d files dobara padhi jaayengi" % (sys.argv[i + 1], len(drop)))
+        except Exception as e:
+            log("  (--since skip: %s)" % e)
+
+    if not os.path.isdir(P2.BASE):
+        log("!! network folder nahi mila: " + P2.BASE); return
+
+    mp = json.load(open(P2.MAPJSON, encoding='utf-8'))
+    coll = M2.coll()
+    log("mapping: %s handles | mongo master: %s tweets" % (f"{len(mp):,}", f"{coll.estimated_document_count():,}"))
+
+    state = load_state()
+    newf = find_new(state)
+    log("Nayi/badli files: %d" % len(newf))
+
+    # ---- SOURCE HEALTH: har folder ki aakhri file kab aayi (source zinda hai ya nahi) ----
+    try:
+        now = time.time()
+        rows = []
+        for d in sorted(os.listdir(P2.BASE)):
+            fp = os.path.join(P2.BASE, d)
+            if not os.path.isdir(fp): continue
+            import glob as _g
+            fs = []
+            for pat in ("*.csv", "*.xlsx", "*.xls", "*.xlsm"):
+                fs += _g.glob(os.path.join(fp, pat))
+            if not fs:
+                rows.append((d, "-", 0)); continue
+            last = max(os.path.getmtime(x) for x in fs)
+            rows.append((d, datetime.datetime.fromtimestamp(last).strftime("%d %b %H:%M"),
+                         (now - last) / 3600.0))
+        # folder ki list admin panel ke dropdown ke liye (Mongo par bhaari query se bachne ko)
+        try:
+            json.dump(sorted(d for d, _t, _h in rows),
+                      open(os.path.join(HERE, "data", "source_folders.json"), "w", encoding="utf-8"),
+                      ensure_ascii=False, indent=0)
+        except Exception as e:
+            log("  (source_folders.json skip: %s)" % e)
+        log("SOURCE STATUS (har folder ki aakhri file):")
+        stale = []
+        for d, t, hrs in rows:
+            mark = ""
+            if hrs and hrs > 6: mark = "   <-- %d ghante se kuch naya nahi" % int(hrs); stale.append(d)
+            log("   %-34s %s%s" % (d[:34], t, mark))
+        if len(newf) == 0:
+            fresh = min((h for _, _, h in rows if h), default=None)
+            if fresh is not None:
+                log("   => koi nayi file nahi. Sabse nayi file %.1f ghante purani hai." % fresh)
+                if fresh > 2:
+                    log("   => matlab SCRAPER ne naya data nahi daala (pipeline apna kaam kar raha hai).")
+    except Exception as e:
+        log("  (source status skip: %s)" % e)
+
+    added = 0; unmapped = {}; new_media = 0; new_mapped = []
+    import re as _re2
+    _CODE_RE = _re2.compile(r'^(AC|PC)[_\s-]?\d+$', _re2.I)
+    code_learn = {}          # purane handle ka AC/PC No raw file se seekh lo
+    today = datetime.date.today()
+    for f, mt, sz in newf:
+        try:
+            df, um = P2.read_map_file(f, mp, DATE_FROM, today)
+        except Exception as e:
+            log("  ERROR read (skip): %s -> %s" % (os.path.basename(f)[:40], e)); continue
+        state["processed"][f] = {"mtime": mt, "size": sz}
+        if df is None or len(df) == 0: continue
+        if '__media__' in um:
+            for h, lbl in um.pop('__media__').items():
+                mp[h] = {'handle': h, 'name': '', 'state': '', 'locations': '-', 'ac_pc_no': '-',
+                         'ac_name': '-', 'pc_name': '-', 'designation_raw': lbl, 'designations': [lbl],
+                         'levels': ['Others'], 'category': lbl, 'party': '-', 'status': 'Active',
+                         'tweet_url': '', 'profile_url': 'https://x.com/' + h}
+                new_media += 1
+                new_mapped.append((h, '', '', '-', lbl, os.path.basename(os.path.dirname(str(f)))))
+        if '__new__' in um:
+            # naya handle -> raw file ke saare column padh kar mapping me sahi jagah bhar do
+            for h, rec in um.pop('__new__').items():
+                if h in mp: continue
+                fold = rec.pop('_folder', '')
+                mp[h] = rec
+                new_mapped.append((h, rec.get('name', ''), rec.get('state', ''),
+                                   rec.get('party', ''), rec.get('designation_raw', ''), fold))
+        for h, n in um.items(): unmapped[h] = unmapped.get(h, 0) + n
+        # SELF-HEAL: jis handle ka mapping me AC/PC No khaali hai lekin raw file me
+        # sahi code (AC_80 / PC_12) aaya hai -> mapping me seekh lo. Code kabhi
+        # '-' se overwrite nahi hoga -- sirf khaali jagah bharti hai.
+        try:
+            if 'AC/PC No' in df.columns and 'Handle' in df.columns:
+                for h, cd in zip(df['Handle'].astype(str), df['AC/PC No'].astype(str)):
+                    h = h.strip(); cd = cd.strip().upper().replace(' ', '_')
+                    if not h or h in code_learn or not _CODE_RE.match(cd): continue
+                    cur = str((mp.get(h) or {}).get('ac_pc_no') or '').strip()
+                    if not _CODE_RE.match(cur): code_learn[h] = cd
+        except Exception:
+            pass
+        # kis folder ki file se aaya -- har tweet par likh do (export me filter ke liye).
+        # Pehle ye sirf naye handle ki report me use hota tha aur phenk diya jaata tha.
+        try:
+            df['Source Folder'] = os.path.basename(os.path.dirname(str(f)))
+        except Exception:
+            pass
+        M2.upsert_frame(df, coll)          # <-- seedha Mongo me (fast, dedupe apne aap)
+        added += len(df)
+        log("  %-46s +%d rows" % (os.path.basename(f)[:46], len(df)))
+
+    save_state(state)
+    if code_learn:
+        for h, cd in code_learn.items():
+            if h in mp: mp[h]['ac_pc_no'] = cd
+        log("Mapping: %d handle ka AC/PC No raw file se recover hua (%s ...)"
+            % (len(code_learn), ", ".join(list(code_learn)[:3])))
+        new_mapped = new_mapped or [None]      # taaki neeche mapping save ho jaaye
+        new_mapped = [x for x in new_mapped if x is not None] or []
+        json.dump(mp, open(P2.MAPJSON, 'w', encoding='utf-8'), ensure_ascii=False, indent=0)
+    if new_media or new_mapped:
+        json.dump(mp, open(P2.MAPJSON, 'w', encoding='utf-8'), ensure_ascii=False, indent=0)
+        if new_media:
+            log("Mapping: +%d media/journalist handle" % new_media)
+        if new_mapped:
+            log("Mapping: +%d NAYE handle (raw file ke columns se auto-fill):" % len(new_mapped))
+            for row in new_mapped[:12]:
+                h, nm, st, pt, dg = row[0], row[1], row[2], row[3], row[4]
+                fd = row[5] if len(row) > 5 else ''
+                log("    @%-20s %-20s %-15s %-6s %-10s [%s]" % (h, str(nm)[:20], str(st)[:15], str(pt)[:6], str(dg)[:10], fd))
+            # aaj ke naye handles ki list report ke liye (AAJ ke sab run milaakar - append)
+            try:
+                pnh = os.path.join(HERE, 'new_handles_today.csv')
+                old = []
+                if os.path.exists(pnh) and datetime.date.fromtimestamp(os.path.getmtime(pnh)).isoformat() == \
+                        datetime.date.today().isoformat():
+                    old = pd.read_csv(pnh, dtype=str, encoding='utf-8-sig').fillna('').values.tolist()
+                allrows = [ (list(r)+[''])[:6] for r in old ] + [ (list(x)+[''])[:6] for x in new_mapped ]
+                seen = set(); uniq = []
+                for r in allrows:
+                    if r[0] in seen: continue
+                    seen.add(r[0]); uniq.append(r)
+                pd.DataFrame([(list(r)+[''])[:6] for r in uniq], columns=['Handle','Name','State','Party','Designation','Folder']) \
+                  .to_csv(pnh, index=False, encoding='utf-8-sig')
+            except Exception as e:
+                log("  (new_handles_today write skip: %s)" % e)
+        log("Mapping total ab: %s handles" % f"{len(mp):,}")
+    if unmapped:
+        pd.DataFrame(sorted(unmapped.items(), key=lambda x: -x[1]), columns=['Handle', 'tweets']).to_csv(NEEDMAP, index=False)
+        log("(is run me pehli baar dikhe handle: %d)" % len(unmapped))
+
+    total = coll.estimated_document_count()
+    log("Naye rows: %s | Mongo master total: %s" % (f"{added:,}", f"{total:,}"))
+
+    if added == 0 and '--force-push' not in sys.argv:
+        log("Naya data nahi -> push skip.")
+    else:
+        log("Build + push (SEEDHA MONGO SE) -> india_Pulse + up_pulse ...")
+        import push_all_scopes as PA; importlib.reload(PA)
+        PA.push_all("MONGO", log=log)
+
+    # ---- CSV backup (roz ek baar; --backup se abhi) ----
+    do_bk = '--backup' in sys.argv
+    if not do_bk and '--no-backup' not in sys.argv:
+        last = ''
+        try: last = open(BACKUP_MARK).read().strip()
+        except Exception: pass
+        do_bk = (last != datetime.date.today().isoformat()) and (added > 0)
+    if do_bk:
+        try: backup_csv(coll)
+        except Exception as e: log("  (backup skip: %s)" % e)
+
+    # ---- DAILY REPORT (har run par refresh; roz ki file bhi ban jaati hai) ----
+    try:
+        import daily_report as DR
+        importlib.reload(DR)
+        p = DR.main()
+        log("Daily report: %s" % p)
+    except Exception as e:
+        log("  (daily report skip: %s)" % e)
+
+    log("DONE in %ds." % int(time.time() - t0))
+
+
+if __name__ == "__main__":
+    try: main()
+    except Exception as e:
+        import traceback; log("FATAL: " + str(e)); log(traceback.format_exc()); sys.exit(1)

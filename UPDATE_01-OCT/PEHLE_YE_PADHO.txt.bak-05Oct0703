@@ -1,0 +1,273 @@
+======================================================================
+  MAIN SYSTEM PAR AAJ KE CHANGES  --  01 October
+======================================================================
+
+POORA FOLDER COPY KARNE KI ZAROORAT NAHI.
+20 files badalti hain + 4 saathi files jo sirf tab daali jaati hain jab
+wahan hain hi nahi. Ye package wahi files aur ek script hai.
+
+NOTE (03 Oct): pehle version me ek file chhoot gayi thi -- mongo_conf.PY
+(Python wali). Maine sirf mongo_conf.JS bheji thi, jo Node ke liye hai.
+Isse pipeline "No module named 'mongo_conf'" de kar ruk jaata tha.
+Ab wo bhi package me hai, aur installer chalne se pehle SAARI zaroori
+files ki list check karta hai.
+
+
+KYA KARNA HAI
+-------------
+1. Ye poora folder "UPDATE_01-OCT" apne main system par
+   "Main Twitter Project" folder ke ANDAR rakho:
+
+       C:\Main Twitter Project\UPDATE_01-OCT\
+
+2. Server band kar do (jo black window chal raha hai).
+   Script khud bhi check karta hai -- chalta mila to ruk jaayega.
+
+3. UPDATE_KARO.bat  par double-click.
+
+4. START_LIVE.bat chalao.
+
+5. Browser me Ctrl + F5 (dono dashboard par).
+
+6. Ek baar ye kholo:   http://localhost:3000/healthz
+   "ok": true aaye to sab theek hai.
+
+
+EK BAAR LOGIN DOBARA KARNA PADEGA
+---------------------------------
+Session ka tareeka badla hai. Isliye is ek baar sabko dobara login
+karna hoga. Password WAHI purana chalega -- kuch badalna nahi hai.
+
+Iske BAAD ka fayda: pehle har server restart par sab log out ho jaate
+the (aur START_LIVE roz kai baar restart karta hai). Ab nahi honge.
+
+
+KUCH GALAT LAGE TO
+------------------
+WAPAS_KARO.bat chalao -- sab waise ka waisa ho jaayega.
+Backup apne aap "BACKUP-update-<date>" folder me ban jaata hai.
+
+
+======================================================================
+  AAJ KYA KYA BADLA
+======================================================================
+
+--- HISSA 1: DASHBOARD KE UI CHANGES ---
+
+  * Handle Analytics tab ka naya layout -- bada profile banner
+    (cover + photo), alag-alag card: Growth Trends, Content
+    Performance, Daily Breakdown, Latest Tweets
+
+  * Handle par click karte hi uski X profile LIVE uthti hai aur Mongo
+    me save ho jaati hai. Banner par refresh button bhi hai.
+
+  * KPI tiles -- alag-alag card, beech me gap, grey patti gayab
+
+  * Daily Breakdown ab sirf pichhle 7 din ka
+
+  * Live update indicator (hara ^ +1K) wapas chaalu
+
+  * LAST UPDATED column ko ab number nahi gina jaata
+
+  * Engagement Rate (tile aur chart) dono hata diye gaye
+
+
+--- HISSA 2: FAILURE AUDIT KE FIX ---
+
+  Ye wo dikkatein theen jo abhi dikhti nahi thi, par kisi din data
+  gayab kar sakti theen ya dashboard band kar sakti theen.
+
+  1. DASHBOARD KI COLLECTION PEHLE KHAALI HOTI THI
+     Har ghante ke push me 2-3 second ke liye collection khaali rehti
+     thi -- us pal jo dashboard kholta, use 500 error milta. Aur agar
+     us pal Mongo girta ya disk bharti, to collection HAMESHA ke liye
+     khaali reh jaati aur dashboard poora band ho jaata.
+     AB: naya data alag naam me banta hai, ginti milti hai, phir
+     rename se swap. Khaali window ab hai hi nahi.
+
+  2. PUSH FAIL HO JAAYE TO DATA HAMESHA KE LIYE ATAK JAATA THA
+     Files "ho gayi" mark ho jaati thi push se PEHLE. Push fail hua to
+     agle run me "Naya data nahi" bol kar skip -- tweets Mongo me pade
+     rehte, dashboard par kabhi nahi aate. Bina kisi warning ke.
+     AB: push poora hone par hi mark hota hai, aur adhoora reh jaaye
+     to agla run khud dobara push kar deta hai.
+
+  3. AADHA UPDATE -- ALL INDIA NAYA, UP PURANA
+     All-India ka stamp UP se pehle lagta tha. UP fail hua to UP
+     chupchap purana data dikhata rehta, uska "last updated" bhi nahi
+     badalta -- kisi ko shaq tak nahi hota.
+     AB: dono ban jaane ke BAAD hi dono ka stamp lagta hai.
+
+  4. BACKUP PURANA BACKUP MITA DETA THA
+     Backup file pehle khaali hoti thi phir bharti thi. Beech me
+     network/Mongo gira to purana bhi gaya aur naya bhi adhoora. Aur
+     ye "backup skip" likh kar nigal liya jaata tha.
+     AB: .part file me banta hai, poora hone par rename. Purani copy
+     .prev me rehti hai. Fail ho to SAAF dikhta hai.
+
+  5. MAPPING FILE KHARAB HO SAKTI THI
+     handle_master.json likhte waqt crash hua to file aadhi reh jaati,
+     aur phir pipeline HAR run par wahin marta. Saara handle mapping
+     chala jaata.
+     AB: temp file + rename (atomic), aur ek .prev copy. Kharab mile
+     to .prev se chal jaata hai.
+
+  6. HAR REQUEST PAR NAYA DB CONNECTION (35 jagah)
+     Pooling ka fayda poora khatam tha. 7 jagah timeout bhi nahi tha
+     -- Mongo band ho to dashboard 30 SECOND latka rehta tha.
+     AB: ek hi saanjha pool, sab jagah ek jaisa timeout (6 sec).
+
+  7. CONNECTION LEAK
+     Error aane par kai jagah connection kabhi band hi nahi hota tha.
+     AB: pool hai, ye dikkat hi nahi rahi.
+
+  8. 6 MB PAGE KA GZIP MAIN THREAD ROK DETA THA
+     Jab tak compress hota, poora server ruka rehta -- 3-4 log ek
+     saath kholein to sab atak jaate. Yahi "server hang" ki wajah thi.
+     AB: async gzip, main thread khaali.
+
+  9. SERVER PAR KOI TIMEOUT NAHI THA
+     ngrok se public hai -- ek atki connection hamesha socket pakad
+     kar baith sakti thi.
+     AB: headers/request/keep-alive teeno par timeout.
+
+ 10. CRASH HONE PAR SIRF LOG HOTA THA
+     Server adhi-tooti haalat me chalta rehta, kisi ko pata nahi.
+     AB: Express error middleware (stack trace ab user ko nahi
+     dikhta), aur /healthz -- ek line me poori sehat:
+         http://localhost:3000/healthz
+     Mongo zinda hai? data kitna purana hai? collection khaali to
+     nahi? sab ek jagah.
+
+ 11. pipeline.log KABHI SAAF NAHI HOTA THA
+     AB: 5 MB par rotate (do peedhi rakhi jaati hain). Aur likhne se
+     pehle disk ki jagah bhi dekh li jaati hai.
+
+ 12. PASSWORD SAADE TEXT ME THE
+     Code me bhi, Mongo me bhi, aur admin panel unhe dikha bhi deta
+     tha. Database ka backup = sabka password.
+     AB: scrypt hash. Purane password apne aap hash me badal jaate
+     hain jab user agli baar login karta hai -- kisi ko kuch nahi
+     karna. Panel se password dikhna band.
+     Code me likhe 5 base account ab bhi saade hain -- unke liye
+     DASHBOARD folder me:   node make_pw_hash.js
+
+ 13. LOGIN PAR KOI ROK NAHI THI
+     Koi bhi unlimited password aazma sakta tha.
+     AB: 15 min me ek email par 8 aur ek IP se 20 galat koshishon ke
+     baad 10 min ka viraam. Sahi login par hisaab saaf.
+
+ 14. SERVER RESTART = SABKA LOGOUT
+     Aur ulta: account band karne par bhi uska access 12 ghante
+     chalta rehta tha.
+     AB: secret file me rehta hai (restart par logout nahi), aur
+     cookie me waqt likha hai -- account band / password badalte hi
+     purani cookie usi pal mar jaati hai.
+
+ 15. PIPELINE FAIL HONE PAR KUCH DIKHTA NAHI THA
+     Traceback screen par upar chala jaata, agle ghante sab normal
+     dikhta.
+     AB: START_LIVE.bat ki window LAAL ho jaati hai aur lagatar
+     kitni baar fail hua wo ginti dikhti hai.
+
+
+EK FINDING GALAT NIKLA
+----------------------
+Audit me maine likha tha ki dashGuard do baar define hai. Check karne
+par wo sirf EK baar hai -- maine apne hi do output ko do definition
+samajh liya tha. Us par koi badlav nahi kiya.
+
+
+EK FILE ISME NAHI HAI -- JAANBUJH KAR
+-------------------------------------
+  DASHBOARD\x_config.json     (aapke X account ke 3 cookie - secret)
+  DASHBOARD\auth_secret.json  (session ka secret - apne aap ban jaayega)
+
+x_config.json ke bina bhi sab chalega -- bas profile photo ki jagah
+naam ke akshar dikhenge.
+
+
+NAYI FILES JO BANI
+------------------
+  DASHBOARD\mongo_pool.js    ek saanjha DB connection pool
+  DASHBOARD\auth_lib.js      password hash + session + login throttle
+  DASHBOARD\mongo_swap.py    collection ko bina khaali kiye badalna
+  DASHBOARD\safe_write.py    atomic file write + disk check
+  DASHBOARD\make_pw_hash.js  base account ka password hash banane ke liye
+  (mongo_swap.py aur safe_write.py UP-DASHBOARD me bhi hain)
+
+
+DHYAN DENE WALI BAAT
+--------------------
+Ye script purani files ko NAYI se badal deta hai. Agar aapne aaj
+subah ke baad main system par in files me se kisi me KHUD koi change
+kiya hai, to wo change chala jaayega. Backup se wapas aa sakta hai.
+======================================================================
+
+======================================================================
+  NAYA (05 Oct):  ADMIN PANEL ME "HANDLE TRACKER" TAB
+======================================================================
+
+Admin Panel (http://localhost:3000/admin) me naya tab: "Handle Tracker".
+Wahi kaam jo Google Sheet wale Tracker tab me tha -- par aapke apne
+system par aur seedha MongoDB me.
+
+KYA KAR SAKTE HO
+----------------
+  * handle jodo  -- @handle, kai saare comma se, ya poora x.com link
+  * kitna peeche tak scrape ho  -- aaj / 3 / 7 / 15 / 30 din
+  * har kitni der me chale      -- 5 min se roz tak
+  * ek handle ki kitni page padhe -- 2 se 15
+  * "Abhi scrape karo" / "Roko"
+  * har handle ko alag se roko ya list se hatao
+
+DATA KAHAN JAATA HAI
+--------------------
+  pulse_master.master_tweets -- wahi collection jisme pipeline ka data
+  jaata hai, aur wahi merge rules:
+
+      _id            = Tweet ID (URL se) -> duplicate ban hi nahi sakte
+      numbers        -> $max   (ginti kabhi ghatti nahi)
+      text           -> $set   sirf jab naya value khaali na ho
+      Source Folders -> "Admin Tracker" jud jaata hai
+
+  Matlab yahan se aaya data agle dashboard push me dono dashboard
+  (All-India + UP) aur Handle Analytics me waise hi dikhne lagta hai
+  jaise network folder se aaya data.
+
+  DHYAN: jo handle aapki mapping (handle_master.json) me nahi hai,
+  uske tweets to aa jaayenge par State / Party / Designation khaali
+  rahenge -- wo "needs mapping" me dikhega, jaisa kisi bhi naye handle
+  ke saath waise bhi hota hai.
+
+HAAL AUR LOG
+------------
+  Tab par hi dikhta hai:
+    * abhi chal raha hai ya nahi, kis handle par, kitne me se kitne
+    * pichhli baar: kitne NAYE, kitne UPDATE, kitne handle, kitne error
+    * agla scrape kitni der me
+    * neeche poora log (har handle ki line, error laal me)
+  Har 5 second me apne aap refresh.
+
+COOKIE
+------
+  Wahi x_config.json use hoti hai jo pehle se hai (auth_token, ct0,
+  twid). Alag se kuch nahi bharna. Cookie na ho ya expire ho jaaye to
+  tab laal me saaf bata deta hai.
+
+X PAR BOJH NA PADE
+------------------
+  * ek waqt me ek hi scrape (do kabhi saath nahi chalte)
+  * har call ke beech viraam
+  * 429 (rate-limit) ya 401 (cookie expire) par turant ruk jaata hai
+    aur log me wajah likh deta hai -- agli baar se phir chalu
+
+SERVER CHALU HOTE HI
+--------------------
+  Scraper 15 second baad background me apne aap chaalu, har 30 minute
+  (badal sakte ho). Band karna ho to tab me "Roko".
+
+NAYI FILES
+----------
+  DASHBOARD\x_scraper.js        scrape engine
+  DASHBOARD\tracker_section.js  tab ka UI

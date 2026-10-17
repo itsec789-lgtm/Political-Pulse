@@ -1,0 +1,406 @@
+/*  India Political Pulse - Dashboard served from MongoDB
+ *  Ye server MongoDB se data laata hai aur dashboard me daal kar dikhata hai.
+ *  Chalao:  npm install  ->  npm start  ->  http://localhost:3000
+ */
+
+const express = require('express');
+const { MongoClient } = require('mongodb');
+const fs = require('fs');
+const path = require('path');
+const R = require('./report_lib.js');   // Report tab: keyword report logic
+
+const MONGO_URL  = require('./mongo_conf.js');   // <- central: db_config.json
+const COLLECTION = 'dashboard_data';
+const PORT       = 3001;
+const TEMPLATE   = path.join(__dirname, 'dashboard.template.html');
+
+const app = express();
+
+// scope -> mongodb database
+const SCOPE_DB = { all: 'india_Pulse', up: 'up_pulse' };
+
+async function findDataDb(client, dbName) {
+  const d = client.db(dbName);
+  const nm = (await d.listCollections().toArray()).map(function (c) { return c.name; });
+  if (nm.includes(COLLECTION)) return d;
+  // fallback: agar All-India abhi build nahi hui to UP dikha do
+  if (dbName !== 'up_pulse') {
+    const u = client.db('up_pulse');
+    const un = (await u.listCollections().toArray()).map(function (c) { return c.name; });
+    if (un.includes(COLLECTION)) return u;
+  }
+  return null;
+}
+
+// server-side KPI fill - numbers seedha markup me daal do (client JS ke bina)
+function fillKPIs(html, map) {
+  const IN  = function (x) { return (Math.round((+x) || 0)).toLocaleString('en-IN'); };
+  const fmt = function (x) { x = (+x) || 0; if (x >= 1e7) return (x / 1e7).toFixed(2) + ' Cr'; if (x >= 1e5) return (x / 1e5).toFixed(2) + ' L'; return IN(x); };
+  const esc = function (s) { return String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); };
+  const byId = function (id, val) { html = html.replace(new RegExp('(id="' + id + '"[^>]*>)[^<]*(<)'), function (m, a, b) { return a + val + b; }); };
+  const byColor = function (cls, color, val) { html = html.replace(new RegExp('(class="[^"]*' + cls + '[^"]*" style="color:' + esc(color) + '">)[^<]*(<)'), function (m, a, b) { return a + val + b; }); };
+
+  const UNI = map.UNI || {};
+  const CM  = Array.isArray(map.CM_DATA) ? map.CM_DATA : [];
+
+  if (CM.length) {
+    let cm = 0, dy = 0, tw = 0, vw = 0, lk = 0, rt = 0;
+    for (const c of CM) {
+      const L = c.level || '';
+      if (L === 'Chief Minister') cm++;
+      else if (L === 'Deputy Chief Minister' || L === 'Dy CM') dy++;
+      tw += (+c.tweets) || 0;
+      vw += (+c.views) || 0;
+      lk += (+c.likes) || 0;
+      rt += (+c.rts) || 0;
+    }
+    byId('cmkCount', CM.length);
+    byId('cmkSub', cm + ' CMs · ' + dy + ' Dy CMs');
+    byId('cmkTweets', IN(tw));
+    byId('cmkTwSub', 'Across ' + CM.length + ' leaders');
+    byId('cmkLikes', fmt(lk));
+    byId('cmkRt', fmt(rt));
+    byId('cmkViews', fmt(vw));
+  }
+
+  if (UNI.level && Array.isArray(UNI.allHandles)) {
+    const cnt = {};
+    for (const h of UNI.allHandles) { const k = h.level || 'Others'; cnt[k] = (cnt[k] || 0) + 1; }
+    const lm = {
+      'LS MP': ['lvLSMP', 'lvLSMPh'], 'RS MP': ['lvRSMP', 'lvRSMPh'], 'MLA': ['lvMLA', 'lvMLAh'],
+      'MLC': ['lvMLC', 'lvMLCh'], 'Chief Minister': ['lvCM', 'lvCMh'], 'Dy CM': ['lvDyCM', 'lvDyCMh'],
+      'Others': ['lvOthers', 'lvOthersh']
+    };
+    for (const L in lm) { byId(lm[L][0], IN(UNI.level[L] || 0)); byId(lm[L][1], IN(cnt[L] || 0)); }
+  }
+
+  if (UNI.sent) {
+    const s = UNI.sent;
+    const T = ((+s.pos) || 0) + ((+s.neu) || 0) + ((+s.neg) || 0) || 1;
+    byColor('sent-card-val', '#FF8F00', IN(s.neu)); byColor('sent-card-pct', '#FF8F00', (s.neu * 100 / T).toFixed(1) + '%');
+    byColor('sent-card-val', '#2E7D32', IN(s.pos)); byColor('sent-card-pct', '#2E7D32', (s.pos * 100 / T).toFixed(1) + '%');
+    byColor('sent-card-val', '#C62828', IN(s.neg)); byColor('sent-card-pct', '#C62828', (s.neg * 100 / T).toFixed(1) + '%');
+  }
+
+  if (UNI.tot) {
+    const nStates = CM.length ? new Set(CM.map(function (c) { return c.state; }).filter(function (s) { return s && s.length > 1; })).size : 0;
+    const nHandles = Array.isArray(UNI.allHandles) ? UNI.allHandles.length : 0;
+    const setSplash = function (label, val) { html = html.replace(new RegExp('(<div class="splash-stat-val">)[^<]*(</div><div class="splash-stat-lbl">' + label + '<)'), function (m, a, b) { return a + val + b; }); };
+    setSplash('Tweets', fmt((+UNI.tot.tw) || 0));
+    setSplash('Handles', IN(nHandles));
+    setSplash('Views', fmt((+UNI.tot.vw) || 0));
+    const nDist = (UNI.updist && typeof UNI.updist === 'object') ? Object.keys(UNI.updist).length : 0; if (nDist) setSplash('Districts', IN(nDist));
+  }
+
+  if (Array.isArray(map.HASHTAGS)) {
+    const htot = map.HASHTAGS.reduce(function (a, h) { return a + ((+h.count) || 0); }, 0);
+    byId('hashTweetCount', IN(htot));
+  }
+
+  if (Array.isArray(UNI.allHandles)) {
+    const up = UNI.allHandles.filter(function (h) { return h.state === 'Uttar Pradesh'; });
+    const sum = function (k) { return up.reduce(function (a, h) { return a + ((+h[k]) || 0); }, 0); };
+    byId('upKpiHandles', IN(up.length));
+    byId('upKpiTweets', IN(sum('tw')));
+    byId('upKpiViews', fmt(sum('vw')));
+    byId('upKpiLikes', fmt(sum('lk')));
+    byId('upKpiRt', fmt(sum('rt')));
+  }
+
+  // date pickers ka range data ke ACTUAL dates se (naya month add ho to calendar/filter bhi extend)
+  const DATES = Array.isArray((map.AGG || {}).dates) ? map.AGG.dates : (Array.isArray((map.D || {}).AD) ? map.D.AD : []);
+  if (DATES.length) {
+    const lo = DATES[0], hi = DATES[DATES.length - 1];
+    html = html.split('min="2026-04-01"').join('min="' + lo + '"');
+    html = html.split('max="2026-07-01"').join('max="' + hi + '"');
+    html = html.split('value="2026-04-01"').join('value="' + lo + '"');
+    html = html.split('value="2026-07-01"').join('value="' + hi + '"');
+    html = html.split("f='2026-04-01',t='2026-07-01'").join("f='" + lo + "',t='" + hi + "'");
+  }
+
+  return html;
+}
+
+async function buildHtml(scope) {
+  scope = (scope === 'up') ? 'up' : 'all';
+  const client = new MongoClient(MONGO_URL);
+  await client.connect();
+
+  const db = await findDataDb(client, SCOPE_DB[scope]);
+  if (!db) { await client.close(); throw new Error("Kisi bhi database me '" + COLLECTION + "' collection nahi mili."); }
+  console.log("  Data mila database me: '" + db.databaseName + "'");
+
+  const docs = await db.collection(COLLECTION).find({}).toArray();
+  const phdDocs = await db.collection('phd').find({}).toArray();
+  await client.close();
+
+  if (!docs.length) throw new Error("'" + COLLECTION + "' collection khaali hai.");
+  if (!phdDocs.length) throw new Error("'phd' collection khaali hai.");
+
+  const map = {};
+  for (const d of docs) map[d.key] = d.value;
+
+  const PHD = {};
+  for (const p of phdDocs) PHD[p.h] = { t: p.t, v: p.v, k: p.k, r: p.r };
+  map['PHD'] = PHD;
+
+  /* ---- CM & Dy CM tab + level, dono MAPPING se ----
+     (wahi tarika jo DASHBOARD/server.js me hai) */
+  try {
+    var _P = { 'CM': 0, 'Dy CM': 1, 'LS MP': 2, 'RS MP': 3, 'MLA': 4,
+               'MLC': 5, 'MLA Contestent': 6, 'Others': 7 };
+    var _CN = { 'CM': 'Chief Minister', 'Dy CM': 'Dy CM' };
+    var _hm0 = JSON.parse(fs.readFileSync(path.join(__dirname, 'data', 'handle_master.json'), 'utf8'));
+    var _mm = _hm0.handles || _hm0;
+    var _gone0 = {};
+    try {
+      var _rj0 = JSON.parse(fs.readFileSync(path.join(__dirname, 'data', 'mapping_removed.json'), 'utf8'));
+      (_rj0.handles || []).forEach(function (h) {
+        _gone0[String(h || '').trim().replace(/^@/, '').toLowerCase()] = 1; });
+    } catch (e) {}
+    var _lv = Object.create(null), _mci = {};
+    Object.keys(_mm).forEach(function (k) {
+      _mci[String(k).toLowerCase()] = k;
+      var ls = (_mm[k] || {}).levels;
+      if (!Array.isArray(ls) || !ls.length) return;
+      var top = ls[0];
+      ls.forEach(function (L) {
+        if ((_P[L] === undefined ? 99 : _P[L]) < (_P[top] === undefined ? 99 : _P[top])) top = L; });
+      if (top === 'Others') return;
+      _lv[String(k).toLowerCase()] = _CN[top] || top;
+    });
+    function _fix(a2) {
+      if (!Array.isArray(a2)) return;
+      a2.forEach(function (r) {
+        if (!r || r.level === undefined) return;
+        var h = String(r.h || r.handle || '').trim().replace(/^@/, '').toLowerCase();
+        if (_lv[h]) r.level = _lv[h];
+      });
+    }
+    if (map.UNI) _fix(map.UNI.allHandles);
+    _fix(map.HANDLES); _fix(map.MLA_DATA); _fix(map.PARTY_HANDLES);
+    if (map.UNI && Array.isArray(map.UNI.allHandles)) {
+      var _sum = {};
+      map.UNI.allHandles.forEach(function (r) {
+        var k = r.level || 'Others'; _sum[k] = (_sum[k] || 0) + ((+r.tw) || 0); });
+      map.UNI.level = _sum;
+    }
+    if (Array.isArray(map.CM_DATA)) {
+      var _uni = {};
+      if (map.UNI && Array.isArray(map.UNI.allHandles)) {
+        map.UNI.allHandles.forEach(function (r) {
+          if (r && r.h) _uni[String(r.h).toLowerCase()] = r; });
+      }
+      function _cmLvl(h) {
+        var rec = _mm[_mci[String(h || '').trim().replace(/^@/, '').toLowerCase()]];
+        var ls = rec && rec.levels;
+        if (!Array.isArray(ls)) return '';
+        if (ls.indexOf('CM') >= 0) return 'Chief Minister';
+        if (ls.indexOf('Dy CM') >= 0) return 'Deputy Chief Minister';
+        return '';
+      }
+      var _seen = {};
+      map.CM_DATA = map.CM_DATA.filter(function (r) {
+        var L = _cmLvl(r && r.handle);
+        if (!L) return false;
+        r.level = L; _seen[String(r.handle).toLowerCase()] = 1; return true;
+      });
+      Object.keys(_mm).forEach(function (k) {
+        var rec = _mm[k] || {};
+        if (rec.alias_of) return;
+        var lk = String(k).toLowerCase();
+        if (_seen[lk] || _gone0[lk]) return;
+        var ls = rec.levels || [];
+        var L = (ls.indexOf('CM') >= 0) ? 'Chief Minister'
+              : (ls.indexOf('Dy CM') >= 0) ? 'Deputy Chief Minister' : '';
+        if (!L) return;
+        _seen[lk] = 1;
+        var u = _uni[lk] || null;
+        map.CM_DATA.push({
+          state: rec.state || (u && u.state) || '-',
+          name: rec.name || (u && u.name) || k,
+          party: rec.party || (u && u.party) || '-',
+          level: L, handle: k,
+          tweets: (u && +u.tw) || 0, views: (u && +u.vw) || 0,
+          likes: (u && +u.lk) || 0, rts: (u && +u.rt) || 0,
+          followers: (u && +u.followers) || 0, followings: (u && +u.followings) || 0,
+          pos: (u && +u.pos) || 0, neg: (u && +u.neg) || 0, neu: (u && +u.neu) || 0,
+          probjp: (u && +u.probjp) || 0, antigovt: (u && +u.antigovt) || 0,
+          progovt: (u && +u.progovt) || 0, antibjp: (u && +u.antibjp) || 0,
+          none: (u && +u.none) || 0, noData: !u,
+        });
+      });
+    }
+  } catch (e) { console.log('  (mapping fix skip: ' + e.message + ')'); }
+
+  let html = fs.readFileSync(TEMPLATE, 'utf8');
+  for (const key in map) {
+    const token = '"__MONGO_' + key + '__"';
+    html = html.replace(token, function () { return JSON.stringify(map[key]); });
+  }
+
+  const leftover = (html.match(/"__MONGO_[A-Z_]+__"/g) || []);
+  if (leftover.length) console.warn('Warning: inko data nahi mila ->', leftover.join(', '));
+
+  html = fillKPIs(html, map);
+  // live server: tweets bake nahi karte (page light) -> Report tab /api/report use karega
+  html = html.replace('"__RP_TWEETS__"', '[]');
+  html = html.replace('"__RP_RANGE__"', '""');
+
+  // ---- All-India view: branding "Uttar Pradesh" -> "All India" (sirf heading/title) ----
+  if (scope === 'all') {
+    html = html.split('Uttar Pradesh Political Pulse').join('All India Political Pulse');
+    html = html.split('UTTAR PRADESH POLITICAL PULSE').join('ALL INDIA POLITICAL PULSE');
+    html = html.split('Uttar Pradesh Political').join('All India Political');
+  }
+
+  // ---- scope switcher (All India / Uttar Pradesh) + auto-refresh ----
+  var A = (scope === 'all'), U = (scope === 'up');
+  var sw = '<div style="position:fixed;top:10px;right:14px;z-index:99998;display:flex;gap:6px;'
+    + 'background:#fff;border:1px solid #e5c9a8;border-radius:9px;padding:4px;'
+    + 'box-shadow:0 2px 10px rgba(0,0,0,.14);font:600 13px system-ui,-apple-system,sans-serif">'
+    + '<a href="/" style="padding:6px 13px;border-radius:6px;text-decoration:none;'
+    + (A ? 'background:#EA580C;color:#fff' : 'color:#B45309') + '">All India</a>'
+    + '<a href="/up" style="padding:6px 13px;border-radius:6px;text-decoration:none;'
+    + (U ? 'background:#EA580C;color:#fff' : 'color:#B45309') + '">Uttar Pradesh</a></div>';
+  var poll = "<script>(function(){"
+    + "var scope='" + scope + "';"
+    + "try{document.body.insertAdjacentHTML('afterbegin'," + JSON.stringify(sw) + ");}catch(e){}"
+    + "if(location.protocol==='file:')return;"
+    + "var cur=null;"
+    + "function toast(m){var d=document.createElement('div');d.textContent=m;"
+    + "d.style.cssText='position:fixed;top:18px;left:50%;transform:translateX(-50%);z-index:999999;"
+    + "background:#177245;color:#fff;padding:11px 20px;border-radius:9px;"
+    + "font:600 14px system-ui,-apple-system,sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.28)';"
+    + "document.body.appendChild(d);}"
+    + "function check(){fetch('/api/version?scope='+scope,{cache:'no-store'}).then(function(r){return r.json();})"
+    + ".then(function(j){if(cur===null){cur=j.v;return;}"
+    + "if(j.v&&j.v!==cur){cur=j.v;toast('\\u2713 New data is in \\u2014 refreshing\\u2026');"
+    + "setTimeout(function(){location.reload();},1600);}}).catch(function(){});}"
+    + "setInterval(check,30000);check();"
+    + "})();</script>";
+  /* ---- level card ka handle count MAPPING se (poora count) ----
+     Card sirf un handles ko ginta tha jinke tweet mile. Mapping me 31 CM
+     hain par ek CM ka koi tweet nahi aaya, isliye 30 dikhta tha. Ab ginti
+     mapping (handle_master.json) se hoti hai -- jo bada ho wahi dikhta hai.
+     Tweet ka number waisa hi rehta hai. */
+  var lvjs = '';
+  try {
+    var _PRI = { 'CM': 0, 'Dy CM': 1, 'LS MP': 2, 'RS MP': 3, 'MLA': 4,
+                 'MLC': 5, 'MLA Contestent': 6, 'Others': 7 };
+    var _CARD = { 'CM': 'Chief Minister', 'Dy CM': 'Dy CM' };
+    var _hm = JSON.parse(fs.readFileSync(path.join(__dirname, 'data', 'handle_master.json'), 'utf8'));
+    var _mm = _hm.handles || _hm;
+    var _gone = {};
+    try {
+      var _rj = JSON.parse(fs.readFileSync(path.join(__dirname, 'data', 'mapping_removed.json'), 'utf8'));
+      (_rj.handles || []).forEach(function (h) {
+        _gone[String(h || '').trim().replace(/^@/, '').toLowerCase()] = 1; });
+    } catch (e) {}
+    var MLV = {};
+    Object.keys(_mm).forEach(function (k) {
+      var rec = _mm[k] || {};
+      if (rec.alias_of) return;
+      if (_gone[String(k).toLowerCase()]) return;
+      var ls = rec.levels;
+      if (!Array.isArray(ls) || !ls.length) ls = ['Others'];
+      var top = ls[0];
+      ls.forEach(function (L) {
+        if ((_PRI[L] === undefined ? 99 : _PRI[L]) < (_PRI[top] === undefined ? 99 : _PRI[top])) top = L; });
+      top = _CARD[top] || top;
+      MLV[top] = (MLV[top] || 0) + 1;
+    });
+    lvjs = "<script>(function(){try{var MLV=" + JSON.stringify(MLV) + ";window.MAPLVL=MLV;"
+      + "var _lmap={'LS MP':'lvLSMPh','RS MP':'lvRSMPh','MLA':'lvMLAh','MLC':'lvMLCh',"
+      +   "'Chief Minister':'lvCMh','Dy CM':'lvDyCMh','MLA Contestent':'lvConth','Others':'lvOthersh'};"
+      + "function _lvFix(){try{var live={};((window.UNI&&UNI.allHandles)||[]).forEach(function(h){"
+      +   "var k=h.level||'Others';live[k]=(live[k]||0)+1;});"
+      +   "Object.keys(_lmap).forEach(function(k){var n=Math.max(+MLV[k]||0,+live[k]||0);if(!n)return;"
+      +   "var e=document.getElementById(_lmap[k]);if(e)e.textContent=n.toLocaleString('en-IN');});"
+      + "}catch(e){}}window._lvFix=_lvFix;"
+      + "var _t=0;(function p(){_lvFix();if(++_t<30)setTimeout(p,250);})();"
+      + "}catch(e){}})();</script>";
+  } catch (e) { console.log('  (level count skip: ' + e.message + ')'); }
+  var _lvi = html.lastIndexOf('</body>');
+  if (_lvi >= 0) html = html.slice(0, _lvi) + lvjs + html.slice(_lvi);
+  else html += lvjs;
+
+  var _bi = html.lastIndexOf('</body>');
+  if (_bi >= 0) html = html.slice(0, _bi) + poll + html.slice(_bi);
+  else html += poll;
+  return html;
+}
+
+async function serveDash(scope, res) {
+  try {
+    const html = await buildHtml(scope);
+    res.set('Cache-Control', 'no-store, no-cache, must-revalidate')
+       .set('Content-Type', 'text/html; charset=utf-8')
+       .send(html);
+  } catch (e) {
+    res.status(500).send('<pre style="font:14px monospace;padding:20px;color:#b00">Dashboard could not be loaded:\n\n' + e.message + '</pre>');
+  }
+}
+app.get('/',   function (req, res) { serveDash('all', res); });   // All-India
+app.get('/up', function (req, res) { serveDash('up',  res); });   // UP (filtered view)
+
+app.get('/refresh', async function (req, res) {
+  try { await buildHtml(); res.send('<h2 style="font-family:sans-serif;color:#177245">Refresh ho gaya! <a href="/">dashboard kholo</a></h2>'); }
+  catch (e) { res.status(500).send('<pre>' + e.message + '</pre>'); }
+});
+
+// data ka "version" (last update time). Page isse poll karke auto-reload karta hai.
+app.get('/api/version', async function (req, res) {
+  res.set('Cache-Control', 'no-store');
+  var dbn = SCOPE_DB[req.query.scope === 'up' ? 'up' : 'all'];
+  try {
+    var client = new MongoClient(MONGO_URL); await client.connect();
+    var doc = await client.db(dbn).collection('meta').findOne({ key: 'lastUpdate' });
+    await client.close();
+    res.json({ v: doc ? String(doc.value) : '' });
+  } catch (e) { res.json({ v: '' }); }
+});
+
+// ---------- Report tab: keyword search over UP tweets ----------
+var _tweets = null, _dateRange = '';
+var _MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+function _fmtDate(s) { if (!s) return ''; var p = String(s).split('-'); return (+p[2]) + ' ' + _MON[(+p[1]) - 1] + ' ' + p[0]; }
+
+var _cache = {};   // scope -> {tweets, range}
+async function loadTweets(scope, force) {
+  scope = (scope === 'up') ? 'up' : 'all';
+  if (_cache[scope] && !force) { _dateRange = _cache[scope].range; return _cache[scope].tweets; }
+  var client = new MongoClient(MONGO_URL);
+  await client.connect();
+  var db = client.db(SCOPE_DB[scope]);
+  var cols = (await db.listCollections().toArray()).map(function (c) { return c.name; });
+  if (!cols.includes('tweets')) { await client.close(); throw new Error("The 'tweets' collection was not found in MongoDB. Push the data first."); }
+  var tw = await db.collection('tweets').find({}, { projection: { _id: 0 } }).toArray();
+  await client.close();
+  var mn = null, mx = null;
+  tw.forEach(function (t) { var d = t.date; if (d) { if (!mn || d < mn) mn = d; if (!mx || d > mx) mx = d; } });
+  var range = _fmtDate(mn) + ' – ' + _fmtDate(mx);
+  _cache[scope] = { tweets: tw, range: range };
+  _dateRange = range;
+  console.log('  Report[' + scope + ']: ' + tw.length + ' tweets load (' + range + ')');
+  return tw;
+}
+
+app.get('/api/report', async function (req, res) {
+  try {
+    var tweets = await loadTweets(req.query.scope === 'up' ? 'up' : 'all', req.query.reload === '1');
+    var kws = String(req.query.keywords || '').split(',').map(function (s) { return s.trim(); }).filter(Boolean);
+    var topic = String(req.query.topic || '').trim();
+    if (!kws.length && topic) kws = [topic];
+    if (!kws.length) return res.status(400).json({ error: 'Enter a topic or keyword.' });
+    var now = new Date();
+    var rd = ('0' + now.getDate()).slice(-2) + '-' + _MON[now.getMonth()];
+    var rep = R.aggregate(tweets, { topic: topic || kws[0], keywords: kws, dateRange: _dateRange, trackingWindow: _dateRange, reportDate: rd });
+    res.json(rep);
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+app.listen(PORT, function () {
+  console.log('\n  India Political Pulse - MongoDB se chal raha hai');
+  console.log('  Browser me kholo:  http://localhost:' + PORT + '\n');
+});

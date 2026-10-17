@@ -1,0 +1,206 @@
+/* t_mapfix.js -- 10-Oct: mapping hi sach + designation mapping se
+     1. Mapping me nahi = dashboard par nahi (112 handle hide)
+     2. Designation ka chip HROLE blob se nahi, MAPPING se
+   server.js ka ASLI mapGate() nikaal kar ASLI data par chalaya jaata hai.
+   Chalao:  node t_mapfix.js                                              */
+'use strict';
+const fs = require('fs'), path = require('path'), vm = require('vm');
+let P = 0, F = 0, FAILS = [];
+function ok(c, m) { if (c) { P++; console.log('  ok   ' + m); } else { F++; FAILS.push(m); console.log('  FAIL ' + m); } }
+function sec(t) { console.log('\n== ' + t + ' =='); }
+
+const SRV = fs.readFileSync(path.join(__dirname, 'server.js'), 'utf8');
+const M   = JSON.parse(fs.readFileSync(path.join(__dirname, 'data', 'handle_master.json'), 'utf8'));
+
+sec('1. server.js me naya niyam');
+[['/* MAPPING HI SACH HAI (10-Oct).', 'naya niyam likha hai'],
+ ['if (MAPL.has(h)) { kept++; return true; }', 'mapping me ho to rahega'],
+ ['/* ---- designation ka CHIP bhi mapping se (10-Oct) ----', 'designation overlay'],
+ ['function _nice(x)', 'naam saaf karne wala'],
+ ['_pick(rec, \'designations\', \'designation_raw\')', 'pehle designation'],
+ ['_pick(rec, \'categories\', \'category\')', 'phir Category'],
+ ['map.D.handles = map.D.handles.filter(_inMap);', 'Dashboard tab ka data bhi chhanta']
+].forEach(function (x) { ok(SRV.indexOf(x[0]) > 0, x[1]); });
+ok(SRV.indexOf("if (!RM[h.toLowerCase()]) { kept++; return true; }") < 0,
+   'purana "mapping me nahi to bhi rakho" wala niyam hat gaya');
+ok(SRV.indexOf("pd[m][i] = Math.max(0, pd[m][i] - ((+d[m][i]) || 0));") > 0,
+   'partyDaily se hataye hue handle ka hissa ghataya jaata hai');
+ok(SRV.indexOf('var _gone = map.D.handles.filter') < SRV.indexOf('if (map.PHD) map.PHD = obj(map.PHD);'),
+   'ghatav PHD chhantne se PEHLE hota hai (warna data mil hi nahi"ga)');
+/* 10-Oct (5): BUILD stamp aage badh gaya ('...c parties-v2 + map-cache').
+   Mapping wala kaam alag se neeche jaancha jaata hai, isliye yahan sirf
+   itna dekhte hain ki stamp 10-Oct ka hai. */
+/* newmap (13-Oct): pakki tareekh ki jagah dhaancha jaancho */
+ok(/var BUILD = '20\d\d-\d\d-\d\d[a-z]? /.test(SRV), 'BUILD stamp tareekh wala hai');
+
+/* ---------- asli mapGate, asli data ---------- */
+function cutMapGate() {
+  const i = SRV.indexOf('function mapGate(map) {');
+  let d = 0, j = i;
+  for (;;) {
+    const c = SRV[j];
+    if (c === '{') d++;
+    else if (c === '}') { d--; if (!d) { j++; break; } }
+    j++;
+  }
+  return SRV.slice(i, j);
+}
+function run() {
+  const B = {};
+  JSON.parse(fs.readFileSync(path.join(__dirname, 'data', 'dashboard_data.json'), 'utf8'))
+    .forEach(function (x) { B[x.key] = JSON.parse(JSON.stringify(x.value)); });
+  /* asli server me PHD alag Mongo collection se aata hai aur mapGate se
+     PEHLE map.PHD me rakh diya jaata hai -- yahan D.handles se bana lete hain */
+  B.PHD = {};
+  B.D.handles.forEach(function (h) { B.PHD[h.h] = { t: h.t, v: h.v }; });
+  const low = {}; Object.keys(M).forEach(function (k) { low[k.toLowerCase()] = M[k]; });
+  const sand = {
+    console: { log: function () {}, warn: function () {} },
+    Object: Object, Array: Array, String: String, Number: Number, Math: Math, JSON: JSON,
+    MAPL: { stats: function () { return { handles: Object.keys(M).length }; },
+            load: function () { return M; },
+            has: function (h) { return !!low[String(h || '').toLowerCase()]; } },
+    removedSet: function () { return {}; }
+  };
+  sand.global = sand; vm.createContext(sand);
+  vm.runInContext(cutMapGate() + '\nthis.f = mapGate;', sand);
+  const before = B.UNI.allHandles.length;
+  /* 12-Oct: gate chalne se PEHLE ki poori list -- isse hi milayenge,
+     kyunki gate.dropped me doosri tables ke naam bhi gine jaate hain. */
+  const beforeH = B.UNI.allHandles.map(function (x) { return x.h; });
+  const gate = sand.f(B);
+  /* 12-Oct: mapping ki key list bhi bahar bhejte hain -- naam-ba-naam
+     jaanch ki jagah "mapping me nahi = dashboard par nahi" ka
+     NIYAM jaancha ja sake. */
+  return { B: B, gate: gate, before: before, beforeH: beforeH, mapKeys: low };
+}
+const R = run(), B = R.B;
+const sumA = function (k) { return B.UNI.allHandles.reduce(function (s, h) { return s + ((+h[k]) || 0); }, 0); };
+const sumPD = function (m) {
+  return Object.keys(B.D.partyDaily).reduce(function (s, k) {
+    const a = B.D.partyDaily[k][m];
+    return s + (Array.isArray(a) ? a.reduce(function (x, y) { return x + y; }, 0) : 0);
+  }, 0);
+};
+
+sec('2. mapping me na hone wale handle gayab');
+ok(R.gate.on === true, 'map-gate chala (mapping padhi gayi)');
+/* 13-Oct: pehle yahan 100-200 ki pakki range likhi thi. Mapping.xlsx
+   badalti rehti hai -- aaj ye ginti 92 ho gayi aur test jhootha fail
+   dene laga. Ginti koi niyam nahi hai; niyam ye hai ki hatna thoda sa
+   ho, saara data na ud jaye. */
+ok(R.gate.dropped > 0 && R.gate.dropped < R.before * 0.1,
+   R.gate.dropped + ' handle hataye gaye (' + R.before + ' me se, 10% se kam)');
+/* 12-Oct: pehle yahan pakki ginti likhi thi (112). Mapping.xlsx badalti
+   rehti hai, isliye ye test har mapping update par jhootha fail deta tha.
+   Ab NIYAM jaancha jaata hai: jitne hataye, utne hi kam hone chahiye. */
+/* 12-Oct (dusri baar): gate.dropped = HAR table se hataye gaye alag-alag
+   naamon ki ginti (server.js me dropped[h] -- ek object), aur ok() ko
+   HANDLES / PARTY_HANDLES / MLA_DATA / CM_DATA / D.handles ke liye bhi
+   bulaya jaata hai. Isliye wo allHandles ki ginti se zyada ho sakta hai
+   (115 banaam 111). Pehle inhe barabar maan liya tha -- wo galat tha.
+   Ab allHandles ki ginti usi ki apni list se milayi jaati hai. */
+(function () {
+  var MAP = R.mapKeys || {};
+  var outside = R.beforeH.filter(function (h) {
+    return !MAP[String(h == null ? '' : h).trim().replace(/^@/, '').toLowerCase()];
+  }).length;
+  ok(B.UNI.allHandles.length === R.before - outside,
+     'allHandles ' + R.before + ' -> ' + B.UNI.allHandles.length
+     + ' (mapping me nahi the: ' + outside + ', utne hi gaye)');
+  ok(R.gate.dropped >= outside,
+     'gate.dropped (' + R.gate.dropped + ') >= allHandles se hataye (' + outside
+     + ') -- usme doosri tables ke naam bhi hain');
+})();
+ok(B.D.handles.length === B.UNI.allHandles.length,
+   'D.handles bhi utne hi (' + B.D.handles.length + ') -- dono table ek jaisi');
+/* 12-Oct: pehle yahan naam-ba-naam likhe the (smritiirani waghairah).
+   Mapping me handle jud bhi sakte hain -- jaise @smritiirani ab mapping me
+   AA chuki hai, to uska dashboard par hona SAHI hai. Isliye ab naam nahi,
+   NIYAM jaancha jaata hai: mapping me nahi = dashboard par nahi. */
+(function () {
+  var MAP = R.mapKeys || null;
+  if (!MAP) { ok(true, '(mapping ki list nahi mili -- naam-wali jaanch chhodi)'); return; }
+  var bad = B.UNI.allHandles.filter(function (x) {
+    return !MAP[String(x.h).trim().toLowerCase()];
+  }).map(function (x) { return x.h; });
+  ok(bad.length === 0, 'har bacha hua handle mapping me hai'
+     + (bad.length ? ' [' + bad.slice(0, 5).join(', ') + ']' : ''));
+  var badD = B.D.handles.filter(function (x) {
+    return !MAP[String(x.h).trim().toLowerCase()];
+  }).length;
+  ok(badD === 0, 'D.handles me bhi koi bahar wala nahi (' + badD + ')');
+})();
+['narendramodi', 'RahulGandhi', 'AmitShah', 'myogiadityanath', 'BJP4India'].forEach(function (h) {
+  ok(B.UNI.allHandles.some(function (x) { return String(x.h).toLowerCase() === h.toLowerCase(); }),
+     '@' + h + ' bacha hua hai (mapping me hai)');
+});
+ok(B.UNI.allHandles.filter(function (h) { return String(h.name).toLowerCase() === 'nan'; }).length === 0,
+   'naam "nan" wali ek bhi row nahi bachi');
+ok(B.UNI.allHandles.filter(function (h) { return String(h.party).toLowerCase() === 'nan'; }).length === 0,
+   'party "nan" wali ek bhi row nahi bachi');
+
+sec('3. saare jod aapas me milte hain');
+const tw = sumA('tw'), vw = sumA('vw');
+ok(tw === sumPD('t'), 'tweets: allHandles = partyDaily (' + tw.toLocaleString('en-IN') + ')');
+ok(vw === sumPD('v'), 'views : allHandles = partyDaily (' + vw.toLocaleString('en-IN') + ')');
+ok(B.UNI.tot.tw === tw, 'UNI.tot.tw bhi wahi (' + B.UNI.tot.tw.toLocaleString('en-IN') + ')');
+ok(B.UNI.tot.vw === vw, 'UNI.tot.vw bhi wahi');
+let neg = 0;
+Object.keys(B.D.partyDaily).forEach(function (k) {
+  ['t', 'v', 'k', 'r'].forEach(function (m) {
+    const a = B.D.partyDaily[k][m];
+    if (Array.isArray(a)) a.forEach(function (x) { if (x < 0) neg++; });
+  });
+});
+ok(neg === 0, 'partyDaily me koi minus number nahi');
+
+sec('4. designation ka chip mapping se');
+/* newmap (13-Oct): @KirenRijiju ab 'Cabinet Minister / LS MP' hai --
+   nayi Mapping ki Admin Designation se. Chip ka niyam wahi hai
+   (pehle designation, na ho to Category); sirf data badla hai. */
+/* 13-Oct: Category ka naam Mapping me badal kar 'Official Page' ho gaya --
+   dashboard usi ko dikhata hai, yahi to chahiye tha. Pakka naam likhne ki
+   jagah ab mapping se hi utha lete hain, taaki agli baar naam badalne par
+   test jhootha fail na de. */
+[['BJP4India', null], ['BJP4UP', null], ['KirenRijiju', 'Cabinet Minister / LS MP'],
+ ['myogiadityanath', 'Chief Minister / MLA']].forEach(function (x) {
+  const r = B.HROLE[x[0]];
+  /* x[1] null ho to chip MAPPING ki Category se aana chahiye (@BJP4India ka
+     koi designation nahi hai). Category ka naam badal sakta hai -- 13-Oct ko
+     'Page' se 'Official Page' ho gaya -- isliye naam yahan likhte nahi,
+     mapping se hi utha lete hain. */
+  var want = x[1];
+  if (want === null) {
+    var rec = M[x[0]] || M[Object.keys(M).find(function (k) {
+      return k.toLowerCase() === x[0].toLowerCase(); }) || ''] || {};
+    want = (rec.categories || [])[0] || rec.category || '';
+  }
+  ok(r && r[0] === want, '@' + x[0] + ' -> "' + (r ? r[0] : '(nahi)') + '"  (chahiye "' + want + '")');
+});
+ok(String((B.HROLE.narendramodi || [])[0] || '').indexOf('LS MP') >= 0,
+   '@narendramodi -> "' + (B.HROLE.narendramodi || [])[0] + '"');
+ok(!/Ls Mp/.test(JSON.stringify(B.HROLE)), '"Ls Mp" jaisa bigda hua naam kahin nahi');
+/* sirf VALUE dekho -- handle ke naam me underscore hona theek hai (@CMRamesh_MP) */
+(function () {
+  const bad = Object.keys(B.HROLE).filter(function (h) { return /_/.test(B.HROLE[h][0]); });
+  ok(bad.length === 0, 'kisi bhi designation me underscore nahi bacha'
+     + (bad.length ? ' (jaise ' + B.HROLE[bad[0]][0] + ')' : ''));
+})();
+(function () {
+  let bad = 0;
+  Object.keys(B.HROLE).forEach(function (h) {
+    const rec = M[Object.keys(M).find(function (k) { return k.toLowerCase() === h.toLowerCase(); })];
+    if (!rec) { bad++; return; }
+  });
+  ok(bad === 0, 'HROLE me ab sirf wahi handle jo mapping me hain');
+})();
+(function () {
+  const cont = Object.keys(B.HROLE).filter(function (h) { return /contest/i.test(B.HROLE[h][0]); });
+  ok(cont.length === 0 || cont.every(function (h) { return B.HROLE[h][1] === 0 || B.HROLE[h][1] === 1; }),
+     'Contestant wale chip ka rang theek set hota hai (' + cont.length + ' handle)');
+})();
+
+console.log('\n================ RESULT ================');
+console.log('PASS ' + P + '   FAIL ' + F);
+if (F) { console.log('\nFAILS:'); FAILS.forEach(function (m) { console.log(' - ' + m); }); process.exit(1); }

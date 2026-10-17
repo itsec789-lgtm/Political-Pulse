@@ -1,0 +1,345 @@
+/* t_trk2.js -- Tracker ke naye 5 badlaav ka test.
+   Chalao:  node t_trk2.js      (DASHBOARD folder ke andar se) */
+'use strict';
+var P = 0, F = 0, FAILS = [];
+function ok(c, m) { if (c) { P++; } else { F++; FAILS.push(m); } console.log((c ? '  ok   ' : '  FAIL ') + m); }
+function sec(t) { console.log('\n== ' + t + ' =='); }
+
+var TS = require('./tracker_section.js');
+var XS = require('./x_scraper.js');
+var HTML = TS.section('tracker');
+var JS = TS.script();
+
+/* ================= 1. page-count ka control gaya ================= */
+sec('1. "Ek handle ki kitni page" hata diya gaya');
+ok(HTML.indexOf('trkPg') < 0, 'HTML me #trkPg nahi hai');
+ok(HTML.toLowerCase().indexOf('kitni page') < 0, 'HTML me "kitni page" label nahi hai');
+ok(JS.indexOf('trkPg') < 0, 'JS me trkPg nahi hai');
+ok(JS.indexOf('maxPages') < 0, 'JS maxPages nahi bhejta');
+ok(XS.DEFAULTS.maxPages === undefined, 'DEFAULTS me maxPages nahi');
+ok(typeof XS.pagesFor === 'function', 'pagesFor() export hui');
+ok(XS.pagesFor(24) >= 10 && XS.pagesFor(24) <= 120, 'pagesFor(24) seema ke andar: ' + XS.pagesFor(24));
+ok(XS.pagesFor(2160) <= 120, 'pagesFor(2160) 120 par capped: ' + XS.pagesFor(2160));
+ok(XS.pagesFor(1) >= 10, 'bahut chhote window par bhi kam se kam 10 page: ' + XS.pagesFor(1));
+ok(XS.pagesFor(720) > XS.pagesFor(24), 'bada window = badi seema');
+
+/* in sab me await zaroori hai -- ek hi `seen`/`got` object share hota hai,
+   isliye parallel .then() chalane par ek call ki jaanch doosre ka state padh
+   leti thi (ye test ka bug tha, code ka nahi). */
+var ASYNC1 = async function () {
+  /* getCfg purani stored maxPages chhipata hai */
+  var stored = { _id: 'tracker', windowHours: 24, intervalMin: 15, maxPages: 9 };
+  var c = await XS.getCfg({ collection: function () {
+    return { findOne: async function () { return stored; } }; } });
+  ok(c.maxPages === undefined, 'getCfg purani maxPages key hata deta hai');
+  ok(c.windowHours === 24, 'getCfg stored windowHours deta hai');
+  ok(c._id === undefined, 'getCfg _id nahi deta');
+
+  /* setCfg maxPages nahi likhta */
+  function cfgDb(box) {
+    return { collection: function () { return {
+      updateOne: async function (f, u) { box.w = u.$set; },
+      findOne: async function () { return null; } }; } };
+  }
+  var b1 = {};
+  await XS.setCfg(cfgDb(b1), { windowHours: 24, intervalMin: 15, maxPages: 9 });
+  ok(b1.w && b1.w.maxPages === undefined, 'setCfg maxPages ignore karta hai');
+  ok(b1.w && b1.w.windowHours === 24, 'setCfg windowHours likhta hai');
+
+  var b2 = {};
+  await XS.setCfg(cfgDb(b2), { windowHours: 99999, intervalMin: 1 });
+  ok(b2.w.windowHours === 2160, 'windowHours 2160 par clamp: ' + b2.w.windowHours);
+  ok(b2.w.intervalMin === 5, 'intervalMin 5 par clamp: ' + b2.w.intervalMin);
+};
+
+/* ================= 2. dropdown wapas nahi palatta ================= */
+sec('2. Window dropdown user ki choice par nahi palatta');
+ok(JS.indexOf('TRK_DIRTY') >= 0, 'dirty-tracking maujood hai');
+ok(/function trkSetSel\(id,val\)\{\s*if\(TRK_DIRTY\[id\]\)return;/.test(JS),
+   'trkSetSel pehli line par hi dirty select ko chhod deta hai');
+ok(JS.indexOf("trkSetSel('trkWin'") >= 0, 'trkWin trkSetSel se set hota hai');
+ok(JS.indexOf("trkSetSel('trkInt'") >= 0, 'trkInt trkSetSel se set hota hai');
+ok(!/var w=document\.getElementById\('trkWin'\);if\(w&&cfg\.windowHours\)/.test(JS),
+   'purana seedha-overwrite wala code hat gaya');
+ok(HTML.indexOf("onchange=\"trkDirty('trkWin')\"") >= 0, 'trkWin par onchange=trkDirty');
+ok(HTML.indexOf("onchange=\"trkDirty('trkInt')\"") >= 0, 'trkInt par onchange=trkDirty');
+ok(JS.indexOf('function trkClean()') >= 0, 'save ke baad trkClean() dirty saaf karta hai');
+ok(/trkSave\(\)[\s\S]{0,400}trkClean\(\)/.test(JS), 'trkSave success par trkClean bulata hai');
+
+/* trkSetSel ka asli vyavhaar -- chhota DOM bana kar */
+(function () {
+  var els = { trkWin: { value: '72' }, trkInt: { value: '30' } };
+  var sandbox = {
+    document: { getElementById: function (id) { return els[id] || null; } },
+    console: console
+  };
+  var fn = new Function('document', 'console',
+    JS.replace(/if\(document\.getElementById\('sec-tracker'\)\)\{[\s\S]*$/, '') +
+    '\nreturn {trkSetSel:trkSetSel,trkDirty:trkDirty,trkClean:trkClean,D:function(){return TRK_DIRTY;}};');
+  var api = fn(sandbox.document, console);
+
+  api.trkSetSel('trkWin', 168);
+  ok(els.trkWin.value === '168', 'chhua nahi gaya select poll se set ho jaata hai');
+
+  els.trkWin.value = '24';            /* user ne 24 ghante chuna */
+  api.trkDirty('trkWin');
+  api.trkSetSel('trkWin', 72);        /* poll ne 72 bhejne ki koshish ki */
+  ok(els.trkWin.value === '24', 'USER KI 24-ghante choice poll se nahi palti  <-- asli bug');
+
+  api.trkSetSel('trkInt', 60);
+  ok(els.trkInt.value === '60', 'doosra select phir bhi poll se update hota hai');
+
+  api.trkClean();
+  api.trkSetSel('trkWin', 72);
+  ok(els.trkWin.value === '72', 'save ke baad poll dobara control le leta hai');
+})();
+
+/* ================= 3. Live Scrape Log tab ================= */
+sec('3. Live Scrape Log ka alag tab');
+ok(HTML.indexOf('id="sec-trklog"') >= 0, 'sec-trklog section bana');
+ok(HTML.indexOf('Live Scrape Log') >= 0, 'heading "Live Scrape Log"');
+ok(HTML.indexOf('id="tlgPane"') >= 0, 'log pane maujood');
+ok(HTML.indexOf('id="tlgStatus"') >= 0, 'log tab par apna status line');
+ok(HTML.indexOf('id="tlgOnly"') >= 0, 'error/warning filter');
+ok(HTML.indexOf('id="tlgQ"') >= 0, 'log me dhoondhne ka box');
+ok(HTML.indexOf('id="tlgAuto"') >= 0, 'auto-refresh checkbox');
+ok(JS.indexOf("trkApi('/admin/tracker/logs?limit=400')") >= 0, 'halki /logs route use hoti hai');
+ok(TS.section('trklog').indexOf('class="sec on" id="sec-trklog"') >= 0, 'trklog tab khul sakta hai');
+ok(TS.section('trklog').indexOf('class="sec" id="sec-tracker"') >= 0, 'us waqt tracker band rehta hai');
+
+/* log filter ka asli vyavhaar */
+(function () {
+  var pane = { innerHTML: '' }, cnt = { textContent: '' };
+  var only = { value: '' }, q = { value: '' };
+  var els = { tlgPane: pane, tlgCount: cnt, tlgOnly: only, tlgQ: q };
+  var fn = new Function('document', 'console',
+    JS.replace(/if\(document\.getElementById\('sec-tracker'\)\)\{[\s\S]*$/, '') +
+    '\nTLG_LOGS=arguments[2];return {tlgPaint:tlgPaint};');
+  var logs = [
+    { t: '2026-10-05T10:00:01Z', k: 'info', m: '@modi -- 12 tweet mile' },
+    { t: '2026-10-05T10:00:02Z', k: 'warn', m: 'koi active handle nahi' },
+    { t: '2026-10-05T10:00:03Z', k: 'err', m: '@xyz -- HTTP 429' }
+  ];
+  var api = fn({ getElementById: function (id) { return els[id] || null; } }, console, logs);
+
+  api.tlgPaint();
+  ok(/modi/.test(pane.innerHTML) && /429/.test(pane.innerHTML), 'sab log dikhte hain');
+  ok(cnt.textContent === '3 lines', 'ginti sahi: ' + cnt.textContent);
+
+  only.value = 'err'; api.tlgPaint();
+  ok(/429/.test(pane.innerHTML) && !/modi/.test(pane.innerHTML), 'sirf-error filter chalta hai');
+  ok(/#F0908A/.test(pane.innerHTML), 'error laal rang me');
+
+  only.value = 'bad'; api.tlgPaint();
+  ok(/429/.test(pane.innerHTML) && /active handle nahi/.test(pane.innerHTML) && !/modi/.test(pane.innerHTML),
+     'error+warning filter chalta hai');
+
+  only.value = ''; q.value = 'MODI'; api.tlgPaint();
+  ok(/modi/.test(pane.innerHTML) && !/429/.test(pane.innerHTML), 'dhoondhna case-insensitive hai');
+  ok(cnt.textContent === '1 line of 3', 'filter ki ginti: ' + cnt.textContent);
+
+  q.value = 'zzzz'; api.tlgPaint();
+  ok(/No log lines/.test(pane.innerHTML), 'kuch na mile to saaf message');
+
+  /* XSS */
+  q.value = '';
+  var api2 = fn({ getElementById: function (id) { return els[id] || null; } }, console,
+    [{ t: '2026-10-05T10:00:01Z', k: 'info', m: '<img src=x onerror=alert(1)>' }]);
+  api2.tlgPaint();
+  ok(pane.innerHTML.indexOf('<img') < 0 && pane.innerHTML.indexOf('&lt;img') >= 0,
+     'log me HTML escape hota hai (XSS band)');
+})();
+
+/* ================= 4. Tweet Database tab ================= */
+sec('4. Scraped Tweet Database ka alag tab');
+ok(HTML.indexOf('id="sec-trkdb"') >= 0, 'sec-trkdb section bana');
+ok(HTML.indexOf('Scraped Tweet Database') >= 0, 'heading');
+ok(HTML.indexOf('id="tdbHandle"') >= 0, 'handle dropdown');
+ok(HTML.indexOf('id="tdbQ"') >= 0, 'tweet me dhoondhne ka box');
+ok(HTML.indexOf('id="tdbOnly"') >= 0, '"sirf Tracker ka data" checkbox');
+ok(HTML.indexOf('id="tdbPrev"') >= 0 && HTML.indexOf('id="tdbNext"') >= 0, 'paging buttons');
+ok(JS.indexOf('/admin/tracker/tweets?page=') >= 0, '/tweets route call hoti hai');
+ok(typeof XS.recentTweets === 'function', 'recentTweets() export hui');
+
+/* recentTweets ka asli vyavhaar -- fake collection (sequential) */
+var ASYNC2 = async function () {
+  function fakeDb(rows) {
+    var seen = {};
+    var db = { collection: function (n) { seen.coll = n; return {
+      find: function (q, o) { seen.q = q; seen.proj = o && o.projection; return {
+        sort: function (x) { seen.sort = x; return this; },
+        skip: function (k) { seen.skip = k; return this; },
+        limit: function (l) { seen.limit = l; return this; },
+        maxTimeMS: function (m) { seen.maxTime = m; return this; },
+        toArray: async function () { return rows; } }; } }; } };
+    db.seen = seen; return db;
+  }
+  function row(i) {
+    return { _id: '100' + i, 'Handle': 'modi', 'Tweet Date': '2026-10-0' + (i % 9 + 1) + ' 10:00:00 IST',
+      'Tweet Text': 'line ' + i, 'Tweet URL': 'https://x.com/modi/status/100' + i,
+      'Total Likes': i * 10, 'Total Comments': i, 'Total Retweets': i * 2, 'Total Views': i * 100 };
+  }
+
+  var d = fakeDb([row(1), row(2)]);
+  var r = await XS.recentTweets(d, { limit: 50 });
+  ok(d.seen.coll === 'master_tweets', 'master_tweets se padhta hai');
+  ok(d.seen.sort['Tweet Date'] === -1, 'naye tweet pehle (Tweet Date -1)');
+  ok(d.seen.limit === 51, 'limit+1 maangta hai (aage page hai ya nahi, bina count kiye)');
+  ok(d.seen.maxTime === 25000, 'maxTimeMS laga hai -- query hamesha ke liye nahi latakti');
+  ok(r.more === false, '2 row mile, 50 maange -> more=false');
+  ok(r.rows.length === 2, 'dono row aaye');
+  ok(r.rows[0].likes === 10 && r.rows[0].views === 100, 'numbers map hue');
+  ok(r.rows[0].url.indexOf('x.com') >= 0, 'URL aaya');
+  ok(d.seen.proj['Tweet Text'] === 1, 'projection lagi hai (poora doc nahi aata)');
+
+  var many = []; for (var i = 0; i < 4; i++) many.push(row(i));
+  r = await XS.recentTweets(fakeDb(many), { limit: 3 });
+  ok(r.more === true, '4 row mile, 3 maange -> more=true');
+  ok(r.rows.length === 3, 'extra row user ko nahi dikhta');
+
+  d = fakeDb([]);
+  r = await XS.recentTweets(d, { limit: 50, page: 3 });
+  ok(d.seen.skip === 150, 'page 3 par skip=150: ' + d.seen.skip);
+  ok(r.rows.length === 0 && r.more === false, 'khaali page sambhal gaya');
+
+  d = fakeDb([]);
+  await XS.recentTweets(d, { handle: '@Modi_X/', only: true, q: 'a.b*c' });
+  ok(d.seen.q['Handle'] === 'Modi_X', 'handle saaf hota hai (@ aur / hat gaye): ' + d.seen.q['Handle']);
+  ok(d.seen.q['Source Folders'] === XS.SOURCE_TAG, 'only=true par Source Folders filter');
+  ok(d.seen.q['Tweet Text'].$regex === 'a\\.b\\*c',
+     'regex ke special char escape hue: ' + d.seen.q['Tweet Text'].$regex);
+  ok(d.seen.q['Tweet Text'].$options === 'i', 'case-insensitive search');
+
+  d = fakeDb([]);
+  await XS.recentTweets(d, {});
+  ok(d.seen.q['Source Folders'] === undefined, 'only=false par poora collection');
+  ok(d.seen.q['Handle'] === undefined, 'handle na do to sab handle');
+
+  d = fakeDb([]);
+  await XS.recentTweets(d, { limit: 9999 });
+  ok(d.seen.limit === 201, 'limit 200 par clamp (201 maanga): ' + d.seen.limit);
+
+  d = fakeDb([]);
+  await XS.recentTweets(d, { page: -5 });
+  ok(d.seen.skip === 0, 'negative page 0 ban gaya');
+};
+
+/* ================= 5. Tracked Accounts table ================= */
+sec('5. Tracked Accounts table screenshot jaisi');
+ok(HTML.indexOf('Tracked Accounts') >= 0, 'heading "Tracked Accounts"');
+ok(HTML.indexOf('id="trkSearch"') >= 0, 'search input maujood');
+ok(HTML.indexOf('Filter by handle') >= 0, 'placeholder "Filter by handle..."');
+ok(HTML.indexOf('Search handles') >= 0, 'label "Search handles"');
+['HANDLE', 'STATUS', 'SCRAPE WINDOW', 'LAST CHECKED', 'ACTIONS'].forEach(function (c) {
+  ok(JS.indexOf('<th>' + c + '</th>') >= 0, 'column ' + c);
+});
+ok(/<th>HANDLE<\/th><th>MAPPING<\/th><th>STATUS<\/th><th>SCRAPE WINDOW<\/th>'\s*\+\s*'<th>LAST CHECKED<\/th><th>ACTIONS<\/th>/.test(JS),
+   'column ka order screenshot jaisa (plus naya MAPPING column)');
+ok(typeof XS.setHandleWindow === 'function', 'setHandleWindow() export hui');
+ok(JS.indexOf('/admin/tracker/hwin') >= 0, 'per-handle window save hota hai');
+
+/* table render ka asli vyavhaar */
+(function () {
+  var box = { innerHTML: '' }, cnt = { textContent: '' }, search = { value: '' };
+  var els = { trkTable: box, trkCount: cnt, trkSearch: search };
+  var fn = new Function('document', 'console',
+    JS.replace(/if\(document\.getElementById\('sec-tracker'\)\)\{[\s\S]*$/, '') +
+    '\nTRK_HS=arguments[2];return {trkRenderTable:trkRenderTable,set:function(h){TRK_HS=h;}};');
+  var hs = [
+    { _id: 'narendramodi', name: 'Narendra Modi', active: true, status: 'Active', tweets: 1200,
+      lastRun: new Date(Date.now() - 5 * 60000).toISOString() },
+    { _id: 'myogiadityanath', name: 'Yogi Adityanath', active: false, status: 'Paused', tweets: 800,
+      lastRun: null, windowHours: 24 },
+    { _id: 'brokenone', name: '', active: true, status: 'Error: RATE', tweets: 0,
+      lastRun: new Date(Date.now() - 3 * 3600000).toISOString() }
+  ];
+  var api = fn({ getElementById: function (id) { return els[id] || null; } }, console, hs);
+
+  api.trkRenderTable();
+  var h = box.innerHTML;
+  ok(/<th>HANDLE<\/th>/.test(h), 'render me HANDLE column');
+  ok(/@narendramodi/.test(h) && /@myogiadityanath/.test(h) && /@brokenone/.test(h), 'teeno handle dikhe');
+  ok(/Narendra Modi/.test(h), 'naam dikha');
+  ok(/1,200 tweets/.test(h), 'tweet ginti Indian format me');
+  ok(/Paused/.test(h), 'paused handle ka status');
+  ok(/Error: RATE/.test(h), 'error status dikhta hai');
+  ok(/color:#A83224/.test(h), 'error laal me');
+  ok(/5 min ago/.test(h), 'LAST CHECKED relative time');
+  ok(/—/.test(h), 'kabhi na chala handle par dash');
+  ok(/3 hr ago/.test(h), 'ghante wala relative time');
+  ok(cnt.textContent === '3 tracked', 'ginti: ' + cnt.textContent);
+  ok((h.match(/<option value="24"/g) || []).length === 3, 'har row me window dropdown');
+  ok(/<option value="24" selected>/.test(h), 'per-handle window pehle se chuna dikhta hai');
+  ok(/trkRun\('narendramodi'\)/.test(h), 'row ka apna Scrape button');
+  ok(/trkToggle\('narendramodi',false\)/.test(h), 'active handle par Roko');
+  ok(/trkToggle\('myogiadityanath',true\)/.test(h), 'paused handle par Chalao');
+  ok(/trkDel\('brokenone'\)/.test(h), 'Hatao button');
+
+  /* search */
+  search.value = 'yogi'; api.trkRenderTable();
+  ok(/@myogiadityanath/.test(box.innerHTML) && !/@narendramodi/.test(box.innerHTML),
+     'search handle par filter karta hai');
+  ok(cnt.textContent === '1 of 3 tracked', 'filter ki ginti: ' + cnt.textContent);
+
+  search.value = '@NARENDRA'; api.trkRenderTable();
+  ok(/@narendramodi/.test(box.innerHTML), 'search me @ aur bada-chhota akshar chalta hai');
+
+  search.value = 'Modi'; api.trkRenderTable();
+  ok(/@narendramodi/.test(box.innerHTML), 'naam se bhi search hota hai');
+
+  search.value = 'zzzz'; api.trkRenderTable();
+  ok(/No handle matches/.test(box.innerHTML), 'kuch na mile to saaf message');
+
+  search.value = ''; api.set([]); api.trkRenderTable();
+  ok(/No handles yet/.test(box.innerHTML), 'khaali list par saaf message');
+  ok(cnt.textContent === '', 'khaali list par ginti khaali');
+})();
+
+/* setHandleWindow ka vyavhaar (sequential) */
+var ASYNC3 = async function () {
+  function hDb(box) {
+    return { collection: function () { return {
+      updateOne: async function (f, u) { box.f = f; box.u = u; } }; } };
+  }
+  var b = {};
+  await XS.setHandleWindow(hDb(b), '@Modi', 24);
+  ok(b.f._id === 'Modi', 'handle saaf hua');
+  ok(b.u.$set.windowHours === 24, '24 ghante set hua');
+
+  b = {};
+  await XS.setHandleWindow(hDb(b), 'modi', '');
+  ok(b.u.$unset && 'windowHours' in b.u.$unset, 'khaali value par window $unset (default par wapas)');
+
+  b = {};
+  await XS.setHandleWindow(hDb(b), 'modi', 99999);
+  ok(b.u.$set.windowHours === 2160, 'per-handle window bhi clamp hota hai: ' + b.u.$set.windowHours);
+
+  b = {};
+  await XS.setHandleWindow(hDb(b), 'modi', 0);
+  ok(b.u.$unset && 'windowHours' in b.u.$unset, '0 bhi default maana jaata hai');
+};
+
+/* ================= 6. gehrai window se (page loop) ================= */
+sec('6. Gehrai sirf date window se tay hoti hai');
+var SRC = require('fs').readFileSync('./x_scraper.js', 'utf8');
+ok(SRC.indexOf('page < pageCap') >= 0, 'page loop pageCap par chalta hai, maxPages par nahi');
+ok(SRC.indexOf('page < maxPages') < 0, 'purana maxPages wala loop gaya');
+ok(/if \(t\.when\.getTime\(\) < cutoff\) continue;/.test(SRC),
+   'purana tweet sirf chhodta hai, poore handle ko nahi rokta (pinned tweet ka fix)');
+ok(SRC.indexOf('{ stop = true; continue; }') < 0, 'purana turant-ruko wala code gaya');
+ok(/if \(inWin === 0\) \{\s*if \(found > 0\)/.test(SRC), 'window khatam hone par rukta hai');
+ok(/dry \+\+|dry\+\+/.test(SRC), 'shuru me khaali page par ek baar aur dekhta hai');
+ok(SRC.indexOf('Number(hs[i].windowHours) || windowHours') >= 0, 'handle ka apna window pehle');
+ok(SRC.indexOf('const cutoff = Date.now() - hWin') >= 0, 'cutoff per-handle window se banta hai');
+
+/* ================= natija ================= */
+(async function () {
+  await ASYNC1();
+  await ASYNC2();
+  await ASYNC3();
+  console.log('\n' + '='.repeat(56));
+  console.log('  PASS ' + P + '   FAIL ' + F);
+  if (F) { console.log('\n  FAIL hui:'); FAILS.forEach(function (f) { console.log('   - ' + f); }); }
+  console.log('='.repeat(56));
+  process.exit(F ? 1 : 0);
+})();

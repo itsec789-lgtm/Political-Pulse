@@ -1,0 +1,182 @@
+@echo off
+setlocal enabledelayedexpansion
+title Dashboard Update - 01 Oct
+color 0A
+
+echo ======================================================================
+echo   DASHBOARD UPDATE  --  01 October
+echo   (UI ke changes + Real-World Failure Audit ke saare fix)
+echo ======================================================================
+echo.
+
+set "ROOT=%~dp0.."
+set "SRC=%~dp0nayi-files"
+
+if not exist "%ROOT%\DASHBOARD\server.js" (
+  echo   [RUK JAO] Ye folder galat jagah par hai.
+  echo.
+  echo   "UPDATE_01-OCT" folder ko seedha apne
+  echo   "Main Twitter Project" folder ke ANDAR rakho, phir ye dobara chalao.
+  echo.
+  echo   Abhi dhoonda yahan:  %ROOT%\DASHBOARD\server.js
+  echo.
+  pause
+  exit /b 1
+)
+
+netstat -ano | findstr ":3000" | findstr LISTENING >nul 2>&1
+if not errorlevel 1 (
+  echo   [DHYAN DO] Port 3000 par server abhi chal raha hai.
+  echo   Pehle uska black window band karo, phir ye dobara chalao.
+  echo.
+  pause
+  exit /b 1
+)
+
+for /f "tokens=2 delims==" %%I in ('wmic os get localdatetime /value 2^>nul') do set "LDT=%%I"
+set "STAMP=%LDT:~0,8%-%LDT:~8,6%"
+set "BAK=%ROOT%\BACKUP-update-%STAMP%"
+
+echo   Purani files ka backup yahan ja raha hai:
+echo     %BAK%
+echo.
+mkdir "%BAK%\DASHBOARD"    2>nul
+mkdir "%BAK%\UP-DASHBOARD" 2>nul
+
+set ERR=0
+
+call :one "DASHBOARD"    "dashboard.template.html"
+call :one "DASHBOARD"    "ha_lib.js"
+call :one "DASHBOARD"    "server.js"
+call :one "DASHBOARD"    "x_live.js"
+call :one "DASHBOARD"    "x_scraper.js"
+call :one "DASHBOARD"    "tracker_section.js"
+call :one "DASHBOARD"    "sentiment.js"
+call :one "DASHBOARD"    "sentiment_cli.py"
+call :one "DASHBOARD"    "mapping_lib.js"
+call :one "DASHBOARD"    "mapping_add.py"
+call :one "DASHBOARD"    "INSTALL_SENTIMENT.bat"
+call :one "DASHBOARD"    "sentiment_tagger-3.0.0-py3-none-any.whl"
+call :one "DASHBOARD"    "fetch_x_profiles.py"
+call :one "DASHBOARD"    "mongo_conf.js"
+call :one "DASHBOARD"    "mongo_pool.js"
+call :one "DASHBOARD"    "auth_lib.js"
+call :one "DASHBOARD"    "mongo_swap.py"
+call :one "DASHBOARD"    "safe_write.py"
+call :one "DASHBOARD"    "run_pipeline.py"
+call :one "DASHBOARD"    "push_all_scopes.py"
+call :one "DASHBOARD"    "update_dashboard.py"
+call :one "DASHBOARD"    "make_pw_hash.js"
+call :one "DASHBOARD"    "START_LIVE.bat"
+call :one "UP-DASHBOARD" "dashboard.template.html"
+call :one "UP-DASHBOARD" "update_dashboard.py"
+call :one "UP-DASHBOARD" "push_tweets.py"
+call :one "UP-DASHBOARD" "mongo_swap.py"
+call :one "UP-DASHBOARD" "safe_write.py"
+
+echo.
+echo   Saathi files (sirf tab daalenge jab wahan hain hi nahi):
+call :ifmiss "DASHBOARD"    "sentiment_labels.json"
+call :ifmiss "DASHBOARD"    "mongo_conf.py"
+call :ifmiss "DASHBOARD"    "src_chunks.py"
+call :ifmiss "UP-DASHBOARD" "mongo_conf.py"
+call :ifmiss "UP-DASHBOARD" "src_chunks.py"
+
+echo.
+if %ERR% NEQ 0 (
+  color 0C
+  echo   ====================================================================
+  echo   KUCH FILE COPY NAHI HUI -- upar dekho.
+  echo   WAPAS_KARO.bat chala kar sab purana kar lo, phir batao.
+  echo   ====================================================================
+  echo.
+  pause
+  exit /b 1
+)
+
+REM ================== server.js ko jo files chahiye ==================
+echo.
+echo   Checking: server.js ^(Node^) ko jo files chahiye...
+set MISS=0
+for %%M in (ha_lib.js login_page.js mailer.js mongo_conf.js mongo_pool.js auth_lib.js report_lib.js x_live.js x_scraper.js tracker_section.js sentiment.js mapping_lib.js news_lib.js) do (
+  if exist "%ROOT%\DASHBOARD\%%M" (echo     [ok]      %%M) else (echo     [MISSING] %%M & set MISS=1)
+)
+
+REM ================== pipeline ko jo files chahiye ==================
+REM Pichhli baar yahi chhoot gaya tha: mongo_conf.PY (Python wali) package
+REM me nahi thi, sirf mongo_conf.JS thi -- aur pipeline "No module named
+REM 'mongo_conf'" de kar mar jaata tha.
+echo.
+echo   Checking: pipeline ^(Python^) ko jo files chahiye...
+for %%M in (mongo_conf.py src_chunks.py mongo_swap.py safe_write.py master_to_mongo.py phase2_push.py daily_report.py smart_import.py push_all_scopes.py update_dashboard.py sentiment_cli.py mapping_add.py rebuild_mapping.py) do (
+  if exist "%ROOT%\DASHBOARD\%%M" (echo     [ok]      DASHBOARD\%%M) else (echo     [MISSING] DASHBOARD\%%M & set MISS=1)
+)
+for %%M in (mongo_conf.py src_chunks.py mongo_swap.py safe_write.py update_dashboard.py push_tweets.py) do (
+  if exist "%ROOT%\UP-DASHBOARD\%%M" (echo     [ok]      UP-DASHBOARD\%%M) else (echo     [MISSING] UP-DASHBOARD\%%M & set MISS=1)
+)
+
+if !MISS! NEQ 0 (
+  color 0C
+  echo.
+  echo   ====================================================================
+  echo   Upar [MISSING] wali file is system par hai hi nahi.
+  echo   Us file ke bina server ya pipeline chalega nahi.
+  echo   Wo file doosre system ke usi folder se yahan copy kar do.
+  echo   ====================================================================
+  echo.
+)
+
+echo.
+echo ======================================================================
+echo   HO GAYA
+echo ======================================================================
+echo.
+echo   AB YE KARO:
+echo.
+echo     1^) START_LIVE.bat chalao
+echo     2^) Browser me  Ctrl + F5  ^(dono dashboard par^)
+echo     3^) Ek baar kholo:  http://localhost:3000/healthz
+echo.
+echo   DHYAN DO -- login ek baar dobara karna padega.
+echo   Password wahi purana chalega.
+echo.
+echo   Kuch galat lage to: WAPAS_KARO.bat
+echo   Backup: %BAK%
+echo.
+
+> "%~dp0last-backup.txt" echo %BAK%
+
+pause
+exit /b 0
+
+REM ---- file badlo (backup lekar) ----
+:one
+if not exist "%SRC%\%~1\%~2" (
+  echo   [MISSING] %~1\%~2  -- package me hai hi nahi
+  set ERR=1
+  goto :eof
+)
+if exist "%ROOT%\%~1\%~2" (
+  copy /y "%ROOT%\%~1\%~2" "%BAK%\%~1\%~2" >nul
+  if errorlevel 1 (echo   [FAIL backup] %~1\%~2 & set ERR=1 & goto :eof)
+)
+copy /y "%SRC%\%~1\%~2" "%ROOT%\%~1\%~2" >nul
+if errorlevel 1 (echo   [FAIL copy]   %~1\%~2 & set ERR=1) else (echo   [OK]          %~1\%~2)
+goto :eof
+
+REM ---- file SIRF tab daalo jab wahan hai hi nahi ----
+REM Ye saathi files har system par alag ho sakti hain, isliye jo pehle se
+REM maujood hai usse haath nahi lagate -- sirf kami poori karte hain.
+:ifmiss
+if exist "%ROOT%\%~1\%~2" (
+  echo   [pehle se hai]  %~1\%~2  -- chhua nahi
+  goto :eof
+)
+if not exist "%SRC%\%~1\%~2" (
+  echo   [MISSING] %~1\%~2  -- package me hai hi nahi
+  set ERR=1
+  goto :eof
+)
+copy /y "%SRC%\%~1\%~2" "%ROOT%\%~1\%~2" >nul
+if errorlevel 1 (echo   [FAIL copy]     %~1\%~2 & set ERR=1) else (echo   [NAYI DAALI]    %~1\%~2)
+goto :eof

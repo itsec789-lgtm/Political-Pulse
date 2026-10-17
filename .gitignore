@@ -1,0 +1,29 @@
+# Dependencies
+node_modules/
+*/node_modules/
+*/*/node_modules/
+
+# Python cache & environments
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+env/
+
+# Large database & tweet dumps (>100MB exceeds GitHub limits)
+DASHBOARD/data/master_tweets.csv
+DASHBOARD/data/master_tweets_OLD_base.csv
+REPORT_INPUT/Export_2026-08-13_2026-08.csv
+mongo_dump_py/**/*.gz
+*.gz
+
+# Logs & scratch
+*.log
+scratch/
+.temp/
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini

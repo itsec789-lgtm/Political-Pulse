@@ -1,0 +1,202 @@
+/* t_trk7.js -- teen shikayaton ka test:
+     1. CSV download me poore column
+     2. PMOIndia jaisa handle (pehle se database me, mapping me nahi) bhi
+        Handle Mapping tab me aaye, aur bharne par purane row bhi theek hon
+     3. Sentiment sirf trained model se -- warna khaali, 3 galat label nahi */
+'use strict';
+var fs = require('fs');
+var P = 0, F = 0, FAILS = [];
+function ok(c, m) { if (c) P++; else { F++; FAILS.push(m); } console.log((c ? '  ok   ' : '  FAIL ') + m); }
+function sec(t) { console.log('\n== ' + t + ' =='); }
+
+var XS = require('./x_scraper.js');
+var MAP = require('./mapping_lib.js');
+var SENT = require('./sentiment.js');
+var TS = require('./tracker_section.js');
+var SRV = fs.readFileSync('./server.js', 'utf8');
+var XSRC = fs.readFileSync('./x_scraper.js', 'utf8');
+
+sec('1. CSV download ke column');
+var WANT = ['Handle', 'Tweet URL', 'Tweet ID', 'Tweet Date', 'Tweet Text', 'Followers',
+  'Followings', 'Date of Joining', 'Total Posts', 'Total Comments', 'Total Likes',
+  'Total Retweets', 'Total Views', 'Total Bookmark Tweets Times', 'Sentiment', 'Sentiment Score'];
+ok(Array.isArray(XS.TWEET_COLS), 'TWEET_COLS export hui');
+WANT.forEach(function (c, i) {
+  ok(XS.TWEET_COLS[i] === c, 'column ' + (i + 1) + ' = ' + c + (XS.TWEET_COLS[i] === c ? '' : ' (mila: ' + XS.TWEET_COLS[i] + ')'));
+});
+['State', 'Locations', 'AC/PC No', 'AC Name', 'PC Name', 'Designation', 'Candidate Name',
+ 'Category', 'Categories', 'Party', 'Status'].forEach(function (c) {
+  ok(XS.TWEET_COLS.indexOf(c) >= 16, 'mapping column bhi hai: ' + c);
+});
+ok(XS.TWEET_COLS.length === 28, 'kul 28 column: ' + XS.TWEET_COLS.length);
+ok(XS.TWEET_COLS.indexOf('Source Folders') >= 0, 'Source Folders bhi');
+WANT.forEach(function (c) { ok(XS.TWEET_PROJ[c] === 1, 'projection me ' + c); });
+ok(/var COLS = TRK\.TWEET_COLS;/.test(SRV), 'export.csv wahi list use karta hai');
+ok(/if \(Array\.isArray\(v\)\) v = v\.join\(', '\);/.test(SRV),
+   'Categories/Source Folders array jod kar likhte hain, [object Object] nahi');
+
+/* purane 10 column wali list gayi */
+ok(!/'Tweet Date', 'Handle', 'Tweet Text', 'Tweet URL', 'Total Likes'/.test(SRV),
+   'purani 10-column wali list hat gayi');
+
+sec('2. Pehle se database me pade unmapped handle');
+ok(typeof XS.legacyUnmapped === 'function', 'legacyUnmapped() export hui');
+(function () {
+  var seen = {};
+  var bag = { 'naya1': { _id: 'naya1', tweets: 4 } };
+  var tracked = ['PMOIndia', 'myogiadityanath', 'naya1'];
+  var counts = { PMOIndia: 6, myogiadityanath: 99, naya1: 11 };
+  function sortToArray(arr) {
+    return { sort: function () { return { toArray: async function () { return arr; } }; } };
+  }
+  var db = { collection: function (n) {
+    if (n === 'master_tweets') {
+      return {
+        countDocuments: async function (q, o) {
+          seen.counted = (seen.counted || []); seen.counted.push(q.Handle);
+          seen.countQ = q; seen.countOpt = o;
+          return counts[q.Handle] || 0;
+        },
+        aggregate: function (p) {
+          seen.pipe = p;
+          return { toArray: async function () { return [
+            { _id: 'PMOIndia', n: 6, sample: '', last: '2026-10-05 12:02:40 IST' }
+          ]; } };
+        }
+      };
+    }
+    if (n === 'tracked_handles') {
+      return { find: function () { return { projection: null,
+        toArray: async function () { return tracked.map(function (h) { return { _id: h }; }); },
+        sort: function () { return this; } }; } };
+    }
+    if (n === 'pending_handles') {
+      return { find: function () {
+        return sortToArray(Object.keys(bag).map(function (k) { return bag[k]; })); } };
+    }
+    return { find: function () { return { toArray: async function () { return []; } }; } };
+  } };
+  XS._clearLegacy();
+  XS.pendingHandles(db, true).then(function (r) {
+    var by = {}; r.forEach(function (x) { by[x.handle] = x; });
+    ok(!!by['PMOIndia'], 'PMOIndia list me aaya (mapping me nahi hai, database me hai)');
+    ok(by['PMOIndia'].dbTweets === 6, 'uske 6 purane tweet gine gaye');
+    ok(by['PMOIndia'].held === false, 'wo "held" nahi hai -- pehle se andar hai');
+    ok(by['PMOIndia'].inDb === true, 'inDb true');
+    ok(!by['myogiadityanath'], 'jo mapping me HAI wo list me nahi aaya');
+    ok((seen.counted || []).indexOf('myogiadityanath') < 0,
+       'mapping wale handle ki ginti hi nahi ki jaati');
+    ok(!!by['naya1'] && by['naya1'].held === true && by['naya1'].inDb === true,
+       'dono jagah wala handle ek hi baar, dono ginti ke saath');
+    ok(by['naya1'].tweets === 4 && by['naya1'].dbTweets === 11, 'held 4 + database 11');
+    ok(seen.countQ && seen.countQ['Source Folders'] === XS.SOURCE_TAG,
+       'sirf Tracker ka data gina jaata hai');
+    ok(!seen.pipe, 'aam list me 4 lakh row ki aggregation nahi chalti');
+    ok(seen.countOpt && seen.countOpt.maxTimeMS > 0,
+       'ginti par timeout laga hai: ' + (seen.countOpt || {}).maxTimeMS);
+  });
+})();
+
+sec('3. Mapping bharne par purane row bhi theek hote hain');
+(function () {
+  var many = null, bag = {};
+  var db = { collection: function (n) {
+    if (n === 'master_tweets') return {
+      updateMany: async function (q, u) { many = { q: q, u: u }; return { modifiedCount: 6 }; },
+      find: function () { return { projection: null, toArray: async function () { return []; } }; },
+      bulkWrite: async function () {} };
+    if (n === 'pending_tweets') return {
+      find: function () { return { toArray: async function () { return []; } }; },
+      deleteMany: async function () {} };
+    return { deleteOne: async function () {}, find: function () { return { sort: function () { return { toArray: async function () { return []; } }; } }; } };
+  } };
+  XS.releaseHandle(db, 'myogiadityanath').then(function (r) {
+    ok(r.ok === true, 'release ok');
+    ok(r.patched === 6, '6 purane row par mapping lagi: ' + r.patched);
+    ok(!!many, 'updateMany chala');
+    ok(many.q.Handle.$regex === '^myogiadityanath$', 'sirf usi handle par: ' + many.q.Handle.$regex);
+    ok(many.q.Handle.$options === 'i', 'case alag ho to bhi mila');
+    ok(many.u.$set['State'] === 'Uttar Pradesh', 'State laga');
+    ok(many.u.$set['Party'] === 'BJP', 'Party laga');
+    ok(Array.isArray(many.u.$set['Categories']), 'Categories array laga');
+    ok(many.u.$set['Locations'] === undefined, "'-' wala column nahi chhua (purana value bacha)");
+  });
+})();
+
+sec('4. Sentiment: trained model ke bina galat label nahi');
+ok(XS.DEFAULTS.sentimentStrict === true, 'strict default ON hai');
+ok(typeof SENT.trained === 'function' && typeof SENT.labels === 'function', 'naye accessor');
+ok(SENT.ready() === false, 'wordlist/textblob "ready" nahi maane jaate');
+(function () {
+  var d = [{ 'Tweet Text': 'great win', 'Sentiment': 'Positive', 'Sentiment Score': 0.6 }];
+  XS.applySentiment(d).then(function () {
+    ok(d[0]['Sentiment'] === undefined, 'strict me Sentiment likha hi nahi gaya');
+    ok(d[0]['Sentiment Score'] === undefined, 'Score bhi nahi');
+    ok(d[0]['Tweet Text'] === 'great win', 'baaki data waise ka waisa');
+  });
+})();
+ok(/if \(STRICT && !SENT\.ready\(\)\)/.test(XSRC), 'strict ki jaanch maujood');
+ok(/delete d\['Sentiment'\]; delete d\['Sentiment Score'\];/.test(XSRC),
+   'fallback label hata diya jaata hai');
+ok(/sentimentStrict: true,/.test(XSRC), 'DEFAULTS me strict');
+ok(/if \(patch\.sentimentStrict !== undefined\)/.test(XSRC), 'panel se badla ja sakta hai');
+ok(/sentimentTrained: SENT\.ready\(\)/.test(XSRC), 'status me trained flag');
+ok(/sentimentLabels: SENT\.labels\(\)/.test(XSRC), 'status me model ke labels');
+
+/* strict band karo -> 3 label likhe jaayen */
+(function () {
+  var real = SENT.ready;
+  SENT.tag = async function (t) { return t.map(function () { return { label: 'Anti-BJP', score: 0.42 }; }); };
+  SENT.ready = function () { return true; };          /* maano trained mil gaya */
+  var d = [{ 'Tweet Text': 'kuch bhi' }];
+  XS.applySentiment(d).then(function () {
+    ok(d[0]['Sentiment'] === 'Anti-BJP', 'trained model ka apna label seedha likha gaya: ' + d[0]['Sentiment']);
+    ok(d[0]['Sentiment Score'] === 0.42, 'confidence bhi');
+    SENT.ready = real;
+  });
+})();
+
+sec('5. Panel: strict toggle aur banner');
+var H = TS.section('tracker'), J = TS.script();
+ok(H.indexOf('id="trkStrict"') >= 0, 'Strict sentiment checkbox');
+ok(H.indexOf('Strict sentiment') >= 0, 'label');
+ok(H.indexOf('id="trkSentBox"') >= 0, 'engine ka banner lagta hai');
+ok(J.indexOf('function trkSentHtml(st)') >= 0, 'banner banane wala function');
+ok(/sentimentStrict:\(document\.getElementById\('trkStrict'\)/.test(J), 'save me strict jaata hai');
+ok(J.indexOf('trkSetChk') >= 0, 'checkbox bhi dirty-safe hai');
+ok(/not installed/.test(J), 'install na hone par saaf message');
+ok(/-m pip install /.test(J), 'install ka command diya hai');
+ok(/INSTALL_SENTIMENT\.bat/.test(J), 'ek-click wali .bat bhi batayi gayi hai');
+/* ab misaal hardcode nahi hai -- sentiment_labels.json ki asli list dikhti
+   hai, aur wo khaali ho to ek default misaal. Dono haalat jaancho. */
+ok(/ANTI-BJP/.test(J), 'label ki misaal maujood (jab list khaali ho)');
+ok(/sentimentExpected/.test(J), 'asli list sentiment_labels.json se aati hai');
+var Hm = TS.section('trkmap');
+ok(/already in the database/.test(J), 'mapping tab purane row ki ginti dikhata hai');
+ok(/Save mapping and apply to/.test(J), 'button ab dono (held + purane) ki baat karta hai');
+
+/* banner ka asli vyavhaar */
+(function () {
+  var fn = new Function('document', 'console',
+    J.replace(/if\(document\.getElementById\('sec-tracker'\)\)\{[\s\S]*$/, '') +
+    '\nreturn {trkSentHtml:trkSentHtml};');
+  var api = fn({ getElementById: function () { return null; } }, console);
+  var bad = api.trkSentHtml({ sentimentEngine: 'wordlist', sentimentTrained: false, sentimentStrict: true });
+  ok(/ad-err/.test(bad), 'trained na ho to laal banner');
+  ok(/left <b>empty<\/b>/.test(bad), 'strict ON par "khaali chhoda ja raha hai"');
+  var bad2 = api.trkSentHtml({ sentimentEngine: 'wordlist', sentimentTrained: false, sentimentStrict: false });
+  ok(/are being written<\/b>/.test(bad2), 'strict OFF par saaf kehta hai ki 3 label likhe ja rahe hain');
+  var good = api.trkSentHtml({ sentimentEngine: 'sentiment_tagger', sentimentTrained: true,
+    sentimentLabels: ['Anti-BJP', 'Neutral', 'Pro-BJP'] });
+  ok(/✔ Sentiment: your trained model/.test(good), 'trained par hara banner');
+  ok(/Anti-BJP, Neutral, Pro-BJP/.test(good), 'model ke saare label dikhte hain');
+  ok(api.trkSentHtml({}) === '', 'status na ho to kuch nahi');
+})();
+
+setTimeout(function () {
+  console.log('\n' + '='.repeat(56));
+  console.log('  PASS ' + P + '   FAIL ' + F);
+  if (F) { console.log('\n  FAIL hui:'); FAILS.forEach(function (f) { console.log('   - ' + f); }); }
+  console.log('='.repeat(56));
+  process.exit(F ? 1 : 0);
+}, 600);

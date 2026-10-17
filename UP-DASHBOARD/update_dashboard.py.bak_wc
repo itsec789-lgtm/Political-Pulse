@@ -1,0 +1,497 @@
+# -*- coding: utf-8 -*-
+"""
+update_dashboard.py  -  Nayi CSV se dashboard ka data update karo.
+
+Ab ye SAB recompute karta hai (kuch static nahi):
+  - handles / phd / mapping
+  - UNI (tot, level, party, state, sent, allHandles)
+  - STATE_DATA, PARTY_DATA, AGG (daily)
+  - CM_DATA (State CM overview + map)         <- NAYA
+  - HASHTAGS + HTFULL (hashtag tab)           <- NAYA
+  - D (overview charts, hourly, party-daily)  <- NAYA
+  - DAILY_DATA (daily chart)                  <- NAYA
+
+Chalao:
+    python update_dashboard.py "C:\\path\\to\\data.csv"
+    python update_dashboard.py "C:\\path\\to\\data.csv" --push
+Zaroorat:  pip install pandas pymongo
+"""
+import sys, os, json, collections, re, datetime
+import pandas as pd
+import src_chunks as _SRC
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+DATA = os.path.join(HERE, "data")
+CUR_DD = os.path.join(DATA, "dashboard_data.json")
+MONGO_URL = "mongodb://localhost:27017"
+DB_NAME = "up_pulse"
+SCOPE_STATE = "Uttar Pradesh"   # None = All-India (koi state filter nahi)
+DASH = "—"   # em-dash (state default)
+
+LVL = {'LS_MP':'LS MP','RS_MP':'RS MP','MLA':'MLA','Mla':'MLA','MLC':'MLC',
+       'Chief Minister':'Chief Minister','Deputy Chief Minister':'Dy CM',
+       'MLA Contestent':'MLA Contestent','MLA Contestant':'MLA Contestent'}
+
+# Designation ab 'MLA | MLA Contestent' jaisi ho sakti hai (dual role).
+# Pehle poori string ka exact match dhoonda jaata tha -> 'Others' me gir jaati thi.
+# Ab '|' se tod kar sabse UNCHA pad chunte hain.
+# 'MLA Contestent' sabse neeche hai -- jo aadmi baitha hua MLA bhi hai aur
+# kabhi contest bhi kiya tha, wo MLA hi ginaa jaayega.
+LVL_PRI = {'Chief Minister': 0, 'Dy CM': 1, 'LS MP': 2, 'RS MP': 3,
+           'MLA': 4, 'MLC': 5, 'MLA Contestent': 6, 'Others': 7}
+
+
+def lvl_from_desig(s):
+    parts = [p.strip() for p in str(s or '').split('|') if p.strip()]
+    got = [LVL[p] for p in parts if p in LVL]
+    if not got:
+        return 'Others'
+    return min(got, key=lambda L: LVL_PRI.get(L, 99))
+
+C = {'handle':'Handle','date':'Tweet Date','text':'Tweet Text','likes':'Total Likes',
+     'rts':'Total Retweets','views':'Total Views','sent':'Sentiment','state':'State',
+     'desig':'Designation','name':'Candidate Name','party':'Party',
+     'followers':'Followers','followings':'Followings','pc':'PC Name','ac':'AC Name'}
+
+
+# ---- '-' ko khaali maano ----
+# BUG: Python me '-' truthy hai. Pehle "row[PC] or row[AC]" likha tha, to jis row me
+# PC Name '-' tha wahan asli AC Name kabhi padha hi nahi jaata tha -- 954 handles ka
+# PC/AC Name table me khaali aa raha tha (Yogi Adityanath tak).
+_DASHES = ('', '-', '\u2014', 'nan', 'None', 'null')
+
+
+def _v(x):
+    s = str(x if x is not None else '').strip()
+    return '' if s in _DASHES else s
+
+
+def _first(*vals):
+    for v in vals:
+        s = _v(v)
+        if s:
+            return s
+    return ''
+
+
+# ---- handle_master.json = master mapping; table ka koi khaana khaali na rahe ----
+_MASTER = None
+
+
+def master_map():
+    global _MASTER
+    if _MASTER is None:
+        try:
+            import json as _j
+            with open(os.path.join(DATA, 'handle_master.json'), encoding='utf-8') as f:
+                _MASTER = _j.load(f)
+        except Exception as e:
+            print("  (handle_master.json nahi padha: %s)" % e)
+            _MASTER = {}
+    return _MASTER
+
+
+def from_master(h, *keys):
+    v = master_map().get(h) or {}
+    return _first(*[v.get(k) for k in keys])
+
+
+def load_template():
+    blobs = json.load(open(CUR_DD, encoding='utf-8'))
+    return {b['key']: b['value'] for b in blobs}
+
+
+def read_csv_agg(csv_path):
+    acc = {}
+    meta = {}
+    daily = collections.defaultdict(lambda: [0, 0, 0, 0])   # (handle,date)->[t,v,k,r]
+    dates = set()
+    htag = collections.defaultdict(lambda: {'c':0,'lk':0,'vw':0,'pos':0,'neu':0,'neg':0})
+    htag_party = collections.defaultdict(lambda: collections.defaultdict(lambda: {'c':0,'lk':0,'vw':0,'pos':0,'neu':0,'neg':0}))
+    htag_daily = collections.defaultdict(lambda: collections.defaultdict(int))          # tag -> date -> count
+    htag_party_daily = collections.defaultdict(lambda: collections.defaultdict(int))    # (party,tag) -> date -> count
+    hourly = [0]*24
+    need = list(set(C.values()))
+    for ch in _SRC.chunks(csv_path, need):
+        ch = ch.rename(columns=lambda c: c.strip()).fillna('')
+        if SCOPE_STATE:
+            ch = ch[ch[C['state']].astype(str).str.strip() == SCOPE_STATE]
+        if len(ch) == 0: continue
+        for col in [C['likes'], C['rts'], C['views'], C['followers'], C['followings']]:
+            ch[col] = pd.to_numeric(ch[col].str.replace(',', '', regex=False), errors='coerce').fillna(0)
+        s = ch[C['sent']].str.strip().str.lower()
+        ch['_pos'] = (s == 'positive').astype(int); ch['_neu'] = (s == 'neutral').astype(int); ch['_neg'] = (s == 'negative').astype(int)
+        ch['_d'] = ch[C['date']].str[:10]
+        ch['_h'] = pd.to_numeric(ch[C['date']].str[11:13], errors='coerce').fillna(-1).astype(int)
+        # per-handle
+        g = ch.groupby(C['handle']).agg(tw=(C['handle'], 'size'), lk=(C['likes'], 'sum'), rt=(C['rts'], 'sum'),
+                                        vw=(C['views'], 'sum'), pos=('_pos', 'sum'), neu=('_neu', 'sum'), neg=('_neg', 'sum'))
+        for h, r in g.iterrows():
+            h = h.strip()
+            if not h: continue
+            a = acc.setdefault(h, {'tw':0,'lk':0,'rt':0,'vw':0,'pos':0,'neu':0,'neg':0})
+            a['tw']+=int(r['tw']); a['lk']+=int(r['lk']); a['rt']+=int(r['rt']); a['vw']+=int(r['vw'])
+            a['pos']+=int(r['pos']); a['neu']+=int(r['neu']); a['neg']+=int(r['neg'])
+        # daily
+        gd = ch.groupby([C['handle'], '_d']).agg(t=(C['handle'], 'size'), k=(C['likes'], 'sum'), r=(C['rts'], 'sum'), v=(C['views'], 'sum'))
+        for (h, d), r in gd.iterrows():
+            h = h.strip()
+            if not h or len(d) != 10: continue
+            dates.add(d); e = daily[(h, d)]; e[0]+=int(r['t']); e[1]+=int(r['v']); e[2]+=int(r['k']); e[3]+=int(r['r'])
+        # meta -- har handle ka SABSE NAYA row (followers/followings latest chahiye)
+        ch['_dt'] = ch[C['date']].astype(str).str[:19]
+        try:
+            idx = ch.groupby(C['handle'])['_dt'].idxmax()
+            latest = ch.loc[idx]
+        except Exception:
+            latest = ch.drop_duplicates(C['handle'])
+        for r in latest.itertuples(index=False):
+            row = dict(zip(latest.columns, r)); h = str(row[C['handle']]).strip()
+            if not h: continue
+            dt = str(row.get('_dt', ''))
+            m = meta.get(h)
+            if m is None:
+                m = meta[h] = {'name': h, 'party': '', 'levelCSV': 'Others', 'state': DASH,
+                               'followers': 0, 'followings': 0, 'pcName': '', '_dt': '', '_fdt': ''}
+            if dt >= m.get('_dt', ''):
+                m['_dt'] = dt
+                m['name'] = (str(row[C['name']]).strip() or h)
+                m['party'] = row[C['party']]
+                m['levelCSV'] = lvl_from_desig(row[C['desig']])
+                m['state'] = _first(row[C['state']]) or DASH
+                m['pcName'] = _first(row[C['pc']], row[C['ac']])
+            fw = int(row[C['followers']] or 0); fg = int(row[C['followings']] or 0)
+            if fw and dt >= m.get('_fdt', ''):
+                m['_fdt'] = dt; m['followers'] = fw; m['followings'] = fg
+        # hashtags (+ per party) + likes/views
+        for txt, party, lk, vw, p, n, u, d in zip(ch[C['text']], ch[C['party']], ch[C['likes']], ch[C['views']], ch['_pos'], ch['_neu'], ch['_neg'], ch['_d']):
+            tags = set(re.findall(r'#\w+', str(txt).lower()))
+            if not tags: continue
+            lk = int(lk); vw = int(vw); p = int(p); n = int(n); u = int(u); d = str(d)[:10]
+            pk = str(party).strip()
+            for tag in tags:
+                t = htag[tag]; t['c']+=1; t['lk']+=lk; t['vw']+=vw; t['pos']+=p; t['neu']+=n; t['neg']+=u
+                htag_daily[tag][d] += 1
+                if pk:
+                    tp = htag_party[pk][tag]; tp['c']+=1; tp['lk']+=lk; tp['vw']+=vw; tp['pos']+=p; tp['neu']+=n; tp['neg']+=u
+                    htag_party_daily[(pk, tag)][d] += 1
+        # hourly
+        hc = ch['_h'].value_counts()
+        for hr, cnt in hc.items():
+            if 0 <= int(hr) < 24: hourly[int(hr)] += int(cnt)
+    return acc, meta, daily, sorted(dates), htag, htag_party, hourly, htag_daily, htag_party_daily
+
+
+def top_viral(csv_path, n=400):
+    """Master se top UP tweets (views ke hisaab se) - Tweet URL ke saath (clickable post link)."""
+    URL = 'Tweet URL'
+    cols = set([URL, C['handle'], C['name'], C['party'], C['text'], C['sent'],
+                C['state'], C['pc'], C['ac'], C['date'], C['views'], C['likes'], C['rts']])
+    def _num(x):
+        try: return int(float(str(x).replace(',', '')))
+        except: return 0
+    frames = []
+    for ch in _SRC.chunks(csv_path, cols):
+        ch = ch.rename(columns=lambda c: c.strip()).fillna('')
+        if SCOPE_STATE:
+            ch = ch[ch[C['state']].astype(str).str.strip() == SCOPE_STATE]
+        if len(ch) == 0: continue
+        ch['_vw'] = pd.to_numeric(ch[C['views']].str.replace(',', '', regex=False), errors='coerce').fillna(0)
+        frames.append(ch.nlargest(min(n * 2, len(ch)), '_vw'))
+    if not frames: return []
+    allv = pd.concat(frames, ignore_index=True).drop_duplicates(subset=URL).nlargest(n, '_vw')
+    out = []
+    for r in allv.itertuples(index=False):
+        d = dict(zip(allv.columns, r))
+        out.append({'vw': _num(d.get(C['views'])), 'lk': _num(d.get(C['likes'])), 'rt': _num(d.get(C['rts'])),
+                    'h': str(d.get(C['handle'], '')).strip(), 'name': d.get(C['name'], ''), 'party': d.get(C['party'], ''),
+                    'text': d.get(C['text'], ''), 'sent': d.get(C['sent'], ''), 'state': d.get(C['state'], '') or DASH,
+                    'loc': (d.get(C['pc']) or d.get(C['ac']) or ''), 'date': str(d.get(C['date'], ''))[:10],
+                    'url': d.get(URL, '')})
+    return out
+
+
+def build(csv_path):
+    print("Reading CSV:", csv_path)
+    acc, meta, daily, DATES, htag, htag_party, hourly, htag_daily, htag_party_daily = read_csv_agg(csv_path)
+    print("  handles=%d  dates=%d (%s..%s)" % (len(acc), len(DATES), DATES[0], DATES[-1]))
+    tot_tw = sum(a['tw'] for a in acc.values())
+    print("  total tweets=%d" % tot_tw)
+
+    tpl = load_template()
+    exist_level = {o['h']: o['level'] for o in tpl['UNI']['allHandles']}
+
+    def level_of(h):
+        """Purana level chipka rehta hai (churn se bachne ke liye).
+        Par 'MLA Contestent' naya level hai -- purane roster me kisi ka nahi hoga,
+        isliye us par sticky rule nahi lagate, warna card hamesha 0 dikhega."""
+        fresh = meta.get(h, {}).get('levelCSV', 'Others')
+        old = exist_level.get(h)
+        if old is None:
+            return fresh
+        if fresh == 'MLA Contestent' or old == 'MLA Contestent':
+            return fresh
+        return old
+
+    # ---------- handles ----------
+    handles = []
+    for h, a in acc.items():
+        m = meta.get(h, {})
+        handles.append({"_id": h, "name": m.get('name',''), "party": m.get('party',''),
+                        "level": level_of(h), "state": m.get('state', DASH), "pcName": m.get('pcName',''),
+                        "followers": m.get('followers',0), "followings": m.get('followings',0),
+                        "tweets": a['tw'], "views": a['vw'], "likes": a['lk'], "retweets": a['rt'],
+                        "pos": a['pos'], "neu": a['neu'], "neg": a['neg']})
+
+    # ---------- phd ----------
+    di = {d: i for i, d in enumerate(DATES)}
+    ND = len(DATES)
+    phd = {}
+    for (h, d), e in daily.items():
+        o = phd.setdefault(h, {"t":[0]*ND, "v":[0]*ND, "k":[0]*ND, "r":[0]*ND})
+        i = di[d]; o['t'][i]=e[0]; o['v'][i]=e[1]; o['k'][i]=e[2]; o['r'][i]=e[3]
+    phd_docs = [{"h": h, **v} for h, v in phd.items()]
+
+    # ---------- mapping ----------
+    bl, bp, bs = collections.defaultdict(list), collections.defaultdict(list), collections.defaultdict(list)
+    for h in acc:
+        m = meta.get(h, {})
+        bl[level_of(h)].append(h)
+        bp[(m.get('party','') or 'Unknown').replace('.', '')].append(h)
+        bs[(m.get('state','') or 'Unknown').replace('.', '')].append(h)
+    mapping = [
+        {"_id":"by_level","desc":"level -> handles","count":len(bl),"map":dict(bl)},
+        {"_id":"by_party","desc":"party -> handles","count":len(bp),"map":dict(bp)},
+        {"_id":"by_state","desc":"state -> handles","count":len(bs),"map":dict(bs)},
+    ]
+
+    # ---------- dashboard_data ----------
+    dd = tpl
+    dd['UNI']['tot']['tw'] = tot_tw
+    dd['UNI']['tot']['vw'] = sum(a['vw'] for a in acc.values())
+    dd['UNI']['tot']['lk'] = sum(a['lk'] for a in acc.values())
+    dd['UNI']['tot']['rt'] = sum(a['rt'] for a in acc.values())
+    dd['UNI']['handles'] = len(acc)
+    lv = collections.Counter(); sent = {'pos':0,'neu':0,'neg':0}
+    party_agg = {}; state_agg = {}
+    MET = ('tw','vw','lk','rt','pos','neu','neg')
+    def _blank(): return {'tw':0,'vw':0,'lk':0,'rt':0,'pos':0,'neu':0,'neg':0}
+    for h, a in acc.items():
+        m = meta.get(h, {}); p = m.get('party',''); s = m.get('state', DASH)
+        lv[level_of(h)] += a['tw']
+        for k in sent: sent[k] += a[k]
+        if p:
+            pd = party_agg.get(p)
+            if pd is None: pd = _blank(); pd['handles'] = 0; party_agg[p] = pd
+            for k in MET: pd[k] += a[k]
+            pd['handles'] += 1
+        sd = state_agg.get(s)
+        if sd is None: sd = {'tot': _blank(), 'handles': 0, 'party': {}, 'sent': {'pos': 0, 'neu': 0, 'neg': 0}}; state_agg[s] = sd
+        for k in MET: sd['tot'][k] += a[k]
+        sd['handles'] += 1
+        for sk in ('pos', 'neu', 'neg'): sd['sent'][sk] += a[sk]
+        if p:
+            spd = sd['party'].get(p)
+            if spd is None: spd = _blank(); spd['handles'] = 0; sd['party'][p] = spd
+            for k in MET: spd[k] += a[k]
+            spd['handles'] += 1
+    dd['UNI']['level'] = dict(lv); dd['UNI']['party'] = party_agg; dd['UNI']['states'] = state_agg; dd['UNI']['sent'] = sent
+    for o in dd['UNI']['allHandles']:
+        a = acc.get(o['h'])
+        if a: o.update({'tw':a['tw'],'vw':a['vw'],'lk':a['lk'],'rt':a['rt'],'pos':a['pos'],'neu':a['neu'],'neg':a['neg']})
+        # followers/followings/naam/party/state bhi refresh -- pehle ye kabhi update nahi hote the
+        m0 = meta.get(o['h'])
+        if m0:
+            if m0.get('followers'):  o['followers']  = int(m0['followers'])
+            if m0.get('followings'): o['followings'] = int(m0['followings'])
+            if m0.get('name'):   o['name']  = m0['name']
+            if m0.get('party'):  o['party'] = m0['party']
+            if m0.get('state'):  o['state'] = m0['state']
+            if m0.get('pcName'): o['loc']   = m0['pcName']
+        # jo ab bhi khaali hai use MAPPING se bharo (mapping hi master hai)
+        if not _v(o.get('loc')):
+            o['loc'] = from_master(o['h'], 'ac_name', 'pc_name') or o.get('loc', '')
+        if not _v(o.get('state')):
+            o['state'] = from_master(o['h'], 'state') or o.get('state', '')
+        if not _v(o.get('party')):
+            o['party'] = from_master(o['h'], 'party') or o.get('party', '')
+        if not _v(o.get('name')):
+            o['name'] = from_master(o['h'], 'name') or o.get('name', '')
+        # LEVEL bhi refresh -- ye chhoot gaya tha, isliye naya level (MLA Contestent)
+        # UNI.level me to aa jaata tha par roster me kabhi nahi, aur card
+        # "6,107 tweets / 0 handles" dikhata tha.
+        o['level'] = level_of(o['h'])
+    # NAYE handles jo roster me nahi the -> ADD karo (pehle sirf update hota tha, add nahi -> count atka rehta tha)
+    _known = {o['h'] for o in dd['UNI']['allHandles']}
+    for h, a in acc.items():
+        if h in _known: continue
+        m2 = meta.get(h, {})
+        dd['UNI']['allHandles'].append({
+            'h': h, 'name': m2.get('name', ''), 'party': m2.get('party', ''),
+            'level': m2.get('levelCSV', 'Others'), 'state': m2.get('state', DASH),
+            'loc': m2.get('pcName', '') or from_master(h, 'ac_name', 'pc_name'),
+            'followers': int(m2.get('followers', 0) or 0),
+            'followings': int(m2.get('followings', 0) or 0),
+            'tw': a['tw'], 'vw': a['vw'], 'lk': a['lk'], 'rt': a['rt'],
+            'pos': a['pos'], 'neu': a['neu'], 'neg': a['neg']})
+    # STALE entries hatao (jo handle ab data me nahi)
+    _before = len(dd['UNI']['allHandles'])
+    dd['UNI']['allHandles'] = [o for o in dd['UNI']['allHandles'] if o['h'] in acc]
+    if _before != len(dd['UNI']['allHandles']):
+        print("  roster clean: %d -> %d handles" % (_before, len(dd['UNI']['allHandles'])))
+    # naye state jodo -- par 'uttar pradesh' / 'Uttar Pradesh' ek hi maano
+    _stCanon = {str(r.get('state','')).strip().lower(): str(r.get('state','')).strip() for r in dd['STATE_DATA']}
+    for _st in sorted({str(meta.get(h,{}).get('state', DASH)).strip() for h in acc}):
+        if not _st or _st in ('', DASH): continue
+        if _st.lower() in _stCanon: continue
+        _stCanon[_st.lower()] = _st
+        dd['STATE_DATA'].append({'state': _st, 'tweets':0, 'views':0, 'likes':0, 'pos':0, 'neu':0, 'neg':0})
+        print("  naya state juda: " + _st)
+    def _stOf(h): return _stCanon.get(str(meta.get(h,{}).get('state', DASH)).strip().lower(), '')
+    for row in dd['STATE_DATA']:
+        s = str(row['state']).strip(); hs = [h for h in acc if _stOf(h) == s]
+        row.update(tweets=sum(acc[h]['tw'] for h in hs), views=sum(acc[h]['vw'] for h in hs),
+                   likes=sum(acc[h]['lk'] for h in hs), pos=sum(acc[h]['pos'] for h in hs),
+                   neu=sum(acc[h]['neu'] for h in hs), neg=sum(acc[h]['neg'] for h in hs))
+    # nayi party jodo -- 'inc' / 'INC' ko ek hi maano (mapping me dono pade hain)
+    _ptCanon = {str(k).strip().lower(): k for k in dd['PARTY_DATA']}
+    for _pt in sorted({str(meta.get(h,{}).get('party','')).strip() for h in acc}):
+        if not _pt or _pt in ('', DASH): continue
+        if _pt.lower() in _ptCanon: continue
+        _ptCanon[_pt.lower()] = _pt
+        dd['PARTY_DATA'][_pt] = {'tweets':0,'views':0,'likes':0,'rt':0,'pos':0,'neu':0,'neg':0}
+        print("  nayi party judi: " + _pt)
+    def _ptOf(h): return _ptCanon.get(str(meta.get(h,{}).get('party','')).strip().lower(), '')
+    for party, row in dd['PARTY_DATA'].items():
+        hs = [h for h in acc if _ptOf(h) == party]
+        row.update(tweets=sum(acc[h]['tw'] for h in hs), views=sum(acc[h]['vw'] for h in hs),
+                   likes=sum(acc[h]['lk'] for h in hs), rt=sum(acc[h]['rt'] for h in hs),
+                   pos=sum(acc[h]['pos'] for h in hs), neu=sum(acc[h]['neu'] for h in hs), neg=sum(acc[h]['neg'] for h in hs))
+    dd['AGG']['dates'] = DATES
+    S = {}
+    for (h, d), e in daily.items():
+        i = di[d]; m = meta.get(h, {}); lvl_ = level_of(h); pty = m.get('party','')
+        for key in ["%s|%s" % (lvl_, pty), "%s|ALL" % lvl_, "ALL|%s" % pty, "ALL|ALL"]:
+            o = S.setdefault(key, {"t":[0]*ND,"v":[0]*ND,"k":[0]*ND,"r":[0]*ND})
+            o['t'][i]+=e[0]; o['v'][i]+=e[1]; o['k'][i]+=e[2]; o['r'][i]+=e[3]
+    dd['AGG']['S'] = S
+
+    # ---------- CM_DATA (State CM) refresh ----------
+    for c in dd.get('CM_DATA', []):
+        a = acc.get(c.get('handle'))
+        if a:
+            c.update(tweets=a['tw'], views=a['vw'], likes=a['lk'], rts=a['rt'], pos=a['pos'], neu=a['neu'], neg=a['neg'])
+        m = meta.get(c.get('handle'), {})
+        if m.get('followers'): c['followers'] = m['followers']; c['followings'] = m['followings']
+
+    # ---------- HASHTAGS + HTFULL (sorted by VIEWS) ----------
+    htlist = sorted(htag.items(), key=lambda kv: -kv[1]['vw'])
+    dd['HASHTAGS'] = [{'tag':tag,'count':v['c'],'lk':v['lk'],'vw':v['vw'],'pos':v['pos'],'neu':v['neu'],'neg':v['neg']} for tag, v in htlist[:18]]
+    def dvec(dm): return [dm.get(dt, 0) for dt in DATES]
+    def htentry(tag, v, dailymap):
+        return {'tag':tag,'c':v['c'],'lk':v['lk'],'vw':v['vw'],'pos':v['pos'],'neu':v['neu'],'neg':v['neg'],'d':dvec(dailymap)}
+    HTFULL = {'all': [htentry(tag, v, htag_daily.get(tag, {})) for tag, v in htlist[:40]]}
+    for pk in [k for k in dd.get('HTFULL', {}).keys() if k != 'all']:
+        pv = htag_party.get(pk, {})
+        top = sorted(pv.items(), key=lambda kv: -kv[1]['vw'])[:25]
+        HTFULL[pk] = [htentry(tag, v, htag_party_daily.get((pk, tag), {})) for tag, v in top]
+    dd['HTFULL'] = HTFULL
+
+    # ---------- D (overview charts) ----------
+    D = dd.get('D', {})
+    D['dayLabels'] = [d[5:] for d in DATES]
+    D['AD'] = DATES
+    roster = dd['UNI']['allHandles']
+    roster_party = {o['h']: o.get('party', '') for o in roster}   # party tab jaisa authoritative
+    _ptw = collections.Counter()
+    for o in roster: _ptw[o.get('party', '')] += (o.get('tw') or 0)
+    _ptw.pop('', None)
+    top_parties = [p for p, _ in _ptw.most_common(5)]   # tweets ke hisaab se top-5 UP parties
+    D['parties'] = top_parties
+    pdaily = {p: {'t':[0]*ND,'v':[0]*ND,'k':[0]*ND,'r':[0]*ND} for p in top_parties + ['Others']}
+    for (h, d), e in daily.items():
+        i = di[d]; p = roster_party.get(h, '') or meta.get(h, {}).get('party', '')
+        key = p if p in pdaily else 'Others'
+        o = pdaily[key]; o['t'][i]+=e[0]; o['v'][i]+=e[1]; o['k'][i]+=e[2]; o['r'][i]+=e[3]
+    D['partyDaily'] = pdaily
+    Dh = []
+    for h, a in acc.items():
+        m = meta.get(h, {}); ph = phd.get(h)
+        Dh.append({'h':h,'n':m.get('name',''),'p':m.get('party',''),'l':level_of(h),'s':m.get('state', DASH),
+                   't': ph['t'] if ph else [0]*ND, 'v': ph['v'] if ph else [0]*ND})
+    D['handles'] = Dh
+    T = (sent['pos'] + sent['neu'] + sent['neg']) or 1
+    D['sent'] = {'Neutral': round(sent['neu']*100.0/T, 1), 'Positive': round(sent['pos']*100.0/T, 1), 'Negative': round(sent['neg']*100.0/T, 1)}
+    D['HOURLY'] = hourly
+    D['wd'] = [ datetime.date(int(d[:4]), int(d[5:7]), int(d[8:10])).weekday() for d in DATES ]  # JS getDay: Sun=0
+    dd['D'] = D
+
+    # ---------- DAILY_DATA (per date) ----------
+    perdate = {d: [0,0,0,0] for d in DATES}   # [tw,lk,vw,rt]
+    for (h, d), e in daily.items():
+        pdd = perdate[d]; pdd[0]+=e[0]; pdd[1]+=e[2]; pdd[2]+=e[1]; pdd[3]+=e[3]
+    dd['DAILY_DATA'] = [{'d':d,'tw':perdate[d][0],'lk':perdate[d][1],'vw':perdate[d][2],'rt':perdate[d][3]} for d in DATES]
+
+    # UNI.updates = per-date UP tweet count (full range) -- ise 'Today'/date-filter max ke liye use hota hai
+    dd['UNI']['updates'] = {d: perdate[d][0] for d in DATES}
+
+    # UP ke poore 75 districts ensure karo (loader count data se aaye, hardcode nahi)
+    try:
+        _gj = json.load(open(os.path.join(HERE, '..', 'UP_Districts.geojson'), encoding='utf-8'))
+        _allD = set(str(f['properties'].get('DISTRICT', '')).strip().upper() for f in _gj['features'])
+        _allD = set(x for x in _allD if x)
+        _ud = dd.get('UNI', {}).get('updist', {}) or {}
+        for _d in _allD:
+            if _d not in _ud:
+                _ud[_d] = {'tw': 0, 'vw': 0, 'lk': 0, 'rt': 0, 'pos': 0, 'neu': 0, 'neg': 0,
+                           'party': {}, 'level': {}, 'handles': [], 'levelH': {}, 'top_party': ''}
+        dd['UNI']['updist'] = _ud
+        print("  updist districts:", len(_ud))
+    except Exception as _e:
+        print("  (updist 75 ensure skip:", _e, ")")
+
+    # ---------- viral_up / viral (fresh from master, with tweet URL for clickable link) ----------
+    _viral = top_viral(csv_path, 400)
+    if _viral:
+        dd['UNI']['viral_up'] = _viral
+        dd['UNI']['viral'] = _viral[:50]
+        print("  viral_up refreshed: %d (with tweet URLs)" % len(_viral))
+
+    dd_docs = [{"key": k, "value": v} for k, v in dd.items()]
+    return handles, phd_docs, mapping, dd_docs, DATES, tot_tw
+
+
+def write_files(handles, phd_docs, mapping, dd_docs):
+    outs = {
+        os.path.join(DATA, "dashboard_data.json"): dd_docs,
+        os.path.join(DATA, "phd.json"): phd_docs,
+        os.path.join(DATA, "handles.json"): handles,
+        os.path.join(DATA, "mapping.json"): mapping,
+    }
+    for p, d in outs.items():
+        p = os.path.abspath(p)
+        json.dump(d, open(p, 'w', encoding='utf-8'), ensure_ascii=False)
+        print("  wrote", p)
+
+
+def push_mongo(handles, phd_docs, mapping, dd_docs):
+    from pymongo import MongoClient
+    cli = MongoClient(MONGO_URL); db = cli[DB_NAME]
+    for coll, docs in [("handles", handles), ("phd", phd_docs), ("mapping", mapping), ("dashboard_data", dd_docs)]:
+        db[coll].delete_many({}); db[coll].insert_many(docs)
+        print("  MongoDB %s: %d docs" % (coll, db[coll].count_documents({})))
+    cli.close()
+
+
+if __name__ == "__main__":
+    if len(sys.argv) < 2:
+        sys.exit('Usage: python update_dashboard.py "path\\to\\data.csv" [--push]')
+    csv_path = sys.argv[1]; push = '--push' in sys.argv
+    handles, phd_docs, mapping, dd_docs, DATES, tot = build(csv_path)
+    print("Writing files...")
+    write_files(handles, phd_docs, mapping, dd_docs)
+    if push:
+        print("Pushing to MongoDB...")
+        push_mongo(handles, phd_docs, mapping, dd_docs)
+    print("\nDONE. tweets=%d  handles=%d  dates=%d" % (tot, len(handles), len(DATES)))
+    print("Ab dashboard: http://localhost:3000/refresh  phir reload.")

@@ -1,0 +1,697 @@
+/* ======================================================================
+   POLITICAL LENS - PUNJAB
+   The dashboard runs off MongoDB. This server does three jobs:
+
+     1. Login / session      - no dashboard without a login (when enabled)
+     2. /api/data            - the ready payload from political_lens (gzipped)
+     3. public/ serving      - the dashboard's HTML/CSS/JS files
+
+   Run it:  npm install  ->  npm start  ->  http://localhost:3000
+
+   Where the data comes from:
+     build_punjab_data.py  ->  political_lens.aggregates + political_lens.tweets
+   Without a date range this server only reads - it does not recompute -
+   so the page takes about as long as it takes to send the data.
+   ====================================================================== */
+
+const express = require('express');
+const { MongoClient } = require('mongodb');
+const crypto = require('crypto');
+const zlib = require('zlib');
+const path = require('path');
+const fs = require('fs');
+const os = require('os');
+const { aggregate } = require('./aggregate.js');
+
+/* ---------------------------------------------------------------- config -- */
+const DEFAULTS = {
+  mongoUrl: require('./mongo_conf.js'),   // <- central: db_config.json
+  targetDb: 'political_lens',
+  sourceDb: 'pulse_master',
+  sourceCollection: 'master_tweets',
+  state: 'Punjab',
+  port: 3000,
+  explorerLimit: 25000,      // how many tweets go to explorer/insights/reports
+  authEnabled: true,
+};
+let CFG = Object.assign({}, DEFAULTS);
+try {
+  CFG = Object.assign(CFG, JSON.parse(fs.readFileSync(path.join(__dirname, 'config.json'), 'utf8')));
+} catch (e) { /* config.json is optional */ }
+// config.json me mongoUrl khaali ho to central wala hi chalega
+if (!CFG.mongoUrl) CFG.mongoUrl = require('./mongo_conf.js');
+
+const MONGO_OPT = { serverSelectionTimeoutMS: 6000, connectTimeoutMS: 6000 };
+const PUBLIC = path.join(__dirname, 'public');
+
+const app = express();
+app.use(express.urlencoded({ extended: false }));
+
+/* ------------------------------------------------------------------ gzip --
+ * The Punjab payload still runs to a few MB. Node's own zlib compresses it -
+ * no npm package needed, and the difference is obvious on mobile data. */
+app.use(function (req, res, next) {
+  const ae = String(req.headers['accept-encoding'] || '');
+  if (!/\bgzip\b/.test(ae)) return next();
+  const _json = res.json.bind(res);
+  res.json = function (obj) {
+    let buf;
+    try { buf = Buffer.from(JSON.stringify(obj)); }
+    catch (e) { return _json(obj); }
+    if (buf.length < 4096) { res.set('Content-Type', 'application/json'); return res.send(buf); }
+    zlib.gzip(buf, function (err, out) {
+      if (err) { res.set('Content-Type', 'application/json'); return res.send(buf); }
+      res.set('Content-Type', 'application/json');
+      res.set('Content-Encoding', 'gzip');
+      res.send(out);
+    });
+    return res;
+  };
+  next();
+});
+
+/* ------------------------------------------------------------------ mongo -- */
+let _client = null;
+async function db(name) {
+  if (!_client) {
+    _client = new MongoClient(CFG.mongoUrl, MONGO_OPT);
+    await _client.connect();
+  }
+  return _client.db(name || CFG.targetDb);
+}
+
+/* ------------------------------------------------------------------- auth --
+ * Passwords are never stored in plain text: a random per-user salt + sha256.
+ * The session is a signed cookie (HMAC) - no npm session package. */
+const SECRET_FILE = path.join(__dirname, '.session_secret');
+let SECRET;
+try { SECRET = fs.readFileSync(SECRET_FILE, 'utf8').trim(); } catch (e) { SECRET = ''; }
+if (!SECRET) {
+  SECRET = crypto.randomBytes(32).toString('hex');
+  try { fs.writeFileSync(SECRET_FILE, SECRET, { mode: 0o600 }); } catch (e) { }
+}
+
+function hashPw(pw, salt) {
+  return crypto.createHash('sha256').update(salt + '::' + pw).digest('hex');
+}
+function sign(v) {
+  return v + '.' + crypto.createHmac('sha256', SECRET).update(v).digest('hex').slice(0, 32);
+}
+function unsign(s) {
+  if (!s) return null;
+  const i = s.lastIndexOf('.');
+  if (i < 0) return null;
+  const v = s.slice(0, i);
+  return sign(v) === s ? v : null;
+}
+function cookies(req) {
+  const out = {};
+  String(req.headers.cookie || '').split(';').forEach(function (p) {
+    const i = p.indexOf('=');
+    if (i > 0) out[p.slice(0, i).trim()] = decodeURIComponent(p.slice(i + 1).trim());
+  });
+  return out;
+}
+function currentUser(req) {
+  const raw = unsign(cookies(req).pl_session);
+  if (!raw) return null;
+  const parts = raw.split('|');           // email|expiryMs
+  if (parts.length !== 2) return null;
+  if (Number(parts[1]) < Date.now()) return null;
+  return parts[0];
+}
+
+/* On first run an admin is created, otherwise nobody could log in at all.
+   The password is printed to the console exactly once. */
+async function ensureAdmin() {
+  const d = await db();
+  const users = d.collection('users');
+  const n = await users.countDocuments({});
+  if (n > 0) return;
+  const email = CFG.adminEmail || 'admin@datateam';
+  const pw = CFG.adminPassword || crypto.randomBytes(5).toString('hex');
+  const salt = crypto.randomBytes(12).toString('hex');
+  await users.insertOne({ _id: email, email: email, salt: salt, hash: hashPw(pw, salt),
+                          role: 'admin', active: true, created: new Date() });
+  console.log('\n  ------------------------------------------------------');
+  console.log('  First admin created:');
+  console.log('    email    : ' + email);
+  console.log('    password : ' + pw);
+  console.log('  Note this password down now - it will not be shown again.');
+  console.log('  (To change it, set adminEmail/adminPassword in config.json');
+  console.log('   and empty the political_lens.users collection.)');
+  console.log('  ------------------------------------------------------\n');
+}
+
+function loginPage(msg) {
+  return `<!DOCTYPE html><html><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Political Lens — Punjab · Login</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;
+  font:14px/1.6 Inter,system-ui,sans-serif;color:#0B2E2A;
+  background:radial-gradient(900px 500px at 20% 0%, #14655A 0%, #0B2E2A 55%, #061A18 100%)}
+.box{background:#fff;border-radius:18px;padding:34px 32px;width:min(380px,92vw);
+  box-shadow:0 30px 70px -20px rgba(0,0,0,.55)}
+.mark{width:46px;height:46px;border-radius:13px;display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(135deg,#0F766E,#D4A017);color:#fff;font-weight:700;letter-spacing:.02em}
+h1{font-family:Fraunces,serif;font-size:22px;margin:16px 0 2px}
+p.sub{margin:0 0 22px;color:#5B6B68;font-size:12.5px}
+label{display:block;font-size:11.5px;font-weight:600;color:#5B6B68;margin:14px 0 5px;letter-spacing:.04em;text-transform:uppercase}
+input{width:100%;padding:11px 13px;border:1px solid #D6E3E0;border-radius:10px;font-size:14px;outline:none}
+input:focus{border-color:#0F766E;box-shadow:0 0 0 3px rgba(15,118,110,.12)}
+button{width:100%;margin-top:22px;padding:12px;border:0;border-radius:10px;background:#0F766E;color:#fff;
+  font-size:14px;font-weight:600;cursor:pointer}
+button:hover{background:#0B5C55}
+.err{margin-top:16px;background:#FEF2F2;border:1px solid #FECACA;color:#991B1B;padding:9px 12px;border-radius:9px;font-size:12.5px}
+.foot{margin-top:20px;text-align:center;font-size:11px;color:#8FA09D}
+</style></head><body>
+<form class="box" method="post" action="/login">
+  <div class="mark">PL</div>
+  <h1>Political Lens</h1>
+  <p class="sub">Punjab Twitter Intelligence Dashboard</p>
+  <label for="e">Email</label>
+  <input id="e" name="email" type="text" autocomplete="username" autofocus>
+  <label for="p">Password</label>
+  <input id="p" name="password" type="password" autocomplete="current-password">
+  <button type="submit">Sign in</button>
+  ${msg ? `<div class="err">${msg}</div>` : ''}
+  <div class="foot">Created by Data Team</div>
+</form></body></html>`;
+}
+
+app.get('/login', function (req, res) {
+  if (!CFG.authEnabled) return res.redirect('/');     // login disabled
+  if (currentUser(req)) return res.redirect('/');
+  res.set('Content-Type', 'text/html; charset=utf-8').send(loginPage(''));
+});
+
+app.post('/login', async function (req, res) {
+  const email = String(req.body.email || '').trim().toLowerCase();
+  const pw = String(req.body.password || '');
+  try {
+    const u = await (await db()).collection('users').findOne({ _id: email, active: true });
+    if (!u || hashPw(pw, u.salt) !== u.hash) {
+      return res.status(401).set('Content-Type', 'text/html; charset=utf-8')
+        .send(loginPage('Wrong email or password.'));
+    }
+    const exp = Date.now() + 12 * 3600 * 1000;      // 12 hours
+    res.set('Set-Cookie', 'pl_session=' + encodeURIComponent(sign(email + '|' + exp))
+      + '; Path=/; HttpOnly; SameSite=Lax; Max-Age=' + (12 * 3600));
+    try {
+      await (await db()).collection('login_log')
+        .insertOne({ email: email, at: new Date(), ip: req.ip });
+    } catch (e) { }
+    res.redirect('/');
+  } catch (e) {
+    res.status(500).set('Content-Type', 'text/html; charset=utf-8')
+      .send(loginPage('Could not connect to MongoDB: ' + e.message));
+  }
+});
+
+app.get('/logout', function (req, res) {
+  res.set('Set-Cookie', 'pl_session=; Path=/; HttpOnly; Max-Age=0');
+  res.redirect('/login');
+});
+
+/* Everything else requires a login. */
+app.use(function (req, res, next) {
+  if (!CFG.authEnabled) return next();
+  if (req.path === '/login' || req.path === '/logout') return next();
+  if (currentUser(req)) return next();
+  if (req.path.startsWith('/api/')) return res.status(401).json({ error: 'login required' });
+  res.redirect('/login');
+});
+
+/* --------------------------------------------------------------- payload --
+ * The aggregates are small, the tweets are large. Joining them produces
+ * exactly the shape the dashboard used to read from data.js - which is why
+ * no chart code had to change. It is cached in memory; after a new build,
+ * hit /refresh. */
+let _cache = null;                 // the precomputed, no-date-range payload
+const _rangeCache = new Map();    // "from|to" -> payload
+let _lastBuildSeen = '';
+
+function rangeQuery(from, to) {
+  if (!from && !to) return {};
+  const q = { d: {} };
+  if (from) q.d.$gte = String(from);
+  if (to) q.d.$lte = String(to) + '\uffff';   // include the whole of the "to" day
+  return q;
+}
+
+/* The date-range payload - every tweet in the window is fetched and fully
+   re-aggregated. Counting on a sample would give wrong numbers, so the
+   whole window is read and the result is cached. */
+async function buildRangePayload(from, to) {
+  const key = (from || '') + '|' + (to || '');
+  if (_rangeCache.has(key)) return _rangeCache.get(key);
+
+  const d = await db();
+  const t0 = Date.now();
+  const rows = await d.collection('tweets')
+    .find(rangeQuery(from, to), { projection: { _id: 0 } }).toArray();
+
+  const base = await baseMeta();
+  const days = rows.map(r => String(r.d || '').slice(0, 10)).filter(Boolean).sort();
+  const out = aggregate(rows, Object.assign({}, base, {
+    live: true, range: true, date_from: days[0] || from || '', date_to: days[days.length - 1] || to || '',
+    requested_from: from || '', requested_to: to || '',
+    source_label: CFG.targetDb + ' · ' + (from || 'start') + ' → ' + (to || 'aaj'),
+    served: new Date().toISOString()
+  }));
+
+  const limit = Number(CFG.explorerLimit) || 25000;
+  if (out.explorer.length > limit) {
+    out.explorer = out.explorer.slice()
+      .sort((a, b) => String(b.d || '').localeCompare(String(a.d || '')))
+      .slice(0, limit);
+  }
+  out.meta.explorer_sample = out.explorer.length;
+  console.log('  range ' + key + ': ' + rows.length + ' tweets aggregated in ' + (Date.now() - t0) + ' ms');
+
+  /* Keep the cache small - every custom date adds an entry. */
+  if (_rangeCache.size > 12) _rangeCache.delete(_rangeCache.keys().next().value);
+  _rangeCache.set(key, out);
+  return out;
+}
+
+async function baseMeta() {
+  try {
+    const d = await db();
+    const docs = await d.collection('aggregates').find({ _id: 'meta' }).toArray();
+    return (docs[0] && docs[0].data) || {};
+  } catch (e) { return {}; }
+}
+
+/* Has a new build landed? Then clear the cache automatically - otherwise
+   the dashboard keeps showing stale data and you are left wondering why
+   the push had no effect. */
+async function watchBuild() {
+  try {
+    const d = await db();
+    const m = await d.collection('meta').findOne({ _id: 'lastBuild' });
+    const v = m ? String(m.value) : '';
+    if (v && _lastBuildSeen && v !== _lastBuildSeen) {
+      console.log('  new build detected (' + v + ') - cache cleared');
+      _cache = null; _rangeCache.clear();
+    }
+    if (v) _lastBuildSeen = v;
+  } catch (e) { /* mongo is down - try again next time */ }
+}
+
+async function buildPayload() {
+  const d = await db();
+  const names = (await d.listCollections().toArray()).map(c => c.name);
+  if (!names.includes('aggregates')) {
+    throw new Error('No "aggregates" collection in ' + CFG.targetDb
+      + ' - run python build_punjab_data.py --push first');
+  }
+
+  const docs = await d.collection('aggregates').find({}).toArray();
+  const out = {};
+  docs.forEach(function (x) { out[x._id] = x.data; });
+
+  // Explorer = the latest N tweets. Insights, reports and the assistant
+  // all run off it, so we take the most recent rather than a random
+  // sample - that is the only way "what is happening now" reads right.
+  const limit = Number(CFG.explorerLimit) || 25000;
+  out.explorer = await d.collection('tweets')
+    .find({}, { projection: { _id: 0 } })
+    .sort({ d: -1 }).limit(limit).toArray();
+
+  out.meta = Object.assign({ live: true }, out.meta || {});
+  out.meta.explorer_sample = out.explorer.length;
+  out.meta.served = new Date().toISOString();
+  return out;
+}
+
+app.get('/api/data', async function (req, res) {
+  res.set('Cache-Control', 'no-store');
+  const from = String(req.query.from || '').trim();
+  const to = String(req.query.to || '').trim();
+  try {
+    if (from || to) return res.json(await buildRangePayload(from, to));
+    if (!_cache) _cache = await buildPayload();
+    res.json(_cache);
+  } catch (e) {
+    console.error('  /api/data fail:', e.message);
+    res.status(500).json({ error: e.message });
+  }
+});
+
+app.get('/refresh', async function (req, res) {
+  _cache = null; _rangeCache.clear();
+  try {
+    _cache = await buildPayload();
+    res.json({ ok: true, tweets: _cache.kpis ? _cache.kpis.total_tweets : 0 });
+  } catch (e) {
+    res.status(500).json({ ok: false, error: e.message });
+  }
+});
+
+app.get('/api/status', async function (req, res) {
+  res.set('Cache-Control', 'no-store');
+  const out = { ok: false, db: CFG.targetDb, state: CFG.state,
+                auth: !!CFG.authEnabled, user: currentUser(req) || '' };
+  try {
+    const d = await db();
+    out.collections = (await d.listCollections().toArray()).map(c => c.name).sort();
+    out.tweets = await d.collection('tweets').estimatedDocumentCount();
+    const m = await d.collection('meta').findOne({ _id: 'lastBuild' });
+    out.lastBuild = m ? m.value : '';
+    const bm = await baseMeta();
+    out.dateFrom = bm.date_from || '';
+    out.dateTo = bm.date_to || '';
+    out.ok = true;
+  } catch (e) { out.error = e.message; }
+  res.json(out);
+});
+
+/* Live search across the whole corpus, for finding tweets outside the
+   explorer sample. The dashboard treats this as optional. */
+app.get('/api/tweets', async function (req, res) {
+  res.set('Cache-Control', 'no-store');
+  try {
+    const d = await db();
+    const q = {};
+    const term = String(req.query.q || '').trim();
+    if (term) {
+      const rx = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      q.$or = [{ tx: { $regex: rx, $options: 'i' } },
+               { h: { $regex: rx, $options: 'i' } },
+               { cn: { $regex: rx, $options: 'i' } }];
+    }
+    ['pt', 'sn', 'pc', 'dg', 'cat'].forEach(function (k) {
+      if (req.query[k]) q[k] = String(req.query[k]);
+    });
+    if (req.query.h) {                        // ek handle ka poora record
+      q.h = { $regex: '^' + String(req.query.h).replace(/^@/, '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '$', $options: 'i' };
+    }
+    if (req.query.from || req.query.to) {
+      q.d = {};
+      if (req.query.from) q.d.$gte = String(req.query.from);
+      if (req.query.to) q.d.$lte = String(req.query.to) + '￿';
+    }
+    const sortKey = ({ eng: 'eng', likes: 'l', views: 'v', date: 'd' })[req.query.sort] || 'eng';
+    const limit = Math.min(Number(req.query.limit) || 200, 2000);
+    const rows = await d.collection('tweets')
+      .find(q, { projection: { _id: 0 } })
+      .sort({ [sortKey]: -1 }).limit(limit).toArray();
+    res.json({ n: rows.length, rows: rows });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+/* ======================================================================
+   AI  —  Gemini
+   ----------------------------------------------------------------------
+   The key never reaches the browser. The dashboard only calls /api/ask
+   and /api/ai/narrative; the key stays here on the server in
+   ai_config.json.
+
+   RAW TWEETS are never sent to the model - only our own aggregate NUMBERS.
+   That is what stops it inventing a fact, a name or a date; it can only
+   read and write about the numbers it was given.
+   ====================================================================== */
+const AI_FILE = path.join(__dirname, 'ai_config.json');
+
+/* Google keeps retiring models (gemini-2.0-flash is gone, gemini-2.5-pro
+   is no longer offered to new users). So:
+     - the default lives in one place, here
+     - Settings fetches the model list LIVE from Google (/api/ai/models)
+     - and if the chosen model has been retired, one automatic retry on
+       the default keeps the dashboard working. */
+const AI_DEFAULT_MODEL = 'gemini-3.5-flash';
+const AI_DEAD = /no longer available|not found|NOT_FOUND|is not supported|has been (deprecated|shut ?down)/i;
+
+function aiConfig() {
+  try {
+    const c = JSON.parse(fs.readFileSync(AI_FILE, 'utf8'));
+    if (!c.model) c.model = AI_DEFAULT_MODEL;
+    return c;
+  }
+  catch (e) { return { key: '', model: AI_DEFAULT_MODEL }; }
+}
+function aiSave(c) {
+  fs.writeFileSync(AI_FILE, JSON.stringify(c, null, 2), { mode: 0o600 });
+}
+
+const AI_RULES =
+  'STRICT RULES:\n'
+  + '1. Use ONLY the numbers in the JSON provided. Never invent a fact, name, '
+  + 'event, date or figure that is not in the JSON.\n'
+  + '2. Tie every statement to a number (e.g. "AAP posted 4,231 tweets").\n'
+  + '3. If the JSON does not contain the answer, say so plainly: '
+  + '"That is not in this data."\n'
+  + '4. If you are estimating, say "it looks like" or "roughly" - never state it as certain.\n'
+  + '5. Write large numbers Indian style (1,23,456 or 2.4 Cr).\n'
+  + '6. Keep the answer short and useful - no lectures.\n'
+  + '7. Reply in clear, plain English.';
+
+async function geminiOnce(model, key, system, user, maxTokens) {
+  const url = 'https://generativelanguage.googleapis.com/v1beta/models/'
+    + encodeURIComponent(model) + ':generateContent';
+
+  const ctl = new AbortController();
+  const timer = setTimeout(function () { ctl.abort(); }, 45000);
+  try {
+    const r = await fetch(url, {
+      method: 'POST', signal: ctl.signal,
+      headers: { 'Content-Type': 'application/json', 'x-goog-api-key': key },
+      body: JSON.stringify({
+        systemInstruction: { parts: [{ text: system }] },
+        contents: [{ role: 'user', parts: [{ text: user }] }],
+        generationConfig: { temperature: 0.25, maxOutputTokens: maxTokens || 900 }
+      })
+    });
+    const j = await r.json().catch(function () { return {}; });
+    if (!r.ok) {
+      const msg = (j.error && j.error.message) || ('HTTP ' + r.status);
+      throw new Error(msg);
+    }
+    const cand = (j.candidates || [])[0] || {};
+    const parts = (cand.content && cand.content.parts) || [];
+    const txt = parts.map(function (p) { return p.text || ''; }).join('').trim();
+    if (!txt) throw new Error('The model returned an empty answer (possibly a safety filter).');
+    return txt;
+  } finally { clearTimeout(timer); }
+}
+
+async function gemini(system, user, maxTokens) {
+  const cfg = aiConfig();
+  if (!cfg.key) { const e = new Error('no-key'); e.code = 'no-key'; throw e; }
+  if (typeof fetch !== 'function') throw new Error('This Node is too old - Node 18+ is required');
+
+  const model = cfg.model || AI_DEFAULT_MODEL;
+  try {
+    return await geminiOnce(model, cfg.key, system, user, maxTokens);
+  } catch (e) {
+    /* Model retired? Try the default once and fix the config while we are
+       here - otherwise the same error comes back on every request. */
+    if (AI_DEAD.test(e.message) && model !== AI_DEFAULT_MODEL) {
+      console.log('  AI: model "' + model + '" is retired -> switching to "' + AI_DEFAULT_MODEL + '"');
+      const out = await geminiOnce(AI_DEFAULT_MODEL, cfg.key, system, user, maxTokens);
+      try { aiSave({ key: cfg.key, model: AI_DEFAULT_MODEL }); } catch (x) { }
+      return out;
+    }
+    throw e;
+  }
+}
+
+app.get('/api/ai/status', function (req, res) {
+  const c = aiConfig();
+  res.set('Cache-Control', 'no-store');
+  res.json({
+    enabled: !!c.key,
+    model: c.model || AI_DEFAULT_MODEL,
+    keyTail: c.key ? ('••••' + String(c.key).slice(-4)) : ''
+  });
+});
+
+app.post('/api/ai/key', express.json({ limit: '20kb' }), function (req, res) {
+  const key = String((req.body && req.body.key) || '').trim();
+  const model = String((req.body && req.body.model) || '').trim() || AI_DEFAULT_MODEL;
+  try {
+    if (!key) { aiSave({ key: '', model: model }); return res.json({ ok: true, enabled: false }); }
+    aiSave({ key: key, model: model });
+    res.json({ ok: true, enabled: true, keyTail: '••••' + key.slice(-4), model: model });
+  } catch (e) { res.status(500).json({ ok: false, error: e.message }); }
+});
+
+/* The LIVE model list from Google - a hardcoded list goes stale every few
+   months and starts returning "model no longer available". */
+app.get('/api/ai/models', async function (req, res) {
+  res.set('Cache-Control', 'no-store');
+  const c = aiConfig();
+  if (!c.key) return res.json({ models: [], reason: 'no-key' });
+  try {
+    const r = await fetch('https://generativelanguage.googleapis.com/v1beta/models?pageSize=200',
+      { headers: { 'x-goog-api-key': c.key } });
+    const j = await r.json();
+    if (!r.ok) throw new Error((j.error && j.error.message) || ('HTTP ' + r.status));
+    const list = (j.models || [])
+      .filter(function (m) {
+        return (m.supportedGenerationMethods || []).indexOf('generateContent') >= 0;
+      })
+      .map(function (m) { return String(m.name || '').replace(/^models\//, ''); })
+      // text models only - image / tts / transcribe / embedding are no use here
+      .filter(function (id) { return !/image|tts|transcribe|live|embedding|aqa|veo|imagen/i.test(id); })
+      .sort();
+    res.json({ models: list, current: c.model });
+  } catch (e) {
+    res.json({ models: [], error: e.message, current: c.model });
+  }
+});
+
+/* An assistant question. The dashboard sends a digest of the filtered view. */
+app.post('/api/ask', express.json({ limit: '256kb' }), async function (req, res) {
+  const q = String((req.body && req.body.q) || '').slice(0, 800);
+  const stats = (req.body && req.body.stats) || {};
+  if (!q.trim()) return res.status(400).json({ error: 'the question is empty' });
+
+  const system = 'You are the analyst behind the "Political Lens" dashboard, which '
+    + 'tracks Twitter/X activity by Punjab politicians. You will be given the '
+    + 'dashboard\'s COMPUTED figures as JSON.\n\n' + AI_RULES
+    + '\n8. Use a short bullet list wherever a list is natural.';
+
+  const user = 'QUESTION: ' + q + '\n\nDASHBOARD FIGURES (JSON):\n' + JSON.stringify(stats);
+
+  try {
+    const answer = await gemini(system, user, 900);
+    res.json({ answer: answer });
+  } catch (e) {
+    if (e.code === 'no-key') return res.status(409).json({ error: 'no-key' });
+    console.error('  /api/ask fail:', e.message);
+    res.status(502).json({ error: e.message });
+  }
+});
+
+/* Analysis for a report - returned as bullet points. */
+app.post('/api/ai/narrative', express.json({ limit: '256kb' }), async function (req, res) {
+  const stats = (req.body && req.body.stats) || {};
+  const kind = String((req.body && req.body.kind) || 'report');
+
+  const system = 'You are a senior political social-media analyst. You will be given the '
+    + 'COMPUTED figures (JSON) from Punjab Twitter data. Write 6-8 sharp, useful insights '
+    + 'in clear English. One insight per line, each starting with "- ". End with two lines of '
+    + 'practical recommendation: which narrative to push, when to post (based on peak hours), '
+    + 'and which constituency or party needs attention. Keep the political advice objective - '
+    + 'do not campaign for any party.\n\n' + AI_RULES;
+
+  const user = 'REPORT TYPE: ' + kind + '\n\nFIGURES (JSON):\n' + JSON.stringify(stats);
+
+  try {
+    const txt = await gemini(system, user, 1100);
+    const bullets = txt.split('\n')
+      .map(function (l) { return l.replace(/^[\s\-\*•\d.]+/, '').trim(); })
+      .filter(function (l) { return l.length > 15; })
+      .slice(0, 10);
+    res.json({ bullets: bullets });
+  } catch (e) {
+    if (e.code === 'no-key') return res.status(409).json({ error: 'no-key' });
+    console.error('  /api/ai/narrative fail:', e.message);
+    res.status(502).json({ error: e.message });
+  }
+});
+
+/* Full-corpus search for the topic report - it must reach tweets outside
+   the explorer sample, otherwise the report only ever covers the latest
+   25,000. */
+app.get('/api/topic', async function (req, res) {
+  res.set('Cache-Control', 'no-store');
+  const term = String(req.query.q || '').trim();
+  if (!term) return res.json({ n: 0, rows: [] });
+  try {
+    const d = await db();
+    const terms = term.split(/[,|]/).map(function (t) { return t.trim(); }).filter(Boolean);
+    const ors = terms.map(function (t) {
+      return { tx: { $regex: t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), $options: 'i' } };
+    });
+    const q = ors.length ? { $or: ors } : {};
+    if (req.query.from || req.query.to) {
+      q.d = {};
+      if (req.query.from) q.d.$gte = String(req.query.from);
+      if (req.query.to) q.d.$lte = String(req.query.to) + '￿';
+    }
+    const cap = Math.min(Number(req.query.limit) || 60000, 120000);
+    const rows = await d.collection('tweets').find(q, { projection: { _id: 0 } })
+      .limit(cap).toArray();
+    res.json({ n: rows.length, terms: terms, rows: rows });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+/* ---------------------------------------------------------------- static -- */
+app.use(express.static(PUBLIC, { etag: true, maxAge: '1h' }));
+app.get('/', function (req, res) { res.sendFile(path.join(PUBLIC, 'index.html')); });
+
+/* The laptop's LAN IPs - this is the URL to share with the team */
+function lanUrls(port) {
+  const out = [];
+  const ifaces = os.networkInterfaces();
+  Object.keys(ifaces).forEach(function (name) {
+    (ifaces[name] || []).forEach(function (a) {
+      if (a.family === 'IPv4' && !a.internal) out.push('http://' + a.address + ':' + port);
+    });
+  });
+  return out;
+}
+
+/* ------------------------------------------------------------ mount mode --
+ * Ye file do tarah se chalti hai:
+ *   1. Akela  -> `node server.js` (START.bat)          -> apna port kholta hai
+ *   2. Main dashboard ke andar -> require() se         -> sirf app deta hai,
+ *      port nahi kholta (warna 3000 par do server takra jaate).
+ * require.main === module ka matlab: "mujhe seedha chalaya gaya hai".
+ * Login/role ka pehra tab main server lagata hai. */
+module.exports = app;
+module.exports.startBuildWatcher = function () {
+  setInterval(watchBuild, 3 * 60 * 1000);
+  watchBuild();
+};
+module.exports.clearCache = function () { _cache = null; _rangeCache.clear(); };
+module.exports.CFG = CFG;
+
+if (require.main !== module) return;
+
+/* ------------------------------------------------------------------ boot -- */
+const PORT = Number(process.env.PORT) || Number(CFG.port) || 3000;
+
+(async function boot() {
+  console.log('\n  Political Lens — Punjab');
+  console.log('  mongo : ' + CFG.mongoUrl);
+  console.log('  db    : ' + CFG.targetDb);
+  try {
+    if (CFG.authEnabled) await ensureAdmin();
+    else console.log('  login : DISABLED (config.json -> authEnabled)');
+    const st = await db();
+    const n = await st.collection('tweets').estimatedDocumentCount();
+    console.log('  tweets: ' + n.toLocaleString('en-IN'));
+    if (!n) console.log('  !! 0 tweets - run: python build_punjab_data.py --push');
+  } catch (e) {
+    console.log('  !! Could not connect to MongoDB: ' + e.message);
+    console.log('     Open Compass -> mongodb://localhost:27017 -> Connect.');
+    console.log('     If that fails: Win+R -> services.msc -> "MongoDB Server" -> Start');
+  }
+  /* Check every 3 minutes whether a new build has landed */
+  setInterval(watchBuild, 3 * 60 * 1000);
+  watchBuild();
+
+  /* Listening on 0.0.0.0 so the team can open it from their phones on the
+     office wifi - binding to localhost only would let no other machine
+     connect at all. */
+  app.listen(PORT, '0.0.0.0', function () {
+    console.log('\n  Ready');
+    console.log('    on this laptop  :  http://localhost:' + PORT);
+    lanUrls(PORT).forEach(function (u) {
+      console.log('    phone / team    :  ' + u);
+    });
+    console.log('\n  (If it will not open on a phone, Node needs to be allowed through');
+    console.log('   Windows Firewall - Windows asks the first time, tick "Private networks".)\n');
+  });
+})();

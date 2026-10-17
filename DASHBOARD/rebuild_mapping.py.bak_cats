@@ -1,0 +1,333 @@
+# -*- coding: utf-8 -*-
+"""
+rebuild_mapping.py  --  Mapping/Mapping.xlsx se handle_master.json banata hai.
+
+Mapping.xlsx hi MASTER hai. Purani mapping ka koi data nahi uthaya jaata.
+Excel me khaali hai to mapping me bhi khaali ('-') hi rahega.
+
+Chalao:
+   python rebuild_mapping.py            # sirf REPORT (kuch nahi badalta)
+   python rebuild_mapping.py --apply    # backup lekar mapping likh do
+
+Ye script sirf DO cheezein khud se karta hai, dono zaroori hain:
+  1. Naam ke variants seedhe karta hai (inc->INC, Odisa->Odisha, Mla->MLA...)
+     -- warna dashboard me ek hi party/state do baar dikhti hai.
+  2. Jis handle ke tweets Mongo me DUSRE case me pade hain, uske liye ek
+     alias entry banata hai (wahi Excel wala data) -- warna wo tweets
+     unmapped ho jaate hain.
+Har takraav mapping_conflicts.csv me likh diya jaata hai -- wo dekh lena.
+"""
+import os, sys, re, csv, json, shutil, collections
+from datetime import datetime
+import pandas as pd
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+XLSX = os.path.join(HERE, '..', 'Mapping', 'Mapping.xlsx')
+MAPJSON = os.path.join(HERE, 'data', 'handle_master.json')
+UP_MAPJSON = os.path.join(HERE, '..', 'UP-DASHBOARD', 'data', 'handle_master.json')
+DASHDATA = os.path.join(HERE, 'data', 'dashboard_data.json')
+CONFCSV = os.path.join(HERE, 'mapping_conflicts.csv')
+
+BLANK = ('', '-', '—', 'nan', 'None', 'null', '(blank)')
+
+# designation -> dashboard ka level
+LVL = {
+    'MLA': 'MLA', 'MLA CONTESTENT': 'MLA Contestent', 'MLA CONTESTANT': 'MLA Contestent',
+    'LS_MP': 'LS MP', 'LS_MP CANDIDATE': 'LS MP', 'RS_MP': 'RS MP',
+    'MLC': 'MLC', 'CHIEF MINISTER': 'CM', 'DEPUTY CHIEF MINISTER': 'Dy CM',
+}
+
+# ---- naam ke variants seedhe karo (ye dashboard todte hain) ----
+PARTY_FIX = {'inc': 'INC', 'ind.': 'IND', 'ind': 'IND', 'ham (s)': 'HAM(S)',
+             'aitc': 'TMC',                      # AITC aur TMC ek hi party hai
+             'apna dal (s)': 'AD(S)', 'apna dal(s)': 'AD(S)'}
+STATE_FIX = {'jammu & kashmir': 'Jammu and Kashmir', 'odisa': 'Odisha',
+             'delhi (nct)': 'Delhi'}
+CATEGORY_FIX = {'mla': 'MLA', 'media houses': 'Media House', 'media house': 'Media House',
+                'journalist': 'Journalist', 'page': 'Page', 'top leaders': 'Top Leaders',
+                'mla contestent': 'MLA Contestent', 'mlc': 'MLC',
+                'ls_mp': 'LS_MP', 'rs_mp': 'RS_MP'}
+# category chunte waqt tarjeeh -- 'Top Leaders' sabse aam hai, isliye sabse aakhir
+CAT_RANK = ['Chief Minister', 'MLA', 'MLC', 'LS_MP', 'RS_MP', 'MLA Contestent',
+            'Media House', 'Journalist', 'Page', 'Top Leaders']
+
+# ABHI ka pad -- ye rows purani (contest wali) rows se zyada bharosemand hain
+CURRENT = {'MLA', 'MLC', 'LS_MP', 'RS_MP', 'CHIEF MINISTER', 'DEPUTY CHIEF MINISTER'}
+
+
+def row_rank(r):
+    """Ek handle ki kai row me se kaunsi zyada sahi hai.
+    Excel me aksar aadmi ki ABHI ki seat aur uske PURANE chunav dono padte hain
+    (AnilKumarMZN: abhi MLA Purqazi/RLD + 2022 me contest Bareilly/BSP).
+    Party-state-seat abhi wali row se lena chahiye, purani se nahi."""
+    d = clean(r['desig']).upper()
+    has_seat = bool(clean(r['acpc']))
+    if d in CURRENT:
+        return 0 if has_seat else 1
+    if 'CONTEST' in d:
+        return 3
+    return 2 if d else 4
+
+
+def clean(v):
+    s = str(v if v is not None else '').strip()
+    return '' if s in BLANK else s
+
+
+def dash(v):
+    return clean(v) or '-'
+
+
+def handle_of(u):
+    u = str(u or '').strip()
+    if not u:
+        return ''
+    m = re.search(r'(?:twitter\.com|x\.com)/@?([A-Za-z0-9_]{1,20})', u, re.I)
+    if m:
+        return m.group(1)
+    if re.fullmatch(r'@?[A-Za-z0-9_]{1,20}', u):
+        return u.lstrip('@')
+    return ''                      # instagram / facebook / khaali
+
+
+def fix(v, table):
+    s = clean(v)
+    return table.get(s.lower(), s) if s else ''
+
+
+def nicer(vals):
+    """ek hi naam ke case-variant me se behtar chuno: 'Morena' > 'MORENA'."""
+    vals = sorted(set(vals))
+    if len(vals) == 1:
+        return vals[0]
+    tc = [v for v in vals if not v.isupper()]
+    return tc[0] if tc else vals[0]
+
+
+def pick(vals, conflicts, handle, col):
+    """kai value ho to majority; case-variant ho to sundar wala."""
+    vals = [v for v in vals if v]
+    if not vals:
+        return ''
+    uniq = set(vals)
+    if len(uniq) == 1:
+        return vals[0]
+    # sirf case ka farq?
+    if len({v.lower() for v in uniq}) == 1:
+        return nicer(uniq)
+    c = collections.Counter(vals)
+    best = c.most_common(1)[0][0]
+    conflicts.append((handle, col, ' | '.join(sorted(uniq)), best))
+    return best
+
+
+SHEET = 'Sheet1'          # SIRF yahi sheet padhni hai (baaki tabs galti se bani thin)
+
+
+def load_rows():
+    x = pd.ExcelFile(XLSX)
+    need = ['State', 'AC/PC No', 'AC Name', 'PC Name', 'Candidate Name',
+            'Designation', 'Category', 'Party', 'Twitter Account']
+    if SHEET in x.sheet_names:
+        sheets = [SHEET]
+    else:
+        sheets = x.sheet_names[:1]
+        print("  [!] '%s' nahi mili -- pehli sheet '%s' li ja rahi hai" % (SHEET, sheets[0]))
+    ignored = [s for s in x.sheet_names if s not in sheets]
+    if ignored:
+        print("  (chhodi gayi sheet: %s)" % ', '.join(ignored))
+    frames = []
+    for sn in sheets:
+        d = pd.read_excel(x, sheet_name=sn, dtype=str, keep_default_na=False)
+        d = d.rename(columns={'State Name': 'State', 'CATEGORY': 'Category'})
+        d = d.drop(columns=[c for c in d.columns if str(c).startswith('Unnamed')])
+        miss = [c for c in need if c not in d.columns]
+        if miss:
+            print("  [!] '%s' me ye column nahi: %s -- sheet chhodi" % (sn, miss))
+            continue
+        d = d[need].copy()
+        d.columns = ['state', 'acpc', 'acname', 'pcname', 'name',
+                     'desig', 'category', 'party', 'url']
+        d['_sheet'] = sn
+        frames.append(d)
+    if not frames:
+        sys.exit("Kisi sheet me zaroori column nahi mile.")
+    return pd.concat(frames, ignore_index=True)
+
+
+def live_handles():
+    """Mongo/roster me handle kis case me pade hain -- alias ke liye."""
+    try:
+        dd = {r['key']: r['value'] for r in json.load(open(DASHDATA, encoding='utf-8'))}
+        return {o['h'] for o in dd['UNI']['allHandles']}
+    except Exception as e:
+        print("  (roster nahi padha ja saka, alias skip: %s)" % e)
+        return set()
+
+
+def build():
+    df = load_rows()
+    df['h'] = df['url'].map(handle_of)
+    skipped = df[df['h'] == '']
+    df = df[df['h'] != ''].copy()
+
+    by = collections.OrderedDict()
+    for rec in df.to_dict('records'):
+        by.setdefault(rec['h'], []).append(rec)
+
+    conflicts = []
+    new = {}
+    for h, rows in by.items():
+        # designation SAARI rows se (dual role bhi chahiye),
+        # par baaki detail sirf SABSE BHAROSEMAND rows se
+        best = min(row_rank(r) for r in rows)
+        top = [r for r in rows if row_rank(r) == best]
+
+        desigs, seen = [], set()
+        for r in rows:
+            d = clean(r['desig'])
+            if d and d.lower() not in seen:
+                seen.add(d.lower()); desigs.append(d)
+
+        levels, ls = [], set()
+        for d in desigs:
+            L = LVL.get(d.upper(), 'Others')
+            if L not in ls:
+                ls.add(L); levels.append(L)
+        if not levels:
+            levels = ['Others']
+        if len(levels) > 1 and 'Others' in levels:
+            levels = [L for L in levels if L != 'Others']
+
+        # seat ke liye ek hi row chuno: jisme sabse zyada seat-info bhari ho
+        def seat_score(r):
+            return -sum(1 for k in ('acpc', 'acname', 'pcname') if clean(r[k]))
+        srow = sorted(top, key=seat_score)[0]
+        seat = {k: clean(srow[k]) for k in ('acpc', 'acname', 'pcname')}
+        seats = {(clean(r['acpc']), clean(r['acname']), clean(r['pcname'])) for r in top}
+        seats = {t for t in seats if any(t)}
+        if len(seats) > 1:
+            shown = ' || '.join('/'.join(p for p in t if p) for t in sorted(seats))
+            chose = '/'.join(p for p in (seat['acpc'], seat['acname'], seat['pcname']) if p)
+            conflicts.append((h, 'seat', shown, chose))
+
+        cats = [fix(r['category'], CATEGORY_FIX) for r in top]
+        cats = [c for c in cats if c]
+        if len(set(cats)) > 1:
+            conflicts.append((h, 'category', ' | '.join(sorted(set(cats))), ''))
+            cat = sorted(set(cats), key=lambda c: CAT_RANK.index(c) if c in CAT_RANK else 99)[0]
+            conflicts[-1] = (h, 'category', ' | '.join(sorted(set(cats))), cat)
+        else:
+            cat = cats[0] if cats else ''
+
+        new[h] = {
+            'handle': h,
+            'name': pick([clean(r['name']) for r in top], conflicts, h, 'name'),
+            'state': dash(pick([fix(r['state'], STATE_FIX) for r in top], conflicts, h, 'state')),
+            'locations': '-',
+            # seat ke teeno column EK HI row se -- warna AC/PC No kisi aur seat ka
+            # aur AC Name kisi aur ka aa jaata hai (CPSGangwarBJP: PC_25 + Baheri)
+            'ac_pc_no': dash(seat['acpc']),
+            'ac_name': dash(seat['acname']),
+            'pc_name': dash(seat['pcname']),
+            'designation_raw': ' | '.join(desigs) if desigs else '-',
+            'designations': desigs,
+            'levels': levels,
+            'category': dash(cat),
+            'party': dash(pick([fix(r['party'], PARTY_FIX) for r in top], conflicts, h, 'party')),
+            'status': 'Active',
+            'tweet_url': '',
+            'profile_url': 'https://x.com/' + h,
+        }
+
+    # ---- alias: tweets dusre case me pade hain to us case ki entry bhi banao ----
+    live = live_handles()
+    new_ci = {h.lower(): h for h in new}
+    alias = []
+    for lh in live:
+        if lh in new:
+            continue
+        k = new_ci.get(lh.lower())
+        if k:
+            rec = dict(new[k])
+            rec['handle'] = lh
+            rec['profile_url'] = 'https://x.com/' + lh
+            new[lh] = rec
+            alias.append((lh, k))
+
+    return new, skipped, conflicts, alias, live
+
+
+def main():
+    apply = '--apply' in sys.argv
+    if not os.path.exists(XLSX):
+        sys.exit("Mapping.xlsx nahi mila: %s" % XLSX)
+
+    old = json.load(open(MAPJSON, encoding='utf-8')) if os.path.exists(MAPJSON) else {}
+    new, skipped, conflicts, alias, live = build()
+
+    print("\n=== MAPPING.XLSX SE BANI MAPPING ===")
+    print("  handles      : %s" % f"{len(new):,}")
+    print("  (purani thi  : %s)" % f"{len(old):,}")
+    if len(skipped):
+        print("  URL se handle nahi nikla (insta/fb/khaali): %d row" % len(skipped))
+        for u in list(skipped['url'])[:5]:
+            print("     %s" % (str(u)[:60] or '(khaali)'))
+    if alias:
+        print("\n  Mongo me dusre case me tweets -> alias entry bani: %d" % len(alias))
+        for a, k in alias[:6]:
+            print("     %-22s = %s" % (a, k))
+        if len(alias) > 6:
+            print("     ... aur %d" % (len(alias) - 6))
+
+    # roster me hai par mapping me nahi
+    orphan = sorted(h for h in live if h not in new)
+    if orphan:
+        print("\n  Mongo me tweets hain par Mapping.xlsx me NAHI: %d handles" % len(orphan))
+        for h in orphan[:12]:
+            print("     %-24s %s" % (h, str(old.get(h, {}).get('name', ''))[:26]))
+        if len(orphan) > 12:
+            print("     ... aur %d" % (len(orphan) - 12))
+
+    lv = collections.Counter()
+    for v in new.values():
+        for L in v['levels']:
+            lv[L] += 1
+    print("\n  LEVEL:")
+    for k, n in lv.most_common():
+        print("     %-16s %s" % (k, f"{n:,}"))
+    print("\n  CATEGORY:")
+    for k, n in collections.Counter(v['category'] for v in new.values()).most_common():
+        print("     %-16s %s" % (k, f"{n:,}"))
+
+    if conflicts:
+        print("\n  Ek hi handle par alag-alag value (takraav): %d" % len(conflicts))
+        cc = collections.Counter(c[1] for c in conflicts)
+        for k, n in cc.most_common():
+            print("     %-16s %d" % (k, n))
+        with open(CONFCSV, 'w', encoding='utf-8-sig', newline='') as f:
+            w = csv.writer(f, quoting=csv.QUOTE_ALL)
+            w.writerow(['Handle', 'Column', 'Excel me jo-jo tha', 'Jo chuna gaya'])
+            for c in sorted(conflicts):
+                w.writerow(c)
+        print("     -> poori list: %s" % os.path.basename(CONFCSV))
+
+    if not apply:
+        print("\n(REPORT MODE -- kuch nahi badla. Likhne ke liye: python rebuild_mapping.py --apply)")
+        return
+
+    for tgt in (MAPJSON, UP_MAPJSON):
+        if not os.path.isdir(os.path.dirname(tgt)):
+            continue
+        if os.path.exists(tgt):
+            bak = tgt + '.bak_' + datetime.now().strftime('%Y%m%d_%H%M%S')
+            shutil.copy2(tgt, bak)
+            print("  backup: %s" % os.path.basename(bak))
+        json.dump(new, open(tgt, 'w', encoding='utf-8'), ensure_ascii=False, indent=0)
+        print("  likha : %s  (%s handles)" % (tgt, f"{len(new):,}"))
+
+    print("\nAb chalao:  python push_mapping_to_mongo.py --check")
+
+
+if __name__ == '__main__':
+    main()

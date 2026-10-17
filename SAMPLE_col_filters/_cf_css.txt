@@ -1,0 +1,46 @@
+/* ===== col-filter (09-Oct): Explorer jaisa column header filter ===== */
+th.cf-h{position:relative;padding-right:26px;user-select:none}
+.cf-btn{position:absolute;top:50%;right:5px;transform:translateY(-50%);width:17px;height:17px;display:flex;align-items:center;justify-content:center;border:none;background:transparent;border-radius:4px;cursor:pointer;padding:0;color:inherit;opacity:0;transition:opacity .13s,background .13s}
+th.cf-h:hover .cf-btn,.cf-btn:focus-visible{opacity:.75}
+.cf-btn:hover{background:rgba(0,0,0,.07);opacity:1}
+.cf-btn svg{width:9px;height:9px;display:block}
+th.cf-on{background:#FDEEE0;color:#E65100;border-bottom-color:#F3C49A}
+th.cf-on .cf-btn{opacity:1;color:#E65100}
+th.cf-open .cf-btn{opacity:1;background:rgba(0,0,0,.07)}
+.cf-sortmark{font-size:9px;margin-left:3px;color:#E65100}
+.cf-none{padding:26px 10px;text-align:center;color:var(--muted2);font-size:12px}
+.cf-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 9px;font-family:'DM Sans',system-ui,sans-serif}
+.cf-count{font-size:11.5px;font-weight:600;color:var(--muted)}
+.cf-count b{color:#E65100;font-family:'Rajdhani',sans-serif;font-size:13.5px}
+.cf-chips{display:flex;gap:6px;flex-wrap:wrap}
+.cf-chip{display:inline-flex;align-items:center;gap:5px;background:#FDEEE0;color:#B23400;border:1px solid #F3C49A;border-radius:20px;padding:2px 5px 2px 9px;font-size:10.5px;font-weight:600}
+.cf-chip i{font-style:normal;cursor:pointer;font-weight:700;opacity:.7;padding:0 2px}
+.cf-chip i:hover{opacity:1}
+.cf-clr{font-family:'DM Sans',sans-serif;font-size:11px;font-weight:600;color:var(--text);background:var(--card);border:1.5px solid var(--border);border-radius:8px;padding:4px 10px;cursor:pointer}
+.cf-clr:hover{border-color:#E65100;color:#E65100}
+.cf-pop{position:fixed;z-index:9999;min-width:214px;max-width:min(320px,calc(100vw - 20px));background:var(--card);border:1.5px solid var(--border);border-radius:12px;box-shadow:0 10px 32px rgba(0,0,0,.18);padding:9px;font-family:'DM Sans',system-ui,sans-serif;font-size:12px;color:var(--text);display:none}
+.cf-pop.show{display:block}
+.cf-pop .cf-sec{font-family:'Rajdhani',sans-serif;font-size:9.5px;font-weight:700;letter-spacing:.9px;text-transform:uppercase;color:var(--muted2);margin:3px 2px 5px}
+.cf-pop input[type=text],.cf-pop input[type=number],.cf-pop input[type=date],.cf-pop select{width:100%;font-family:inherit;font-size:11.5px;color:var(--text);background:var(--card);border:1.5px solid var(--border);border-radius:7px;padding:6px 8px;outline:none}
+.cf-pop input:focus,.cf-pop select:focus{border-color:#E65100}
+.cf-row2{display:flex;gap:6px}
+.cf-row2>*{flex:1;min-width:0}
+.cf-sort{display:flex;gap:6px;margin-bottom:8px}
+.cf-sort button{flex:1;font-family:inherit;font-size:11px;font-weight:600;color:var(--text);background:var(--card);border:1.5px solid var(--border);border-radius:7px;padding:5px 6px;cursor:pointer;white-space:nowrap}
+.cf-sort button:hover{border-color:#E65100;color:#E65100}
+.cf-sort button.on{background:#E65100;border-color:#E65100;color:#fff}
+.cf-links{display:flex;gap:10px;margin:7px 2px 5px;font-size:11px}
+.cf-links a{color:#E65100;font-weight:600;cursor:pointer;text-decoration:none}
+.cf-links a:hover{text-decoration:underline}
+.cf-list{max-height:216px;overflow:auto;border:1.5px solid var(--border);border-radius:8px;padding:3px}
+.cf-it{display:flex;align-items:center;gap:7px;padding:4px 6px;border-radius:6px;cursor:pointer}
+.cf-it:hover{background:rgba(230,81,0,.07)}
+.cf-it input{margin:0;accent-color:#E65100;flex-shrink:0}
+.cf-it span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cf-it b{font-family:'Rajdhani',sans-serif;font-weight:700;color:var(--muted2);font-size:11px}
+.cf-empty{padding:12px 6px;text-align:center;color:var(--muted2);font-size:11px}
+.cf-foot{display:flex;gap:7px;margin-top:9px}
+.cf-foot button{flex:1;font-family:inherit;font-size:11.5px;font-weight:700;border-radius:8px;padding:7px 8px;cursor:pointer;border:1.5px solid var(--border);background:var(--card);color:var(--text)}
+.cf-foot .cf-apply{background:#E65100;border-color:#E65100;color:#fff}
+.cf-foot button:hover{filter:brightness(.96)}
+@media(max-width:600px){.cf-pop{min-width:0;width:min(300px,calc(100vw - 20px))}}

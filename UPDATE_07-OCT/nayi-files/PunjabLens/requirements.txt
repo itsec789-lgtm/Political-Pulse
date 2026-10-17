@@ -1,0 +1,2 @@
+pymongo>=4.6
+pandas>=2.0        # sirf --csv mode ke liye

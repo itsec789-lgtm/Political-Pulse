@@ -1,0 +1,42 @@
+# -*- coding: utf-8 -*-
+"""
+update_up.py  -  UP dashboard ka data update (sirf Uttar Pradesh).
+
+Ye All-India wale master_tweets.csv me se sirf UP ka data lekar up_pulse update karta hai.
+Pehle All-India update chalao (DASHBOARD me update_add.py --push), phir ye:
+
+    python update_up.py --push
+    python update_up.py "C:\\path\\koi_aur.csv" --push   (apni CSV se)
+
+--push = up_pulse me daal do + offline HTML bhi bana do.
+"""
+import sys, os, subprocess
+import update_dashboard as U   # UP wala (CSV ko UP filter karta hai, DB=up_pulse)
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+# All-India master (jahan sab tweets jama hote hain)
+# NOTE: apne hi folder se dhoondhte hain -- project folder kahin bhi ho, chalta rahega.
+MASTER = os.path.abspath(os.path.join(HERE, "..", "DASHBOARD", "data", "master_tweets.csv"))
+
+if __name__ == "__main__":
+    args = [a for a in sys.argv[1:] if not a.startswith("--")]
+    push = "--push" in sys.argv
+    csv = args[0] if args else MASTER
+    if not os.path.exists(csv):
+        sys.exit("CSV nahi mila: " + csv + "\nPehle All-India update chalao, ya CSV ka path do.")
+    print("UP build from:", csv)
+    handles, phd_docs, mapping, dd_docs, DATES, tot = U.build(csv)
+    print("Writing UP JSON files...")
+    U.write_files(handles, phd_docs, mapping, dd_docs)
+    if push:
+        print("Pushing to up_pulse...")
+        U.push_mongo(handles, phd_docs, mapping, dd_docs)
+        print("Offline HTML bana rahe hain...")
+        try:
+            r = subprocess.run(["node", os.path.join(HERE, "export_html.js")])
+            if r.returncode != 0:
+                print("  (html export skip - 'node' PATH me hai?)")
+        except Exception as e:
+            print("  (html export skip:", e, ")")
+    print("\nUP DONE. tweets=%d  handles=%d  dates=%d" % (tot, len(handles), len(DATES)))
+    print("Reload UP dashboard: http://localhost:3001  (Ctrl+Shift+R)")

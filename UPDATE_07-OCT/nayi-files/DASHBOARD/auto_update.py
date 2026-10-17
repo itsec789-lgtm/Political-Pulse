@@ -1,0 +1,201 @@
+# -*- coding: utf-8 -*-
+"""
+auto_update.py  --  FULLY AUTOMATIC (har 30 min) All-India updater.
+
+Flow:
+  1. BASE folder (saare subfolders) scan -- Media Houses SKIP.
+  2. Nayi/badli files uthata hai (state-tracked; growing files bhi pakadta).
+  3. Handle..Sentiment le, 1-July se aaj tak, attributes TUMHARI mapping se.
+     Handle na mile to Tweet URL se. Mapping me na mile -> needs_mapping.csv.
+  4. master_tweets.csv me merge + Tweet URL par dedupe.
+  5. DONO dashboard push: All-India (india_pulse) + UP filtered (up_pulse).
+
+Tum sirf All-India data doge -> UP apne aap filtered view me update.
+
+Chalane ke liye har 30 min: START_LIVE.bat (server + loop) ya run_once.bat.
+"""
+import os, sys, json, time, shutil, datetime, importlib
+import pandas as pd
+
+HERE   = os.path.dirname(os.path.abspath(__file__))
+DATA   = os.path.join(HERE, "data")
+MASTER = os.path.join(DATA, "master_tweets.csv")
+STATE  = os.path.join(HERE, "auto_state.json")
+NEEDMAP= os.path.join(HERE, "needs_mapping.csv")
+LOGF   = os.path.join(HERE, "auto_update.log")
+
+sys.path.insert(0, HERE)
+import phase2_push as P2          # find_files, read_map_file, BASE, MAPJSON, FILL
+DATE_FROM = datetime.date(2026, 7, 1)   # 1 July se aaj tak (master Apr-1July tak; July2-30 gap + Aug bharo)
+
+
+def log(m):
+    line = "[" + datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + "] " + str(m)
+    print(line)
+    try: open(LOGF, "a", encoding="utf-8").write(line + "\n")
+    except Exception: pass
+
+
+def load_state():
+    try: return json.load(open(STATE, encoding="utf-8"))
+    except Exception: return {"processed": {}}
+
+def save_state(s):
+    try: json.dump(s, open(STATE, "w", encoding="utf-8"))
+    except Exception as e: log("  (state save fail: %s)" % e)
+
+
+def find_new(state):
+    out = []
+    for f in P2.find_files():                 # BASE scan, Media Houses skip
+        try: st = os.stat(f)
+        except Exception: continue
+        mt, sz = st.st_mtime, st.st_size
+        prev = state["processed"].get(f)
+        if prev and prev.get("mtime") == mt and prev.get("size") == sz:
+            continue                           # already done (badli nahi)
+        out.append((f, mt, sz))
+    return out
+
+
+def main():
+    if not os.path.isdir(P2.BASE):
+        log("!! BASE folder nahi mila (network off?): " + P2.BASE); return
+    t0 = time.time()
+
+    # ---- har cycle me SABSE PEHLE Mapping ----
+    # Mapping.xlsx hi sach hai. Agar wo badli hai to naye tweet aaye ya na
+    # aaye, mapping ka badlaav Mongo tak jaana chahiye -- warna party /
+    # designation / seat purani hi dikhti rehti hai.
+    # DHYAN: ye "No new files" wale return se PEHLE chalta hai, kyunki
+    # aksar nayi file nahi hoti par mapping badal chuki hoti hai.
+    try:
+        import subprocess
+        _ms = subprocess.run([sys.executable, os.path.join(HERE, 'mapping_sync.py')],
+                             capture_output=True, text=True, cwd=HERE)
+        for _l in (_ms.stdout or '').strip().splitlines():
+            log("  " + _l)
+        if _ms.returncode != 0:
+            log("  (mapping sync fail -- dashboard purani mapping par chalta rahega)")
+    except Exception as e:
+        log("  (mapping sync skip: %s)" % e)
+
+    # mapping badli ya nahi -- sync khud likh kar jaati hai
+    _map_changed = False
+    try:
+        _st = json.load(open(os.path.join(HERE, 'data', 'mapping_sync.json'),
+                             encoding='utf-8'))
+        _map_changed = bool(_st.get('changed')) and _st.get('ok') is not False
+    except Exception:
+        pass
+
+    state = load_state()
+    newf = find_new(state)
+    if not newf:
+        # Naye tweet nahi aaye -- par agar MAPPING badli hai to dashboard
+        # dobara banana ZAROORI hai, warna nayi party/state kahin nahi dikhegi.
+        # (Pehle yahan se seedha return ho jaata tha.)
+        if _map_changed:
+            log("Naye tweet nahi, par MAPPING badli hai -> dashboard dobara banate hain")
+            import push_all_scopes as PA; importlib.reload(PA)
+            PA.push_all(MASTER, log=log)
+            log("DONE. Mapping ke badlaav dono dashboard par aa gaye.")
+        else:
+            log("No new files, mapping bhi wahi. Dashboard already up-to-date.")
+        return
+    log("Naye/badle files: %d" % len(newf))
+
+    mp = json.load(open(P2.MAPJSON, encoding="utf-8"))
+    today = datetime.date.today()
+    frames, unmapped, done = [], {}, []
+    new_media = 0
+    for f, mt, sz in newf:
+        try:
+            df, um = P2.read_map_file(f, mp, DATE_FROM, today)
+        except Exception as e:
+            log("  ERROR read (skip): %s -> %s" % (os.path.basename(f), e)); continue
+        if df is not None:
+            if '__media__' in um:
+                # naye media/journalist handles -> mapping me add (state/seat blank, label ke saath)
+                for h, lbl in um.pop('__media__').items():
+                    mp[h] = {'handle': h, 'name': '', 'state': '', 'locations': '-', 'ac_pc_no': '-',
+                             'ac_name': '-', 'pc_name': '-', 'designation_raw': lbl,
+                             'designations': [lbl], 'levels': ['Others'], 'category': lbl,
+                             'party': '-', 'status': 'Active', 'tweet_url': '',
+                             'profile_url': 'https://x.com/' + h}
+                    new_media += 1
+            for h, n in um.items(): unmapped[h] = unmapped.get(h, 0) + n
+            frames.append(df)
+            log("  %-42s +%d rows" % (os.path.basename(f)[:42], len(df)))
+        done.append((f, mt, sz))
+
+    for f, mt, sz in done:
+        state["processed"][f] = {"mtime": mt, "size": sz}
+    save_state(state)
+    if new_media:
+        json.dump(mp, open(P2.MAPJSON, "w", encoding="utf-8"), ensure_ascii=False, indent=0)
+        log("Mapping me %d naye media/journalist handle add hue (total %d)" % (new_media, len(mp)))
+
+    if not frames:
+        log("Naye files me July+ data nahi mila."); return
+    new = pd.concat(frames, ignore_index=True)
+    log("Total naye rows: %d" % len(new))
+    if unmapped:
+        pd.DataFrame(sorted(unmapped.items(), key=lambda x:-x[1]),
+                     columns=['Handle','tweets']).to_csv(NEEDMAP, index=False)
+        log("Mapping me na mile %d handle -> needs_mapping.csv" % len(unmapped))
+
+    if os.path.exists(MASTER) and os.path.getsize(MASTER) > 100:
+        master = pd.read_csv(MASTER, dtype=str, encoding='utf-8-sig').fillna("")
+        combined = pd.concat([master, new], ignore_index=True)
+    else:
+        combined = new
+    # poore master ki Tweet Date IST me (UTC/GMT +5:30) - ek hi format
+    combined["Tweet Date"] = P2.to_ist_series(combined["Tweet Date"])
+    before = len(combined)
+    # dedupe by TWEET ID -- MERGE (replace nahi): numeric me MAX, text me non-blank
+    # => kisi row ka data kabhi blank/kam nahi hota
+    NUMC = ['Followers','Followings','Total Posts','Total Comments','Total Likes',
+            'Total Retweets','Total Views','Total Bookmark Tweets Times']
+    COLS = list(combined.columns)
+    _id = combined["Tweet URL"].astype(str).str.extract(r"/status(?:es)?/(\d+)", expand=False)
+    combined["_key"] = _id.where(_id.notna(), combined["Tweet URL"].astype(str).str.strip())
+    blank = combined["_key"].astype(str).str.strip() == ""
+    combined.loc[blank, "_key"] = "u_" + combined.index[blank].astype(str)
+    dm = combined.duplicated("_key", keep=False)
+    uniq, dups = combined[~dm], combined[dm]
+    if len(dups):
+        keys = dups["_key"]
+        NUMP = [c for c in NUMC if c in COLS]
+        TXTP = [c for c in COLS if c not in NUMP and c != "_key"]
+        num = dups[NUMP].apply(lambda s: pd.to_numeric(s.astype(str).str.replace(",", "", regex=False), errors="coerce"))
+        gnum = num.where(num > 0).groupby(keys, sort=False).max().fillna(num.groupby(keys, sort=False).max())
+        gnum = gnum.apply(lambda s: s.map(lambda v: "" if pd.isna(v) else str(int(v))))
+        gtxt = dups[TXTP].replace("", pd.NA).groupby(keys, sort=False).last().fillna("")
+        merged = pd.concat([gtxt, gnum], axis=1).reset_index(drop=True)
+        combined = pd.concat([uniq, merged], ignore_index=True)
+    else:
+        combined = uniq
+    combined = combined[[c for c in COLS if c != "_key"]]
+    log("Master: %d -> %d (dedupe by Tweet ID, MERGE - data loss nahi)" % (before, len(combined)))
+    tmp = MASTER + ".tmp"; combined.to_csv(tmp, index=False, encoding="utf-8"); os.replace(tmp, MASTER)
+
+    # naye rows Mongo master (pulse_master.master_tweets) me bhi -- sirf naya hissa, fast
+    try:
+        import master_to_mongo as M2
+        importlib.reload(M2)
+        M2.upsert_frame(new, M2.coll(), log=log)
+        log("Mongo master sync: +%s rows (total %s)" % (f"{len(new):,}", f"{M2.coll().estimated_document_count():,}"))
+    except Exception as e:
+        log("  (mongo master sync skip: %s)" % e)
+
+    log("Push -> All-India + UP...")
+    import push_all_scopes as PA; importlib.reload(PA)
+    PA.push_all(MASTER, log=log)
+    log("DONE in %ds. Dono dashboard update. (browser khud reload ~30s)" % int(time.time() - t0))
+
+
+if __name__ == "__main__":
+    try: main()
+    except Exception as e:
+        import traceback; log("FATAL: " + str(e)); log(traceback.format_exc()); sys.exit(1)

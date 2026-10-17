@@ -1,0 +1,49 @@
+{
+ "dashboard_data": [],
+ "handles": [],
+ "mapping": [],
+ "meta": [],
+ "phd": [],
+ "tweets": [
+  {
+   "name": "party_1",
+   "key": [
+    [
+     "party",
+     1
+    ]
+   ],
+   "unique": false
+  },
+  {
+   "name": "date_1",
+   "key": [
+    [
+     "date",
+     1
+    ]
+   ],
+   "unique": false
+  },
+  {
+   "name": "cat_1",
+   "key": [
+    [
+     "cat",
+     1
+    ]
+   ],
+   "unique": false
+  },
+  {
+   "name": "h_1",
+   "key": [
+    [
+     "h",
+     1
+    ]
+   ],
+   "unique": false
+  }
+ ]
+}

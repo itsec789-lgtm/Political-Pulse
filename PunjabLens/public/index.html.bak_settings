@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Political Lens — Punjab Twitter Intelligence</title>
+<!-- Ye dashboard do jagah chalta hai:
+       akela  -> http://localhost:3000/          (PunjabLens/START.bat se)
+       main ke andar -> http://localhost:3000/punjab/
+     Isliye API ka pata fix nahi likha ja sakta. Neeche wala PL_BASE
+     address bar dekh kar khud tay kar leta hai. -->
+<script>
+window.PL_BASE = (function () {
+  var m = String(location.pathname || '').match(/^(.*)\/punjab(?=\/|$)/);
+  return m ? m[1] + '/punjab' : '';
+})();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ============ LOADING SCREEN ============ -->
+<div id="loadingScreen">
+  <div class="loader-box">
+    <div class="loader-mark">PL</div>
+    <div class="loader-bar"><div class="loader-fill"></div></div>
+    <p class="loader-text" id="loaderText">Connecting to MongoDB…</p>
+  </div>
+</div>
+
+<!-- ============ NAVBAR ============ -->
+<header class="navbar">
+  <div class="nav-left">
+    <button class="icon-btn" id="sidebarToggle" aria-label="Toggle sidebar">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+    </button>
+    <div class="brand">
+      <div class="brand-mark">PL</div>
+      <div class="brand-text">
+        <span class="brand-title">Political Lens</span>
+        <span class="brand-sub">Punjab Twitter Intelligence</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="nav-center">
+    <div class="global-search">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/><path d="M21 21l-4.3-4.3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      <input type="text" id="globalSearch" placeholder="Search candidate, party, handle, constituency, keyword…">
+      <kbd>/</kbd>
+    </div>
+  </div>
+
+  <div class="nav-right">
+    <button class="hdr-pdf" id="hdrPdf" title="Generate report PDF">PDF</button>
+    <div class="live-status"><span class="live-dot"></span> Live</div>
+    <div class="nav-date" id="navDate"></div>
+    <button class="icon-btn" id="themeToggle" aria-label="Toggle theme" title="Toggle theme">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 3v1M12 20v1M4.2 4.2l.7.7M18.1 18.1l.7.7M3 12h1M20 12h1M4.2 19.8l.7-.7M18.1 5.9l.7-.7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="12" cy="12" r="4.2" stroke="currentColor" stroke-width="1.8"/></svg>
+    </button>
+    <div class="profile-menu">
+      <div class="avatar" id="navAvatar">PB</div>
+    </div>
+  </div>
+</header>
+
+<!-- ============ SIDEBAR ============ -->
+<nav class="sidebar" id="sidebar">
+  <ul class="side-nav">
+    <li data-target="overview" class="active"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="7" height="9" rx="1.5" stroke="currentColor" stroke-width="1.8"/><rect x="14" y="3" width="7" height="5" rx="1.5" stroke="currentColor" stroke-width="1.8"/><rect x="14" y="12" width="7" height="9" rx="1.5" stroke="currentColor" stroke-width="1.8"/><rect x="3" y="16" width="7" height="5" rx="1.5" stroke="currentColor" stroke-width="1.8"/></svg><span>Overview</span></li>
+    <li data-target="analytics"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M4 20V10M12 20V4M20 20v-7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><span>Analytics</span></li>
+    <li data-target="sentiment"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/><path d="M8 14s1.5 2 4 2 4-2 4-2M9 9h.01M15 9h.01" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><span>Sentiment</span></li>
+    <li data-target="candidates"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="3.3" stroke="currentColor" stroke-width="1.8"/><path d="M5 20c1.2-3.8 4-5.5 7-5.5s5.8 1.7 7 5.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><span>Candidates</span></li>
+    <li data-target="parties"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M4 21V10l8-6 8 6v11M4 21h16M9 21v-6h6v6" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg><span>Parties</span></li>
+    <li data-target="geo"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 21s7-6.5 7-12a7 7 0 10-14 0c0 5.5 7 12 7 12z" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="9" r="2.4" stroke="currentColor" stroke-width="1.8"/></svg><span>Constituencies</span></li>
+    <li data-target="trending"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M3 17l6-6 4 4 8-9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 6h6v6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Trending</span></li>
+    <li data-target="explorer"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M4 4h16v4H4zM4 10h16v10H4z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg><span>Tweet Explorer</span></li>
+    <li data-target="wordcloud"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M4 18h6M4 13h16M9 8h11" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><span>Word Cloud</span></li>
+    <li data-target="media"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="14" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M7 9h6M7 13h10M7 16h7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><span>Media &amp; Press</span></li>
+    <li data-target="insights"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 3a6 6 0 00-3.5 10.9V17h7v-3.1A6 6 0 0012 3z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M10 20h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><span>Insights</span></li>
+    <li data-target="reports"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M6 3h9l5 5v13H6z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M15 3v5h5" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg><span>Reports</span></li>
+    <li data-target="settings"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.8"/><path d="M19.4 13a7.9 7.9 0 000-2l2-1.6-2-3.4-2.4 1a8 8 0 00-1.7-1L15 3h-6l-.3 2.6a8 8 0 00-1.7 1l-2.4-1-2 3.4L4.6 11a7.9 7.9 0 000 2l-2 1.6 2 3.4 2.4-1a8 8 0 001.7 1L9 21h6l.3-2.6a8 8 0 001.7-1l2.4 1 2-3.4z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg><span>Settings</span></li>
+  </ul>
+  <div class="sidebar-footer">
+    <div class="src-badge" id="dataSourceBadge">MongoDB · connecting…</div>
+    <div class="data-team-credit">
+      <span>Created by <b>Data Team</b></span>
+    </div>
+  </div>
+</nav>
+
+<!-- ============ MAIN ============ -->
+<main class="main" id="mainContent">
+
+  <!-- DATE RANGE BAR (global) -->
+  <div class="date-bar" id="dateBar">
+    <div class="date-presets">
+      <button class="date-chip" data-days="7">Last 7 days</button>
+      <button class="date-chip" data-days="30">Last 30 days</button>
+      <button class="date-chip" data-days="90">Last 90 days</button>
+      <button class="date-chip active" data-days="0">All time</button>
+    </div>
+    <div class="date-custom">
+      <input type="date" id="dateFrom"><span>to</span><input type="date" id="dateTo">
+      <button class="btn-ghost" id="dateApplyBtn">Apply</button>
+    </div>
+    <div class="date-status" id="dateStatus"></div>
+  </div>
+
+  <!-- FILTER BAR (global) -->
+  <div class="filter-bar" id="filterBar">
+    <select id="fParty"><option value="">All Parties</option></select>
+    <select id="fSentiment">
+      <option value="">All Sentiment</option>
+      <option value="Positive">Positive</option>
+      <option value="Negative">Negative</option>
+      <option value="Neutral">Neutral</option>
+    </select>
+    <select id="fDesignation"><option value="">All Designations</option></select>
+    <select id="fPC"><option value="">All Constituencies</option></select>
+    <button id="clearFilters" class="btn-ghost">Clear Filters</button>
+    <div class="filter-count" id="filterCount"></div>
+  </div>
+
+  <!-- ============ SECTION: OVERVIEW ============ -->
+  <section class="page active" id="overview">
+    <div class="hero-card">
+      <div class="hero-copy">
+        <span class="eyebrow">Monitor · Analyze · Discover · Predict</span>
+        <h1>Political Lens</h1>
+        <p id="heroTagline">AI-assisted intelligence on Punjab's political conversation — every handle, every constituency, every shift in sentiment, tracked in one terminal.</p>
+        <div class="hero-stats">
+          <div><strong id="heroTweets">0</strong><span>Tweets Indexed</span></div>
+          <div><strong id="heroHandles">0</strong><span>Handles Tracked</span></div>
+          <div><strong id="heroPC">0</strong><span>Constituencies</span></div>
+        </div>
+      </div>
+      <div class="hero-art" id="heroArt"></div>
+    </div>
+
+    <div id="lvlStrip"></div>
+
+    <div class="kpi-grid" id="kpiGrid"></div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-head"><h3>Tweet Volume Timeline</h3><span class="card-tag">Daily</span></div>
+        <canvas id="chartTimeline" height="220"></canvas>
+      </div>
+      <div class="card">
+        <div class="card-head"><h3>Sentiment Split</h3></div>
+        <canvas id="chartSentimentDonut" height="220"></canvas>
+        <div class="legend" id="sentimentLegend"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><h3>Executive Summary</h3><span class="card-tag">Auto-generated</span></div>
+      <div id="execSum"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><h3>AI Insight Box</h3><span class="card-tag">Auto-generated</span></div>
+      <div class="insight-grid" id="insightGrid"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><h3>Recent Activity</h3></div>
+      <div class="activity-list" id="recentActivity"></div>
+    </div>
+  </section>
+
+  <!-- ============ SECTION: ANALYTICS (Engagement + Timeline) ============ -->
+  <section class="page" id="analytics">
+    <h2 class="page-title">Engagement Analytics</h2>
+    <div class="kpi-grid" id="engKpiGrid"></div>
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-head"><h3>Tweets by Hour of Day</h3></div>
+        <canvas id="chartHourly" height="240"></canvas>
+      </div>
+      <div class="card">
+        <div class="card-head"><h3>Engagement Composition</h3></div>
+        <canvas id="chartEngBar" height="240"></canvas>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-head"><h3>Top Engagement Tweets</h3></div>
+      <div class="table-wrap"><table class="data-table" id="topEngTable"></table></div>
+    </div>
+    <div class="card">
+      <div class="card-head"><h3>Top Engagement Candidates</h3></div>
+      <div class="table-wrap"><table class="data-table" id="topEngCandTable"></table></div>
+    </div>
+  </section>
+
+  <!-- ============ SECTION: SENTIMENT ============ -->
+  <section class="page" id="sentiment">
+    <h2 class="page-title">Sentiment Analytics</h2>
+    <div class="grid-3">
+      <div class="card"><div class="card-head"><h3>Overall Split</h3></div><canvas id="chartSentimentDonut2" height="220"></canvas></div>
+      <div class="card"><div class="card-head"><h3>Average Sentiment Gauge</h3></div><canvas id="chartGauge" height="220"></canvas></div>
+      <div class="card"><div class="card-head"><h3>Daily Sentiment Trend</h3></div><canvas id="chartSentTrend" height="220"></canvas></div>
+    </div>
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-head"><h3>Party-wise Sentiment</h3></div>
+        <canvas id="chartPartySentiment" height="280"></canvas>
+      </div>
+      <div class="card">
+        <div class="card-head"><h3>Constituency-wise Sentiment (Top 15 by volume)</h3></div>
+        <canvas id="chartPCSentiment" height="280"></canvas>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-head"><h3>Candidate-wise Sentiment</h3><span class="card-tag" id="sentCandCount"></span></div>
+      <div class="table-wrap"><table class="data-table" id="candSentimentTable"></table></div>
+    </div>
+  </section>
+
+  <!-- ============ SECTION: CANDIDATES ============ -->
+  <section class="page" id="candidates">
+    <h2 class="page-title">Candidate Intelligence <span class="card-tag" id="candCount"></span></h2>
+    <div class="sub-toolbar">
+      <input type="text" id="candSearch" placeholder="Search candidate name…">
+      <select id="candSort">
+        <option value="score">Sort: Political Lens Score</option>
+        <option value="followers">Sort: Followers</option>
+        <option value="engagement">Sort: Engagement</option>
+        <option value="tweets">Sort: Activity (Tweets)</option>
+        <option value="sentiment">Sort: Sentiment</option>
+      </select>
+    </div>
+    <div class="cand-grid" id="candGrid"></div>
+    <div class="load-more-wrap"><button id="loadMoreCand" class="btn-primary">Load More Candidates</button></div>
+  </section>
+
+  <!-- ============ SECTION: PARTIES ============ -->
+  <section class="page" id="parties">
+    <h2 class="page-title">Party Analytics</h2>
+    <div class="grid-2">
+      <div class="card"><div class="card-head"><h3>Party-wise Tweet Share</h3></div><canvas id="chartPartyTweets" height="260"></canvas></div>
+      <div class="card"><div class="card-head"><h3>Party-wise Followers</h3></div><canvas id="chartPartyFollowers" height="260"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-head"><h3>Party Comparison Matrix</h3></div>
+      <div class="table-wrap"><table class="data-table" id="partyTable"></table></div>
+    </div>
+  </section>
+
+  <!-- ============ SECTION: GEO / CONSTITUENCIES ============ -->
+  <section class="page" id="geo">
+    <h2 class="page-title">Geographic Dashboard <span class="card-tag" id="pcCount"></span></h2>
+
+    <!-- District choropleth (Punjab) -->
+    <div class="card map-card" id="mapCard" hidden>
+      <div class="card-head">
+        <h3 id="mapTitle">Punjab — District Map</h3>
+        <div class="map-tools">
+          <select id="mapMetric">
+            <option value="tweets">Metric: Tweet Volume</option>
+            <option value="sentiment">Metric: Avg Sentiment</option>
+            <option value="positive">Metric: Positive %</option>
+            <option value="negative">Metric: Negative %</option>
+          </select>
+          <button class="btn-ghost" id="mapReset">Reset</button>
+        </div>
+      </div>
+      <div class="map-wrap">
+        <div class="map-host" id="mapHost"></div>
+        <aside class="map-side" id="mapSide"></aside>
+      </div>
+      <div class="map-legend" id="mapLegend"></div>
+      <div class="map-note" id="mapNote"></div>
+      <div class="map-tooltip" id="mapTooltip" hidden></div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card"><div class="card-head"><h3>Top 15 Constituencies by Tweet Volume</h3></div><canvas id="chartPCVolume" height="300"></canvas></div>
+      <div class="card"><div class="card-head"><h3>State Summary</h3></div><div id="stateSummary" class="state-summary"></div></div>
+    </div>
+    <div class="card">
+      <div class="card-head"><h3>Constituency Summary</h3></div>
+      <div class="sub-toolbar"><input type="text" id="geoSearch" placeholder="Search constituency…"></div>
+      <div class="table-wrap"><table class="data-table" id="geoTable"></table></div>
+    </div>
+  </section>
+
+  <!-- ============ SECTION: TRENDING ============ -->
+  <section class="page" id="trending">
+    <h2 class="page-title">Trending &amp; Viral Tweets</h2>
+    <div class="tabs" id="trendTabs">
+      <button class="tab active" data-t="views">Highest Views</button>
+      <button class="tab" data-t="likes">Highest Likes</button>
+      <button class="tab" data-t="retweets">Highest Retweets</button>
+      <button class="tab" data-t="comments">Highest Comments</button>
+      <button class="tab" data-t="engagement">Highest Engagement</button>
+    </div>
+    <div class="feed" id="trendingFeed"></div>
+  </section>
+
+  <!-- ============ SECTION: TWEET EXPLORER ============ -->
+  <section class="page" id="explorer">
+    <h2 class="page-title">Tweet Explorer <span class="card-tag" id="explorerCount"></span></h2>
+    <div class="sub-toolbar">
+      <input type="text" id="explorerSearch" placeholder="Search tweet text, handle, candidate…">
+      <select id="explorerSort">
+        <option value="eng">Sort: Engagement</option>
+        <option value="date">Sort: Latest</option>
+        <option value="likes">Sort: Likes</option>
+        <option value="views">Sort: Views</option>
+      </select>
+    </div>
+    <div class="feed" id="explorerFeed"></div>
+    <div class="load-more-wrap"><button id="loadMoreExplorer" class="btn-primary">Load More Tweets</button></div>
+  </section>
+
+  <!-- ============ SECTION: WORD CLOUD ============ -->
+  <section class="page" id="wordcloud">
+    <h2 class="page-title">Word Cloud &amp; Hashtag Intelligence</h2>
+    <div class="grid-2">
+      <div class="card"><div class="card-head"><h3>Top Words</h3>
+        <div class="wc-actions"><button class="btn-ghost" data-wc="words" data-fmt="csv">CSV</button><button class="btn-ghost" data-wc="words" data-fmt="pdf">PDF</button></div>
+      </div><div id="wordCloudBox" class="wordcloud-box"></div></div>
+      <div class="card"><div class="card-head"><h3>Top Hashtags</h3>
+        <div class="wc-actions"><button class="btn-ghost" data-wc="hashtags" data-fmt="csv">CSV</button><button class="btn-ghost" data-wc="hashtags" data-fmt="pdf">PDF</button></div>
+      </div><div id="hashtagBox" class="wordcloud-box"></div></div>
+    </div>
+    <div class="card">
+      <div class="card-head"><h3>Word &amp; Hashtag Counts</h3>
+        <div class="sub-toolbar" style="margin:0 0 0 auto"><input type="text" id="wcSearch" placeholder="Search word / hashtag…"></div>
+      </div>
+      <div class="table-wrap"><table class="data-table" id="wcTable"></table></div>
+    </div>
+  </section>
+
+  <!-- ============ SECTION: MEDIA & PRESS ============ -->
+  <section class="page" id="media">
+    <h2 class="page-title">Media &amp; Press <span class="card-tag" id="mediaCount"></span></h2>
+    <p class="muted" id="mediaIntro" style="margin:-6px 0 16px">Aapke data ke <code>Category</code> column —
+      politicians, media houses and journalists, separated.</p>
+
+    <div class="kpi-grid" id="mediaKpis"></div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-head"><h3>Category-wise Share</h3></div>
+        <canvas id="chartCatShare" height="250"></canvas>
+      </div>
+      <div class="card">
+        <div class="card-head"><h3>Sentiment by category</h3></div>
+        <canvas id="chartCatSent" height="250"></canvas>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><h3>Top Media &amp; Journalist Handles</h3>
+        <select id="mediaCatSel" class="media-sel"></select>
+      </div>
+      <div class="table-wrap"><table class="data-table" id="mediaTable"></table></div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-head"><h3>What the media talks about</h3><span class="card-tag">top words</span></div>
+        <div id="mediaWords" class="wordcloud-box"></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><h3>What politicians talk about</h3><span class="card-tag">top words</span></div>
+        <div id="polWords" class="wordcloud-box"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><h3>Biggest media tweets</h3></div>
+      <div class="feed" id="mediaFeed"></div>
+    </div>
+  </section>
+
+  <!-- ============ SECTION: INSIGHTS ============ -->
+  <section class="page" id="insights">
+    <h2 class="page-title">Insights &amp; Data Health</h2>
+
+    <div class="card">
+      <div class="card-head"><h3>Data Quality</h3><span class="card-tag">Everything rests on this</span></div>
+      <div id="dqBox"></div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-head"><h3>Posting Time — Weekday × Hour (IST)</h3></div>
+        <div id="heatBox"></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><h3>Momentum — last 7d vs previous 7d</h3></div>
+        <div id="momBox"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><h3>Compare</h3>
+        <div class="cmp-picks">
+          <select id="cmpA"></select><span class="cmp-vs">vs</span><select id="cmpB"></select>
+        </div>
+      </div>
+      <div id="cmpBox"></div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-head"><h3>Language Split</h3></div>
+        <div id="langBox"></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><h3>Engagement Quality</h3></div>
+        <div id="eqBox"></div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-head"><h3>Repeated Text</h3><span class="card-tag">coordinated posting</span></div>
+        <div id="dupBox"></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><h3>Silent Handles</h3></div>
+        <div id="quietBox"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SECTION: REPORTS ============ -->
+  <section class="page" id="reports">
+    <h2 class="page-title">Reports &amp; Export</h2>
+
+    <div class="card pdf-builder">
+      <div class="card-head"><h3>PDF Report</h3><span class="card-tag">5 templates</span></div>
+      <p class="muted" style="margin:2px 0 14px">The report is built from the filters currently applied. Check the preview, then download the PDF.</p>
+      <div class="rpt-types" id="rptTypes">
+        <button class="rpt-type active" data-r="exec">
+          <b>Executive Summary</b><span>KPI, key highlights, sentiment, top performers — 1–2 page</span></button>
+        <button class="rpt-type" data-r="party">
+          <b>Party Performance</b><span>Party-wise tweets, reach, engagement, sentiment split</span></button>
+        <button class="rpt-type" data-r="geo">
+          <b>Constituency Report</b><span>Constituency-wise volume and sentiment, top/bottom list</span></button>
+        <button class="rpt-type" data-r="content">
+          <b>Content &amp; Hashtags</b><span>Top words, hashtags, viral tweets with counts</span></button>
+        <button class="rpt-type" data-r="topic">
+          <b>Topic Deep-Dive</b><span>A full report on any keyword — volume, sentiment, who is driving it</span></button>
+      </div>
+
+      <div class="rpt-topic-row" id="rptTopicRow" hidden>
+        <input type="text" id="rptTopic" placeholder="Topic or keyword — e.g. drugs, farmers, power, jobs…">
+        <label class="deep-toggle"><input type="checkbox" id="rptDeep" checked> Search the whole database</label>
+        <span class="rpt-hint" id="rptTopicHint"></span>
+      </div>
+
+      <div class="rpt-actions">
+        <button class="btn-ghost" id="rptPreview">Preview</button>
+        <button class="btn-ghost ai-btn" id="rptAi">✨ AI analysis</button>
+        <button class="btn-primary" id="rptDownload">Download PDF</button>
+      </div>
+      <div class="rpt-preview" id="rptPreviewBox" hidden></div>
+    </div>
+
+    <p class="report-note">PDFs are produced by the browser’s own print engine, so the text stays selectable rather than
+      turning into a blurry screenshot. Each report reflects the current filters and the selected template.</p>
+  </section>
+
+  <!-- ============ SECTION: SETTINGS ============ -->
+  <section class="page" id="settings">
+    <h2 class="page-title">Settings</h2>
+    <div class="card">
+      <div class="card-head"><h3>Appearance</h3></div>
+      <div class="settings-row">
+        <span>Theme</span>
+        <button class="btn-ghost" id="settingsThemeBtn">Toggle Light / Dark</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-head"><h3>Data Source</h3><span class="card-tag" id="dsTag">MongoDB</span></div>
+      <p class="muted">This dashboard runs live off <strong>MongoDB</strong> — database <code id="dsDb">political_lens</code>, <strong>Punjab</strong> data only. Tweets are de-duplicated by Tweet ID, so nothing is ever counted twice.</p>
+      <div class="ds-grid" id="dsGrid"></div>
+      <div class="data-loader-row">
+        <button class="btn-primary" id="btnRefresh">🔄 Reload from MongoDB</button>
+        <span class="data-loader-status" id="dataSourceStatus"></span>
+      </div>
+      <p class="report-note" style="margin-top:10px">When new data arrives, run <code>python build_punjab_data.py --push</code> first, then hit Reload here.</p>
+    </div>
+    <div class="card">
+      <div class="card-head"><h3>Offline / Backup File</h3></div>
+      <p class="muted">If MongoDB is unavailable you can load an Excel (.xlsx), CSV or JSON export instead — it is parsed in the browser, with the same de-duplication by Tweet ID.</p>
+      <div class="data-loader-row">
+        <label class="btn-ghost file-btn">
+          📁 Load Data File
+          <input type="file" id="dataFileInput" accept=".xlsx,.xls,.csv,.json">
+        </label>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-head"><h3>AI Assistant &amp; Reports</h3><span class="card-tag" id="aiStatusTag">Off</span></div>
+      <p class="muted">Add a Google <strong>Gemini</strong> API key — it powers both the assistant and the report analysis.
+        The key lives <strong>on the server</strong> in <code>ai_config.json</code> and never reaches the browser.
+        Without a key the assistant keeps working in offline mode using its built-in answers.</p>
+      <div class="ai-key-row">
+        <input type="password" id="aiKeyInput" placeholder="AIza… (free key from Google AI Studio)" autocomplete="off">
+        <select id="aiModelSel" title="After saving a key, this list is fetched live from Google">
+          <option value="gemini-3.5-flash">gemini-3.5-flash</option>
+          <option value="gemini-3.5-flash-lite">gemini-3.5-flash-lite</option>
+          <option value="gemini-3.7-flash">gemini-3.7-flash</option>
+          <option value="gemini-3.1-pro-preview">gemini-3.1-pro-preview</option>
+        </select>
+        <button class="btn-primary" id="aiKeySave">Save</button>
+        <button class="btn-ghost" id="aiKeyClear">Remove</button>
+      </div>
+      <span class="data-loader-status" id="aiKeyStatus"></span>
+      <p class="report-note" style="margin-top:10px">Get a key from aistudio.google.com → Get API key. Once saved, the model list is fetched
+        <strong>live from Google</strong>, so any model that is retired simply disappears from the list.
+        Only the dashboard’s <strong>aggregate numbers</strong> are sent to the model — never raw tweets —
+        so it cannot invent facts of its own.</p>
+    </div>
+
+    <div class="card" id="accountCard" hidden>
+      <div class="card-head"><h3>Account</h3></div>
+      <div class="settings-row">
+        <span id="whoAmI">—</span>
+        <a class="btn-ghost" href="/logout">Logout</a>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<div class="toast" id="toast"></div>
+
+<!-- ============ CANDIDATE / HANDLE PROFILE ============ -->
+<div class="modal-overlay" id="profileModal">
+  <div class="modal-box">
+    <button class="modal-close" id="profileModalClose" aria-label="Close">✕</button>
+    <div id="profileModalBody"></div>
+  </div>
+</div>
+
+<!-- ============ ASSISTANT ============ -->
+<button class="ai-fab" id="aiFabBtn" title="Political Lens Assistant">
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 3a5 5 0 015 5v1a5 5 0 01-2 4v2l3 1.5v1.5H6V16.5L9 15v-2a5 5 0 01-2-4V8a5 5 0 015-5z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><circle cx="9.5" cy="8.5" r=".9" fill="currentColor"/><circle cx="14.5" cy="8.5" r=".9" fill="currentColor"/></svg>
+</button>
+<div class="ai-panel" id="aiPanel">
+  <div class="ai-panel-head">
+    <div>
+      <b>Political Lens Assistant</b>
+      <span id="aiModeLine">Ask anything about this data</span>
+    </div>
+    <button id="aiPanelClose" aria-label="Close">✕</button>
+  </div>
+  <div class="ai-messages" id="aiMessages">
+    <div class="ai-msg ai-msg-bot">Ask me anything about this Punjab data. Everything I say comes from the numbers on this dashboard.</div>
+  </div>
+  <form class="ai-input-row" id="aiForm">
+    <input type="text" id="aiInput" placeholder="Ask a question…" autocomplete="off">
+    <button type="submit" id="aiSendBtn" aria-label="Send">➤</button>
+  </form>
+</div>
+
+<!-- ==================================================================
+     SAFETY NET — if a script fails, the page must not hang on the loader
+     ================================================================== -->
+<script>
+(function(){
+  function show(msg){
+    var ls = document.getElementById('loadingScreen');
+    if(ls) ls.classList.add('hidden');
+    var b = document.getElementById('plErrBox');
+    if(!b){
+      b = document.createElement('div');
+      b.id = 'plErrBox';
+      b.style.cssText = 'position:fixed;left:0;right:0;bottom:0;z-index:99999;max-height:45vh;'
+        + 'overflow:auto;background:#7f1d1d;color:#fff;font:12px/1.6 monospace;padding:12px 16px;';
+      b.innerHTML = '<b>Dashboard load error</b> — please send this message:<br>';
+      document.body.appendChild(b);
+    }
+    b.innerHTML += '<br>' + String(msg).replace(/</g,'&lt;');
+  }
+  window.addEventListener('error', function(e){
+    var el = e.target, tag = el && el.tagName;
+    /* Only shout when a script fails. The Google Fonts stylesheet is
+       sometimes blocked on office networks — turning the whole page red
+       for that was wrong, the dashboard is fine on the fallback font. */
+    if(tag === 'LINK') return;
+    if(tag === 'SCRIPT'){ show('Failed to load file: ' + (el.src || '')); return; }
+    if(e.message) show(e.message + '  @' + (e.filename||'') + ':' + (e.lineno||''));
+  }, true);
+  setTimeout(function(){
+    var ls = document.getElementById('loadingScreen');
+    if(ls && !ls.classList.contains('hidden')) ls.classList.add('hidden');
+  }, 12000);
+})();
+</script>
+
+<script src="state-config.js"></script>
+<script src="punjab-geo.js"></script>
+<script src="assets/lib/xlsx.full.min.js"></script>
+<script src="app.js"></script>
+<script src="district-map.js"></script>
+<script src="overview-plus.js"></script>
+<script src="insights.js"></script>
+<script src="reports.js"></script>
+<script src="assistant.js"></script>
+<script src="assistant-ai.js"></script>
+<script src="report-ai.js"></script>
+<script src="extras.js"></script>
+<script src="wire.js"></script>
+<script src="host-switch.js"></script>
+</body>
+</html>

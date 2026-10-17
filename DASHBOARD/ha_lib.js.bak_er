@@ -1,0 +1,201 @@
+/* ============================================================================
+ * ha_lib.js  --  Handle Analytics ka dimaag (pure functions, koi Mongo nahi)
+ * ----------------------------------------------------------------------------
+ * server.js sirf master_tweets se rows laata hai aur yahan de deta hai.
+ * Mongo yahan se chhua nahi jaata -- isliye ye poora module bina database ke
+ * test ho sakta hai (test_ha_lib.js dekho).
+ *
+ * Ek tweet row wahi shakl me aati hai jo master_tweets me hai:
+ *   Handle, Tweet URL, Tweet ID, Tweet Date, Tweet Text,
+ *   Followers, Followings, Total Posts, Total Comments, Total Likes,
+ *   Total Retweets, Total Views, Sentiment, Category, Party, State
+ *
+ * Tweet Date ka roop: "2026-09-25 14:05:28 IST"  (pehle 10 akshar = date)
+ * ========================================================================== */
+'use strict';
+
+var SENT_KEYS = ['probjp', 'antigovt', 'progovt', 'pos', 'neu', 'antibjp', 'neg', 'none'];
+
+function num(v) {
+  var n = Number(String(v === undefined || v === null ? '' : v).replace(/,/g, '').trim());
+  return isFinite(n) ? n : 0;
+}
+
+/* "2026-09-25 14:05:28 IST" -> "2026-09-25". Kuch aur mila to '' */
+function dayOf(v) {
+  var s = String(v || '').trim();
+  return /^\d{4}-\d{2}-\d{2}/.test(s) ? s.slice(0, 10) : '';
+}
+
+/* days = 7 | 30 | 'all'. Sabse NAYE tweet se peeche ginte hain, aaj se nahi --
+   warna purana data wale handle par har chart khaali dikhta. */
+function cutoffDay(rows, days) {
+  if (!days || days === 'all') return '';
+  var n = Number(days);
+  if (!n || n <= 0) return '';
+  var maxDay = '';
+  for (var i = 0; i < rows.length; i++) {
+    var d = dayOf(rows[i]['Tweet Date']);
+    if (d > maxDay) maxDay = d;
+  }
+  if (!maxDay) return '';
+  var t = new Date(maxDay + 'T00:00:00Z').getTime() - (n - 1) * 86400000;
+  return new Date(t).toISOString().slice(0, 10);
+}
+
+/* Retweet ka counts asli tweet ka hota hai -- "Top Tweet" me usse bahar rakhte
+   hain, warna har baar koi RT hi top par aa jaata hai. */
+function isRetweet(r) {
+  return /^RT @/.test(String(r['Tweet Text'] || ''));
+}
+
+/* ---------------------------------------------------------------------------
+ * daily breakdown + summary + top tweet
+ * ------------------------------------------------------------------------- */
+function analyse(rows, days) {
+  rows = rows || [];
+  var from = cutoffDay(rows, days);
+
+  var byDay = {};        // date -> counts
+  var folByDay = {};     // date -> aakhri dekha gaya followers/following
+  var top = null, topScore = -1;
+  var used = 0;
+
+  for (var i = 0; i < rows.length; i++) {
+    var r = rows[i];
+    var d = dayOf(r['Tweet Date']);
+    if (!d) continue;
+    if (from && d < from) continue;
+    used++;
+
+    var m = byDay[d];
+    if (!m) m = byDay[d] = { posts: 0, likes: 0, comments: 0, views: 0, shares: 0 };
+    m.posts += 1;
+    m.likes += num(r['Total Likes']);
+    m.comments += num(r['Total Comments']);
+    m.views += num(r['Total Views']);
+    m.shares += num(r['Total Retweets']);
+
+    /* Followers us din ka -- har tweet row me scrape ke waqt ka count hota hai.
+       Ek din ke kai tweets me sabse bada le lete hain (sabse naya scrape). */
+    var f = num(r['Followers']), g = num(r['Followings']);
+    if (f > 0 || g > 0) {
+      var cur = folByDay[d];
+      if (!cur) folByDay[d] = { followers: f, following: g };
+      else { if (f > cur.followers) cur.followers = f; if (g > cur.following) cur.following = g; }
+    }
+
+    if (!isRetweet(r)) {
+      var score = num(r['Total Likes']) + num(r['Total Comments']) + num(r['Total Retweets']);
+      if (score > topScore) { topScore = score; top = r; }
+    }
+  }
+
+  var dates = Object.keys(byDay).concat(Object.keys(folByDay))
+    .filter(function (v, i, a) { return a.indexOf(v) === i; })
+    .sort();
+
+  /* Jis din ka apna followers-count nahi mila, us din pichhle din wala hi
+     chalta rehta hai (line toot kar zero par nahi girti). */
+  var runF = null, runG = null;
+  var daily = dates.map(function (d) {
+    if (folByDay[d]) { runF = folByDay[d].followers; runG = folByDay[d].following; }
+    var m = byDay[d] || { posts: 0, likes: 0, comments: 0, views: 0, shares: 0 };
+    var eng = m.likes + m.comments + m.shares;
+    return {
+      date: d, posts: m.posts, likes: m.likes, comments: m.comments,
+      views: m.views, shares: m.shares, engagement: eng,
+      engagementRate: m.views > 0 ? Math.round((eng / m.views) * 10000) / 100 : null,
+      followers: runF, following: runG
+    };
+  });
+
+  var sum = function (k) { return daily.reduce(function (a, d) { return a + d[k]; }, 0); };
+  var posts = sum('posts'), likes = sum('likes'), comments = sum('comments');
+  var views = sum('views'), shares = sum('shares');
+  var eng = likes + comments + shares;
+  var nDays = daily.length || 1;
+
+  /* Kaun sa column database me asli me bhara hua hai -- kitni row me non-zero.
+     Agar koi column khaali hai to dashboard uska "avg 0" dikhane ke bajaye
+     saaf bata deta hai ki ye data scrape hi nahi hua. Isse "Avg Likes 0" jaisa
+     bharam nahi hota. */
+  var cov = { rows: used, likes: 0, comments: 0, views: 0, shares: 0, followers: 0 };
+  for (var ci = 0; ci < rows.length; ci++) {
+    var rr = rows[ci];
+    var dd2 = dayOf(rr['Tweet Date']);
+    if (!dd2 || (from && dd2 < from)) continue;
+    if (num(rr['Total Likes']) > 0) cov.likes++;
+    if (num(rr['Total Comments']) > 0) cov.comments++;
+    if (num(rr['Total Views']) > 0) cov.views++;
+    if (num(rr['Total Retweets']) > 0) cov.shares++;
+    if (num(rr['Followers']) > 0) cov.followers++;
+  }
+
+  /* profile ke numbers = sabse naya non-zero value */
+  var followers = 0, following = 0, totalPosts = 0;
+  for (var j = daily.length - 1; j >= 0; j--) {
+    if (daily[j].followers) { followers = daily[j].followers; following = daily[j].following || 0; break; }
+  }
+  for (var k = rows.length - 1; k >= 0; k--) {
+    var tp = num(rows[k]['Total Posts']);
+    if (tp > totalPosts) totalPosts = tp;
+  }
+
+  return {
+    daily: daily,
+    summary: {
+      tweets: posts,
+      postsPerDay: Math.round((posts / nDays) * 10) / 10,
+      avgLikes: posts ? Math.round(likes / posts) : 0,
+      avgComments: posts ? Math.round(comments / posts) : 0,
+      avgViews: posts ? Math.round(views / posts) : 0,
+      avgShares: posts ? Math.round(shares / posts) : 0,
+      totalLikes: likes, totalComments: comments, totalViews: views, totalShares: shares,
+      totalEngagement: eng,
+      /* Engagement rate tabhi matlab rakhta hai jab VIEWS ka data ho. Views
+         na hon to 0 ya 2000% jaisa bekaar number dikhane se behtar hai null
+         bhejna -- dashboard uski jagah "--" dikha deta hai. */
+      engagementRate: (views > 0 && cov.views > 0) ? Math.round((eng / views) * 10000) / 100 : null,
+      coverage: cov,
+      followers: followers, following: following, totalPosts: totalPosts,
+      days: daily.length, rowsUsed: used
+    },
+    topTweet: top ? slimTweet(top) : null
+  };
+}
+
+/* bhejne ke liye chhota tweet object (poora row bhejne ka fayda nahi) */
+function slimTweet(r) {
+  return {
+    id: String(r['Tweet ID'] || ''),
+    url: String(r['Tweet URL'] || ''),
+    text: String(r['Tweet Text'] || ''),
+    date: String(r['Tweet Date'] || ''),
+    likes: num(r['Total Likes']),
+    comments: num(r['Total Comments']),
+    views: num(r['Total Views']),
+    shares: num(r['Total Retweets']),
+    sent: String(r['Sentiment'] || '')
+  };
+}
+
+/* newest-first, phir ek page */
+function tweetPage(rows, offset, limit) {
+  offset = Math.max(0, Number(offset) || 0);
+  limit = Math.min(Math.max(Number(limit) || 20, 1), 100);
+  var sorted = (rows || []).slice().sort(function (a, b) {
+    var x = String(a['Tweet Date'] || ''), y = String(b['Tweet Date'] || '');
+    return x < y ? 1 : (x > y ? -1 : 0);
+  });
+  return {
+    items: sorted.slice(offset, offset + limit).map(slimTweet),
+    total: sorted.length, offset: offset, pageSize: limit
+  };
+}
+
+module.exports = {
+  SENT_KEYS: SENT_KEYS,
+  num: num, dayOf: dayOf, cutoffDay: cutoffDay, isRetweet: isRetweet,
+  analyse: analyse, tweetPage: tweetPage, slimTweet: slimTweet
+};

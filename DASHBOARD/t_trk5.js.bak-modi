@@ -1,0 +1,138 @@
+/* t_trk5.js -- log ka order (purana upar, naya neeche) aur scroll ka vyavhaar */
+'use strict';
+var P = 0, F = 0, FAILS = [];
+function ok(c, m) { if (c) P++; else { F++; FAILS.push(m); } console.log((c ? '  ok   ' : '  FAIL ') + m); }
+function sec(t) { console.log('\n== ' + t + ' =='); }
+
+var TS = require('./tracker_section.js');
+var JS = TS.script();
+var HTML = TS.section('trklog');
+
+/* chhota DOM -- pane asli scroll property ke saath */
+function mk(logs) {
+  var pane = { innerHTML: '', scrollTop: 0, clientHeight: 100, scrollHeight: 100, dataset: {} };
+  var els = { tlgPane: pane, tlgCount: { textContent: '' },
+              tlgOnly: { value: '' }, tlgQ: { value: '' }, tlgEnd: {} };
+  var fn = new Function('document', 'console',
+    JS.replace(/if\(document\.getElementById\('sec-tracker'\)\)\{[\s\S]*$/, '') +
+    '\nTLG_LOGS=arguments[2];return {tlgPaint:tlgPaint,tlgBottom:tlgBottom,set:function(x){TLG_LOGS=x;}};');
+  var api = fn({ getElementById: function (i) { return els[i] || null; } }, console, logs);
+  return { api: api, pane: pane, els: els };
+}
+/* server se log NAYA-PEHLE aata hai (TRK.logs() reverse karta hai) */
+var LOGS = [
+  { t: '2026-10-05T08:49:00Z', k: 'info', m: 'Tracker stopped' },
+  { t: '2026-10-05T07:52:05Z', k: 'info', m: '✔ DONE -- 0 new, 3 updated' },
+  { t: '2026-10-05T07:52:05Z', k: 'info', m: '✓ @narendramodi -- 3 tweet(s) in window' },
+  { t: '2026-10-05T07:52:01Z', k: 'info', m: '▶ SCRAPE STARTED -- 1 handle(s)' },
+  { t: '2026-10-05T07:51:47Z', k: 'info', m: 'Tracker started' }
+];
+
+sec('1. Purani line upar, nayi neeche');
+(function () {
+  var t = mk(LOGS);
+  t.api.tlgPaint();
+  var h = t.pane.innerHTML;
+  var iStart = h.indexOf('Tracker started');
+  var iScrape = h.indexOf('SCRAPE STARTED');
+  var iTweet = h.indexOf('3 tweet(s) in window');
+  var iDone = h.indexOf('DONE');
+  var iStop = h.indexOf('Tracker stopped');
+  ok(iStart >= 0 && iStop >= 0, 'saari line dikh rahi hain');
+  ok(iStart < iScrape, '"Tracker started" (07:51:47) "SCRAPE STARTED" (07:52:01) se UPAR');
+  ok(iScrape < iTweet, '"SCRAPE STARTED" tweet line se upar');
+  ok(iTweet < iDone, 'handle line "DONE" se upar');
+  ok(iDone < iStop, '"DONE" (07:52) "Tracker stopped" (08:49) se upar');
+  ok(iStart < iStop, 'sabse purani line sabse upar, sabse nayi sabse neeche');
+
+  /* time stamp bhi badhte hue order me */
+  var times = (h.match(/\d{2}:\d{2}:\d{2}/g) || []);
+  var sorted = times.slice().sort();
+  ok(times.length === 5, 'paanch timestamp mile: ' + times.join(' '));
+  ok(JSON.stringify(times) === JSON.stringify(sorted),
+     'timestamp badhte hue order me: ' + times.join(' '));
+})();
+
+sec('2. Filter lagne par bhi order wahi rehta hai');
+(function () {
+  var t = mk(LOGS);
+  t.els.tlgQ.value = 'tracker';
+  t.api.tlgPaint();
+  var h = t.pane.innerHTML;
+  ok(h.indexOf('Tracker started') < h.indexOf('Tracker stopped'),
+     'filter ke baad bhi purani line pehle');
+  ok(h.indexOf('DONE') < 0, 'filter ne baaki line hata di');
+  ok(t.els.tlgCount.textContent === '2 lines of 5', 'ginti: ' + t.els.tlgCount.textContent);
+})();
+
+sec('3. Neeche hone par apne aap neeche chalta hai');
+(function () {
+  var t = mk(LOGS);
+  t.api.tlgPaint();                       /* pehla paint */
+  ok(t.pane.dataset.painted === '1', 'pehla paint mark ho gaya');
+  ok(t.pane.scrollTop === t.pane.scrollHeight, 'pehli baar par seedha neeche: ' + t.pane.scrollTop);
+
+  /* user neeche hi hai, nayi line aayi */
+  t.pane.scrollHeight = 500; t.pane.clientHeight = 100; t.pane.scrollTop = 400;
+  t.api.set(LOGS.concat([{ t: '2026-10-05T09:00:00Z', k: 'info', m: 'nayi line' }]));
+  t.pane.scrollHeight = 540;
+  t.api.tlgPaint();
+  ok(t.pane.scrollTop === 540, 'neeche hone par nayi line ke saath neeche chala gaya: ' + t.pane.scrollTop);
+})();
+
+sec('4. User upar padh raha ho to usse neeche nahi kheenchte');
+(function () {
+  var t = mk(LOGS);
+  t.api.tlgPaint();
+  t.pane.scrollHeight = 500; t.pane.clientHeight = 100;
+  t.pane.scrollTop = 20;                  /* user ne upar scroll kiya */
+  t.api.tlgPaint();
+  ok(t.pane.scrollTop === 20, 'upar scroll kiya hua user wahin raha: ' + t.pane.scrollTop);
+
+  /* thoda sa upar (40px ke andar) -> abhi bhi "neeche" maana jaata hai */
+  t.pane.scrollTop = 380;                 /* 380+100 = 480, 500-40 = 460 -> andar */
+  t.pane.scrollHeight = 500;
+  t.api.tlgPaint();
+  ok(t.pane.scrollTop === 500, 'thoda sa upar hone par bhi follow karta hai: ' + t.pane.scrollTop);
+})();
+
+sec('5. Jump to latest button');
+ok(HTML.indexOf('id="tlgEnd"') >= 0, 'button maujood');
+ok(HTML.indexOf('Jump to latest') >= 0, 'button par saaf likha hai');
+ok(JS.indexOf('function tlgBottom()') >= 0, 'tlgBottom() maujood');
+(function () {
+  var t = mk(LOGS);
+  t.api.tlgPaint();
+  t.pane.scrollHeight = 900; t.pane.scrollTop = 0;
+  t.api.tlgBottom();
+  ok(t.pane.scrollTop === 900, 'button seedha ant par le jaata hai: ' + t.pane.scrollTop);
+})();
+
+sec('6. Note me naya order likha hai');
+ok(HTML.indexOf('Oldest line at the top, newest at the bottom') >= 0, 'note me order saaf likha hai');
+ok(HTML.indexOf('Newest line first') < 0, 'purana ulta note hat gaya');
+ok(HTML.indexOf('like a terminal') >= 0, 'terminal wali misaal di hai');
+
+sec('7. Khaali log aur ek line');
+(function () {
+  var t = mk([]);
+  t.api.tlgPaint();
+  ok(/No log lines/.test(t.pane.innerHTML), 'khaali log par saaf message');
+  var t2 = mk([LOGS[0]]);
+  t2.api.tlgPaint();
+  ok(t2.els.tlgCount.textContent === '1 line', 'ek line ka plural theek: ' + t2.els.tlgCount.textContent);
+})();
+
+sec('8. DONE line abhi bhi ubhri hui hai');
+(function () {
+  var t = mk(LOGS);
+  t.api.tlgPaint();
+  ok(/border-left:3px solid/.test(t.pane.innerHTML), 'DONE line par patti');
+  ok((t.pane.innerHTML.match(/border-left:3px/g) || []).length === 1, 'sirf DONE line ubhri');
+})();
+
+console.log('\n' + '='.repeat(56));
+console.log('  PASS ' + P + '   FAIL ' + F);
+if (F) { console.log('\n  FAIL hui:'); FAILS.forEach(function (f) { console.log('   - ' + f); }); }
+console.log('='.repeat(56));
+process.exit(F ? 1 : 0);

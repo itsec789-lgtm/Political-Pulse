@@ -1,0 +1,595 @@
+# -*- coding: utf-8 -*-
+"""
+run_pipeline.py  --  SAB KUCH EK JAGAH (Mongo-first). Kuch manual nahi.
+
+Har run me:
+  1. Network ke SAARE folders scan (Media Houses + journalist bhi)
+     - nayi/badli file hi padhta hai (state-tracked)
+  2. Raw se Handle->Sentiment Score, baaki columns MAPPING se
+     (media/journalist -> State/AC/PC blank, Category = Media House / Journalist)
+  3. Naye rows -> MongoDB  pulse_master.master_tweets   (SOURCE OF TRUTH)
+     _id = Tweet ID -> duplicate ban hi nahi sakte
+     numeric = $max (count kabhi ghatta nahi), text = sirf non-blank par set
+  4. Dono dashboard build+push SEEDHA MONGO SE  (india_Pulse + up_pulse)
+  5. CSV BACKUP: month-wise split files (Excel-safe) -- default roz ek baar
+
+Chalao:
+  python run_pipeline.py                 # normal (hourly loop isi ko bulata hai)
+  python run_pipeline.py --backup        # backup abhi (chahe aaj ho chuka ho)
+  python run_pipeline.py --no-backup     # backup skip
+  python run_pipeline.py --rescan        # saari files dobara padho (state reset)
+"""
+import os, sys, json, time, datetime, importlib
+import subprocess
+import urllib.request
+import pandas as pd
+
+PORT = 3000          # dashboard server ka port (Punjab cache refresh ke liye)
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+DATA = os.path.join(HERE, "data")
+STATE = os.path.join(HERE, "auto_state.json")
+NEEDMAP = os.path.join(HERE, "needs_mapping.csv")
+LOG = os.path.join(HERE, "pipeline.log")
+BACKUP_DIR = r"\\192.168.2.85\d\Social Media\master_backup"
+BACKUP_MARK = os.path.join(HERE, ".last_backup")
+
+# ---------------------------------------------------------------------------
+# PRIMARY ya SECONDARY laptop?
+#
+# Do laptop ek saath chal sakte hain -- dono wahi network folder padhte hain.
+# Padhne me koi dikkat nahi (Mongo alag-alag hai, aur upsert hai to data bhi
+# kharab nahi hota). Dikkat LIKHNE me hai: CSV backup aur daily report dono
+# NETWORK par ek hi file par likhte hain, aur wo ek doosre ko mita denge.
+#
+# Isliye: sirf PRIMARY laptop network par likhta hai. SECONDARY sab kuch
+# apne andar rakhta hai. Faisla local_config.json se hota hai --
+#     { "role": "secondary" }
+# File na ho to PRIMARY maana jaata hai (purana vyavhaar, kuch nahi badla).
+# ---------------------------------------------------------------------------
+LOCAL_CFG = os.path.join(HERE, "local_config.json")
+
+
+def is_secondary():
+    try:
+        with open(LOCAL_CFG, encoding="utf-8") as f:
+            return str(json.load(f).get("role", "")).strip().lower() == "secondary"
+    except Exception:
+        return False
+
+sys.path.insert(0, HERE)
+import phase2_push as P2
+import master_to_mongo as M2
+# audit-fix A2/A4/A5/A14 : atomic file writes + disk check (safe_write.py)
+from safe_write import atomic_json, load_json, check_space, free_mb
+
+PENDING = os.path.join(HERE, ".push_pending")   # push baaki hai -- agle run me kar lo
+
+DATE_FROM = datetime.date(2026, 4, 1)      # is date se aage ka data (media ke liye bhi)
+
+
+# audit-fix A2/A4/A5/A14 : log hamesha ke liye badhta rehta tha (rotation nahi thi).
+# 5 MB par ek baar .1 me daal dete hain, do peedhi rakhte hain -- bas.
+LOG_MAX = 5 * 1024 * 1024
+
+
+def _rotate_log():
+    try:
+        if os.path.exists(LOG) and os.path.getsize(LOG) > LOG_MAX:
+            old2 = LOG + ".2"
+            if os.path.exists(old2):
+                os.remove(old2)
+            if os.path.exists(LOG + ".1"):
+                os.replace(LOG + ".1", old2)
+            os.replace(LOG, LOG + ".1")
+    except Exception:
+        pass
+
+
+def log(m):
+    line = "[" + datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + "] " + str(m)
+    print(line, flush=True)
+    try:
+        _rotate_log()
+        open(LOG, "a", encoding="utf-8").write(line + "\n")
+    except Exception: pass
+
+
+# audit-fix A2/A4/A5/A14
+# Pehle: json.dump(s, open(STATE,"w")) -- open 'w' file ko pehle KHAALI karta
+# hai. Beech me process mara/bijli gayi to auto_state.json aadhi reh jaati thi.
+# Ab temp me likh kar rename (atomic), aur ek .prev copy bhi rehti hai.
+# ===================== audit-fix LOCK =====================
+# Ek waqt me ek hi pipeline chale.
+#
+# Log se pata chala ki 3-3 run ek saath chal rahe the: ek run ka UP step
+# chal hi raha hota tha ki agla run shuru ho jaata tha. Dono auto_state.json
+# aur handle mapping likhte hain (aakhri wala jeet jaata hai, doosre ka
+# hisaab gayab), dono ek hi collection par swap karte hain, aur Mongo par
+# do-teen guna bojh padta hai -- jisse har run aur lamba hota hai aur
+# overlap aur badhta jaata hai.
+#
+# Ab: shuru me ek lock file banti hai. Koi doosra pipeline chal raha ho to
+# naya chupchap ruk jaata hai (saaf line log me likh kar). Lock atak jaaye
+# (bijli chali gayi, process mar gaya) to STALE_HOURS ke baad apne aap
+# chhoot jaata hai -- pipeline hamesha ke liye bandh nahi hota.
+LOCK = os.path.join(HERE, ".pipeline.lock")
+LOCK_STALE_HOURS = 3.0
+
+
+def _pid_alive(pid):
+    """Ye PID abhi bhi zinda hai? Pata na chale to True (surakshit taraf)."""
+    if not pid:
+        return False
+    try:
+        if os.name == "nt":
+            import ctypes
+            PROCESS_QUERY_LIMITED_INFORMATION = 0x1000
+            h = ctypes.windll.kernel32.OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, False, int(pid))
+            if not h:
+                return False
+            ctypes.windll.kernel32.CloseHandle(h)
+            return True
+        os.kill(int(pid), 0)
+        return True
+    except Exception:
+        return False
+
+
+def lock_take():
+    """wapas: True = lock mil gaya, chalo. False = koi aur chal raha hai."""
+    try:
+        if os.path.exists(LOCK):
+            info = {}
+            try:
+                info = json.load(open(LOCK, encoding="utf-8")) or {}
+            except Exception:
+                info = {}
+            pid = info.get("pid")
+            age_h = (time.time() - os.path.getmtime(LOCK)) / 3600.0
+            if age_h > LOCK_STALE_HOURS:
+                log("  (purana lock %0.1f ghante ka tha -- hata kar aage badh rahe hain)" % age_h)
+            elif pid == os.getpid():
+                pass          # mera hi lock hai (PID dobara mil gaya ho) -- aage badho
+            elif _pid_alive(pid):
+                log("=" * 60)
+                log("  EK PIPELINE PEHLE SE CHAL RAHA HAI (pid %s, %d min se)."
+                    % (pid, int(age_h * 60)))
+                log("  Ye run chhod rahe hain -- do pipeline ek saath chalein to")
+                log("  dono ka hisaab aur mapping ek doosre ko mita dete hain.")
+                log("  (Agar START_LIVE.bat ki do window khuli hain to ek band kar do.)")
+                log("=" * 60)
+                return False
+            else:
+                log("  (lock to tha par wo process ab zinda nahi -- aage badh rahe hain)")
+        atomic_json(LOCK, {"pid": os.getpid(),
+                           "start": datetime.datetime.now().isoformat()}, keep_prev=False)
+        return True
+    except Exception as e:
+        log("  (lock nahi ban paaya: %s -- phir bhi chala rahe hain)" % e)
+        return True
+
+
+def lock_free():
+    try:
+        if os.path.exists(LOCK):
+            info = {}
+            try:
+                info = json.load(open(LOCK, encoding="utf-8")) or {}
+            except Exception:
+                pass
+            # sirf apna lock hatao
+            if not info or info.get("pid") == os.getpid():
+                os.remove(LOCK)
+    except Exception:
+        pass
+
+
+def load_state():
+    v = load_json(STATE, default=None, log=log)
+    if not isinstance(v, dict) or "processed" not in v:
+        if v is not None:
+            log("  (state file theek nahi thi -- saari files dobara padhi jaayengi)")
+        return {"processed": {}}
+    return v
+
+def save_state(s):
+    try: atomic_json(STATE, s)
+    except Exception as e: log("  (state save fail: %s)" % e)
+
+
+# ---- push baaki hai ya nahi (A2) ----
+def _pending_set():
+    try: open(PENDING, "w").write(datetime.datetime.now().isoformat())
+    except Exception: pass
+
+def _pending_clear():
+    try:
+        if os.path.exists(PENDING): os.remove(PENDING)
+    except Exception: pass
+
+def _pending_is():
+    return os.path.exists(PENDING)
+
+
+def find_new(state):
+    out = []
+    for f in P2.find_files():
+        try: st = os.stat(f)
+        except Exception: continue
+        mt, sz = st.st_mtime, st.st_size
+        p = state["processed"].get(f)
+        if p and p.get("mtime") == mt and p.get("size") == sz: continue
+        out.append((f, mt, sz))
+    return out
+
+
+def backup_csv(coll, log=log):
+    """Mongo master -> month-wise CSV parts (Excel-safe)."""
+    # ================= audit-fix A2/A4/A5/A14 (A4) =================
+    # PEHLE KYA HOTA THA:
+    #   open(master_2026-09.csv, 'w') seedha ASLI backup file ko khaali kar
+    #   deta tha, phir Mongo se rows stream hoti theen. Beech me network
+    #   share gira / Mongo timeout / disk bhari -> purana backup bhi gaya
+    #   aur naya bhi adhoora. Upar wala except isko "backup skip" likh kar
+    #   nigal jaata tha, to pata bhi nahi chalta tha.
+    #
+    # AB:
+    #   sab kuch .part file me banta hai. Poora ban jaane ke BAAD hi rename
+    #   hota hai, aur purani file .prev me chali jaati hai. Beech me kuch
+    #   bigda to .part files hata di jaati hain -- purana backup chhua bhi
+    #   nahi jaata.
+    outdir = BACKUP_DIR if os.path.isdir(os.path.dirname(BACKUP_DIR)) else os.path.join(os.path.dirname(HERE), "master_backup")
+    os.makedirs(outdir, exist_ok=True)
+    if not check_space(outdir, need_mb=500, log=log):
+        raise RuntimeError("backup ke liye jagah nahi (purana backup chhua nahi gaya)")
+    COLS = M2.SCHEMA
+    log("CSV backup -> " + outdir)
+    files, counts = {}, {}
+    import csv as _csv
+
+    def _shut():
+        for _ym, (_fh, _w, _p) in list(files.items()):
+            try: _fh.close()
+            except Exception: pass
+
+    try:
+        for d in coll.find({}, {k: 1 for k in COLS}).batch_size(5000):
+            ym = str(d.get('Tweet Date', ''))[:7] or 'other'
+            if ym not in files:
+                part = os.path.join(outdir, "master_%s.csv.part" % ym)
+                fh = open(part, 'w', encoding='utf-8-sig', newline='')
+                w = _csv.writer(fh); w.writerow(COLS)
+                files[ym] = (fh, w, part); counts[ym] = 0
+            fh, w, _p = files[ym]
+            w.writerow([('' if d.get(k) is None else str(d.get(k, ''))) for k in COLS])
+            counts[ym] += 1
+        for ym, (fh, w, p) in files.items():
+            fh.flush()
+            try: os.fsync(fh.fileno())
+            except Exception: pass
+            fh.close()
+    except Exception:
+        _shut()
+        for ym, (_fh, _w, p) in files.items():
+            try: os.remove(p)
+            except Exception: pass
+        log("  backup beech me ruk gaya -- PURANA backup jyun ka tyun hai")
+        raise
+
+    # sab part file ban gayi -> ab jagah lo
+    for ym, (_fh, _w, part) in files.items():
+        final = os.path.join(outdir, "master_%s.csv" % ym)
+        try:
+            if os.path.exists(final):
+                prev = final + ".prev"
+                if os.path.exists(prev): os.remove(prev)
+                os.replace(final, prev)
+            os.replace(part, final)
+        except Exception as e:
+            log("   (%s rename skip: %s)" % (os.path.basename(part), e))
+
+    for ym in sorted(counts): log("   master_%s.csv  %s rows" % (ym, f"{counts[ym]:,}"))
+    try:
+        from safe_write import atomic_write as _aw
+        _aw(BACKUP_MARK, datetime.date.today().isoformat(), keep_prev=False)
+    except Exception:
+        open(BACKUP_MARK, 'w').write(datetime.date.today().isoformat())
+    log("  backup done (%s parts, %s rows)" % (len(counts), f"{sum(counts.values()):,}"))
+
+
+def push_punjab():
+    """Punjab dashboard ka data (political_lens) bhi taaza kar do.
+
+    Punjab wala build alag script me hai -- PunjabLens/build_punjab_data.py --
+    aur wo bhi USI pulse_master.master_tweets se padhta hai jisme abhi naya
+    data aaya hai. Isliye All India / UP ke turant baad ise bhi chala dete
+    hain, warna Punjab purana data dikhata rahega.
+
+    Alag process me chalta hai (subprocess), isliye agar wo fail bhi ho jaaye
+    to poora pipeline nahi girega -- sirf ek line log me aayegi.
+    """
+    script = os.path.join(os.path.dirname(HERE), "PunjabLens", "build_punjab_data.py")
+    if not os.path.exists(script):
+        log("  (Punjab skip: build_punjab_data.py nahi mila)")
+        return
+    log("Punjab build + push -> political_lens ...")
+    try:
+        # Windows par piped stdout cp1252 hota hai. build_punjab_data.py
+        # "date range : x → y" chhaapta hai, aur '→' cp1252 me hai hi nahi --
+        # child UnicodeEncodeError se mar jaata tha, wo bhi Mongo par likhne
+        # se PEHLE. Isliye dono taraf UTF-8 pakka kar rahe hain.
+        env = dict(os.environ, PYTHONIOENCODING="utf-8", PYTHONUTF8="1")
+        r = subprocess.run([sys.executable, script, "--push"],
+                           cwd=os.path.dirname(script), env=env,
+                           capture_output=True, text=True,
+                           encoding="utf-8", errors="replace", timeout=1800)
+        tail = [ln for ln in (r.stdout or "").splitlines() if ln.strip()][-4:]
+        for ln in tail:
+            log("   " + ln.strip()[:160])
+        if r.returncode == 0:
+            log("  Punjab ho gaya.")
+            # server ke andar cache padi hai -- use saaf karo warna purana dikhega
+            try:
+                urllib.request.urlopen("http://localhost:%d/punjab/refresh" % PORT, timeout=30).read()
+                log("  Punjab dashboard ka cache saaf kiya.")
+            except Exception as e:
+                log("  (Punjab refresh skip: %s -- server band hoga, khulte hi naya data aa jayega)" % e)
+        else:
+            log("  (Punjab push fail, code %s: %s)" % (r.returncode, (r.stderr or "")[-200:]))
+    except Exception as e:
+        log("  (Punjab skip: %s)" % e)
+
+
+def main():
+    t0 = time.time()
+    if '--rescan' in sys.argv and os.path.exists(STATE):
+        os.remove(STATE); log("state reset -> saari files dobara padhi jaayengi")
+
+    # --since YYYY-MM-DD  -> us date ke baad badli files ko dobara padho
+    if '--since' in sys.argv:
+        try:
+            i = sys.argv.index('--since')
+            since = datetime.datetime.strptime(sys.argv[i + 1], '%Y-%m-%d').timestamp()
+            st0 = load_state(); drop = [f for f, v in st0.get('processed', {}).items()
+                                        if (v.get('mtime') or 0) >= since]
+            for f in drop: st0['processed'].pop(f, None)
+            save_state(st0)
+            log("RESCAN since %s -> %d files dobara padhi jaayengi" % (sys.argv[i + 1], len(drop)))
+        except Exception as e:
+            log("  (--since skip: %s)" % e)
+
+    if not os.path.isdir(P2.BASE):
+        log("!! network folder nahi mila: " + P2.BASE); return
+
+    # audit-fix A2/A4/A5/A14 : mapping file kharab ho to pipeline har run par
+    # yahin marta tha. Ab .prev se recover ki koshish, warna saaf message.
+    mp = load_json(P2.MAPJSON, default=None, log=log)
+    if not isinstance(mp, dict) or not mp:
+        log("!! handle mapping (%s) padhi nahi gayi ya khaali hai." % os.path.basename(P2.MAPJSON))
+        log("   Is file ke bina naye tweets map nahi ho sakte -- is run ko rok rahe hain")
+        log("   taaki aadhe-adhoore data se dashboard na bane.")
+        log("   .prev copy bhi dekh li gayi. File wapas laa kar dobara chalao.")
+        return
+
+    # disk ki jagah -- backup/report/log sab yahin likhte hain
+    if not check_space(HERE, log=log):
+        log("   (jagah banao, phir chalao -- abhi kuch nahi likha)")
+        return
+    coll = M2.coll()
+    log("mapping: %s handles | mongo master: %s tweets" % (f"{len(mp):,}", f"{coll.estimated_document_count():,}"))
+
+    state = load_state()
+    newf = find_new(state)
+    log("Nayi/badli files: %d" % len(newf))
+
+    # ---- SOURCE HEALTH: har folder ki aakhri file kab aayi (source zinda hai ya nahi) ----
+    try:
+        now = time.time()
+        rows = []
+        for d in sorted(os.listdir(P2.BASE)):
+            fp = os.path.join(P2.BASE, d)
+            if not os.path.isdir(fp): continue
+            import glob as _g
+            fs = []
+            for pat in ("*.csv", "*.xlsx", "*.xls", "*.xlsm"):
+                fs += _g.glob(os.path.join(fp, pat))
+            if not fs:
+                rows.append((d, "-", 0)); continue
+            last = max(os.path.getmtime(x) for x in fs)
+            rows.append((d, datetime.datetime.fromtimestamp(last).strftime("%d %b %H:%M"),
+                         (now - last) / 3600.0))
+        # folder ki list admin panel ke dropdown ke liye (Mongo par bhaari query se bachne ko)
+        try:
+            json.dump(sorted(d for d, _t, _h in rows),
+                      open(os.path.join(HERE, "data", "source_folders.json"), "w", encoding="utf-8"),
+                      ensure_ascii=False, indent=0)
+        except Exception as e:
+            log("  (source_folders.json skip: %s)" % e)
+        log("SOURCE STATUS (har folder ki aakhri file):")
+        stale = []
+        for d, t, hrs in rows:
+            mark = ""
+            if hrs and hrs > 6: mark = "   <-- %d ghante se kuch naya nahi" % int(hrs); stale.append(d)
+            log("   %-34s %s%s" % (d[:34], t, mark))
+        if len(newf) == 0:
+            fresh = min((h for _, _, h in rows if h), default=None)
+            if fresh is not None:
+                log("   => koi nayi file nahi. Sabse nayi file %.1f ghante purani hai." % fresh)
+                if fresh > 2:
+                    log("   => matlab SCRAPER ne naya data nahi daala (pipeline apna kaam kar raha hai).")
+    except Exception as e:
+        log("  (source status skip: %s)" % e)
+
+    added = 0; unmapped = {}; new_media = 0; new_mapped = []
+    import re as _re2
+    _CODE_RE = _re2.compile(r'^(AC|PC)[_\s-]?\d+$', _re2.I)
+    code_learn = {}          # purane handle ka AC/PC No raw file se seekh lo
+    today = datetime.date.today()
+    for f, mt, sz in newf:
+        try:
+            df, um = P2.read_map_file(f, mp, DATE_FROM, today)
+        except Exception as e:
+            log("  ERROR read (skip): %s -> %s" % (os.path.basename(f)[:40], e)); continue
+        state["processed"][f] = {"mtime": mt, "size": sz}
+        if df is None or len(df) == 0: continue
+        if '__media__' in um:
+            for h, lbl in um.pop('__media__').items():
+                mp[h] = {'handle': h, 'name': '', 'state': '', 'locations': '-', 'ac_pc_no': '-',
+                         'ac_name': '-', 'pc_name': '-', 'designation_raw': lbl, 'designations': [lbl],
+                         'levels': ['Others'], 'category': lbl, 'party': '-', 'status': 'Active',
+                         'tweet_url': '', 'profile_url': 'https://x.com/' + h}
+                new_media += 1
+                new_mapped.append((h, '', '', '-', lbl, os.path.basename(os.path.dirname(str(f)))))
+        if '__new__' in um:
+            # naya handle -> raw file ke saare column padh kar mapping me sahi jagah bhar do
+            for h, rec in um.pop('__new__').items():
+                if h in mp: continue
+                fold = rec.pop('_folder', '')
+                mp[h] = rec
+                new_mapped.append((h, rec.get('name', ''), rec.get('state', ''),
+                                   rec.get('party', ''), rec.get('designation_raw', ''), fold))
+        for h, n in um.items(): unmapped[h] = unmapped.get(h, 0) + n
+        # SELF-HEAL: jis handle ka mapping me AC/PC No khaali hai lekin raw file me
+        # sahi code (AC_80 / PC_12) aaya hai -> mapping me seekh lo. Code kabhi
+        # '-' se overwrite nahi hoga -- sirf khaali jagah bharti hai.
+        try:
+            if 'AC/PC No' in df.columns and 'Handle' in df.columns:
+                for h, cd in zip(df['Handle'].astype(str), df['AC/PC No'].astype(str)):
+                    h = h.strip(); cd = cd.strip().upper().replace(' ', '_')
+                    if not h or h in code_learn or not _CODE_RE.match(cd): continue
+                    cur = str((mp.get(h) or {}).get('ac_pc_no') or '').strip()
+                    if not _CODE_RE.match(cur): code_learn[h] = cd
+        except Exception:
+            pass
+        # kis folder ki file se aaya -- har tweet par likh do (export me filter ke liye).
+        # Pehle ye sirf naye handle ki report me use hota tha aur phenk diya jaata tha.
+        try:
+            df['Source Folder'] = os.path.basename(os.path.dirname(str(f)))
+        except Exception:
+            pass
+        M2.upsert_frame(df, coll)          # <-- seedha Mongo me (fast, dedupe apne aap)
+        added += len(df)
+        log("  %-46s +%d rows" % (os.path.basename(f)[:46], len(df)))
+
+    # audit-fix A2/A4/A5/A14 : save_state ab push ke BAAD hoti hai (neeche dekho)
+    if code_learn:
+        for h, cd in code_learn.items():
+            if h in mp: mp[h]['ac_pc_no'] = cd
+        log("Mapping: %d handle ka AC/PC No raw file se recover hua (%s ...)"
+            % (len(code_learn), ", ".join(list(code_learn)[:3])))
+        new_mapped = new_mapped or [None]      # taaki neeche mapping save ho jaaye
+        new_mapped = [x for x in new_mapped if x is not None] or []
+        atomic_json(P2.MAPJSON, mp, indent=0)       # audit-fix A2/A4/A5/A14
+    if new_media or new_mapped:
+        atomic_json(P2.MAPJSON, mp, indent=0)       # audit-fix A2/A4/A5/A14
+        if new_media:
+            log("Mapping: +%d media/journalist handle" % new_media)
+        if new_mapped:
+            log("Mapping: +%d NAYE handle (raw file ke columns se auto-fill):" % len(new_mapped))
+            for row in new_mapped[:12]:
+                h, nm, st, pt, dg = row[0], row[1], row[2], row[3], row[4]
+                fd = row[5] if len(row) > 5 else ''
+                log("    @%-20s %-20s %-15s %-6s %-10s [%s]" % (h, str(nm)[:20], str(st)[:15], str(pt)[:6], str(dg)[:10], fd))
+            # aaj ke naye handles ki list report ke liye (AAJ ke sab run milaakar - append)
+            try:
+                pnh = os.path.join(HERE, 'new_handles_today.csv')
+                old = []
+                if os.path.exists(pnh) and datetime.date.fromtimestamp(os.path.getmtime(pnh)).isoformat() == \
+                        datetime.date.today().isoformat():
+                    old = pd.read_csv(pnh, dtype=str, encoding='utf-8-sig').fillna('').values.tolist()
+                allrows = [ (list(r)+[''])[:6] for r in old ] + [ (list(x)+[''])[:6] for x in new_mapped ]
+                seen = set(); uniq = []
+                for r in allrows:
+                    if r[0] in seen: continue
+                    seen.add(r[0]); uniq.append(r)
+                pd.DataFrame([(list(r)+[''])[:6] for r in uniq], columns=['Handle','Name','State','Party','Designation','Folder']) \
+                  .to_csv(pnh, index=False, encoding='utf-8-sig')
+            except Exception as e:
+                log("  (new_handles_today write skip: %s)" % e)
+        log("Mapping total ab: %s handles" % f"{len(mp):,}")
+    if unmapped:
+        pd.DataFrame(sorted(unmapped.items(), key=lambda x: -x[1]), columns=['Handle', 'tweets']).to_csv(NEEDMAP, index=False)
+        log("(is run me pehli baar dikhe handle: %d)" % len(unmapped))
+
+    total = coll.estimated_document_count()
+    log("Naye rows: %s | Mongo master total: %s" % (f"{added:,}", f"{total:,}"))
+
+    # ================= audit-fix A2/A4/A5/A14 (A2) =================
+    # PEHLE KYA HOTA THA:
+    #   save_state() push se PEHLE chalta tha. Push fail hua to files
+    #   "ho gayi" mark ho chuki hoti theen, aur agle run me added==0 ->
+    #   "Naya data nahi -> push skip". Tweets Mongo me pade rehte the par
+    #   dashboard par KABHI nahi aate the -- bina kisi warning ke.
+    #
+    # AB:
+    #   push se pehle ek .push_pending nishaan lagta hai. Push poora hone
+    #   par hi state save hoti hai aur nishaan hatta hai. Push fail ho to
+    #   nishaan rehta hai -> agla run khud push kar deta hai, chahe nayi
+    #   file ek bhi na mili ho.
+    pending = _pending_is()
+    if pending and added == 0:
+        log("Pichhli baar push adhoora reh gaya tha -> ab dobara kar rahe hain.")
+
+    if added == 0 and not pending and '--force-push' not in sys.argv:
+        log("Naya data nahi -> push skip.")
+        save_state(state)
+    else:
+        _pending_set()
+        log("Build + push (SEEDHA MONGO SE) -> india_Pulse + up_pulse ...")
+        import push_all_scopes as PA; importlib.reload(PA)
+        PA.push_all("MONGO", log=log)
+        push_punjab()
+        # Yahan tak pahunche matlab DONO dashboard ban gaye -- ab hi state
+        # likhte hain, taaki fail hone par files dobara padhi jaayein.
+        save_state(state)
+        _pending_clear()
+        log("Push poora -- state save ho gayi.")
+
+    # ---- CSV backup (roz ek baar; --backup se abhi) ----
+    # SECONDARY laptop network par backup nahi likhta -- primary already likh
+    # raha hai, aur dono ek hi file par likhte to ek doosre ko mita dete.
+    SEC = is_secondary()
+    do_bk = '--backup' in sys.argv
+    if SEC and '--backup' not in sys.argv:
+        do_bk = False
+        log("CSV backup skip (ye SECONDARY laptop hai -- primary backup le raha hai)")
+    elif not do_bk and '--no-backup' not in sys.argv:
+        last = ''
+        try: last = open(BACKUP_MARK).read().strip()
+        except Exception: pass
+        do_bk = (last != datetime.date.today().isoformat()) and (added > 0)
+    if do_bk:
+        try:
+            backup_csv(coll)
+        except Exception as e:
+            # audit-fix A2/A4/A5/A14 : pehle ye chupchap "skip" likh deta tha.
+            log("  !! CSV BACKUP FAIL: %s" % e)
+            log("     (purana backup safe hai -- par aaj ka naya nahi bana)")
+
+    # ---- DAILY REPORT (har run par refresh; roz ki file bhi ban jaati hai) ----
+    try:
+        import daily_report as DR
+        importlib.reload(DR)
+        if SEC:
+            # network par nahi -- apne folder me. Primary ki report safe rehti hai.
+            DR.OUTDIR = os.path.dirname(HERE)
+            log("Daily report local me banegi (SECONDARY laptop)")
+        p = DR.main()
+        log("Daily report: %s" % p)
+    except Exception as e:
+        log("  (daily report skip: %s)" % e)
+
+    log("DONE in %ds." % int(time.time() - t0))
+
+
+if __name__ == "__main__":
+    # audit-fix LOCK : ek waqt me ek hi pipeline
+    if not lock_take():
+        sys.exit(0)                      # doosra chal raha hai -- ye koi error nahi
+    try:
+        main()
+    except Exception as e:
+        import traceback; log("FATAL: " + str(e)); log(traceback.format_exc()); sys.exit(1)
+    finally:
+        lock_free()

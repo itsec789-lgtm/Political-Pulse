@@ -1,0 +1,13 @@
+{
+  "mongoUrl": "",
+
+  "sourceDb": "pulse_master",
+  "sourceCollection": "master_tweets",
+
+  "targetDb": "political_lens",
+  "state": "Punjab",
+
+  "port": 3000,
+  "explorerLimit": 25000,
+  "authEnabled": false
+}

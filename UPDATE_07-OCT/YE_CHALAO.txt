@@ -1,0 +1,45 @@
+======================================================================
+  MAIN SYSTEM PAR KYA CHALANA HAI
+======================================================================
+
+PEHLE:
+  1. Ye poora "UPDATE_07-OCT" folder copy karo ->  C:\Main Twitter Project1\
+     (us folder ke ANDAR jahan DASHBOARD aur UP-DASHBOARD dikhte hain)
+  2. Chal raha server BAND karo -- port 3000 wali black window
+
+
+PHIR YE 4 FILE, ISI KRAM ME:
+
+  1)  UPDATE_07-OCT\UPDATE_KARO.bat
+  2)  DASHBOARD\RUN_MAPPING_UPDATE.bat
+  3)  DASHBOARD\PATCH_START_LIVE.bat        <- sirf ek baar
+  4)  PunjabLens\SETUP_PUNJAB.bat           <- sirf pehli baar (Punjab ke liye)
+  5)  DASHBOARD\START_LIVE.bat              <- window khuli chhod dena
+
+
+AAKHIR ME:
+  Browser me Ctrl + F5  -- teeno par:
+     http://localhost:3000/
+     http://localhost:3000/up
+     http://localhost:3000/punjab/
+
+
+DHYAAN DO:
+  - Step 2 aur 3 ki file UPDATE_KARO.bat KHUD DASHBOARD me rakh deta hai.
+    Aapko kuch copy-paste nahi karna.
+  - Login ek baar dobara karna padega. Password wahi purana.
+  - Step 3 dobara chala do to khud keh dega "pehle se laga hua hai" --
+    nuksan nahi hota.
+
+AGAR /punjab/ PAR "Cannot GET /punjab/" AAYE:
+  UPDATE_07-OCT\CHECK_PUNJAB_MOUNT.bat   chalao
+  (sirf padhta hai. Asli wajah ek line me bata deta hai, aur yahi
+   batata hai ki SETUP_PUNJAB.bat chahiye ya server.js purani hai.)
+
+
+KUCH GALAT LAGE TO:
+  UPDATE_07-OCT\WAPAS_KARO.bat   -- sab purana wapas aa jayega
+  (backup apne aap BACKUP-update-<date>\ me banta hai)
+
+Poori detail: PEHLE_YE_PADHO.txt
+======================================================================

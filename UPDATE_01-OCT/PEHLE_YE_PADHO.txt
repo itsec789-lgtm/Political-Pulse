@@ -1,0 +1,873 @@
+======================================================================
+  MAIN SYSTEM PAR AAJ KE CHANGES  --  01 October
+======================================================================
+
+POORA FOLDER COPY KARNE KI ZAROORAT NAHI.
+20 files badalti hain + 4 saathi files jo sirf tab daali jaati hain jab
+wahan hain hi nahi. Ye package wahi files aur ek script hai.
+
+NOTE (03 Oct): pehle version me ek file chhoot gayi thi -- mongo_conf.PY
+(Python wali). Maine sirf mongo_conf.JS bheji thi, jo Node ke liye hai.
+Isse pipeline "No module named 'mongo_conf'" de kar ruk jaata tha.
+Ab wo bhi package me hai, aur installer chalne se pehle SAARI zaroori
+files ki list check karta hai.
+
+
+KYA KARNA HAI
+-------------
+1. Ye poora folder "UPDATE_01-OCT" apne main system par
+   "Main Twitter Project" folder ke ANDAR rakho:
+
+       C:\Main Twitter Project\UPDATE_01-OCT\
+
+2. Server band kar do (jo black window chal raha hai).
+   Script khud bhi check karta hai -- chalta mila to ruk jaayega.
+
+3. UPDATE_KARO.bat  par double-click.
+
+4. START_LIVE.bat chalao.
+
+5. Browser me Ctrl + F5 (dono dashboard par).
+
+6. Ek baar ye kholo:   http://localhost:3000/healthz
+   "ok": true aaye to sab theek hai.
+
+
+EK BAAR LOGIN DOBARA KARNA PADEGA
+---------------------------------
+Session ka tareeka badla hai. Isliye is ek baar sabko dobara login
+karna hoga. Password WAHI purana chalega -- kuch badalna nahi hai.
+
+Iske BAAD ka fayda: pehle har server restart par sab log out ho jaate
+the (aur START_LIVE roz kai baar restart karta hai). Ab nahi honge.
+
+
+KUCH GALAT LAGE TO
+------------------
+WAPAS_KARO.bat chalao -- sab waise ka waisa ho jaayega.
+Backup apne aap "BACKUP-update-<date>" folder me ban jaata hai.
+
+
+======================================================================
+  AAJ KYA KYA BADLA
+======================================================================
+
+--- HISSA 1: DASHBOARD KE UI CHANGES ---
+
+  * Handle Analytics tab ka naya layout -- bada profile banner
+    (cover + photo), alag-alag card: Growth Trends, Content
+    Performance, Daily Breakdown, Latest Tweets
+
+  * Handle par click karte hi uski X profile LIVE uthti hai aur Mongo
+    me save ho jaati hai. Banner par refresh button bhi hai.
+
+  * KPI tiles -- alag-alag card, beech me gap, grey patti gayab
+
+  * Daily Breakdown ab sirf pichhle 7 din ka
+
+  * Live update indicator (hara ^ +1K) wapas chaalu
+
+  * LAST UPDATED column ko ab number nahi gina jaata
+
+  * Engagement Rate (tile aur chart) dono hata diye gaye
+
+
+--- HISSA 2: FAILURE AUDIT KE FIX ---
+
+  Ye wo dikkatein theen jo abhi dikhti nahi thi, par kisi din data
+  gayab kar sakti theen ya dashboard band kar sakti theen.
+
+  1. DASHBOARD KI COLLECTION PEHLE KHAALI HOTI THI
+     Har ghante ke push me 2-3 second ke liye collection khaali rehti
+     thi -- us pal jo dashboard kholta, use 500 error milta. Aur agar
+     us pal Mongo girta ya disk bharti, to collection HAMESHA ke liye
+     khaali reh jaati aur dashboard poora band ho jaata.
+     AB: naya data alag naam me banta hai, ginti milti hai, phir
+     rename se swap. Khaali window ab hai hi nahi.
+
+  2. PUSH FAIL HO JAAYE TO DATA HAMESHA KE LIYE ATAK JAATA THA
+     Files "ho gayi" mark ho jaati thi push se PEHLE. Push fail hua to
+     agle run me "Naya data nahi" bol kar skip -- tweets Mongo me pade
+     rehte, dashboard par kabhi nahi aate. Bina kisi warning ke.
+     AB: push poora hone par hi mark hota hai, aur adhoora reh jaaye
+     to agla run khud dobara push kar deta hai.
+
+  3. AADHA UPDATE -- ALL INDIA NAYA, UP PURANA
+     All-India ka stamp UP se pehle lagta tha. UP fail hua to UP
+     chupchap purana data dikhata rehta, uska "last updated" bhi nahi
+     badalta -- kisi ko shaq tak nahi hota.
+     AB: dono ban jaane ke BAAD hi dono ka stamp lagta hai.
+
+  4. BACKUP PURANA BACKUP MITA DETA THA
+     Backup file pehle khaali hoti thi phir bharti thi. Beech me
+     network/Mongo gira to purana bhi gaya aur naya bhi adhoora. Aur
+     ye "backup skip" likh kar nigal liya jaata tha.
+     AB: .part file me banta hai, poora hone par rename. Purani copy
+     .prev me rehti hai. Fail ho to SAAF dikhta hai.
+
+  5. MAPPING FILE KHARAB HO SAKTI THI
+     handle_master.json likhte waqt crash hua to file aadhi reh jaati,
+     aur phir pipeline HAR run par wahin marta. Saara handle mapping
+     chala jaata.
+     AB: temp file + rename (atomic), aur ek .prev copy. Kharab mile
+     to .prev se chal jaata hai.
+
+  6. HAR REQUEST PAR NAYA DB CONNECTION (35 jagah)
+     Pooling ka fayda poora khatam tha. 7 jagah timeout bhi nahi tha
+     -- Mongo band ho to dashboard 30 SECOND latka rehta tha.
+     AB: ek hi saanjha pool, sab jagah ek jaisa timeout (6 sec).
+
+  7. CONNECTION LEAK
+     Error aane par kai jagah connection kabhi band hi nahi hota tha.
+     AB: pool hai, ye dikkat hi nahi rahi.
+
+  8. 6 MB PAGE KA GZIP MAIN THREAD ROK DETA THA
+     Jab tak compress hota, poora server ruka rehta -- 3-4 log ek
+     saath kholein to sab atak jaate. Yahi "server hang" ki wajah thi.
+     AB: async gzip, main thread khaali.
+
+  9. SERVER PAR KOI TIMEOUT NAHI THA
+     ngrok se public hai -- ek atki connection hamesha socket pakad
+     kar baith sakti thi.
+     AB: headers/request/keep-alive teeno par timeout.
+
+ 10. CRASH HONE PAR SIRF LOG HOTA THA
+     Server adhi-tooti haalat me chalta rehta, kisi ko pata nahi.
+     AB: Express error middleware (stack trace ab user ko nahi
+     dikhta), aur /healthz -- ek line me poori sehat:
+         http://localhost:3000/healthz
+     Mongo zinda hai? data kitna purana hai? collection khaali to
+     nahi? sab ek jagah.
+
+ 11. pipeline.log KABHI SAAF NAHI HOTA THA
+     AB: 5 MB par rotate (do peedhi rakhi jaati hain). Aur likhne se
+     pehle disk ki jagah bhi dekh li jaati hai.
+
+ 12. PASSWORD SAADE TEXT ME THE
+     Code me bhi, Mongo me bhi, aur admin panel unhe dikha bhi deta
+     tha. Database ka backup = sabka password.
+     AB: scrypt hash. Purane password apne aap hash me badal jaate
+     hain jab user agli baar login karta hai -- kisi ko kuch nahi
+     karna. Panel se password dikhna band.
+     Code me likhe 5 base account ab bhi saade hain -- unke liye
+     DASHBOARD folder me:   node make_pw_hash.js
+
+ 13. LOGIN PAR KOI ROK NAHI THI
+     Koi bhi unlimited password aazma sakta tha.
+     AB: 15 min me ek email par 8 aur ek IP se 20 galat koshishon ke
+     baad 10 min ka viraam. Sahi login par hisaab saaf.
+
+ 14. SERVER RESTART = SABKA LOGOUT
+     Aur ulta: account band karne par bhi uska access 12 ghante
+     chalta rehta tha.
+     AB: secret file me rehta hai (restart par logout nahi), aur
+     cookie me waqt likha hai -- account band / password badalte hi
+     purani cookie usi pal mar jaati hai.
+
+ 15. PIPELINE FAIL HONE PAR KUCH DIKHTA NAHI THA
+     Traceback screen par upar chala jaata, agle ghante sab normal
+     dikhta.
+     AB: START_LIVE.bat ki window LAAL ho jaati hai aur lagatar
+     kitni baar fail hua wo ginti dikhti hai.
+
+
+EK FINDING GALAT NIKLA
+----------------------
+Audit me maine likha tha ki dashGuard do baar define hai. Check karne
+par wo sirf EK baar hai -- maine apne hi do output ko do definition
+samajh liya tha. Us par koi badlav nahi kiya.
+
+
+EK FILE ISME NAHI HAI -- JAANBUJH KAR
+-------------------------------------
+  DASHBOARD\x_config.json     (aapke X account ke 3 cookie - secret)
+  DASHBOARD\auth_secret.json  (session ka secret - apne aap ban jaayega)
+
+x_config.json ke bina bhi sab chalega -- bas profile photo ki jagah
+naam ke akshar dikhenge.
+
+
+NAYI FILES JO BANI
+------------------
+  DASHBOARD\mongo_pool.js    ek saanjha DB connection pool
+  DASHBOARD\auth_lib.js      password hash + session + login throttle
+  DASHBOARD\mongo_swap.py    collection ko bina khaali kiye badalna
+  DASHBOARD\safe_write.py    atomic file write + disk check
+  DASHBOARD\make_pw_hash.js  base account ka password hash banane ke liye
+  (mongo_swap.py aur safe_write.py UP-DASHBOARD me bhi hain)
+
+
+DHYAN DENE WALI BAAT
+--------------------
+Ye script purani files ko NAYI se badal deta hai. Agar aapne aaj
+subah ke baad main system par in files me se kisi me KHUD koi change
+kiya hai, to wo change chala jaayega. Backup se wapas aa sakta hai.
+======================================================================
+
+======================================================================
+  NAYA (05 Oct):  ADMIN PANEL ME "HANDLE TRACKER" TAB
+======================================================================
+
+Admin Panel (http://localhost:3000/admin) me TEEN TAB:
+
+  1. Handle Tracker     handle jodo, settings, tracked accounts ki table
+  2. Live Scrape Log    jo abhi chal raha hai uska log, line by line
+  3. Tweet Database     jo scrape hua wo data dekho / dhoondho
+
+Wahi kaam jo Google Sheet wale Tracker tab me tha -- par aapke apne
+system par aur seedha MongoDB me.
+
+1. HANDLE TRACKER
+-----------------
+  * handle jodo  -- @handle, kai saare comma se, ya poora x.com link
+  * kitna peeche tak scrape ho  -- aaj / 3 / 7 / 15 / 30 / 90 din
+  * har kitni der me chale      -- 5 min se roz tak
+  * "Sab abhi scrape karo" / "Roko"
+  * Tracked Accounts ki table:
+        SEARCH HANDLES ka box (handle ya naam se filter)
+        HANDLE | STATUS | SCRAPE WINDOW | LAST CHECKED | ACTIONS
+    - SCRAPE WINDOW: kisi ek handle ka window alag rakh sakte ho.
+      "Default" chhodo to upar wali setting lagti hai.
+    - ACTIONS: us ek handle ka apna "Scrape" button, Roko/Chalao, Hatao
+
+  "EK HANDLE KI KITNI PAGE" KA SETTING HATA DIYA GAYA HAI
+  -------------------------------------------------------
+  Pehle aap page ka number chunte the (2 / 4 / 8 / 15) -- aur wo galat
+  tha: 15 din ka window chunne par bhi scraper 4 page ke baad ruk jaata
+  tha, to 15 din ka data poora aata hi nahi tha.
+
+  Ab gehrai sirf DATE WINDOW se tay hoti hai. Scraper tab tak peeche
+  jaata rehta hai jab tak us window ke andar tweet mil rahe hain, aur
+  window khatam hote hi ruk jaata hai. Na kam, na zyada.
+
+  Saath me ek purana bug bhi theek hua: pinned tweet sabse upar aata hai
+  aur saalon purana ho sakta hai. Pehle scraper us ek purane tweet ko
+  dekh kar poore handle ko chhod deta tha. Ab purane tweet chhod kar
+  aage padhta hai.
+
+  PROGRESS BAR
+  ------------
+  Scrape chalte waqt ab ek asli progress bar dikhta hai (Handle Tracker
+  aur Live Scrape Log, dono tab par):
+      @handle . handle 2 of 5 . page 3                           47%
+      [=============                              ]
+      128 tweets from this handle . 1,204 new, 96 updated so far
+      . 37 pages read . 2:14 elapsed
+  Ek hi handle par bhi bar aage badhta hai (page ke hisaab se), kyunki
+  pehle wala bar sirf handle ginta tha aur ek handle par kuch dikhta
+  hi nahi tha.
+
+2. LIVE SCRAPE LOG
+------------------
+  * purani line UPAR, nayi line NEECHE -- terminal ki tarah seedha
+    upar se neeche padha jaata hai (pehle ulta tha)
+  * aap neeche ho to nayi line ke saath apne aap neeche chalta hai;
+    upar scroll karke kuch padh rahe ho to aapko neeche nahi kheenchta
+  * "Jump to latest" button se seedha ant par
+  * har 3 second me apne aap refresh (checkbox se band kar sakte ho)
+  * "Sirf error aur warning" / "Sirf error" filter
+  * handle ya shabd se log me dhoondho
+  * upar wahi status line jo Tracker tab par hai
+
+3. TWEET DATABASE
+-----------------
+  * handle chuno, ya tweet ke text me dhoondho
+  * "Sirf Tracker se aaya data" -- hata do to poora master_tweets dikhega
+  * 25 / 50 / 100 / 200 per page, Pichhla / Agla
+  * columns: TWEET DATE | HANDLE | TWEET | LIKES | COMMENTS |
+             RETWEETS | VIEWS | LINK
+  * DOWNLOAD CSV -- jo filter upar laga hai uski SAARI row file me
+    aati hain (sirf ye page nahi), 2,00,000 row tak. File UTF-8 BOM
+    ke saath hai, to Excel me seedha theek khulti hai. Row ek-ek
+    karke bhejti hai, isliye badi file par bhi server par bojh nahi.
+
+
+SCRAPE WINDOW aur TWEET DATE FILTER -- DO ALAG CHEEZEN
+------------------------------------------------------
+Ye sabse zyada confuse karne wali baat thi, isliye dhyan se:
+
+  SCRAPE WINDOW (Handle Tracker tab par)
+      sirf ye tay karta hai ki AGLA run X se kitna peeche tak
+      NAYA data laayega.
+
+  TWEET DATABASE ki table
+      master_tweets me jo kuch PADA HAI wo dikhati hai.
+
+Window chhota karne se purana data MITTA NAHI hai -- aur mitna bhi
+nahi chahiye, wahi to poora database hai. Isliye "Today (24 hours)"
+chun kar bhi table me 2 October ke tweet dikh rahe the: wo pichhle
+run me (jab window 3 din tha) aa chuke the aur database me pade hain.
+
+Ab Tweet Database tab par apna date filter hai:
+      Tweet date from / Tweet date to   (date picker)
+      Quick range:  Last 24 hours | Last 3 days | Last 7 days
+                    Last 30 days  | All dates
+Ye filter CSV download par bhi lagta hai -- jo screen par dikh raha
+hai wahi file me aata hai.
+
+SAVE BHOOL JAO TO BHI AB THEEK CHALEGA
+---------------------------------------
+Pehle: window dropdown badla, "Save settings" dabana bhool gaye, aur
+"Scrape all now" daba diya -> scrape PURANE saved window par chalta tha.
+Ab: jo window screen par CHUNA HUA hai wahi us run par lagta hai.
+Us ek manual run par kisi handle ka apna window bhi nahi chalta --
+jo aapne chuna, wahi sab par.
+(Schedule wala background run phir bhi SAVED setting par chalta hai,
+isliye pakka karna ho to Save daba hi dena.)
+
+
+LOG ME AB "DONE" LIKHA AATA HAI
+--------------------------------
+Har run ke ant me ek saaf line aati hai, jo log me alag se ubhri
+hui dikhti hai:
+
+    DONE     -- 1,204 new, 96 updated, 5/5 handles, 37 pages, 0 error(s), 134s
+    STOPPED  -- (jab beech me Stop dabaya)
+    FAILED   -- (jab run gir gaya, wajah ke saath)
+
+Shuru par "SCRAPE STARTED" aata hai. Pehle sirf Hindi me "Poora hua"
+likha aata tha aur log me dhoondhna mushkil tha.
+
+
+4. HANDLE MAPPING  (naya tab)
+-----------------------------
+SABSE BADA BADLAAV. Pehle tracker ka data seedha master_tweets me chala
+jaata tha -- bina State / Party / AC-PC / Category ke. Matlab wo tweet
+dashboard ke kisi bhi filter me dikhte hi nahi the.
+
+AB AISA CHALTA HAI:
+  * Jo handle Mapping.xlsx me HAI
+        -> uske tweet par State, Locations, AC/PC No, AC Name, PC Name,
+           Designation, Candidate Name, Category, Categories, Party, Status
+           wahin lag jaate hain (bilkul waise jaise phase2_push.py karta hai)
+        -> seedha master_tweets me
+  * Jo handle Mapping.xlsx me NAHI hai
+        -> uske tweet pulse_master.pending_tweets me RUK jaate hain
+        -> "Handle Mapping" tab me wo handle dikhne lagta hai
+        -> aap mapping bharte ho -> tweet chhoot kar master_tweets me
+           chale jaate hain
+  Ek bhi adhoora row database me nahi jaata, aur ek bhi tweet khota nahi.
+
+BHARNE KE DO TARIKE:
+
+  (a) MANUAL -- har ruke hue handle ka apna form, 10 column.
+      State / Party / Category / Designation DROPDOWN hain, jisme wahi
+      values hain jo mapping me pehle se hain. Ye jaanbujh kar hai:
+      "UP" bनाम "Uttar Pradesh" jaisi nayi spelling dashboard ka filter
+      chup-chaap tod deti hai. Kuch sach me naya chahiye to "other..."
+      se type kar lo.
+
+  (b) CSV -- "Download template" dabao: usme ruke hue SAARE handle pehle
+      se bhare hue aa jaayenge, baaki column khaali. Bhar kar wapas
+      upload kar do.
+         - "Check first, do not write" tika hua rahe to pehle sirf
+           jaanch hoti hai, kuch likha nahi jaata.
+         - Agar ek bhi row me zaroori column khaali hai to KUCH BHI
+           nahi likha jaata, aur CSV ki exact line number dikha di
+           jaati hai. Aadhi file lag jaana sabse bura hota -- pata hi
+           nahi chalta kaun bacha kaun gaya.
+         - Jo handle pehle se mapping me hai, use CHHOD diya jaata hai,
+           kabhi overwrite nahi.
+
+LIKHAI KAHAN HOTI HAI -- ye zaroori hai:
+  Mapping/Mapping.xlsx me. handle_master.json me NAHI.
+  Kyunki rebuild_mapping.py ki apni line hai:
+     "Mapping.xlsx hi MASTER hai. Purani mapping ka koi data nahi
+      uthaya jaata."
+  Yaani sirf JSON me likha hua agli rebuild par UD JAATA. Isliye panel
+  Excel me row jodta hai aur phir khud rebuild_mapping.py --apply chala
+  deta hai, jisse DASHBOARD aur UP-DASHBOARD dono ke handle_master.json
+  ban jaate hain.
+  Har baar Excel ka backup Mapping\_backup\ me chala jaata hai.
+  Multi-category handle ke liye har category ki ek alag Excel row banti
+  hai -- rebuild usi se 'categories' banata hai.
+
+
+TEEN AUR FIX (05-Oct, baad me)
+-------------------------------
+
+A) CSV DOWNLOAD ME AB POORE 28 COLUMN
+   Pehle Tweet Database ka CSV sirf 10 column deta tha. Ab wahi 28 column
+   aate hain jo master_tweets me hain:
+     Handle, Tweet URL, Tweet ID, Tweet Date, Tweet Text, Followers,
+     Followings, Date of Joining, Total Posts, Total Comments, Total Likes,
+     Total Retweets, Total Views, Total Bookmark Tweets Times, Sentiment,
+     Sentiment Score
+     + State, Locations, AC/PC No, AC Name, PC Name, Designation,
+       Candidate Name, Category, Categories, Party, Status, Source Folders
+
+B) JO HANDLE PEHLE SE DATABASE ME PADE HAIN (jaise @PMOIndia)
+   Mapping gate NAYE tweet rokta hai. Par jo handle gate lagne se PEHLE
+   scrape ho chuke the, unke tweet master_tweets me pehle hi pade hain --
+   gate unhe pakad hi nahi sakta. Isliye @PMOIndia ne kuch poochha nahi.
+   Ab "Handle Mapping" tab DONO dikhata hai:
+       * ruke hue handle           (naye, gate ne roke)
+       * pehle se database me pade handle jo mapping me nahi hain
+   Aur mapping bharte hi un PURANE row par bhi State/Party/Category lag
+   jaate hain (updateMany) -- sirf wahi field jo mapping me asli hain;
+   '-' / khaali par Mongo ka purana value chhua tak nahi jaata.
+
+C) SENTIMENT KE 7-8 LABEL
+   Aapke model ke label aapke apne hain (notebook me "Anti-BJP" dikha).
+   Fallback (textblob / word-list) sirf 3 de sakta hai: Positive,
+   Negative, Neutral. Isliye ab default roop se:
+       trained model mila     -> uska label seedha database me
+       trained model NAHI mila -> Sentiment column KHAALI chhod dete hain
+   3 galat label 4 lakh row me chale jaana, khaali rehne se kahin zyada
+   bura hai -- baad me pata hi nahi chalta kaunsa asli hai.
+   Tracker settings me "Strict sentiment" ka tick hata do to fallback ke
+   3 label likhe jaane lagenge (jaan-boojh kar, chup-chaap nahi).
+   Handle Tracker tab par upar laal/hara banner saaf batata hai ki abhi
+   kaunsa engine chal raha hai aur model ke kaunse label hain.
+
+
+ADMIN PANEL KE TAB JUD GAYE (11 -> 9)
+--------------------------------------
+  "Requests"        = Login Requests + Handle Requests
+                      (sidebar ka badge dono ki pending ginti jod kar
+                       dikhata hai)
+  "Data & Reports"  = Data Export + Scraping Report
+
+Naya sidebar:
+      1. Handle Tracker
+      2. Live Scrape Log
+      3. Tweet Database
+      4. Handle Mapping
+      5. Requests            <- do purane tab jud kar
+      6. Data & Reports      <- do purane tab jud kar
+      7. Active Logins
+      8. Login Activity
+      9. Email Settings
+
+Andar ka kuch nahi badla -- section wahi ke wahi hain, apni id aur apni
+JS ke saath. Bas ab har section 'data-sec' se batata hai wo kis tab ka
+hai, aur tab-switch usi ko dekhta hai. Jis section par data-sec nahi
+hai wo purani tarah apni id se chalta hai, isliye baaki sab jyon ka
+tyon chalta rehta hai.
+
+Purane link bhi chalte rehte hain: /admin?tab=requests waise hi, aur
+report banne ke baad "Data & Reports" khul jaata hai.
+
+
+HANDLES TO BE ADDED  (dashboard par naya tab -- dono dashboard me)
+==================================================================
+Ab user KHUD naye handle ki request bhej sakta hai, aur aap backend
+panel se approve/reject karte ho.
+
+USER KI TARAF (All-India aur UP, dono dashboard ke sidebar me)
+---------------------------------------------------------------
+Naya tab: "Handles To Be Added"
+
+  1. Download template
+     CSV me ye column:
+       Handle | State | Locations | AC/PC No | AC Name | PC Name |
+       Designation | Candidate Name | Category | Categories | Party
+     Sirf Handle, Candidate Name aur Category zaroori. Baaki '-' chalega.
+
+  2. Bhari hui file upload
+     Upload karte hi TURANT dikh jaata hai:
+        * kaunsa handle MAPPING ME PEHLE SE HAI -- uske saath hamare paas
+          abhi jo hai wo bhi (naam, party, state, AC/PC, category)
+        * kaunsa handle NAYA hai
+        * kis row me column khaali reh gaye
+     Abhi tak kuch bheja nahi gaya, sirf jaanch hui.
+
+  2b. YA SEEDHA TYPE KAR DO (bulk ke alawa)
+     Sirf 2-3 handle ke liye poori CSV banana bekaar hai. Neeche ek
+     chhoti table hai -- "+ Add row" dabao, seedha type kar do, phir
+     "Check these". Ek baar me 5 row tak.
+     Optional column me '-' pehle se bhara aata hai.
+     CSV aur typed row SAATH bhi chal sakti hain -- dono ek hi list me
+     jud jaati hain (ek hi handle dono me ho to typed wali jeetti hai).
+
+  3. Note likho aur "Send request"
+     Remarks box me kuch bhi likh sakte ho -- khaas kar un handle ke
+     baare me jo pehle se mapping me hain par data galat lag raha hai.
+
+  4. "Your requests"
+     Apni har request ka haal wahin dikhta rehta hai:
+        PENDING REVIEW  /  APPROVED  /  REJECTED
+     Approve hone par saaf likha aata hai "Request successfully approved"
+     aur kitne handle jude. Reject hone par wajah dikhti hai.
+
+ADMIN KI TARAF (backend panel)
+-------------------------------
+Naya tab: "Handle Requests"  (sidebar me pending ka badge bhi aata hai)
+
+  * Har request ki poori table: handle, verdict (naya / pehle se mapped /
+    adhoora), aur user ne kya bheja
+  * Jo handle pehle se mapping me hain, unke neeche hamare paas abhi jo
+    hai wo bhi dikhta hai -- QC karne ke liye
+  * User ka note upar dikhta hai
+  * HAR CELL EDIT HO SAKTI HAI
+    User aksar aadhi-adhuri ya galat spelling bhejta hai. Usse wapas
+    maangne ki zaroorat nahi -- table me seedha theek kar lo (handle bhi).
+      "Save edits"  -> abhi sudhar kar rakh do, faisla baad me
+      "Approve"     -> hamesha SCREEN par jo likha hai WAHI lagta hai,
+                       chahe "Save edits" dabaya ho ya nahi
+    User ne asal me kya bheja tha wo bhi sambhal kar rakha jaata hai
+    (originalRows), aur kisne badla wo bhi (editedBy).
+    Edit sirf PENDING request par chalta hai -- faisle ke baad band.
+
+  * Note likh kar APPROVE ya REJECT
+      Approve -> sirf NAYE aur POORE handle Mapping.xlsx me jaate hain,
+                 phir rebuild_mapping.py --apply chalta hai, aur un
+                 handle ke roke hue tweet master_tweets me chhoot jaate
+                 hain. Jo pehle se mapping me hain unhe chhua tak nahi
+                 jaata.
+      Reject  -> kuch nahi badalta; wajah user ko dikh jaati hai
+                 (reject ke liye wajah likhna zaroori hai)
+  * Ek request ka faisla ek hi baar ho sakta hai
+
+KAHAN RAKHI JAATI HAI
+----------------------
+  pulse_master.handle_requests
+  User sirf APNI request dekh sakta hai (email se), admin saari.
+  Client jo bhejta hai uspar bharosa nahi kiya jaata -- handle aur
+  mapping ki jaanch server par dobara hoti hai.
+
+
+MAPPING FORM: SIRF DO COLUMN ZAROORI
+-------------------------------------
+Pehle State, Party, Designation, Candidate Name aur Category -- paanchon
+zaroori the. Isi wajah se @PMOIndia jaisa official page kabhi save ho hi
+nahi sakta tha, aur poori waiting list wahin atak jaati thi.
+
+Ab sirf DO zaroori hain:
+      Candidate Name
+      Category
+Baaki har column me '-' bilkul theek hai, aur form me pehle se '-' bhara
+hua aata hai.
+
+Ye andaaza nahi, aapke apne data se nikla hai (handle_master.json, 4,422
+handle):
+      Candidate Name   4422 / 4422 bhare   <- isliye zaroori
+      Category         4422 / 4422 bhare   <- isliye zaroori
+      State             156 handle '-'     (saare 40 Media House + 26 Journalist)
+      Party              69 handle '-'
+      Designation        83 handle '-'
+      AC Name          1080 handle '-'
+      PC Name          3825 handle '-'
+Yaani media house / journalist / official page ka na State hota hai, na
+seat, na party -- aur mapping me wo aise hi pade hain.
+
+
+KOI HANDLE LIST KO ROK NAHI SAKTA
+----------------------------------
+Har ruke hue handle ke neeche teen naye button:
+
+  Skip for now          list se hata do. Uske roke hue tweet SURAKSHIT
+                        rehte hain, aur handle dobara scrape hua to wapas
+                        list me aa jaayega.
+  Skip & stop tracking  list se bhi hata do aur tracked list se bhi, taaki
+                        aage scrape hi na ho. Tweet phir bhi mitte nahi.
+  Discard held tweets   upar wala sab, aur uske roke hue tweet bhi mita do.
+                        SIRF YAHI DATA MITATA HAI -- isliye ispar alag se
+                        confirm maanga jaata hai.
+
+
+SENTIMENT AB AAPKE TRAINED MODEL SE
+------------------------------------
+Pehle ek chhoti word-list thi. Ab wahi raasta hai jo aapke notebook me
+hai: sentiment_tagger ka st.tag_texts() -> label + confidence.
+
+Engine isi tarteeb me chuna jaata hai, jo pehle mile wahi:
+    1. sentiment_tagger   <- aapka trained package, YAHI SAHI HAI
+    2. textblob
+    3. word-list          <- aakhri sahara
+Panel ke "Handle Mapping" tab par upar saaf likha rehta hai ki ABHI
+kaunsa engine chal raha hai -- guess nahi lagana padta.
+
+sentiment_tagger install karo (jis machine par dashboard chalta hai):
+    pip install -e "C:\Users\<aap>\Documents\sentiment_tagger_pkg"
+Install karte hi apne aap us par chala jaayega, yahan kuch badalna
+nahi padta. Ek PAGE ke saare tweet ek saath bhejte hain, isliye ye
+dheema nahi karta.
+
+
+SCRAPE KE COLUMN
+----------------
+Handle, Tweet URL, Tweet ID, Tweet Date, Tweet Text, Followers,
+Followings, Date of Joining, Total Posts, Total Comments, Total Likes,
+Total Retweets, Total Views, Total Bookmark Tweets Times, Sentiment,
+Sentiment Score
++ mapping se: State, Locations, AC/PC No, AC Name, PC Name, Designation,
+  Candidate Name, Category, Categories, Party, Status
++ Source Folders = "Admin Tracker"
+
+('Date of Joining' aur 'Status' aapki list me nahi the, par master_tweets
+me pehle se hain aur pipeline bhi yahi likhta hai -- isliye rakhe gaye,
+taaki tracker ka row aur pipeline ka row bilkul ek jaisa rahe.)
+
+
+ADMIN PANEL AB POORA ENGLISH ME HAI
+------------------------------------
+Panel par dikhne wala har shabd ab English me hai -- teeno Tracker
+tab, Data Export, Scraping Report, Login Requests, Active Logins,
+Login Activity aur Email Settings. Button, label, note, status,
+scrape log ki har line, sab.
+
+Code ke andar ke comment Hindi me hi hain -- wo panel par kabhi
+nahi dikhte, aur unhe badalne ka matlab poori file dobara likhna
+hota, jisme bina wajah risk hai.
+
+ABHI BHI HINDI ME (panel se bahar):
+  * dashboard ka AI assistant Hinglish me jawaab deta hai
+  * dashboard ke apne error message
+  * login page
+Ye kehna ho to bata dena, wo bhi English kar denge.
+
+DATA KAHAN JAATA HAI
+--------------------
+  pulse_master.master_tweets -- wahi collection jisme pipeline ka data
+  jaata hai, aur wahi merge rules:
+
+      _id            = Tweet ID (URL se) -> duplicate ban hi nahi sakte
+      numbers        -> $max   (ginti kabhi ghatti nahi)
+      text           -> $set   sirf jab naya value khaali na ho
+      Source Folders -> "Admin Tracker" jud jaata hai
+
+  Matlab yahan se aaya data agle dashboard push me dono dashboard
+  (All-India + UP) aur Handle Analytics me waise hi dikhne lagta hai
+  jaise network folder se aaya data.
+
+  DHYAN: jo handle aapki mapping (handle_master.json) me nahi hai,
+  uske tweets to aa jaayenge par State / Party / Designation khaali
+  rahenge -- wo "needs mapping" me dikhega, jaisa kisi bhi naye handle
+  ke saath waise bhi hota hai.
+
+HAAL AUR LOG
+------------
+  Tab par hi dikhta hai:
+    * abhi chal raha hai ya nahi, kis handle par, kitne me se kitne
+    * pichhli baar: kitne NAYE, kitne UPDATE, kitne handle, kitne error
+    * agla scrape kitni der me
+    * neeche poora log (har handle ki line, error laal me)
+  Har 5 second me apne aap refresh.
+
+COOKIE
+------
+  Wahi x_config.json use hoti hai jo pehle se hai (auth_token, ct0,
+  twid). Alag se kuch nahi bharna. Cookie na ho ya expire ho jaaye to
+  tab laal me saaf bata deta hai.
+
+X PAR BOJH NA PADE
+------------------
+  * ek waqt me ek hi scrape (do kabhi saath nahi chalte)
+  * har call ke beech viraam
+  * 429 (rate-limit) ya 401 (cookie expire) par turant ruk jaata hai
+    aur log me wajah likh deta hai -- agli baar se phir chalu
+
+SERVER CHALU HOTE HI
+--------------------
+  Scraper 15 second baad background me apne aap chaalu, har 30 minute
+  (badal sakte ho). Band karna ho to tab me "Roko".
+
+NAYI FILES
+----------
+  DASHBOARD\x_scraper.js        scrape engine
+  DASHBOARD\tracker_section.js  tab ka UI
+
+======================================================================
+  05 Oct -- "operation exceeded time limit" wala error theek hua
+======================================================================
+
+LOG ME YE AA RAHA THA
+---------------------
+  Could not count the already-stored unmapped handles: Executor error
+  during aggregate command on namespace: pulse_master.master_tweets
+  :: caused by :: operation exceeded time limit
+
+  Ye har 2 minute me dohra raha tha.
+
+KYA HO RAHA THA
+---------------
+  Handle Mapping tab ye batata hai ki database me pehle se kaun se
+  handle pade hain jo mapping me nahi hain. Us ginti ke liye poore
+  master_tweets (~4 lakh row) par ek aggregation chalti thi, aur
+  "Source Folders" par index nahi tha -- 30 second me poori nahi hoti
+  thi. Upar se fail hone par wait nahi lagta tha, isliye wahi bhaari
+  query har refresh par dobara chal jaati thi.
+
+  Scraping, Mongo ya data par iska koi asar nahi tha -- sirf ye ek
+  ginti chhoot rahi thi aur log bhar raha tha.
+
+AB KYA HAI
+----------
+  1. Aam list (jo har refresh par banti hai) ab bhaari aggregation
+     nahi chalati. Wo tracked handle ki chhoti list uthati hai aur
+     sirf unki ginti karti hai -- Handle index se, 8 second ke
+     timeout ke saath. Jo handle mapping me hai uski ginti bhi nahi
+     hoti.
+
+  2. Poora database scan ab maangne par hota hai: Handle Mapping tab
+     par "Scan the whole database" button. Isko poora waqt (2 minute)
+     milta hai. Isse wo handle bhi dikh jaate hain jo tracked list me
+     ab nahi hain.
+
+  3. Server chalu hote hi do index ban jaate hain:
+       master_tweets: { "Source Folders": 1 }
+       master_tweets: { "Source Folders": 1, Handle: 1 }
+     (background me bante hain -- pehli baar thoda waqt le sakte hain,
+      server chalta rahega.)
+
+  4. Fail hone par ab 10 minute ka wait lagta hai aur wahi error log
+     me baar-baar nahi likha jaata. Message bhi saaf hai:
+       "... -- skipping this check for the next 10 minutes"
+     Aur tab par laal me dikh jaata hai ki ye ginti chhooti hai.
+
+BADLI FILES
+-----------
+  DASHBOARD\x_scraper.js        cheap/deep scan + back off
+  DASHBOARD\server.js           do naye index + ?deep=1
+  DASHBOARD\tracker_section.js  button + laal banner
+
+  Teeno Node ki files hain -- UPDATE_KARO.bat ke baad START_LIVE.bat
+  DOBARA chalana zaroori hai (sirf Ctrl+F5 se kaam nahi chalega).
+
+======================================================================
+  05 Oct -- "No valid handle in that file." (Handles To Be Added tab)
+======================================================================
+
+  Send request dabaane par ye laal me aa jaata tha, chaahe row bilkul
+  theek bhari ho -- bulk CSV me bhi aur manual entry me bhi. Yaani
+  koi bhi request ja hi nahi rahi thi.
+
+  Wajah: row pehle jaanch (check) ke liye server par jaati hai aur
+  jaanchi hui shakal me wapas aati hai. Us shakal me handle chhota
+  "handle" ban jaata tha. Send karte waqt server dobara jaanchta hai
+  (ye jaan-boojh kar hai -- client ka bheja sach nahi maanate), aur
+  wahan sirf bada "Handle" dekha jaata tha -- isliye har row khaali
+  lagti thi.
+
+  Ab dono shakal padh li jaati hain, aur message bhi saaf hai.
+  Khaali handle wali row ab bhi pehle ki tarah rukti hai.
+
+  BADLI FILE:  DASHBOARD\server.js   (START_LIVE.bat dobara chalao)
+
+======================================================================
+  07 Oct -- Mapping se hataya handle ab table se bhi hat jaata hai
+           + NaN + khaali row
+======================================================================
+
+TEEN ALAG BAAT THI
+------------------
+
+1) MAPPING SE HATAYA HANDLE PHIR BHI DIKH RAHA THA
+
+   Wajah: dashboard ki har table SIRF scrape kiye hue tweets se banti
+   thi. Mapping.xlsx se handle hatane par uske PURANE tweet Mongo me
+   pade rehte hain -- isliye handle table me dikhta hi rehta tha.
+   Mapping sirf khaali khaane bharne ke liye padhi jaati thi.
+
+   Ab: page banate waqt har handle handle_master.json ke saamne rakha
+   jaata hai. Jo mapping me nahi hai wo HAR table aur chart se nikal
+   jaata hai -- Top Leaders, legislators, main table, party wale chart,
+   per-din data, sab. Server ke black window me line bhi aati hai:
+       map-gate: 4 handle mapping me nahi hain -- hata diye (...)
+   Safety: mapping file gayab ya adhoori ho to kuch nahi chhanta,
+   warna ek kharab file poora dashboard khaali kar deti.
+
+   >> ZAROORI: Mapping.xlsx badalne ke BAAD
+          DASHBOARD\RUN_MAPPING_UPDATE.bat
+      chalana padta hai. Wo Mapping.xlsx se handle_master.json banata
+      hai. Sirf Excel badalne se kuch nahi hota -- dashboard
+      handle_master.json padhta hai, Excel nahi.
+
+2) Avg Views/Post aur Avg Likes/Post me "NaN"
+
+   Jis handle ne us range me ek bhi post nahi kiya, uske liye hisaab
+   0 / 0 ho jaata tha -- JavaScript me wo NaN hai, aur table me laal
+   "NaN" chhap jaata tha. Ab ek hi jagah (perPost) se hisaab hota hai
+   jo aise me 0 lautata hai.
+
+3) 0 count wali row phir bhi table me
+
+   "Last 3 days" chunne par bhi har handle ki row dikhti thi -- saari
+   ginti 0. Ab aisi row chhant jaati hai aur neeche ek line aa jaati
+   hai, jaise:  "12 handles hidden - no posts in the selected date
+   range", taaki aisa na lage ki handle gayab ho gaya. Sab khaali ho
+   to saaf likha aata hai.
+
+BADLI FILES
+-----------
+  DASHBOARD\server.js                  map-gate (page banate waqt)
+  DASHBOARD\update_dashboard.py        map-gate (rebuild par)
+  DASHBOARD\dashboard.template.html    perPost + khaali row
+  UP-DASHBOARD\update_dashboard.py     map-gate (rebuild par)
+  UP-DASHBOARD\dashboard.template.html perPost + khaali row
+
+  server.js badli hai -> START_LIVE.bat DOBARA chalao.
+  Template badli hai  -> dono dashboard par Ctrl + F5.
+
+======================================================================
+  07 Oct (shaam) -- map-gate sudhara + date filter + Top Performers
+======================================================================
+
+1) MAP-GATE AB SIRF "HATAYE GAYE" HANDLE HATATA HAI
+
+   Subah wala gate "jo Mapping.xlsx me nahi hai" ko hata deta tha. Ye
+   khatarnaak nikla: 84 aise handle hain jinke tweets to hain par wo
+   KABHI Mapping.xlsx me aaye hi nahi -- Narendra Modi, BJP4India,
+   Anupriya Patel, Ravi Kishan... ye sab gayab ho jaate.
+
+   Ab ek nayi file hai:  DASHBOARD\data\mapping_removed.json
+   Usme sirf wo handle hain jo Mapping.xlsx se JAAN-BOOJHKAR hataye
+   gaye. Gate SIRF usi list ko dekhta hai.
+
+   Ye list apne aap bharti hai: rebuild_mapping.py (yaani
+   RUN_MAPPING_UPDATE.bat) har baar purani aur nayi mapping ka farak
+   dekh kar usme likh deta hai, aur jo handle wapas mapping me aa
+   jaaye use nikal bhi deta hai. Chahe to file khud bhi edit kar sakte
+   ho -- seedhi-saadi list hai.
+
+   Abhi list KHAALI hai, yaani aaj koi handle nahi hatta. Aaj ke baad
+   Mapping.xlsx se jo bhi hatao, wo dashboard se bhi hat jaayega.
+
+   Saath me ek CSV bhi bana di hai:
+       Mapping_Me_Nahi_Hain_84_Handles_07Oct.csv
+   Ye wo 84 handle hain jinke tweets hain par Mapping.xlsx me row
+   nahi hai. Jo rakhne hain unhe Excel me jod lo.
+
+2) TOP PERFORMERS CHART CHHOTI RANGE PAR KHAALI HO JAATA THA
+
+   Us chart me shart thi "kam se kam 10 tweet". 6 mahine par theek,
+   par "pichhle 3 din" chunne par koi 10 tweet nahi karta -- isliye
+   chart lagbhag khaali ho jaata tha (Modi tak gayab).
+   Ab shart range ke hisaab se banti hai: 3 din par 1 tweet, 7 din par
+   3, aur 30 din ya zyada par 10 (pehle jaisi).
+
+3) FROM / TO ab sirf "Custom" chunne par dikhte hain
+
+   Har filter bar me QUICK ke saath FROM aur TO hamesha dikhte the,
+   jabki wo preset se khud bhar jaate hain. Ab chhipe rehte hain aur
+   sirf QUICK me "Custom" chunne par aate hain. Jahan QUICK hai hi
+   nahi, wahan date pehle ki tarah dikhti rahegi. Kaam me kuch nahi
+   badla -- sirf dikhna/chhipna.
+
+4) MAPPING.XLSX ME EK ROW HATAI
+
+   Row 283 -- Gujarat / Ellisbridge / "Amitbhai Shah" /
+   https://x.com/amitshah -- hata di (backup: Mapping\_backup\).
+   Wahi aadmi Gandhinagar / LS_MP wali row me pehle se the. Ab dono
+   spelling (@amitshah aur @AmitShah) ek hi aadmi -- "Amit Shah" --
+   par jaati hain.
+
+   NOTE: table me ab bhi do row dikh sakti hain, kyunki Mongo me dono
+   spelling ke tweets alag pade hain. Naam ab dono par ek hi hoga.
+   Bolo to inhe ek row me jod bhi sakte hain (aise 24 aur handle hain
+   jinki sirf spelling ka farak hai).
+
+BADLI FILES
+-----------
+  DASHBOARD\server.js                     map-gate (removed list)
+  DASHBOARD\update_dashboard.py           map-gate (removed list)
+  DASHBOARD\rebuild_mapping.py            removed list bharta hai
+  DASHBOARD\dashboard.template.html       date UI + Top Performers
+  DASHBOARD\data\mapping_removed.json     NAYI FILE
+  UP-DASHBOARD\update_dashboard.py        wahi
+  UP-DASHBOARD\dashboard.template.html    wahi
+  UP-DASHBOARD\data\mapping_removed.json  NAYI FILE
+
+  server.js badli hai -> START_LIVE.bat DOBARA chalao.
+  Template badli hai  -> dono dashboard par Ctrl + F5.
