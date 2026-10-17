@@ -3193,7 +3193,7 @@ function buildLeaderRow(h,i){const avgVw=perPost(h.vw,h.tw),avgLk=perPost(h.lk,h
 function switchTab(tab){currentTab=tab;/* tab-scroll (09-Oct): naya tab hamesha SABSE UPAR se khule --
    pehle pichhle tab ka scroll bana rehta tha aur naya tab beech se
    khulta tha. */
-try{window.scrollTo(0,0);if(document.scrollingElement)document.scrollingElement.scrollTop=0;if(document.documentElement)document.documentElement.scrollTop=0;if(document.body)document.body.scrollTop=0;}catch(e){}try{window.hydrateExec&&window.hydrateExec();}catch(e){}try{window.hMore&&window.hMore();}catch(e){}try{window.hCM&&window.hCM();}catch(e){}document.querySelectorAll('.mnav-tab').forEach(t=>t.classList.toggle('active',t.dataset.tab===tab));document.querySelectorAll('.page-section').forEach(s=>s.classList.toggle('active',s.id==='sec-'+tab));if(tab==='top-leaders'){renderLeaders();setTimeout(()=>{try{renderLeadersBar();}catch(e){console.error('leadersBar',e);}try{renderLevelChart();}catch(e){console.error('levelChart',e);}},50);}if(tab==='mla-tracker')renderMLA();if(tab==='hashtags'){try{window.hashFillParty&&window.hashFillParty();}catch(e){}renderHashtags();setTimeout(()=>{renderHashBarChart();renderHashSentChart();},50);}if(tab==='sentiment'){renderSentimentTab();setTimeout(()=>{renderSentChart();renderSentTrend();},50);}if(tab==='parties'){/* parties-v2 (10-Oct): poora tab ab ek hi jagah se banta hai -- purane alag-alag renderer nahi chalte */setTimeout(function(){try{window.pfRender&&window.pfRender();}catch(e){console.warn('parties-v2',e);}},30);}}
+try{window.scrollTo(0,0);if(document.scrollingElement)document.scrollingElement.scrollTop=0;if(document.documentElement)document.documentElement.scrollTop=0;if(document.body)document.body.scrollTop=0;}catch(e){}try{window.hydrateExec&&window.hydrateExec();}catch(e){}try{window.hMore&&window.hMore();}catch(e){}try{window.hCM&&window.hCM();}catch(e){}document.querySelectorAll('.mnav-tab').forEach(t=>t.classList.toggle('active',t.dataset.tab===tab));try{if(tab!=='dashboard'){window.kpiCloseDetail&&window.kpiCloseDetail();window.catCloseDetail&&window.catCloseDetail();}}catch(e){}document.querySelectorAll('.page-section').forEach(s=>s.classList.toggle('active',s.id==='sec-'+tab));if(tab==='dashboard'){try{window.kpiCloseDetail&&window.kpiCloseDetail();window.catCloseDetail&&window.catCloseDetail();}catch(e){}setTimeout(function(){try{window.renderDashDate&&window.renderDashDate();}catch(e){}},30);}if(tab==='top-leaders'){renderLeaders();setTimeout(()=>{try{renderLeadersBar();}catch(e){console.error('leadersBar',e);}try{renderLevelChart();}catch(e){console.error('levelChart',e);}},50);}if(tab==='mla-tracker')renderMLA();if(tab==='hashtags'){try{window.hashFillParty&&window.hashFillParty();}catch(e){}renderHashtags();setTimeout(()=>{renderHashBarChart();renderHashSentChart();},50);}if(tab==='sentiment'){renderSentimentTab();setTimeout(()=>{renderSentChart();renderSentTrend();},50);}if(tab==='parties'){/* parties-v2 (10-Oct): poora tab ab ek hi jagah se banta hai -- purane alag-alag renderer nahi chalte */setTimeout(function(){try{window.pfRender&&window.pfRender();}catch(e){console.warn('parties-v2',e);}},30);}}
 function dlPlugin(fmt_fn,anchor='end',align='end',color='#333',size=9){return{display:true,anchor,align,color,font:{size,weight:'700',family:"'Rajdhani',sans-serif"},formatter:fmt_fn,clamp:true};}
 function renderDashboard(){document.getElementById('tweetsBody').innerHTML=TWEETS.slice(0,12).map((t,i)=>`<tr><td><span class="rank">${i+1}</span></td><td><div style="font-weight:700;font-size:12px">${escH(t.name)}</div><div style="font-size:10px;color:var(--muted)">@${escH(t.h)}</div></td><td style="max-width:250px;font-size:11px;line-height:1.5">${escH((t.text||'').slice(0,130))}…</td><td>${partyChip(t.party)}</td><td><span style="font-size:9px;color:var(--muted);background:#f4f2ee;border-radius:6px;padding:2px 7px">${escH(t.level)}</span></td><td>${sentBadge(t.sent)}</td><td><span class="nv" style="color:#B71C1C">${fmt(t.lk)}</span></td><td><span class="nv" style="color:#1B5E20">${fmt(t.rt)}</span></td><td><span class="nv" style="color:#4A148C">${fmt(t.vw)}</span></td></tr>`).join('');}
 function _hSum(handle,f,t){var P=window.PHD,DD=window.PHD_DATES;if(!P||!P[handle]||!DD)return null;var o=P[handle],s={t:0,v:0,k:0,r:0};for(var i=0;i<DD.length;i++){var dt=DD[i];if((!f||dt>=f)&&(!t||dt<=t)){s.t+=(o.t[i]||0);s.v+=(o.v[i]||0);s.k+=(o.k[i]||0);s.r+=(o.r[i]||0);}}return s;}
@@ -4447,9 +4447,18 @@ const GROWTH="__MONGO_GROWTH__";try{window.GROWTH=GROWTH;}catch(e){}
    var avg=tot.t?Math.round(tot.v/tot.t):0;
    var full=(f===AD[0]&&t===AD[AD.length-1]);
    var rlab=full?'Full Range · '+tot.t.toLocaleString('en-IN')+' tweets':(f.slice(5)+' → '+t.slice(5)+' · '+idx.length+' days');
-   function kc(val,lbl,sub,col){return '<div class="kpi" style="--ka:'+col+'"><div class="kpi-val">'+uf2(val)+'</div><div class="kpi-lbl">'+lbl+'</div><div class="kpi-sub">'+sub+'</div><div class="kpi-action"><span class="kpi-action-txt">Tap for Analysis</span><span class="kpi-action-arrow">&#x25BE;</span></div><div class="kpi-spark"><canvas class="kspark"></canvas></div></div>';}
+   function kc(val,lbl,sub,col,kkey){
+     var isAct=(window._getKpiActiveKey&&window._getKpiActiveKey()===kkey);
+     return '<div class="kpi'+(isAct?' kpi-open':'')+'" data-kpi="'+(kkey||'')+'" style="--ka:'+col+';cursor:pointer" onclick="window.kpiOpenDetail&&window.kpiOpenDetail(\''+(kkey||'')+'\')">'
+          + '<div class="kpi-val">'+uf2(val)+'</div>'
+          + '<div class="kpi-lbl">'+lbl+'</div>'
+          + '<div class="kpi-sub">'+sub+'</div>'
+          + '<div class="kpi-action"><span class="kpi-action-txt">'+(isAct?'Viewing Analysis':'Tap for Analysis')+'</span><span class="kpi-action-arrow">&#x25BE;</span></div>'
+          + '<div class="kpi-spark"><canvas class="kspark"></canvas></div>'
+          + '</div>';
+   }
    var kk=document.getElementById('dashKpis');
-   if(kk)kk.innerHTML=kc(tot.t,'Total Tweets',rlab,'#1a1a1a')+kc(tot.k,'Total Likes','Engagement','#B71C1C')+kc(tot.r,'Retweets','Amplification','#1B5E20')+kc(tot.v,'Total Views','Impressions','#4A148C')+kc(avg,'Avg Views/Tweet','Content efficiency','#E65100')+kc(tot.t?Math.round(tot.k/tot.t):0,'Avg Likes/Tweet','Engagement per tweet','#00838F');
+   if(kk)kk.innerHTML=kc(tot.t,'Total Tweets',rlab,'#1a1a1a','tweets')+kc(tot.k,'Total Likes','Engagement','#B71C1C','likes')+kc(tot.r,'Retweets','Amplification','#1B5E20','rts')+kc(tot.v,'Total Views','Impressions','#4A148C','views')+kc(avg,'Avg Views/Tweet','Content efficiency','#E65100','avgvpt')+kc(tot.t?Math.round(tot.k/tot.t):0,'Avg Likes/Tweet','Engagement per tweet','#00838F','avglpt');
    try{window.updateLevelStrip&&window.updateLevelStrip();}catch(e){}
    if(kk&&typeof Chart!=='undefined'){var _davg=dser_t.map(function(x,i){return x?Math.round(dser_v[i]/x):0;});var _davl=dser_t.map(function(x,i){return x?Math.round(dser_k[i]/x):0;});var _sser=[dser_t,dser_k,dser_r,dser_v,_davg,_davl];var _scol=['#1a1a1a','#B71C1C','#1B5E20','#4A148C','#E65100','#00838F'];var _cvs=kk.querySelectorAll('canvas.kspark');window._ksp=window._ksp||[];for(var _ci=0;_ci<_cvs.length&&_ci<_sser.length;_ci++){if(window._ksp[_ci]){try{window._ksp[_ci].destroy();}catch(e){}}window._ksp[_ci]=new Chart(_cvs[_ci],{type:'line',data:{labels:_sser[_ci].map(function(_,j){return j;}),datasets:[{data:_sser[_ci],borderColor:_scol[_ci],backgroundColor:_scol[_ci]+'22',fill:true,tension:0.4,pointRadius:0,borderWidth:1.8}]},options:{maintainAspectRatio:false,animation:false,plugins:{legend:{display:false},datalabels:{display:false},tooltip:{enabled:false}},scales:{x:{display:false},y:{display:false}}}});}}
    var top=Object.keys(per).map(function(h){return {h:h,v:per[h].v,t:per[h].t,k:per[h].k};}).sort(function(a,b){return b.v-a.v;}).slice(0,8);
@@ -4592,8 +4601,14 @@ window.renderDashDate=renderDashDate;
   window.kpiOpenDetail = function(key) {
     if (!key || !KPI_DEFS[key]) return;
 
-    /* toggle: click same card again -> close */
-    if (_kpiKey === key) { window.kpiCloseDetail(); return; }
+    var panel = document.getElementById('kpiDetailPanel');
+    var isPanelOpen = panel && panel.classList.contains('kpi-dp-open');
+
+    /* toggle: ONLY close if panel is actually currently open for this same key */
+    if (_kpiKey === key && isPanelOpen) {
+      window.kpiCloseDetail();
+      return;
+    }
     _kpiKey = key;
 
     /* highlight selected card */
@@ -4641,6 +4656,10 @@ window.renderDashDate=renderDashDate;
 
     /* destroy old chart before creating new one */
     if (_kpiChart) { try { _kpiChart.destroy(); } catch(e){} _kpiChart = null; }
+    var ctx = document.getElementById('kpiDpChart');
+    if (ctx && window.Chart && Chart.getChart) {
+      try { var ec = Chart.getChart(ctx); if (ec) ec.destroy(); } catch(e){}
+    }
 
     var ctx = document.getElementById('kpiDpChart');
     if (ctx && window.Chart && data.labels.length) {
@@ -4704,6 +4723,15 @@ window.renderDashDate=renderDashDate;
     var p = document.getElementById('kpiDetailPanel');
     if (p) p.classList.remove('kpi-dp-open');
     if (_kpiChart) { try { _kpiChart.destroy(); } catch(e){} _kpiChart = null; }
+    var ctx = document.getElementById('kpiDpChart');
+    if (ctx && window.Chart && Chart.getChart) {
+      try { var ec = Chart.getChart(ctx); if (ec) ec.destroy(); } catch(e){}
+    }
+  };
+  window._getKpiActiveKey = function() {
+    var p = document.getElementById('kpiDetailPanel');
+    if (p && p.classList.contains('kpi-dp-open')) return _kpiKey;
+    return null;
   };
 
   /* Hook into renderDashDate: attach onclick to each KPI card */
@@ -4724,6 +4752,18 @@ window.renderDashDate=renderDashDate;
       }
       card.onclick = function() { window.kpiOpenDetail(key); };
     });
+    var _dashKpisBox = document.getElementById('dashKpis');
+    if (_dashKpisBox && !_dashKpisBox._kpiBound) {
+      _dashKpisBox._kpiBound = true;
+      _dashKpisBox.addEventListener('click', function(e) {
+        var card = e.target.closest('.kpi');
+        if (!card) return;
+        var k = card.dataset.kpi;
+        if (k && typeof window.kpiOpenDetail === 'function') {
+          window.kpiOpenDetail(k);
+        }
+      });
+    }
   }
 
   /* Wrap renderDashDate to patch cards after every render */
@@ -4897,7 +4937,11 @@ window.renderDashDate=renderDashDate;
   window.catOpenDetail = function(key, label) {
     if (!key) return;
 
-    if (_activeCatKey === key) {
+    var panel = document.getElementById('catDetailPanel');
+    var isPanelOpen = panel && panel.classList.contains('cat-dp-open');
+
+    /* toggle: ONLY close if panel is actually currently open for this same category */
+    if (_activeCatKey === key && isPanelOpen) {
       window.catCloseDetail();
       return;
     }
@@ -5000,6 +5044,10 @@ window.renderDashDate=renderDashDate;
     var p = document.getElementById('catDetailPanel');
     if (p) p.classList.remove('cat-dp-open');
     if (_catChart) { try { _catChart.destroy(); } catch(e){} _catChart = null; }
+    var ctx = document.getElementById('catDpChart');
+    if (ctx && window.Chart && Chart.getChart) {
+      try { var ec = Chart.getChart(ctx); if (ec) ec.destroy(); } catch(e){}
+    }
   };
 
   function _patchCatCards() {
@@ -5016,6 +5064,22 @@ window.renderDashDate=renderDashDate;
         card.appendChild(act);
       }
       card.onclick = function() { window.catOpenDetail(k, lbl); };
+    });
+    ['lvStrip', 'lvOtherStrip'].forEach(function(boxId) {
+      var box = document.getElementById(boxId);
+      if (box && !box._catBound) {
+        box._catBound = true;
+        box.addEventListener('click', function(e) {
+          var card = e.target.closest('.lv-card');
+          if (!card) return;
+          var k = card.dataset.cat || (card.querySelector('.lv-lbl') || {}).textContent || '';
+          k = k.trim();
+          var lbl = (card.querySelector('.lv-lbl') || {}).textContent || k;
+          if (k && typeof window.catOpenDetail === 'function') {
+            window.catOpenDetail(k, lbl);
+          }
+        });
+      }
     });
   }
   window._patchCatCards = _patchCatCards;
