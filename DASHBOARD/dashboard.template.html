@@ -4449,7 +4449,7 @@ const GROWTH="__MONGO_GROWTH__";try{window.GROWTH=GROWTH;}catch(e){}
    var rlab=full?'Full Range · '+tot.t.toLocaleString('en-IN')+' tweets':(f.slice(5)+' → '+t.slice(5)+' · '+idx.length+' days');
    function kc(val,lbl,sub,col,kkey){
      var isAct=(window._getKpiActiveKey&&window._getKpiActiveKey()===kkey);
-     return '<div class="kpi'+(isAct?' kpi-open':'')+'" data-kpi="'+(kkey||'')+'" style="--ka:'+col+';cursor:pointer" onclick="window.kpiOpenDetail&&window.kpiOpenDetail(\''+(kkey||'')+'\')">'
+     return '<div class="kpi'+(isAct?' kpi-open':'')+'" data-kpi="'+(kkey||'')+'" style="--ka:'+col+';cursor:pointer" onclick="event.stopPropagation();window.kpiOpenDetail&&window.kpiOpenDetail(\''+(kkey||'')+'\')">'
           + '<div class="kpi-val">'+uf2(val)+'</div>'
           + '<div class="kpi-lbl">'+lbl+'</div>'
           + '<div class="kpi-sub">'+sub+'</div>'
@@ -4537,7 +4537,8 @@ window.renderDashDate=renderDashDate;
   /* Get current daily array for a metric, filtered by party + date range */
   function _getDailyData(def) {
     var D = window.D;
-    if (!D || !D.partyDaily || !D.AD) return { labels: [], vals: [], total: 0 };
+    var allDates = (D && D.dayLabels) || window.PHD_DATES || window.AD || (window.AGG && window.AGG.dates) || [];
+    if (!D || !D.partyDaily || !allDates.length) return { labels: [], vals: [], total: 0 };
 
     var party  = (document.getElementById('dashParty')  || {value:'all'}).value || 'all';
     var fromV  = (document.getElementById('dashFrom')   || {value:''}).value;
@@ -4545,7 +4546,7 @@ window.renderDashDate=renderDashDate;
 
     /* build per-day sums */
     var allKeys = Object.keys(D.partyDaily);
-    var N = D.AD.length;
+    var N = allDates.length;
     var tArr = new Array(N).fill(0);
     var vArr = new Array(N).fill(0);
     var kArr = new Array(N).fill(0);
@@ -4566,7 +4567,7 @@ window.renderDashDate=renderDashDate;
     /* filter by date range */
     var labels = [], vals = [];
     var sumT = 0, sumV = 0, sumK = 0, sumR = 0;
-    D.AD.forEach(function(d, i) {
+    allDates.forEach(function(d, i) {
       if (fromV && d < fromV) return;
       if (toV   && d > toV)   return;
       labels.push(d);
@@ -4597,9 +4598,13 @@ window.renderDashDate=renderDashDate;
     return { labels: labels, vals: vals, total: summaryVal };
   }
 
+  var _lastKpiClickTime = 0;
   /* Public: called by onclick on each .kpi card */
   window.kpiOpenDetail = function(key) {
     if (!key || !KPI_DEFS[key]) return;
+    var now = Date.now();
+    if (now - _lastKpiClickTime < 350 && _kpiKey === key) return;
+    _lastKpiClickTime = now;
 
     var panel = document.getElementById('kpiDetailPanel');
     var isPanelOpen = panel && panel.classList.contains('kpi-dp-open');
@@ -4934,8 +4939,12 @@ window.renderDashDate=renderDashDate;
     };
   }
 
+  var _lastCatClickTime = 0;
   window.catOpenDetail = function(key, label) {
     if (!key) return;
+    var now = Date.now();
+    if (now - _lastCatClickTime < 350 && _activeCatKey === key) return;
+    _lastCatClickTime = now;
 
     var panel = document.getElementById('catDetailPanel');
     var isPanelOpen = panel && panel.classList.contains('cat-dp-open');
