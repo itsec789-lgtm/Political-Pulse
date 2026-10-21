@@ -115,21 +115,24 @@
   },
   {
     "id": "creators",
-    "name": "Independent Creators Network",
-    "subtitle": "Independent Political Commentators",
+    "name": "Creators Hub",
+    "subtitle": "Independent Digital Creators & Media Network",
     "acronym": "Creators",
     "category": "Independent",
-    "color": "#7B1FA2",
-    "website": "https://x.com/dhruv_rathee",
-    "handle": "dhruv_rathee",
-    "desc": "Network of independent political analysts, journalists, and satirists driving digital narratives across India.",
-    "handles": ["dhruv_rathee", "kunalkamra88", "thevirdas", "prakashraaj", "sardesairajdeep"],
+    "color": "#8E24AA",
+    "website": "https://x.com",
+    "handle": "CreatorsHub",
+    "desc": "Hub of independent digital creators, political commentators, analysts, and satirists driving digital narratives across India.",
+    "handles": ["sardesairajdeep", "ajitanjum", "abhisar_sharma", "dhruv_rathee", "prakashraaj", "ppbajpai", "thevirdas", "kunalkamra88"],
     "leaders": [
-      {"name": "Dhruv Rathee", "handle": "dhruv_rathee", "role": "Political Commentator", "url": "https://x.com/dhruv_rathee"},
-      {"name": "Rajdeep Sardesai", "handle": "sardesairajdeep", "role": "Senior Journalist", "url": "https://x.com/sardesairajdeep"},
-      {"name": "Kunal Kamra", "handle": "kunalkamra88", "role": "Satirist & Commentator", "url": "https://x.com/kunalkamra88"},
-      {"name": "Prakash Raj", "handle": "prakashraaj", "role": "Actor & Activist", "url": "https://x.com/prakashraaj"},
-      {"name": "Vir Das", "handle": "thevirdas", "role": "Satirist", "url": "https://x.com/thevirdas"}
+      {"name": "Rajdeep Sardesai", "handle": "sardesairajdeep", "role": "Senior Journalist & Consulting Editor", "url": "https://x.com/sardesairajdeep"},
+      {"name": "Ajit Anjum", "handle": "ajitanjum", "role": "Senior Independent Journalist", "url": "https://x.com/ajitanjum"},
+      {"name": "Abhisar Sharma", "handle": "abhisar_sharma", "role": "Journalist & Political Commentator", "url": "https://x.com/abhisar_sharma"},
+      {"name": "Dhruv Rathee", "handle": "dhruv_rathee", "role": "Digital Creator & Commentator", "url": "https://x.com/dhruv_rathee"},
+      {"name": "Prakash Raj", "handle": "prakashraaj", "role": "Actor, Activist & Commentator", "url": "https://x.com/prakashraaj"},
+      {"name": "Punya Prasun Bajpai", "handle": "ppbajpai", "role": "Senior Journalist & Analyst", "url": "https://x.com/ppbajpai"},
+      {"name": "Vir Das", "handle": "thevirdas", "role": "Comedian & Satirist", "url": "https://x.com/thevirdas"},
+      {"name": "Kunal Kamra", "handle": "kunalkamra88", "role": "Stand-up Comedian & Satirist", "url": "https://x.com/kunalkamra88"}
     ]
   }
 ]
