@@ -48,7 +48,13 @@ def sync_loop():
                 log("Pulling latest updates into your local project...")
 
                 # 3. Pull latest commits
-                rc_pull, out_pull, err_pull = run_git(['pull', 'origin', 'main'])
+                rc_pull, out_pull, err_pull = run_git(['pull', '--no-rebase', 'origin', 'main'])
+                if rc_pull != 0 and any(kw in err_pull.lower() for kw in ['divergent', 'conflict', 'reconcile']):
+                    log("Notice: Local replica diverged from remote. Auto-aligning with origin/main...")
+                    rc_reset, _, _ = run_git(['reset', '--hard', 'origin/main'])
+                    if rc_reset == 0:
+                        rc_pull = 0
+
                 if rc_pull == 0:
                     _, subject, _ = run_git(['log', '-1', '--pretty=%s'])
                     _, author, _ = run_git(['log', '-1', '--pretty=%an'])
