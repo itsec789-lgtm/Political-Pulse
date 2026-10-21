@@ -17,6 +17,7 @@ DASHBOARD/data/master_tweets_OLD_base.csv
 REPORT_INPUT/Export_2026-08-13_2026-08.csv
 mongo_dump_py/**/*.gz
 *.gz
+*.zip
 
 # Logs & scratch
 *.log
