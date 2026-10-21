@@ -3772,6 +3772,86 @@ app.get('/api/narrative-groups/stats', async function (req, res) {
   }
 });
 
+// ==============================================================================
+// LIVE X PROFILE PHOTO SCRAPER & PROXY (/api/avatar/:handle)
+// ==============================================================================
+var _avatarCache = {};
+
+// Pre-load known high-res avatars from scraped_avatars.json if available
+try {
+  var avPath = path.join(__dirname, '..', 'scraped_avatars.json');
+  if (!fs.existsSync(avPath)) avPath = path.join(__dirname, 'scraped_avatars.json');
+  if (fs.existsSync(avPath)) {
+    var rawAv = JSON.parse(fs.readFileSync(avPath, 'utf8'));
+    for (var kh in rawAv) {
+      if (rawAv[kh]) {
+        _avatarCache[kh.toLowerCase()] = { url: rawAv[kh], expires: Date.now() + 7 * 86400000 };
+      }
+    }
+  }
+} catch (e) {}
+
+function scrapeXAvatarLive(handle) {
+  return new Promise(function (resolve) {
+    var clean = String(handle || '').trim().replace(/^@/, '');
+    if (!clean) return resolve(null);
+
+    var https = require('https');
+    var url = 'https://api.fxtwitter.com/' + encodeURIComponent(clean);
+    var req = https.get(url, { headers: { 'User-Agent': 'Mozilla/5.0' }, timeout: 5000 }, function (res) {
+      var body = '';
+      res.on('data', function (c) { body += c; });
+      res.on('end', function () {
+        try {
+          var j = JSON.parse(body);
+          var av = (j.user && (j.user.avatar_url || j.user.profile_image_url_https)) || j.avatar_url;
+          if (av) {
+            av = av.replace('_normal.', '_400x400.');
+            return resolve(av);
+          }
+        } catch (err) {}
+        resolve(null);
+      });
+    });
+    req.on('error', function () { resolve(null); });
+    req.on('timeout', function () { req.destroy(); resolve(null); });
+  });
+}
+
+app.get('/api/avatar/:handle', async function (req, res) {
+  var handle = String(req.params.handle || '').trim().replace(/^@/, '');
+  var lk = handle.toLowerCase();
+  if (!handle) {
+    return res.redirect(302, 'https://ui-avatars.com/api/?name=X&background=EA580C&color=fff&size=128');
+  }
+
+  // 1. Check in-memory cache
+  var cached = _avatarCache[lk];
+  if (cached && cached.url && cached.expires > Date.now()) {
+    if (req.query.json === '1') {
+      return res.json({ ok: true, handle: handle, avatar: cached.url, cached: true });
+    }
+    return res.redirect(302, cached.url);
+  }
+
+  // 2. Live scrape from X
+  var liveUrl = await scrapeXAvatarLive(handle);
+  if (liveUrl) {
+    _avatarCache[lk] = { url: liveUrl, expires: Date.now() + 86400000 * 3 };
+    if (req.query.json === '1') {
+      return res.json({ ok: true, handle: handle, avatar: liveUrl, cached: false });
+    }
+    return res.redirect(302, liveUrl);
+  }
+
+  // 3. Fallback to initials avatar
+  var fallback = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(handle) + '&background=EA580C&color=fff&size=128';
+  if (req.query.json === '1') {
+    return res.json({ ok: false, handle: handle, avatar: fallback, fallback: true });
+  }
+  return res.redirect(302, fallback);
+});
+
 // ---------- Report tab: ALL-INDIA + Media/Journalist, LIVE MongoDB query ----------
 // Pehle poora collection memory me load hota tha (UP-only, chhota tha).
 // Ab pool poora India hai (~15 lakh), isliye har report par MongoDB me
