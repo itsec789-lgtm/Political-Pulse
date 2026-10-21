@@ -2119,11 +2119,13 @@ window.sentCardsHTML = function (S, suffix) {
       <input type="date" class="filter-select" id="ngDateTo" onchange="onNgFilterChange()">
     </div>
     
-    <div class="filter-divider"></div>
-    <span class="filter-label">ALL GROUPS</span>
-    <select class="filter-select" id="ngFilterGroup" onchange="onNgFilterChange()" style="min-width:160px">
-      <option value="all">All Groups</option>
-    </select>
+    <div id="ngGroupFilterWrap" style="display:inline-flex;align-items:center;gap:8px">
+      <div class="filter-divider"></div>
+      <span class="filter-label">ALL GROUPS</span>
+      <select class="filter-select" id="ngFilterGroup" onchange="onNgFilterChange()" style="min-width:160px">
+        <option value="all">All Groups</option>
+      </select>
+    </div>
   </div>
   <div class="filter-info" style="margin-left:auto;display:flex;align-items:center;gap:12px">
     <button onclick="fetchLiveNarrativeGroupStats(true)" style="background:#FFF3E0;border:1px solid #FFD8A8;color:#E65100;font-size:11px;font-weight:700;padding:4px 10px;border-radius:6px;cursor:pointer;display:inline-flex;align-items:center;gap:4px" title="Pull latest counts directly from MongoDB">
@@ -9844,6 +9846,10 @@ function openNarrativeGroup(id){
   if(dirView) dirView.style.display = 'none';
   if(detView) detView.style.display = 'block';
 
+  // Hide the ALL GROUPS dropdown when inside a group detail page
+  var gw = document.getElementById('ngGroupFilterWrap');
+  if(gw) gw.style.display = 'none';
+
   // Breadcrumb
   var bc = document.getElementById('ngDetailCrumb');
   if(bc) bc.textContent = g.acronym;
@@ -9904,6 +9910,11 @@ function closeNarrativeGroup(){
   var detView = document.getElementById('ngDetailView');
   if(dirView) dirView.style.display = 'block';
   if(detView) detView.style.display = 'none';
+
+  // Show the ALL GROUPS dropdown in directory list view
+  var gw = document.getElementById('ngGroupFilterWrap');
+  if(gw) gw.style.display = 'inline-flex';
+
   renderNarrativeGroupsTable();
 }
 window.closeNarrativeGroup = closeNarrativeGroup;
