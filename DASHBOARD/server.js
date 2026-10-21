@@ -3727,6 +3727,7 @@ app.get('/api/version', async function (req, res) {
 });
 
 // ---------- Narrative Groups: LIVE MongoDB aggregation endpoint ----------
+// ---------- Narrative Groups: LIVE MongoDB aggregation endpoint (Date Filter aware) ----------
 app.get('/api/narrative-groups/stats', async function (req, res) {
   res.set('Cache-Control', 'no-store');
   try {
@@ -3738,11 +3739,21 @@ app.get('/api/narrative-groups/stats', async function (req, res) {
       if (g.handles && g.handles.length) allHandles.push.apply(allHandles, g.handles);
     });
 
+    // Date range support
+    var matchCond = { Handle: { $in: allHandles } };
+    var dFrom = String(req.query.from || '').trim().slice(0, 10);
+    var dTo   = String(req.query.to   || '').trim().slice(0, 10);
+    if (dFrom || dTo) {
+      matchCond['Tweet Date'] = {};
+      if (dFrom) matchCond['Tweet Date'].$gte = dFrom;
+      if (dTo)   matchCond['Tweet Date'].$lte = dTo + ' 23:59:59';
+    }
+
     var client = MP.client();
     await client.connect();
     var coll = client.db(MASTER_DB).collection(MASTER_COLL);
     var pipeline = [
-      { $match: { Handle: { $in: allHandles } } },
+      { $match: matchCond },
       {
         $group: {
           _id: '$Handle',
@@ -3758,15 +3769,130 @@ app.get('/api/narrative-groups/stats', async function (req, res) {
 
     var handleMap = {};
     results.forEach(function (r) {
-      handleMap[r._id] = {
+      var obj = {
         tweets: r.tweets || 0,
         likes: r.likes || 0,
         rts: r.rts || 0,
         views: r.views || 0
       };
+      handleMap[r._id] = obj;
+      if (r._id) {
+        handleMap[r._id.toLowerCase()] = obj;
+      }
     });
 
-    res.json({ ok: true, stats: handleMap, timestamp: new Date().toISOString() });
+    res.json({ ok: true, stats: handleMap, from: dFrom, to: dTo, timestamp: new Date().toISOString() });
+  } catch (e) {
+    res.json({ ok: false, error: e.message });
+  }
+});
+
+// ---------- Narrative Groups: LIVE MongoDB Leader Deep-Dive Analysis endpoint (Date Filter aware) ----------
+app.get('/api/narrative-groups/leader-analysis/:handle', async function (req, res) {
+  res.set('Cache-Control', 'no-store');
+  try {
+    var rawHandle = String(req.params.handle || '').trim().replace(/^@/, '');
+    if (!rawHandle) return res.json({ ok: false, error: 'Handle required' });
+
+    var client = MP.client();
+    await client.connect();
+    var coll = client.db('pulse_master').collection('master_tweets');
+
+    // Fast indexed match (avoids full table scan on 2.8 million tweets)
+    var handleVariations = Array.from(new Set([
+      rawHandle,
+      rawHandle.toLowerCase(),
+      rawHandle.toUpperCase(),
+      rawHandle.charAt(0).toUpperCase() + rawHandle.slice(1)
+    ]));
+    var filter = { Handle: { $in: handleVariations } };
+
+    // Date range support (explicit from/to or days preset)
+    var dFrom = String(req.query.from || '').trim().slice(0, 10);
+    var dTo   = String(req.query.to   || '').trim().slice(0, 10);
+    if (!dFrom && !dTo && req.query.days && req.query.days !== 'all') {
+      var numDays = parseInt(req.query.days, 10);
+      if (!isNaN(numDays) && numDays > 0) {
+        var now = new Date();
+        dTo = now.toISOString().slice(0, 10);
+        var past = new Date(now);
+        past.setDate(past.getDate() - numDays);
+        dFrom = past.toISOString().slice(0, 10);
+      }
+    }
+    if (dFrom || dTo) {
+      filter['Tweet Date'] = {};
+      if (dFrom) filter['Tweet Date'].$gte = dFrom;
+      if (dTo)   filter['Tweet Date'].$lte = dTo + ' 23:59:59';
+    }
+
+    // Unified parallel execution: 1 aggregation facet + top tweet + recents
+    var pipeline = [
+      { $match: filter },
+      {
+        $facet: {
+          kpis: [
+            {
+              $group: {
+                _id: null,
+                totalTweets: { $sum: 1 },
+                totalLikes: { $sum: '$Total Likes' },
+                totalRetweets: { $sum: '$Total Retweets' },
+                totalViews: { $sum: '$Total Views' },
+                totalComments: { $sum: '$Total Comments' }
+              }
+            }
+          ],
+          timeline: [
+            {
+              $group: {
+                _id: { $substr: ['$Tweet Date', 0, 10] },
+                tweets: { $sum: 1 },
+                likes: { $sum: '$Total Likes' },
+                reposts: { $sum: '$Total Retweets' },
+                views: { $sum: '$Total Views' }
+              }
+            },
+            { $sort: { _id: 1 } }
+          ],
+          sentiment: [
+            {
+              $group: {
+                _id: '$Sentiment',
+                count: { $sum: 1 }
+              }
+            }
+          ]
+        }
+      }
+    ];
+
+    var [aggResults, topTweets, recentTweets] = await Promise.all([
+      coll.aggregate(pipeline).toArray(),
+      coll.find(filter).sort({ 'Total Views': -1 }).limit(1).toArray(),
+      coll.find(filter).sort({ 'Tweet Date': -1 }).limit(5).toArray()
+    ]);
+
+    await client.close();
+
+    var facet = (aggResults && aggResults.length) ? aggResults[0] : {};
+    var kpiList = facet.kpis || [];
+    var kpis = kpiList.length ? kpiList[0] : { totalTweets: 0, totalLikes: 0, totalRetweets: 0, totalViews: 0, totalComments: 0 };
+    var timeline = facet.timeline || [];
+    var sentiment = facet.sentiment || [];
+
+    res.json({
+      ok: true,
+      handle: rawHandle,
+      from: dFrom,
+      to: dTo,
+      kpis: kpis,
+      timeline: timeline,
+      topTweet: topTweets.length ? topTweets[0] : null,
+      recentTweets: recentTweets,
+      sentiment: sentiment,
+      timestamp: new Date().toISOString()
+    });
   } catch (e) {
     res.json({ ok: false, error: e.message });
   }

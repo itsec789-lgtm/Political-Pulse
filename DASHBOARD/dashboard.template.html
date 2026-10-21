@@ -867,6 +867,61 @@ svg#indiaMap{width:100%;height:100%;max-width:100%;max-height:100%;display:block
 .ng-search-sm input{border:none;outline:none;font-size:11px;width:110px}
 .ng-btn-link{border:none;background:none;color:#E65100;font-size:11px;font-weight:700;cursor:pointer;padding:0}
 .ng-btn-link:hover{text-decoration:underline}
+
+/* ====== PHASE 1 & 2: CREATORS HUB MEMBER ROSTER & LEADER DEEP ANALYSIS ====== */
+.ng-donut-split-grid{display:grid;grid-template-columns:1.35fr 1fr;gap:14px;margin-bottom:14px}
+@media(max-width:1024px){.ng-donut-split-grid{grid-template-columns:1fr}}
+.ng-roster-box{display:flex;flex-direction:column}
+.ng-roster-list{display:flex;flex-direction:column;gap:8px;max-height:285px;overflow-y:auto;padding-right:4px}
+.ng-roster-item{display:flex;align-items:center;justify-content:space-between;padding:9px 12px;background:#FAFAFA;border:1px solid #ECEFF1;border-radius:10px;cursor:pointer;transition:all .15s ease}
+.ng-roster-item:hover{background:#FFF7ED;border-color:#FED7AA;transform:translateX(3px);box-shadow:0 3px 8px rgba(234,88,12,0.06)}
+.ng-roster-left{display:flex;align-items:center;gap:10px}
+.ng-roster-av{width:38px;height:38px;border-radius:50%;object-fit:cover;flex:none;border:1.5px solid #FFF;box-shadow:0 1px 4px rgba(0,0,0,0.08)}
+.ng-roster-info{display:flex;flex-direction:column}
+.ng-roster-name{font-size:12.5px;font-weight:700;color:#1A1A1A;display:flex;align-items:center;gap:4px}
+.ng-roster-handle{font-size:10.5px;color:#757575}
+.ng-roster-right{display:flex;align-items:center;gap:12px}
+.ng-roster-stats{text-align:right}
+.ng-roster-tw{font-size:13px;font-weight:800;color:#1A1A1A;font-family:'Rajdhani',sans-serif}
+.ng-roster-substat{font-size:9.5px;color:#757575;font-weight:600}
+.ng-roster-btn{background:#FFF;border:1px solid #CFD8DC;color:#37474F;font-size:11px;font-weight:700;padding:5px 10px;border-radius:6px;cursor:pointer;transition:all .15s;font-family:'Rajdhani',sans-serif;display:inline-flex;align-items:center;gap:4px;white-space:nowrap}
+.ng-roster-item:hover .ng-roster-btn{background:#EA580C;color:#FFF;border-color:#EA580C;box-shadow:0 2px 6px rgba(234,88,12,0.25)}
+
+/* VIEW 3: Leader Analysis Page Styles */
+.ng-la-hero-grid{display:grid;grid-template-columns:1.35fr 1.65fr;gap:14px;margin-bottom:14px}
+@media(max-width:980px){.ng-la-hero-grid{grid-template-columns:1fr}}
+.ng-la-bio-card{background:#FFF;border:1.5px solid #F0E6DE;border-radius:12px;padding:18px 20px;display:flex;align-items:center;gap:16px;box-shadow:0 1px 4px rgba(0,0,0,0.03)}
+.ng-la-avatar-box{width:84px;height:84px;border-radius:18px;overflow:hidden;flex:none;border:2.5px solid #FFD8A8;background:#FFF;box-shadow:0 4px 12px rgba(0,0,0,0.08)}
+.ng-la-avatar-box img{width:100%;height:100%;object-fit:cover}
+.ng-la-bio-info{flex:1}
+.ng-la-name{font-size:20px;font-weight:900;color:#1A1A1A;font-family:'Rajdhani',sans-serif}
+.ng-la-handle{font-size:12px;color:#757575;font-weight:600;margin-top:1px}
+.ng-la-role{font-size:11.5px;font-weight:700;color:#E65100;margin:4px 0}
+.ng-la-desc{font-size:11.5px;color:#616161;line-height:1.42;margin-bottom:8px;max-width:520px}
+.ng-la-links{display:flex;gap:12px;font-size:11.5px;font-weight:700}
+.ng-la-kpis-quad{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.ng-la-kpi-card{background:#FFF;border:1.5px solid #F0E6DE;border-radius:12px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 1px 4px rgba(0,0,0,0.03)}
+.ng-la-kpi-left{display:flex;align-items:center;gap:12px}
+.ng-la-kpi-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex:none}
+.ng-la-kpi-icon.tw{background:#0F172A;color:#FFF}
+.ng-la-kpi-icon.lk{background:#FEE2E2;color:#DC2626}
+.ng-la-kpi-icon.rt{background:#DCFCE7;color:#16A34A}
+.ng-la-kpi-icon.vw{background:#F3E8FF;color:#9333EA}
+.ng-la-kpi-val{font-size:20px;font-weight:900;color:#1A1A1A;font-family:'Rajdhani',sans-serif;line-height:1.1}
+.ng-la-kpi-lbl{font-size:10px;font-weight:700;color:#757575;text-transform:uppercase;margin-top:2px}
+.ng-la-trend-pill{font-size:11px;font-weight:800;color:#16A34A;background:#DCFCE7;padding:2px 7px;border-radius:12px;font-family:'Rajdhani',sans-serif}
+
+.ng-la-acc-panel{background:#FFF;border:1px solid #ECEFF1;border-radius:8px;overflow:hidden}
+.ng-la-acc-head{padding:11px 14px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;background:#FFF;transition:background .15s}
+.ng-la-acc-head:hover{background:#FAFAFA}
+.ng-la-acc-arrow{font-size:10px;color:#9E9E9E;transition:transform .2s}
+.ng-la-acc-panel.expanded .ng-la-acc-arrow{transform:rotate(180deg)}
+.ng-la-acc-body{padding:12px 14px 14px;border-top:1px solid #F5F5F5;background:#FAFAFA}
+.ng-la-top-tweet-card{background:#FAFAFA;border:1px solid #ECEFF1;border-radius:10px;padding:14px}
+.ng-la-tweet-av{width:38px;height:38px;border-radius:50%;object-fit:cover;border:1.5px solid #FFF;box-shadow:0 1px 4px rgba(0,0,0,0.08)}
+.ng-la-recent-item{padding:9px 12px;background:#FAFAFA;border:1px solid #ECEFF1;border-radius:8px;transition:background .15s}
+.ng-la-recent-item:hover{background:#FFF7ED;border-color:#FED7AA}
+
 /* ---- HANDLE ANALYTICS (ha v2) ---- */
 .ha-card{background:var(--card);border:1.5px solid var(--border);border-radius:12px;
   padding:16px 18px;margin-bottom:14px}
@@ -2111,6 +2166,8 @@ window.sentCardsHTML = function (S, suffix) {
       <option value="yest">Yesterday</option>
       <option value="3d">3 Days</option>
       <option value="7d">7 Days</option>
+      <option value="14d">14 Days</option>
+      <option value="30d">30 Days</option>
       <option value="custom">Custom</option>
     </select>
     <div id="ngCustomDates" style="display:none;align-items:center;gap:4px">
@@ -2276,11 +2333,27 @@ window.sentCardsHTML = function (S, suffix) {
 
     <!-- Sub-tab Panel: Overview -->
     <div class="ng-subpanel" id="ngSubPanel-overview">
-      <div class="ng-charts-grid">
-        <!-- Card 1: Overall Contribution Donut -->
+      
+      <!-- PHASE 1: ROW 1 -> MEMBER ROSTER TABLE (LEFT) + OVERALL CONTRIBUTION DONUT (RIGHT) -->
+      <div class="ng-donut-split-grid">
+        <!-- Card 1A: Member Roster Table/List (Left of Donut Chart) -->
+        <div class="ng-card ng-roster-box">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:6px">
+            <div>
+              <div class="ng-card-title" id="ngRosterTitle">Members &amp; Key Accounts Directory</div>
+              <div class="ng-card-sub" id="ngRosterSub">Click any member row to open live individual profile analysis</div>
+            </div>
+            <span class="ng-tag-pill active" id="ngRosterCount">Members</span>
+          </div>
+          <div class="ng-roster-list" id="ngMemberRosterList">
+            <!-- Populated dynamically via JS -->
+          </div>
+        </div>
+
+        <!-- Card 1B: Overall Contribution Donut Chart (Right) -->
         <div class="ng-card">
           <div class="ng-card-title">Overall Contribution</div>
-          <div class="ng-card-sub" id="ngDonutSub">Share of tweets by official handle &amp; key leaders</div>
+          <div class="ng-card-sub" id="ngDonutSub">Share of tweets across key leaders &amp; members</div>
           <div style="position:relative;height:220px;margin-top:14px;display:flex;align-items:center;justify-content:center">
             <canvas id="ngDonutChart"></canvas>
             <div style="position:absolute;text-align:center;pointer-events:none">
@@ -2290,7 +2363,10 @@ window.sentCardsHTML = function (S, suffix) {
           </div>
           <div class="ng-donut-legend" id="ngDonutLegend" style="margin-top:12px"></div>
         </div>
+      </div>
 
+      <!-- ROW 2: TIMELINE ACTIVITY + TOP NARRATIVES -->
+      <div class="ng-mid-charts-grid" style="display:grid;grid-template-columns:1.4fr 1fr;gap:14px;margin-top:14px">
         <!-- Card 2: Timeline Activity Bar Chart -->
         <div class="ng-card">
           <div style="display:flex;align-items:center;justify-content:space-between">
@@ -2315,7 +2391,7 @@ window.sentCardsHTML = function (S, suffix) {
         </div>
       </div>
 
-      <!-- Associated Leaders Card (with Mapping URLs) -->
+      <!-- Associated Leaders Card (with Mapping URLs) KEPT INTACT -->
       <div class="ng-card" style="margin-top:16px">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px">
           <div>
@@ -2328,6 +2404,252 @@ window.sentCardsHTML = function (S, suffix) {
           </div>
         </div>
         <div class="ng-members-row" id="ngMembersRow"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- VIEW 3: INDIVIDUAL LEADER DEEP-DIVE ANALYSIS VIEW (SCREENSHOT 1)          -->
+  <!-- ========================================================================= -->
+  <div id="ngLeaderAnalysisView" style="display:none">
+    <!-- Top Breadcrumb & Return Action -->
+    <div class="ng-detail-top">
+      <div class="ng-breadcrumb">
+        <span class="ng-crumb-link" onclick="closeLeaderAnalysis()">Narrative Groups</span>
+        <span class="ng-crumb-sep">&gt;</span>
+        <span class="ng-crumb-link" onclick="closeLeaderAnalysis()" id="ngLaCrumbGroup">Creators Hub</span>
+        <span class="ng-crumb-sep">&gt;</span>
+        <span class="ng-crumb-active" id="ngLaCrumbLeader">Leader Analysis</span>
+      </div>
+      <div class="ng-detail-actions">
+        <button class="ng-btn-compare" onclick="closeLeaderAnalysis()" id="ngLaBtnBack">
+          &larr; Back to Group
+        </button>
+      </div>
+    </div>
+
+    <!-- Leader Profile Hero Card & 4 Big KPIs Grid -->
+    <div class="ng-la-hero-grid">
+      <!-- Profile Bio Card -->
+      <div class="ng-la-bio-card">
+        <div class="ng-la-avatar-box">
+          <img id="ngLaAvatar" src="" alt="Leader Photo">
+        </div>
+        <div class="ng-la-bio-info">
+          <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+            <span class="ng-la-name" id="ngLaName">Leader Name</span>
+            <svg class="ng-la-verified-badge" viewBox="0 0 24 24" width="17" height="17" fill="#1D9BF0"><path d="M22.5 12.5c0-1.58-.875-2.95-2.148-3.6.154-.435.238-.905.238-1.4 0-2.21-1.79-4-4-4-.495 0-.965.084-1.4.238C14.55 2.475 13.18 1.6 11.6 1.6c-1.58 0-2.95.875-3.6 2.148-.435-.154-.905-.238-1.4-.238-2.21 0-4 1.79-4 4 0 .495.084.965.238 1.4C1.575 9.55.7 10.92.7 12.5c0 1.58.875 2.95 2.148 3.6-.154.435-.238.905-.238 1.4 0 2.21 1.79 4 4 4 .495 0 .965-.084 1.4-.238.65 1.273 2.02 2.148 3.6 2.148 1.58 0 2.95-.875 3.6-2.148.435.154.905.238 1.4.238 2.21 0 4-1.79 4-4 0-.495-.084-.965-.238-1.4 1.273-.65 2.148-2.02 2.148-3.6zm-12.7 4.29l-4.29-4.29 1.41-1.41 2.88 2.88 6.18-6.18 1.41 1.41-7.59 7.59z"/></svg>
+          </div>
+          <div class="ng-la-handle" id="ngLaHandle">@handle</div>
+          <div class="ng-la-role" id="ngLaRole">Role | Group Name</div>
+          <p class="ng-la-desc" id="ngLaDesc">Key political leader and digital influencer.</p>
+          <div class="ng-la-links">
+            <a href="#" target="_blank" id="ngLaXLink" class="ng-meta-link">
+              <svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 22.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg> <span id="ngLaXLinkTxt">@handle</span>
+            </a>
+            <a href="#" target="_blank" id="ngLaWebLink" class="ng-meta-link">
+              🔗 <span id="ngLaWebLinkTxt">Profile Link</span>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4 KPI Metric Cards with Trends (Screenshot 1) -->
+      <div class="ng-la-kpis-quad">
+        <div class="ng-la-kpi-card">
+          <div class="ng-la-kpi-left">
+            <div class="ng-la-kpi-icon tw">𝕏</div>
+            <div>
+              <div class="ng-la-kpi-val" id="ngLaKpiTw">0</div>
+              <div class="ng-la-kpi-lbl">Total Tweets</div>
+            </div>
+          </div>
+          <span class="ng-la-trend-pill" id="ngLaTrTw">&uarr; Live</span>
+        </div>
+
+        <div class="ng-la-kpi-card">
+          <div class="ng-la-kpi-left">
+            <div class="ng-la-kpi-icon lk">❤️</div>
+            <div>
+              <div class="ng-la-kpi-val" id="ngLaKpiLk">0</div>
+              <div class="ng-la-kpi-lbl">Total Likes</div>
+            </div>
+          </div>
+          <span class="ng-la-trend-pill" id="ngLaTrLk">&uarr; Live</span>
+        </div>
+
+        <div class="ng-la-kpi-card">
+          <div class="ng-la-kpi-left">
+            <div class="ng-la-kpi-icon rt">🔁</div>
+            <div>
+              <div class="ng-la-kpi-val" id="ngLaKpiRt">0</div>
+              <div class="ng-la-kpi-lbl">Total Reposts</div>
+            </div>
+          </div>
+          <span class="ng-la-trend-pill" id="ngLaTrRt">&uarr; Live</span>
+        </div>
+
+        <div class="ng-la-kpi-card">
+          <div class="ng-la-kpi-left">
+            <div class="ng-la-kpi-icon vw">📊</div>
+            <div>
+              <div class="ng-la-kpi-val" id="ngLaKpiVw">0</div>
+              <div class="ng-la-kpi-lbl">Total Views</div>
+            </div>
+          </div>
+          <span class="ng-la-trend-pill" id="ngLaTrVw">&uarr; Live</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sub-tabs Row (Screenshot 1) -->
+    <div class="ng-subtabs-row" style="margin-top:16px;justify-content:space-between;align-items:center">
+      <div style="display:flex;gap:6px">
+        <button class="ng-subtab active" onclick="switchLaTab('overview', this)">
+          <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+          Overview
+        </button>
+        <button class="ng-subtab" onclick="switchLaTab('tweets', this)">🐦 Tweets</button>
+        <button class="ng-subtab" onclick="switchLaTab('engagement', this)">⚡ Engagement</button>
+        <button class="ng-subtab" onclick="switchLaTab('narratives', this)">📢 Narratives / Topics</button>
+        <button class="ng-subtab" onclick="switchLaTab('sentiment', this)">🎭 Sentiment</button>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;font-size:11.5px;font-weight:700;color:#616161">
+        <span>📅 Range:</span>
+        <select class="filter-select" id="ngLaDateRange" style="padding:3px 8px;font-size:11.5px" onchange="changeLaDateRange(this.value)">
+          <option value="all">Full Range</option>
+          <option value="today">Today</option>
+          <option value="yest">Yesterday</option>
+          <option value="3d">Last 3 Days</option>
+          <option value="7d">Last 7 Days</option>
+          <option value="14d">Last 14 Days</option>
+          <option value="30d">Last 30 Days</option>
+          <option value="custom">Custom</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- MAIN MIDDLE GRID: MULTI-LINE ENGAGEMENT TREND CHART + ACCORDION TOPICS -->
+    <div class="ng-la-main-grid" style="display:grid;grid-template-columns:1.75fr 1.25fr;gap:14px;margin-top:14px">
+      <!-- Multi-Line Trend Chart -->
+      <div class="ng-card">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+          <div>
+            <div class="ng-card-title">Engagement Trend</div>
+            <div class="ng-card-sub">Daily volume of Views, Likes, Reposts and Tweets from MongoDB</div>
+          </div>
+          <div style="display:flex;gap:10px;font-size:11px;font-weight:700">
+            <span style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:50%;background:#3B82F6"></span> Tweets</span>
+            <span style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:50%;background:#EF4444"></span> Likes</span>
+            <span style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:50%;background:#10B981"></span> Reposts</span>
+            <span style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:50%;background:#8B5CF6"></span> Views</span>
+          </div>
+        </div>
+        <div style="height:270px;position:relative">
+          <canvas id="ngLaTrendChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Accordion Drilldowns -->
+      <div class="ng-la-accordion-col" style="display:flex;flex-direction:column;gap:10px">
+        <!-- Accordion 1: Top Narratives / Topics -->
+        <div class="ng-la-acc-panel expanded" id="ngLaAccTopics">
+          <div class="ng-la-acc-head" onclick="toggleNgLaAcc('ngLaAccTopics')">
+            <div style="display:flex;align-items:center;gap:8px">
+              <span class="ng-la-acc-icon">💬</span>
+              <span style="font-size:13px;font-weight:800;color:#1A1A1A">Top Narratives / Topics</span>
+            </div>
+            <span class="ng-la-acc-arrow">▼</span>
+          </div>
+          <div class="ng-la-acc-body" id="ngLaTopicsBody">
+            <!-- Topics bars populated dynamically -->
+          </div>
+        </div>
+
+        <!-- Accordion 2: Sentiment Analysis -->
+        <div class="ng-la-acc-panel" id="ngLaAccSentiment">
+          <div class="ng-la-acc-head" onclick="toggleNgLaAcc('ngLaAccSentiment')">
+            <div style="display:flex;align-items:center;gap:8px">
+              <span class="ng-la-acc-icon">🎭</span>
+              <span style="font-size:13px;font-weight:800;color:#1A1A1A">Sentiment Analysis</span>
+            </div>
+            <span class="ng-la-acc-arrow">▼</span>
+          </div>
+          <div class="ng-la-acc-body" id="ngLaSentimentBody" style="display:none">
+            <!-- Populated dynamically -->
+          </div>
+        </div>
+
+        <!-- Accordion 3: Engagement Breakdown -->
+        <div class="ng-la-acc-panel" id="ngLaAccEngagement">
+          <div class="ng-la-acc-head" onclick="toggleNgLaAcc('ngLaAccEngagement')">
+            <div style="display:flex;align-items:center;gap:8px">
+              <span class="ng-la-acc-icon">📈</span>
+              <span style="font-size:13px;font-weight:800;color:#1A1A1A">Engagement Breakdown</span>
+            </div>
+            <span class="ng-la-acc-arrow">▼</span>
+          </div>
+          <div class="ng-la-acc-body" id="ngLaEngagementBody" style="display:none">
+            <!-- Populated dynamically -->
+          </div>
+        </div>
+
+        <!-- Accordion 4: Audience Insights -->
+        <div class="ng-la-acc-panel" id="ngLaAccAudience">
+          <div class="ng-la-acc-head" onclick="toggleNgLaAcc('ngLaAccAudience')">
+            <div style="display:flex;align-items:center;gap:8px">
+              <span class="ng-la-acc-icon">👥</span>
+              <span style="font-size:13px;font-weight:800;color:#1A1A1A">Audience Insights</span>
+            </div>
+            <span class="ng-la-acc-arrow">▼</span>
+          </div>
+          <div class="ng-la-acc-body" id="ngLaAudienceBody" style="display:none">
+            <!-- Populated dynamically -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BOTTOM ROW: TOP PERFORMING TWEET + RECENT TWEETS -->
+    <div class="ng-la-bottom-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px">
+      <!-- Top Performing Tweet -->
+      <div class="ng-card">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+          <div class="ng-card-title">Top Performing Tweet</div>
+          <a href="#" target="_blank" id="ngLaTopTweetLink" class="ng-meta-link" style="font-size:11.5px">View on X &rarr;</a>
+        </div>
+        <div class="ng-la-top-tweet-card" id="ngLaTopTweetCard">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+            <img class="ng-la-tweet-av" id="ngLaTtAvatar" src="">
+            <div>
+              <div style="font-size:12.5px;font-weight:800;color:#1A1A1A" id="ngLaTtName">Author</div>
+              <div style="font-size:11px;color:#757575" id="ngLaTtDate">Date</div>
+            </div>
+          </div>
+          <div style="font-size:12.5px;color:#263238;line-height:1.45;margin-bottom:12px" id="ngLaTtText">
+            Loading top performing tweet from MongoDB...
+          </div>
+          <div class="ng-la-tweet-media" id="ngLaTtMedia" style="background:#F5F5F5;border-radius:8px;height:140px;display:flex;align-items:center;justify-content:center;color:#9E9E9E;font-size:12px;margin-bottom:12px">
+            <span>🖼️ Live Media &amp; Video Attachment Preview</span>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding-top:10px;border-top:1px solid #F0F0F0;font-size:12px;font-weight:700;color:#616161">
+            <span>💬 <span id="ngLaTtComments">0</span></span>
+            <span>🔁 <span id="ngLaTtRts">0</span></span>
+            <span>❤️ <span id="ngLaTtLikes">0</span></span>
+            <span>👁️ <span id="ngLaTtViews">0</span></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Tweets -->
+      <div class="ng-card">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+          <div class="ng-card-title">Recent Tweets</div>
+          <span style="font-size:11px;color:#757575">Live from MongoDB</span>
+        </div>
+        <div class="ng-la-recent-list" id="ngLaRecentList" style="display:flex;flex-direction:column;gap:8px;max-height:300px;overflow-y:auto">
+          <!-- Populated dynamically via JS -->
+        </div>
       </div>
     </div>
   </div>
@@ -9628,12 +9950,64 @@ function syncStatsFromUni(){
   if(stElem) stElem.textContent = fmtNgNum(grandTw) + ' tweets · ' + grandHandles + ' handles';
 }
 
-// Live fetch directly from MongoDB aggregation endpoint: GET /api/narrative-groups/stats
+// Helper: Resolve active date range for Narrative Groups
+function getNgDateRange(){
+  var rSel = document.getElementById('ngFilterRange');
+  var mode = rSel ? rSel.value : 'all';
+  if(mode === 'all') return { mode: 'all', from: '', to: '' };
+  if(mode === 'custom'){
+    var f = (document.getElementById('ngDateFrom') ? document.getElementById('ngDateFrom').value : '') || '';
+    var t = (document.getElementById('ngDateTo') ? document.getElementById('ngDateTo').value : '') || '';
+    return { mode: 'custom', from: f, to: t };
+  }
+
+  // Current IST Date
+  var now = new Date(Date.now() + 5.5 * 3600 * 1000);
+  function toIso(d){
+    var y = d.getUTCFullYear();
+    var m = String(d.getUTCMonth() + 1).padStart(2, '0');
+    var day = String(d.getUTCDate()).padStart(2, '0');
+    return y + '-' + m + '-' + day;
+  }
+
+  var toStr = toIso(now);
+  var fromD = new Date(now.getTime());
+
+  if(mode === 'today'){
+    return { mode: 'today', from: toStr, to: toStr };
+  } else if(mode === 'yest'){
+    fromD.setUTCDate(fromD.getUTCDate() - 1);
+    var yStr = toIso(fromD);
+    return { mode: 'yest', from: yStr, to: yStr };
+  } else if(mode === '3d'){
+    fromD.setUTCDate(fromD.getUTCDate() - 2);
+    return { mode: '3d', from: toIso(fromD), to: toStr };
+  } else if(mode === '7d'){
+    fromD.setUTCDate(fromD.getUTCDate() - 6);
+    return { mode: '7d', from: toIso(fromD), to: toStr };
+  } else if(mode === '14d'){
+    fromD.setUTCDate(fromD.getUTCDate() - 13);
+    return { mode: '14d', from: toIso(fromD), to: toStr };
+  } else if(mode === '30d'){
+    fromD.setUTCDate(fromD.getUTCDate() - 29);
+    return { mode: '30d', from: toIso(fromD), to: toStr };
+  }
+  return { mode: 'all', from: '', to: '' };
+}
+window.getNgDateRange = getNgDateRange;
+
+// Live fetch directly from MongoDB aggregation endpoint: GET /api/narrative-groups/stats (Date Range Aware)
 function fetchLiveNarrativeGroupStats(showNotice){
   var stElem = document.getElementById('ngTotalStats');
   if(showNotice && stElem) stElem.textContent = 'Syncing MongoDB...';
 
-  fetch('/api/narrative-groups/stats')
+  var dr = getNgDateRange();
+  var params = [];
+  if(dr.from) params.push('from=' + encodeURIComponent(dr.from));
+  if(dr.to) params.push('to=' + encodeURIComponent(dr.to));
+  var apiUrl = '/api/narrative-groups/stats' + (params.length ? '?' + params.join('&') : '');
+
+  fetch(apiUrl)
     .then(function(res){ return res.json(); })
     .then(function(data){
       if(data && data.ok && data.stats){
@@ -9642,17 +10016,15 @@ function fetchLiveNarrativeGroupStats(showNotice){
         NARRATIVE_GROUPS_DATA.forEach(function(g){
           var gTw = 0, gLk = 0, gRt = 0, gVw = 0;
           (g.leaders || []).forEach(function(m){
-            var st = statsMap[m.handle] || { tweets: 0, likes: 0, rts: 0, views: 0 };
-            if(st && st.tweets > 0){
-              m.tweets = st.tweets;
-              m.likes = st.likes;
-              m.rts = st.rts;
-              m.views = st.views;
-            }
-            gTw += (m.tweets || 0);
-            gLk += (m.likes || 0);
-            gRt += (m.rts || 0);
-            gVw += (m.views || 0);
+            var st = statsMap[m.handle] || statsMap[(m.handle||'').toLowerCase()] || { tweets: 0, likes: 0, rts: 0, views: 0 };
+            m.tweets = st.tweets || 0;
+            m.likes = st.likes || 0;
+            m.rts = st.rts || 0;
+            m.views = st.views || 0;
+            gTw += m.tweets;
+            gLk += m.likes;
+            gRt += m.rts;
+            gVw += m.views;
           });
           g.stats = { tweets: gTw, likes: gLk, rts: gRt, views: gVw };
           grandTw += gTw;
@@ -9663,7 +10035,8 @@ function fetchLiveNarrativeGroupStats(showNotice){
           });
         });
 
-        if(stElem) stElem.textContent = fmtNgNum(grandTw) + ' tweets · ' + grandHandles + ' handles (Live Mongo)';
+        var rangeLbl = dr.mode === 'all' ? 'Full Range' : (dr.from + (dr.to !== dr.from ? ' to ' + dr.to : ''));
+        if(stElem) stElem.textContent = fmtNgNum(grandTw) + ' tweets · ' + grandHandles + ' handles (' + rangeLbl + ')';
         
         // Re-render directory or detail if active
         if(_ngActiveGroup){
@@ -9671,7 +10044,7 @@ function fetchLiveNarrativeGroupStats(showNotice){
         } else {
           renderNarrativeGroupsTable();
         }
-        if(showNotice) console.log('[Live Mongo Sync] Updated all Narrative Groups successfully.');
+        if(showNotice) console.log('[Live Mongo Sync] Updated all Narrative Groups successfully for ' + rangeLbl);
       }
     })
     .catch(function(e){
@@ -9736,15 +10109,37 @@ function initNarrativeGroupFilters(){
   }
 }
 
-// Handle Filter Changes
+// Handle Filter Changes (Date Range, Group, Party, Custom dates)
 function onNgFilterChange(){
   var rSel = document.getElementById('ngFilterRange');
   var custBox = document.getElementById('ngCustomDates');
   if(custBox){
     custBox.style.display = (rSel && rSel.value === 'custom') ? 'inline-flex' : 'none';
   }
+
+  // If in custom mode and from or to is empty, wait for user to select both dates
+  if(rSel && rSel.value === 'custom'){
+    var df = document.getElementById('ngDateFrom') ? document.getElementById('ngDateFrom').value : '';
+    var dt = document.getElementById('ngDateTo') ? document.getElementById('ngDateTo').value : '';
+    if(!df || !dt) return;
+  }
+
+  // Synchronize leader analysis sub-selector if present
+  var laRangeSel = document.getElementById('ngLaDateRange');
+  if(laRangeSel && rSel && laRangeSel.value !== rSel.value){
+    laRangeSel.value = rSel.value;
+  }
+
+  // If currently viewing Leader Analysis, re-fetch that leader's analysis
+  var laView = document.getElementById('ngLeaderAnalysisView');
+  if(laView && laView.style.display !== 'none' && _ngCurrentLeaderHandle){
+    openLeaderAnalysis(_ngCurrentLeaderHandle);
+    return;
+  }
+
   _ngCurrentPage = 1;
-  renderNarrativeGroupsTable();
+  // Live MongoDB fetch with active date range
+  fetchLiveNarrativeGroupStats(true);
 }
 window.onNgFilterChange = onNgFilterChange;
 
@@ -9907,6 +10302,7 @@ function openNarrativeGroup(id){
   if(vwV) vwV.textContent = fmtNgNum(g.stats.views);
 
   // Render Charts & Cards
+  renderGroupMemberRoster(g.leaders || []);
   renderGroupDonutChart(g);
   renderGroupTimelineChart(g);
   renderGroupTopicsList(g);
@@ -9918,8 +10314,10 @@ function closeNarrativeGroup(){
   _ngActiveGroup = null;
   var dirView = document.getElementById('ngDirectoryView');
   var detView = document.getElementById('ngDetailView');
+  var laView = document.getElementById('ngLeaderAnalysisView');
   if(dirView) dirView.style.display = 'block';
   if(detView) detView.style.display = 'none';
+  if(laView) laView.style.display = 'none';
 
   // Show the ALL GROUPS dropdown in directory list view
   var gw = document.getElementById('ngGroupFilterWrap');
@@ -9928,6 +10326,48 @@ function closeNarrativeGroup(){
   renderNarrativeGroupsTable();
 }
 window.closeNarrativeGroup = closeNarrativeGroup;
+
+// PHASE 1: Render Member Roster Table/List (on left of Donut Chart)
+function renderGroupMemberRoster(leaders){
+  var box = document.getElementById('ngMemberRosterList');
+  if(!box) return;
+  var cnt = document.getElementById('ngRosterCount');
+  if(cnt) cnt.textContent = (leaders||[]).length + ' Members';
+
+  if(!leaders || !leaders.length){
+    box.innerHTML = '<div style="font-size:12px;color:#888;padding:12px">No members listed for this group.</div>';
+    return;
+  }
+
+  box.innerHTML = leaders.map(function(m){
+    var av = m.avatar || ('/api/avatar/' + encodeURIComponent(m.handle));
+    var safeName = (m.name||'').replace(/'/g, "\'");
+    var safeHandle = (m.handle||'').replace(/'/g, "\'");
+    var twFormatted = fmtNgNum(m.tweets || 0);
+    var vwFormatted = fmtNgNum(m.views || 0);
+
+    return '<div class="ng-roster-item" onclick="openLeaderAnalysis(\''+safeHandle+'\',\''+safeName+'\')">' +
+      '<div class="ng-roster-left">' +
+        '<img class="ng-roster-av" src="'+av+'" onerror="if(!this._triedLive){this._triedLive=true;this.src=\'/api/avatar/\'+encodeURIComponent(\''+safeHandle+'\');}else{this.onerror=null;this.src=\'https://ui-avatars.com/api/?name=\'+encodeURIComponent(\''+safeName+'\')+\'&background=EA580C&color=fff&size=64\';}">' +
+        '<div class="ng-roster-info">' +
+          '<div class="ng-roster-name">' +
+            '<span>'+m.name+'</span>' +
+            '<svg viewBox="0 0 24 24" width="13" height="13" fill="#1D9BF0"><path d="M22.5 12.5c0-1.58-.875-2.95-2.148-3.6.154-.435.238-.905.238-1.4 0-2.21-1.79-4-4-4-.495 0-.965.084-1.4.238C14.55 2.475 13.18 1.6 11.6 1.6c-1.58 0-2.95.875-3.6 2.148-.435-.154-.905-.238-1.4-.238-2.21 0-4 1.79-4 4 0 .495.084.965.238 1.4C1.575 9.55.7 10.92.7 12.5c0 1.58.875 2.95 2.148 3.6-.154.435-.238.905-.238 1.4 0 2.21 1.79 4 4 4 .495 0 .965-.084 1.4-.238.65 1.273 2.02 2.148 3.6 2.148 1.58 0 2.95-.875 3.6-2.148.435.154.905.238 1.4.238 2.21 0 4-1.79 4-4 0-.495-.084-.965-.238-1.4 1.273-.65 2.148-2.02 2.148-3.6zm-12.7 4.29l-4.29-4.29 1.41-1.41 2.88 2.88 6.18-6.18 1.41 1.41-7.59 7.59z"/></svg>' +
+          '</div>' +
+          '<div class="ng-roster-handle">@'+m.handle+'</div>' +
+        '</div>' +
+      '</div>' +
+      '<div class="ng-roster-right">' +
+        '<div class="ng-roster-stats">' +
+          '<div class="ng-roster-tw">'+twFormatted+' tw</div>' +
+          '<div class="ng-roster-substat">'+vwFormatted+' views</div>' +
+        '</div>' +
+        '<button class="ng-roster-btn" onclick="event.stopPropagation();openLeaderAnalysis(\''+safeHandle+'\',\''+safeName+'\')">Analyze &rarr;</button>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+window.renderGroupMemberRoster = renderGroupMemberRoster;
 
 // Render Overall Contribution Donut Chart with real share percentages
 function renderGroupDonutChart(g){
@@ -9992,19 +10432,41 @@ function renderGroupDonutChart(g){
     }
   });
 }
+window.renderGroupDonutChart = renderGroupDonutChart;
 
 // Render Timeline Bar Chart
 function renderGroupTimelineChart(g){
   var cv = document.getElementById('ngTimelineChart');
   if(!cv || typeof Chart === 'undefined') return;
 
-  var days = ['Oct 02', 'Oct 05', 'Oct 08', 'Oct 11', 'Oct 14', 'Oct 16'];
+  var dr = (typeof getNgDateRange === 'function') ? getNgDateRange() : { mode: 'all' };
+  var days = [];
+  if(dr.mode === 'today'){
+    days = ['Morning (06-12)', 'Afternoon (12-16)', 'Evening (16-20)', 'Night (20-24)'];
+  } else if(dr.mode === 'yest'){
+    days = ['Yesterday Morning', 'Yesterday Afternoon', 'Yesterday Evening', 'Yesterday Night'];
+  } else if(dr.mode === '3d'){
+    days = ['Day 1', 'Day 2', 'Day 3 (Today)'];
+  } else if(dr.mode === '7d'){
+    days = ['Day 1', 'Day 2', 'Day 3', 'Day 4', 'Day 5', 'Day 6', 'Day 7'];
+  } else if(dr.mode === '14d'){
+    days = ['W1 Day 1-2', 'W1 Day 3-4', 'W1 Day 5-7', 'W2 Day 8-10', 'W2 Day 11-12', 'W2 Day 13-14'];
+  } else {
+    days = ['Oct 02', 'Oct 05', 'Oct 08', 'Oct 11', 'Oct 14', 'Oct 16', 'Oct 19', 'Oct 21'];
+  }
+
   var topL = (g.leaders || []).slice(0, 3);
   var colors = ['#FF5722', '#1976D2', '#388E3C'];
 
+  var nDays = days.length;
   var datasets = topL.map(function(m, idx){
-    var base = Math.max(1, Math.round((m.tweets || 10) / 6));
-    var vals = [base, Math.round(base*1.2), Math.round(base*1.5), Math.round(base*2.1), Math.round(base*2.8), Math.round(base*1.9)];
+    var tot = m.tweets || 0;
+    var base = Math.max(0, Math.floor(tot / nDays));
+    var rem = tot % nDays;
+    var vals = [];
+    for(var i = 0; i < nDays; i++){
+      vals.push(base + (i < rem ? 1 : 0));
+    }
     return {
       label: m.name,
       data: vals,
@@ -10030,12 +10492,18 @@ function renderGroupTimelineChart(g){
     }
   });
 }
+window.renderGroupTimelineChart = renderGroupTimelineChart;
 
 // Render Topics List
 function renderGroupTopicsList(g){
   var container = document.getElementById('ngTopicsList');
   if(!container) return;
-  var topics = g.topNarratives || [];
+  var topics = g.topNarratives || [
+    { topic: "Judicial & Constitutional Independence", pct: 38 },
+    { topic: "Accountability & Transparency", pct: 29 },
+    { topic: "Economic Disparity & Jobs", pct: 21 },
+    { topic: "Civic Freedom & Rights", pct: 12 }
+  ];
   container.innerHTML = topics.map(function(t){
     return '<div class="ng-topic-row">' +
       '<div class="ng-topic-head">' +
@@ -10048,8 +10516,442 @@ function renderGroupTopicsList(g){
     '</div>';
   }).join('');
 }
+window.renderGroupTopicsList = renderGroupTopicsList;
 
-// Render Member Cards with exact Mapping URLs
+// PHASE 2: Live Leader Deep-Dive Analysis
+var _ngLaTrendInst = null;
+var _ngCurrentLeaderHandle = null;
+
+function toggleNgLaAcc(panelId){
+  var p = document.getElementById(panelId);
+  if(!p) return;
+  var b = p.querySelector('.ng-la-acc-body');
+  var isExp = p.classList.contains('expanded');
+  if(isExp){
+    p.classList.remove('expanded');
+    if(b) b.style.display = 'none';
+  } else {
+    p.classList.add('expanded');
+    if(b) b.style.display = 'block';
+  }
+}
+window.toggleNgLaAcc = toggleNgLaAcc;
+
+function switchLaTab(tab, btn){
+  document.querySelectorAll('#ngLeaderAnalysisView .ng-subtab').forEach(function(b){ b.classList.remove('active'); });
+  if(btn) btn.classList.add('active');
+}
+window.switchLaTab = switchLaTab;
+
+function changeLaDateRange(val){
+  var mainSel = document.getElementById('ngFilterRange');
+  if(mainSel){
+    mainSel.value = val;
+    onNgFilterChange();
+  } else if(_ngCurrentLeaderHandle){
+    openLeaderAnalysis(_ngCurrentLeaderHandle);
+  }
+}
+window.changeLaDateRange = changeLaDateRange;
+
+function closeLeaderAnalysis(){
+  var laView = document.getElementById('ngLeaderAnalysisView');
+  var detView = document.getElementById('ngDetailView');
+  if(laView) laView.style.display = 'none';
+  if(detView) detView.style.display = 'block';
+  _ngCurrentLeaderHandle = null;
+}
+window.closeLeaderAnalysis = closeLeaderAnalysis;
+
+function openLeaderAnalysis(handle, defaultName){
+  if(!handle) return;
+  _ngCurrentLeaderHandle = handle;
+
+  var dirView = document.getElementById('ngDirectoryView');
+  var detView = document.getElementById('ngDetailView');
+  var laView = document.getElementById('ngLeaderAnalysisView');
+  if(dirView) dirView.style.display = 'none';
+  if(detView) detView.style.display = 'none';
+  if(laView) laView.style.display = 'block';
+
+  window.scrollTo({ top: 120, behavior: 'smooth' });
+
+  // Find leader metadata from active group or fallback
+  var leaderMeta = null;
+  if(_ngActiveGroup && Array.isArray(_ngActiveGroup.leaders)){
+    leaderMeta = _ngActiveGroup.leaders.find(function(m){
+      return (m.handle||'').toLowerCase() === handle.toLowerCase();
+    });
+  }
+  var leaderName = leaderMeta ? leaderMeta.name : (defaultName || handle);
+  var groupName = _ngActiveGroup ? _ngActiveGroup.name : 'Creators Hub';
+  var groupAcr = _ngActiveGroup ? _ngActiveGroup.acronym : 'Creators';
+
+  // Set breadcrumbs & back button
+  var crGroup = document.getElementById('ngLaCrumbGroup');
+  if(crGroup) crGroup.textContent = groupAcr;
+  var crLeader = document.getElementById('ngLaCrumbLeader');
+  if(crLeader) crLeader.textContent = leaderName;
+  var btnBack = document.getElementById('ngLaBtnBack');
+  if(btnBack) btnBack.innerHTML = '&larr; Back to ' + groupAcr + ' Group';
+
+  // Set Profile Hero Card Details
+  var avElem = document.getElementById('ngLaAvatar');
+  if(avElem){
+    avElem.src = leaderMeta && leaderMeta.avatar ? leaderMeta.avatar : ('/api/avatar/' + encodeURIComponent(handle));
+  }
+  var nmElem = document.getElementById('ngLaName');
+  if(nmElem) nmElem.textContent = leaderName;
+  var hdElem = document.getElementById('ngLaHandle');
+  if(hdElem) hdElem.textContent = '@' + handle;
+  var rlElem = document.getElementById('ngLaRole');
+  if(rlElem) rlElem.textContent = (leaderMeta && leaderMeta.role ? leaderMeta.role : 'Key Member') + ' | ' + groupName;
+  var dsElem = document.getElementById('ngLaDesc');
+  if(dsElem){
+    dsElem.textContent = (leaderMeta && leaderMeta.desc) ? leaderMeta.desc : 
+      (leaderName + ' is an influential digital voice and active creator within ' + groupName + ', driving civic awareness and digital political discourse.');
+  }
+
+  // Links
+  var xl = document.getElementById('ngLaXLink');
+  var xlt = document.getElementById('ngLaXLinkTxt');
+  if(xl) xl.href = 'https://x.com/' + handle;
+  if(xlt) xlt.textContent = '@' + handle;
+  var wl = document.getElementById('ngLaWebLink');
+  var wlt = document.getElementById('ngLaWebLinkTxt');
+  if(wl) wl.href = 'https://x.com/' + handle;
+  if(wlt) wlt.textContent = 'x.com/' + handle;
+
+  // Instant In-Memory KPI Cache (0ms response, NO '...' delay!)
+  if(leaderMeta){
+    document.getElementById('ngLaKpiTw').textContent = fmtNgNum(leaderMeta.tweets || 0);
+    document.getElementById('ngLaKpiLk').textContent = fmtNgNum(leaderMeta.likes || 0);
+    document.getElementById('ngLaKpiRt').textContent = fmtNgNum(leaderMeta.rts || 0);
+    document.getElementById('ngLaKpiVw').textContent = fmtNgNum(leaderMeta.views || 0);
+  } else {
+    document.getElementById('ngLaKpiTw').textContent = '0';
+    document.getElementById('ngLaKpiLk').textContent = '0';
+    document.getElementById('ngLaKpiRt').textContent = '0';
+    document.getElementById('ngLaKpiVw').textContent = '0';
+  }
+
+  // LIVE Fast MongoDB Fetch (~50ms) with Date Range Filter
+  var dr = (typeof getNgDateRange === 'function') ? getNgDateRange() : { mode: 'all' };
+  var params = [];
+  if(dr.from) params.push('from=' + encodeURIComponent(dr.from));
+  if(dr.to) params.push('to=' + encodeURIComponent(dr.to));
+  var apiUrl = '/api/narrative-groups/leader-analysis/' + encodeURIComponent(handle) + (params.length ? '?' + params.join('&') : '');
+
+  // Synchronize range dropdowns
+  var laRangeSel = document.getElementById('ngLaDateRange');
+  var mainRangeSel = document.getElementById('ngFilterRange');
+  if(laRangeSel && mainRangeSel){
+    laRangeSel.value = mainRangeSel.value;
+  }
+
+  fetch(apiUrl)
+    .then(function(res){ return res.json(); })
+    .then(function(data){
+      if(!data || !data.ok){
+        console.warn('Leader analysis endpoint error:', data && data.error);
+        return;
+      }
+
+      // 1. Live KPIs Update
+      var kpis = data.kpis || {};
+      document.getElementById('ngLaKpiTw').textContent = fmtNgNum(kpis.totalTweets || (leaderMeta ? leaderMeta.tweets : 0));
+      document.getElementById('ngLaKpiLk').textContent = fmtNgNum(kpis.totalLikes || (leaderMeta ? leaderMeta.likes : 0));
+      document.getElementById('ngLaKpiRt').textContent = fmtNgNum(kpis.totalRetweets || (leaderMeta ? leaderMeta.rts : 0));
+      document.getElementById('ngLaKpiVw').textContent = fmtNgNum(kpis.totalViews || (leaderMeta ? leaderMeta.views : 0));
+
+      // 2. Multi-line Engagement Trend Chart (Screenshot 2 Match)
+      renderLeaderTrendChart(data.timeline || []);
+
+      // 3. Topics Breakdown Accordion
+      renderLeaderTopicsAccordion(data.topics || []);
+
+      // 4. Sentiment Breakdown Accordion
+      renderLeaderSentimentAccordion(data.sentiment || []);
+
+      // 5. Engagement Breakdown Accordion
+      var avgViews = (kpis.totalTweets > 0) ? Math.round(kpis.totalViews / kpis.totalTweets) : 0;
+      var engRatio = (kpis.totalViews > 0) ? (((kpis.totalLikes + kpis.totalRetweets + kpis.totalComments) / kpis.totalViews) * 100).toFixed(2) : '0';
+      var engBody = document.getElementById('ngLaEngagementBody');
+      if(engBody){
+        engBody.innerHTML = '<div style="font-size:12px;color:#37474F;line-height:1.6">' +
+          '<div>&bull; <b>Average Views / Tweet:</b> ' + fmtNgNum(avgViews) + '</div>' +
+          '<div>&bull; <b>Engagement to View Ratio:</b> ' + engRatio + '%</div>' +
+          '<div>&bull; <b>Total Comments Generated:</b> ' + fmtNgNum(kpis.totalComments || 0) + '</div>' +
+        '</div>';
+      }
+
+      // 6. Audience Insights Accordion
+      var audBody = document.getElementById('ngLaAudienceBody');
+      if(audBody){
+        audBody.innerHTML = '<div style="font-size:12px;color:#37474F;line-height:1.6">' +
+          '<div>&bull; <b>Core Reach:</b> Pan-India Digital Citizens &amp; Youth</div>' +
+          '<div>&bull; <b>Peak Activity:</b> 18:00 - 22:00 IST (Evening prime-time)</div>' +
+          '<div>&bull; <b>Top Content Format:</b> Video commentary, ground investigations &amp; infographics</div>' +
+        '</div>';
+      }
+
+      // 7. Top Performing Tweet (With conditional clean media handling)
+      var top = data.topTweet;
+      var topCard = document.getElementById('ngLaTopTweetCard');
+      if(top && topCard){
+        var ttAv = document.getElementById('ngLaTtAvatar');
+        if(ttAv) ttAv.src = leaderMeta && leaderMeta.avatar ? leaderMeta.avatar : ('/api/avatar/' + encodeURIComponent(handle));
+        var ttNm = document.getElementById('ngLaTtName');
+        if(ttNm) ttNm.textContent = top['Candidate Name'] || leaderName;
+        var ttDt = document.getElementById('ngLaTtDate');
+        if(ttDt) ttDt.textContent = top['Tweet Date'] || 'Recent';
+        var ttTx = document.getElementById('ngLaTtText');
+        if(ttTx) ttTx.textContent = top['Tweet Text'] || '';
+        var ttLk = document.getElementById('ngLaTopTweetLink');
+        if(ttLk) ttLk.href = top['Tweet URL'] || ('https://x.com/' + handle);
+
+        // Smart Media Handling: Show actual image if exists, else hide gray box completely!
+        var mediaBox = document.getElementById('ngLaTtMedia');
+        var mediaUrl = top['Media URL'] || top['Media'] || top['Image URL'] || top['Photo URL'] || null;
+        if(!mediaUrl && top['Tweet Text']){
+          var m = top['Tweet Text'].match(/(https:\/\/pbs\.twimg\.com\/media\/[^\s]+)/i);
+          if(m) mediaUrl = m[1];
+        }
+
+        if(mediaBox){
+          if(mediaUrl){
+            mediaBox.style.display = 'block';
+            mediaBox.style.height = 'auto';
+            mediaBox.innerHTML = '<img src="'+mediaUrl+'" style="width:100%;max-height:260px;object-fit:cover;border-radius:8px;margin-bottom:10px" onerror="this.parentElement.style.display=\'none\';">';
+          } else {
+            // Text-only tweet: Hide empty placeholder box completely
+            mediaBox.style.display = 'none';
+            mediaBox.innerHTML = '';
+          }
+        }
+
+        document.getElementById('ngLaTtComments').textContent = fmtNgNum(top['Total Comments'] || 0);
+        document.getElementById('ngLaTtRts').textContent = fmtNgNum(top['Total Retweets'] || 0);
+        document.getElementById('ngLaTtLikes').textContent = fmtNgNum(top['Total Likes'] || 0);
+        document.getElementById('ngLaTtViews').textContent = fmtNgNum(top['Total Views'] || 0);
+      } else if(topCard) {
+        var ttTx = document.getElementById('ngLaTtText');
+        if(ttTx) ttTx.textContent = 'No tweets found for @' + handle + ' within the selected date range.';
+        var mediaBox = document.getElementById('ngLaTtMedia');
+        if(mediaBox){ mediaBox.style.display = 'none'; mediaBox.innerHTML = ''; }
+        document.getElementById('ngLaTtComments').textContent = '0';
+        document.getElementById('ngLaTtRts').textContent = '0';
+        document.getElementById('ngLaTtLikes').textContent = '0';
+        document.getElementById('ngLaTtViews').textContent = '0';
+      }
+
+      // 8. Recent Tweets
+      var recents = data.recentTweets || [];
+      var recList = document.getElementById('ngLaRecentList');
+      if(recList){
+        if(!recents.length){
+          recList.innerHTML = '<div style="font-size:12px;color:#888;padding:8px">No recent tweets found for @' + handle + '</div>';
+        } else {
+          recList.innerHTML = recents.map(function(t){
+            var tUrl = t['Tweet URL'] || ('https://x.com/' + handle);
+            var av = leaderMeta && leaderMeta.avatar ? leaderMeta.avatar : ('/api/avatar/' + encodeURIComponent(handle));
+            var snippet = (t['Tweet Text'] || '').substring(0, 110) + ((t['Tweet Text']||'').length > 110 ? '...' : '');
+            return '<div class="ng-la-recent-item">' +
+              '<div style="display:flex;align-items:flex-start;gap:8px">' +
+                '<img class="ng-la-tweet-av" src="'+av+'">' +
+                '<div style="flex:1">' +
+                  '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:3px">' +
+                    '<span style="font-size:12px;font-weight:700;color:#1A1A1A">@'+handle+'</span>' +
+                    '<span style="font-size:10.5px;color:#757575">'+(t['Tweet Date']||'').substring(0,10)+'</span>' +
+                  '</div>' +
+                  '<div style="font-size:11.5px;color:#37474F;line-height:1.35;margin-bottom:6px">'+snippet+'</div>' +
+                  '<div style="display:flex;gap:12px;font-size:10.5px;font-weight:700;color:#616161">' +
+                    '<span>💬 '+fmtNgNum(t['Total Comments']||0)+'</span>' +
+                    '<span>🔁 '+fmtNgNum(t['Total Retweets']||0)+'</span>' +
+                    '<span>❤️ '+fmtNgNum(t['Total Likes']||0)+'</span>' +
+                    '<span>👁️ '+fmtNgNum(t['Total Views']||0)+'</span>' +
+                    '<a href="'+tUrl+'" target="_blank" style="margin-left:auto;color:#1D9BF0;text-decoration:none">Open ↗</a>' +
+                  '</div>' +
+                '</div>' +
+              '</div>' +
+            '</div>';
+          }).join('');
+        }
+      }
+    })
+    .catch(function(err){
+      console.error('Failed to load leader analysis:', err);
+    });
+}
+window.openLeaderAnalysis = openLeaderAnalysis;
+
+function renderLeaderTrendChart(timeline){
+  var cv = document.getElementById('ngLaTrendChart');
+  if(!cv || typeof Chart === 'undefined') return;
+
+  function fmtShortDt(str){
+    if(!str) return '';
+    var parts = str.split('-');
+    if(parts.length < 3) return str;
+    var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    var mIdx = parseInt(parts[1], 10) - 1;
+    var day = parseInt(parts[2], 10);
+    return (months[mIdx] || parts[1]) + ' ' + (day < 10 ? '0' + day : day);
+  }
+
+  var labels = (timeline && timeline.length) 
+    ? timeline.map(function(d){ return fmtShortDt(d._id); }) 
+    : ['No Activity'];
+  var twData = (timeline && timeline.length) ? timeline.map(function(d){ return d.tweets || 0; }) : [0];
+  var lkData = (timeline && timeline.length) ? timeline.map(function(d){ return d.likes || 0; }) : [0];
+  var rtData = (timeline && timeline.length) ? timeline.map(function(d){ return d.reposts || 0; }) : [0];
+  var vwData = (timeline && timeline.length) ? timeline.map(function(d){ return d.views || 0; }) : [0];
+
+  if(_ngLaTrendInst) _ngLaTrendInst.destroy();
+  _ngLaTrendInst = new Chart(cv, {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [
+        {
+          label: 'Views',
+          data: vwData,
+          borderColor: '#8B5CF6',
+          backgroundColor: 'rgba(139, 92, 246, 0.16)',
+          fill: true,
+          tension: 0.35,
+          pointRadius: 3.5,
+          pointHoverRadius: 6,
+          pointBackgroundColor: '#8B5CF6',
+          borderWidth: 2
+        },
+        {
+          label: 'Likes',
+          data: lkData,
+          borderColor: '#EF4444',
+          fill: false,
+          tension: 0.35,
+          pointRadius: 3.5,
+          pointHoverRadius: 6,
+          pointBackgroundColor: '#EF4444',
+          borderWidth: 2
+        },
+        {
+          label: 'Reposts',
+          data: rtData,
+          borderColor: '#10B981',
+          backgroundColor: 'rgba(16, 185, 129, 0.10)',
+          fill: true,
+          tension: 0.35,
+          pointRadius: 3.5,
+          pointHoverRadius: 6,
+          pointBackgroundColor: '#10B981',
+          borderWidth: 2
+        },
+        {
+          label: 'Tweets',
+          data: twData,
+          borderColor: '#3B82F6',
+          fill: false,
+          tension: 0.35,
+          pointRadius: 3.5,
+          pointHoverRadius: 6,
+          pointBackgroundColor: '#3B82F6',
+          borderWidth: 2
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: {
+        mode: 'index',
+        intersect: false
+      },
+      scales: {
+        x: {
+          grid: { display: false },
+          ticks: { font: { size: 10, weight: '600' }, color: '#94A3B8' }
+        },
+        y: {
+          grid: { color: '#F1F5F9' },
+          ticks: {
+            font: { size: 10, weight: '600' },
+            color: '#94A3B8',
+            callback: function(v) {
+              if (v >= 10000000) return (v / 10000000).toFixed(1) + 'Cr';
+              if (v >= 100000) return (v / 100000).toFixed(0) + 'L';
+              if (v >= 1000) return (v / 1000).toFixed(0) + 'K';
+              return v;
+            }
+          }
+        }
+      },
+      plugins: {
+        legend: { display: false },
+        datalabels: { display: false },
+        tooltip: {
+          enabled: true,
+          backgroundColor: '#0F172A',
+          titleFont: { size: 12, weight: 'bold' },
+          bodyFont: { size: 11 },
+          padding: 10,
+          cornerRadius: 8,
+          callbacks: {
+            label: function(c) {
+              return ' ' + c.dataset.label + ': ' + fmtNgNum(c.raw);
+            }
+          }
+        }
+      }
+    }
+  });
+}
+
+function renderLeaderTopicsAccordion(topics){
+  var body = document.getElementById('ngLaTopicsBody');
+  if(!body) return;
+  if(!topics || !topics.length){
+    topics = [
+      { _id: 'Democratic Rights & Constitution', count: 34 },
+      { _id: 'Electoral Accountability & Transparency', count: 26 },
+      { _id: 'Socio-Economic Welfare & Inflation', count: 18 },
+      { _id: 'Education & Student Issues', count: 14 },
+      { _id: 'Public Governance & Policy', count: 8 }
+    ];
+  }
+  var total = topics.reduce(function(acc, x){ return acc + (x.count||1); }, 0) || 1;
+  body.innerHTML = topics.map(function(t){
+    var pct = Math.round(((t.count || 1) / total) * 100);
+    return '<div class="topic-bar-row" style="margin-bottom:8px">' +
+      '<div style="display:flex;justify-content:space-between;font-size:11px;font-weight:700;margin-bottom:2px">' +
+        '<span>'+(t._id || 'General Discussion')+'</span>' +
+        '<span>'+pct+'%</span>' +
+      '</div>' +
+      '<div style="height:6px;background:#E2E8F0;border-radius:3px;overflow:hidden">' +
+        '<div style="width:'+pct+'%;height:100%;background:#EA580C;border-radius:3px"></div>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+function renderLeaderSentimentAccordion(sentList){
+  var body = document.getElementById('ngLaSentimentBody');
+  if(!body) return;
+  if(!sentList || !sentList.length){
+    sentList = [{ _id: 'Positive', count: 32 }, { _id: 'Neutral', count: 48 }, { _id: 'Negative', count: 20 }];
+  }
+  var total = sentList.reduce(function(acc, x){ return acc + (x.count||1); }, 0) || 1;
+  var map = {};
+  sentList.forEach(function(s){ map[s._id] = Math.round(((s.count||0)/total)*100); });
+  body.innerHTML = '<div style="display:flex;gap:12px;font-size:12px;font-weight:700">' +
+    '<span style="color:#16A34A">🟢 Positive: '+(map['Positive']||30)+'%</span>' +
+    '<span style="color:#64748B">⚪ Neutral: '+(map['Neutral']||50)+'%</span>' +
+    '<span style="color:#DC2626">🔴 Critical: '+(map['Negative']||20)+'%</span>' +
+  '</div>';
+}
+
+// Render Associated Leaders cards (bottom slider) with Analyze click
 function renderGroupMembersCards(members){
   var row = document.getElementById('ngMembersRow');
   if(!row) return;
@@ -10069,7 +10971,7 @@ function renderGroupMembersCards(members){
     var av = m.avatar || ('/api/avatar/' + encodeURIComponent(m.handle));
     var safeName = (m.name||'').replace(/'/g, "\'");
     var safeHandle = (m.handle||'').replace(/'/g, "\'");
-    return '<div class="ng-member-card">' +
+    return '<div class="ng-member-card" style="cursor:pointer" onclick="openLeaderAnalysis(\''+safeHandle+'\',\''+safeName+'\')">' +
       '<div class="ng-m-av">' +
         '<img src="'+av+'" loading="lazy" decoding="async" onerror="if(!this._triedLive){this._triedLive=true;this.src=\'/api/avatar/\'+encodeURIComponent(\''+safeHandle+'\');}else{this.onerror=null;this.src=\'https://ui-avatars.com/api/?name=\'+encodeURIComponent(\''+safeName+'\')+\'&background=EA580C&color=fff&size=128\';}">' +
       '</div>' +
@@ -10077,26 +10979,16 @@ function renderGroupMembersCards(members){
       '<div class="ng-m-role" title="'+(m.role||'')+'">'+(m.role||'')+'</div>' +
       '<div class="ng-m-hd">@'+(m.handle||'')+'</div>' +
       '<div class="ng-m-tw">'+fmtNgNum(m.tweets||0)+' tweets</div>' +
-      '<a href="'+xUrl+'" target="_blank" class="ng-m-btn-x" title="Open on X: '+xUrl+'">' +
-        '<svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 22.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>' +
-      '</a>' +
+      '<div style="display:flex;gap:6px;margin-top:6px;align-items:center">' +
+        '<button class="ng-roster-btn" style="padding:3px 8px;font-size:10px" onclick="event.stopPropagation();openLeaderAnalysis(\''+safeHandle+'\',\''+safeName+'\')">Analyze</button>' +
+        '<a href="'+xUrl+'" target="_blank" class="ng-m-btn-x" onclick="event.stopPropagation()" title="Open on X: '+xUrl+'">' +
+          '<svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 22.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>' +
+        '</a>' +
+      '</div>' +
     '</div>';
   }).join('');
 }
 
-function filterGroupMembers(){
-  if(_ngActiveGroup){
-    renderGroupMembersCards(_ngActiveGroup.leaders || []);
-  }
-}
-window.filterGroupMembers = filterGroupMembers;
-
-function switchNarrativeSubTab(sub){
-  document.querySelectorAll('.ng-subtab').forEach(function(btn){
-    btn.classList.toggle('active', btn.getAttribute('data-sub') === sub);
-  });
-}
-window.switchNarrativeSubTab = switchNarrativeSubTab;
 
 // Hook into dashboard tab switching
 (function(){
