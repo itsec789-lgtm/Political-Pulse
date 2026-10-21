@@ -1846,7 +1846,7 @@ async function buildHtml(scope, role, who) {
     /* growth-off (13-Oct): 'growth' is list se nikal diya -- uska tab ab
        hai hi nahi. Ye list sirf kram lagati hai, isliye na hone par bhi
        kuch toot-ta nahi tha; saaf rakhne ke liye nikala. */
-    +       "'handle-analytics','profiles','tweets','breaking','hashtags',"
+    +       "'narrative-groups','handle-analytics','profiles','tweets','breaking','hashtags',"
     +       "'sentiment','reports','wordcloud'];"
     +     "var _tabs=[].slice.call(_nv.querySelectorAll('.mnav-tab'));"
     /* 2. Handles To Be Added yahan se hat gaya -- ab wo sirf upar daayein
