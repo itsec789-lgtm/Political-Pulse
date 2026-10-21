@@ -747,8 +747,126 @@ svg#indiaMap{width:100%;height:100%;max-width:100%;max-height:100%;display:block
 .pf-sec{font-family:'Rajdhani';font-size:11px;font-weight:700;color:#666;text-transform:uppercase;letter-spacing:1px;margin:10px 0 7px}.pf-an{font-size:12.5px;line-height:1.6;color:#444}
 @media(max-width:600px){.pf-kpis{grid-template-columns:repeat(3,1fr)}}
 
-</style>
-<style>
+
+/* ====== NARRATIVE GROUPS TAB STYLES ====== */
+.ng-filter-bar{display:flex;align-items:center;gap:10px;padding:10px 18px;background:#FFF;border-bottom:1.5px solid #F0E6DE;flex-wrap:wrap}
+.ng-header-row{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:14px;flex-wrap:wrap}
+.ng-title{font-size:22px;font-weight:900;color:#1A1A1A;font-family:'Rajdhani',sans-serif;letter-spacing:0.5px;margin:0}
+.ng-sub{font-size:12px;color:#757575;font-weight:500;margin-top:2px}
+.ng-search-box{display:flex;align-items:center;gap:8px;background:#FFF;border:1.5px solid #E0E0E0;border-radius:8px;padding:6px 12px;width:280px;transition:.15s}
+.ng-search-box:focus-within{border-color:#FF6B35;box-shadow:0 0 0 2px rgba(255,107,53,0.12)}
+.ng-search-box svg{width:15px;height:15px;stroke:#9E9E9E;flex:none}
+.ng-search-box input{border:none;outline:none;background:none;font-size:12px;color:#212121;width:100%;font-family:inherit}
+
+.ng-table{width:100%;border-collapse:collapse}
+.ng-table th{background:#FFF9F5;color:#E65100;font-size:11px;font-weight:800;font-family:'Rajdhani',sans-serif;letter-spacing:0.8px;text-transform:uppercase;padding:11px 14px;border-bottom:2px solid #F0E6DE;white-space:nowrap}
+.ng-table td{padding:12px 14px;border-bottom:1px solid #F0E6DE;vertical-align:middle;font-size:12.5px;color:#212121}
+.ng-table tbody tr{cursor:pointer;transition:background .15s}
+.ng-table tbody tr:hover{background:#FFFBF8}
+
+.ng-logo-cell{display:flex;align-items:center;gap:14px}
+.ng-logo-box{width:48px;height:48px;border-radius:50%;overflow:hidden;flex:none;background:#FFF;border:1.5px solid #FFD8A8;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 4px rgba(0,0,0,0.06)}
+.ng-logo-box img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+.ng-name-block{display:flex;flex-direction:column}
+.ng-name-block .acr{font-size:14px;font-weight:800;color:#1A1A1A;font-family:'Rajdhani',sans-serif;letter-spacing:0.3px}
+.ng-name-block .fn{font-size:11px;color:#757575}
+
+.ng-pill{display:inline-block;padding:3px 10px;border-radius:12px;font-size:10.5px;font-weight:700;font-family:'Rajdhani',sans-serif;letter-spacing:0.4px;white-space:nowrap}
+.ng-pill-pol{background:#FFF3E0;color:#E65100;border:1px solid #FFE0B2}
+.ng-pill-stu{background:#E1F5FE;color:#0277BD;border:1px solid #B3E5FC}
+.ng-pill-wing{background:#FFF8E1;color:#F57F17;border:1px solid #FFECB3}
+.ng-pill-ind{background:#F3E5F5;color:#7B1FA2;border:1px solid #E1BEE7}
+
+.ng-num-tw{color:#0288D1;font-weight:800;font-family:'Rajdhani',sans-serif;font-size:13.5px}
+.ng-num-lk{color:#C2185B;font-weight:800;font-family:'Rajdhani',sans-serif;font-size:13.5px}
+.ng-num-rt{color:#2E7D32;font-weight:800;font-family:'Rajdhani',sans-serif;font-size:13.5px}
+.ng-num-vw{color:#6A1B9A;font-weight:800;font-family:'Rajdhani',sans-serif;font-size:13.5px}
+
+.ng-avatars-stack{display:inline-flex;align-items:center}
+.ng-av-circle{width:36px;height:36px;border-radius:50%;border:2px solid #FFF;overflow:hidden;margin-left:-8px;background:#FAFAFA;box-shadow:0 1px 3px rgba(0,0,0,0.12);transition:transform .15s}
+.ng-av-circle:first-child{margin-left:0}
+.ng-av-circle:hover{transform:translateY(-3px) scale(1.1);z-index:5}
+.ng-av-circle img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+.ng-av-more{width:36px;height:36px;border-radius:50%;background:#F5F5F5;color:#616161;font-size:11px;font-weight:800;display:inline-flex;align-items:center;justify-content:center;border:2px solid #FFF;margin-left:-8px;font-family:'Rajdhani',sans-serif}
+.ng-members-subnames{font-size:10.5px;color:#888;margin-top:3px;max-width:220px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* VIEW 2: Detail Overview View */
+.ng-detail-top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.ng-breadcrumb{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:700;font-family:'Rajdhani',sans-serif}
+.ng-crumb-link{color:#FF6B35;cursor:pointer}
+.ng-crumb-link:hover{text-decoration:underline}
+.ng-crumb-sep{color:#BDBDBD}
+.ng-crumb-active{color:#424242}
+
+.ng-detail-actions{display:flex;align-items:center;gap:10px}
+.ng-btn-compare{display:inline-flex;align-items:center;gap:6px;background:#FFF;border:1.5px solid #FF6B35;color:#FF6B35;font-size:12px;font-weight:700;padding:6px 14px;border-radius:8px;cursor:pointer;font-family:'Rajdhani',sans-serif;transition:.15s}
+.ng-btn-compare:hover{background:#FFF5F0}
+
+.ng-hero-card{background:#FFF;border:1.5px solid #F0E6DE;border-radius:12px;padding:20px;margin-bottom:18px;display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;box-shadow:0 2px 6px rgba(0,0,0,0.03)}
+.ng-hero-left{display:flex;align-items:center;gap:18px;min-width:320px;flex:1}
+.ng-hero-logo{width:90px;height:90px;border-radius:50%;overflow:hidden;flex:none;border:2.5px solid #FFD8A8;background:#FFF;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.08)}
+.ng-hero-logo img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+.ng-hero-info{flex:1}
+.ng-hero-acronym{font-size:20px;font-weight:900;color:#1A1A1A;font-family:'Rajdhani',sans-serif;letter-spacing:0.5px}
+.ng-hero-name{font-size:15px;font-weight:700;color:#424242}
+.ng-hero-sub{font-size:12px;color:#757575;margin-top:2px}
+.ng-meta-link{color:#1D9BF0;text-decoration:none;display:inline-flex;align-items:center;gap:4px;font-weight:600}
+.ng-meta-link:hover{text-decoration:underline}
+.ng-hero-desc{font-size:12px;color:#616161;line-height:1.45;margin-top:6px;max-width:560px}
+
+.ng-hero-kpis{display:grid;grid-template-columns:repeat(4,105px);gap:10px}
+@media(max-width:640px){.ng-hero-kpis{grid-template-columns:repeat(2,1fr)}}
+.ng-kpi-card{background:#FAFAFA;border:1px solid #EEEEEE;border-radius:10px;padding:12px 10px;display:flex;flex-direction:column;justify-content:space-between}
+.ng-kpi-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.ng-kpi-icon{font-size:15px}
+.ng-kpi-trend{font-size:10px;font-weight:700;padding:2px 5px;border-radius:4px;font-family:'Rajdhani',sans-serif}
+.ng-kpi-trend.pos{background:#E8F5E9;color:#2E7D32}
+.ng-kpi-val{font-size:17px;font-weight:900;color:#1A1A1A;font-family:'Rajdhani',sans-serif;line-height:1.1}
+.ng-kpi-lbl{font-size:10px;color:#757575;font-weight:600;margin-top:4px}
+
+.ng-subtabs-row{display:flex;gap:6px;border-bottom:1.5px solid #F0E6DE;margin-bottom:16px;overflow-x:auto}
+.ng-subtab{display:inline-flex;align-items:center;gap:6px;padding:9px 16px;border:none;background:none;font-size:12.5px;font-weight:700;color:#616161;cursor:pointer;border-bottom:3px solid transparent;font-family:'Rajdhani',sans-serif;letter-spacing:0.3px;white-space:nowrap;transition:.15s}
+.ng-subtab:hover{color:#E65100}
+.ng-subtab.active{color:#E65100;border-bottom-color:#FF6B35;background:rgba(255,107,53,0.06);border-top-left-radius:8px;border-top-right-radius:8px}
+
+.ng-charts-grid{display:grid;grid-template-columns:1fr 1.3fr 1fr;gap:14px}
+@media(max-width:1100px){.ng-charts-grid{grid-template-columns:1fr}}
+.ng-card{background:#FFF;border:1.5px solid #F0E6DE;border-radius:12px;padding:16px;box-shadow:0 1px 4px rgba(0,0,0,0.03)}
+.ng-card-title{font-size:14px;font-weight:800;color:#1A1A1A;font-family:'Rajdhani',sans-serif;letter-spacing:0.3px}
+.ng-card-sub{font-size:11px;color:#757575;margin-top:2px}
+
+.ng-donut-legend{display:flex;flex-direction:column;gap:6px}
+.ng-d-item{display:flex;align-items:center;justify-content:space-between;font-size:11px}
+.ng-d-left{display:flex;align-items:center;gap:6px}
+.ng-d-dot{width:8px;height:8px;border-radius:50%;flex:none}
+.ng-d-nm{color:#424242;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:110px}
+.ng-d-pct{color:#1A1A1A;font-weight:800;font-family:'Rajdhani',sans-serif}
+
+.ng-tag-pill{font-size:10px;font-weight:700;padding:2px 7px;border-radius:6px;background:#F5F5F5;color:#616161}
+.ng-tag-pill.active{background:#FFF1ED;color:#C2410C;border:1px solid #FFD8A8}
+
+.ng-topic-row{margin-bottom:9px}
+.ng-topic-head{display:flex;align-items:center;justify-content:space-between;font-size:11px;margin-bottom:3px}
+.ng-topic-name{color:#37474F;font-weight:600}
+.ng-topic-pct{color:#C2410C;font-weight:800;font-family:'Rajdhani',sans-serif}
+.ng-topic-bar{height:6px;background:#F5F5F5;border-radius:3px;overflow:hidden}
+.ng-topic-fill{height:100%;border-radius:3px;transition:width .4s}
+
+.ng-members-row{display:flex;gap:12px;overflow-x:auto;padding-bottom:8px}
+.ng-member-card{flex:0 0 170px;background:#FAFAFA;border:1px solid #EEEEEE;border-radius:10px;padding:12px;text-align:center;display:flex;flex-direction:column;align-items:center;transition:transform .15s, box-shadow .15s}
+.ng-member-card:hover{transform:translateY(-2px);box-shadow:0 3px 8px rgba(0,0,0,0.06)}
+.ng-m-av{width:54px;height:54px;border-radius:50%;overflow:hidden;background:#EEEEEE;margin-bottom:8px;box-shadow:0 1px 4px rgba(0,0,0,0.12);position:relative;border:2px solid #FFF}
+.ng-m-av img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+.ng-m-name{font-size:12px;font-weight:700;color:#1A1A1A;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%}
+.ng-m-role{font-size:9.5px;color:#E65100;font-weight:600;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%}
+.ng-m-hd{font-size:10px;color:#757575;margin-top:1px}
+.ng-m-tw{font-size:11.5px;font-weight:800;color:#E65100;font-family:'Rajdhani',sans-serif;margin-top:6px}
+.ng-m-btn-x{margin-top:6px;background:#000;color:#FFF;border:none;border-radius:4px;width:24px;height:24px;font-size:11px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;text-decoration:none;transition:background .15s}
+.ng-m-btn-x:hover{background:#333}
+.ng-search-sm{display:flex;align-items:center;gap:6px;background:#FFF;border:1px solid #E0E0E0;border-radius:6px;padding:4px 8px}
+.ng-search-sm input{border:none;outline:none;font-size:11px;width:110px}
+.ng-btn-link{border:none;background:none;color:#E65100;font-size:11px;font-weight:700;cursor:pointer;padding:0}
+.ng-btn-link:hover{text-decoration:underline}
 /* ---- HANDLE ANALYTICS (ha v2) ---- */
 .ha-card{background:var(--card);border:1.5px solid var(--border);border-radius:12px;
   padding:16px 18px;margin-bottom:14px}
@@ -1336,6 +1454,10 @@ window.sentCardsHTML = function (S, suffix) {
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
     Parties
   </div>
+  <div class="mnav-tab" data-tab="narrative-groups" onclick="switchTab('narrative-groups')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+    Narrative Groups
+  </div>
   <!-- growth-off (13-Oct): Growth tab hata diya gaya. Section ka markup
        aur JS waise ka waisa hai, bas ye button nahi hai isliye kahin se
        khulta nahi. Wapas chahiye to neeche wali teen line se comment
@@ -1761,6 +1883,7 @@ window.sentCardsHTML = function (S, suffix) {
           <th class="num">Total Views</th>
           <th class="num">Avg Views/Post</th>
           <th class="num">Avg Likes/Post</th>
+          <th class="r">Action</th>
         </tr>
       </thead>
       <tbody id="mainTableBody"></tbody>
@@ -1976,6 +2099,270 @@ window.sentCardsHTML = function (S, suffix) {
   </div>
 </main>
 </div>
+<!-- 7.5. NARRATIVE GROUPS -->
+<div class="page-section" id="sec-narrative-groups">
+<!-- 5 TOP FILTERS FOR NARRATIVE GROUPS -->
+<div class="ng-filter-bar">
+  <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+    <span class="filter-label">DATE RANGE</span>
+    <select class="filter-select" id="ngFilterRange" onchange="onNgFilterChange()" style="min-width:130px">
+      <option value="all" selected>Full Range</option>
+      <option value="today">Today</option>
+      <option value="yest">Yesterday</option>
+      <option value="3d">3 Days</option>
+      <option value="7d">7 Days</option>
+      <option value="custom">Custom</option>
+    </select>
+    <div id="ngCustomDates" style="display:none;align-items:center;gap:4px">
+      <input type="date" class="filter-select" id="ngDateFrom" onchange="onNgFilterChange()">
+      <span class="filter-label" style="letter-spacing:0">to</span>
+      <input type="date" class="filter-select" id="ngDateTo" onchange="onNgFilterChange()">
+    </div>
+    
+    <div class="filter-divider"></div>
+    <span class="filter-label">LEVELS</span>
+    <select class="filter-select" id="ngFilterLevel" onchange="onNgFilterChange()" style="min-width:120px">
+      <option value="all">All Levels</option>
+      <option value="National">National</option>
+      <option value="MLA">MLA</option>
+      <option value="LS MP">LS MP</option>
+      <option value="RS MP">RS MP</option>
+      <option value="Chief Minister">Chief Minister</option>
+      <option value="Others">Others</option>
+    </select>
+
+    <div class="filter-divider"></div>
+    <span class="filter-label">STATE</span>
+    <select class="filter-select" id="ngFilterState" onchange="onNgFilterChange()" style="min-width:140px">
+      <option value="all">All India</option>
+    </select>
+
+    <div class="filter-divider"></div>
+    <span class="filter-label">PARTY</span>
+    <select class="filter-select" id="ngFilterParty" onchange="onNgFilterChange()" style="min-width:120px">
+      <option value="all">All Parties</option>
+      <option value="CJP">CJP</option>
+      <option value="INC">INC</option>
+      <option value="BJP">BJP</option>
+      <option value="SP">SP</option>
+      <option value="AAP">AAP</option>
+      <option value="CPI(M)">CPI(M)</option>
+      <option value="IND">IND</option>
+    </select>
+
+    <div class="filter-divider"></div>
+    <span class="filter-label">ALL GROUPS</span>
+    <select class="filter-select" id="ngFilterGroup" onchange="onNgFilterChange()" style="min-width:160px">
+      <option value="all">All Groups</option>
+    </select>
+  </div>
+  <div class="filter-info" style="margin-left:auto;display:flex;align-items:center;gap:12px">
+    <button onclick="fetchLiveNarrativeGroupStats(true)" style="background:#FFF3E0;border:1px solid #FFD8A8;color:#E65100;font-size:11px;font-weight:700;padding:4px 10px;border-radius:6px;cursor:pointer;display:inline-flex;align-items:center;gap:4px" title="Pull latest counts directly from MongoDB">
+      <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg> Live Sync
+    </button>
+    <span style="color:#C2410C;font-weight:700" id="ngTotalStats">Live MongoDB Data</span>
+  </div>
+</div>
+
+<main style="padding:18px 24px">
+  <!-- VIEW 1: Directory Table View -->
+  <div id="ngDirectoryView">
+    <div class="ng-header-row">
+      <div>
+        <h2 class="ng-title">NARRATIVE GROUPS</h2>
+        <div class="ng-sub">Overview of political groups, student organisations and digital creator networks</div>
+      </div>
+      <div class="ng-search-box">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" id="ngSearchInput" placeholder="Search narrative groups..." oninput="filterNarrativeGroups()">
+      </div>
+    </div>
+
+    <div class="data-table-wrap" style="background:#FFF;border:1px solid #ECEFF1;border-radius:12px;overflow-x:auto;box-shadow:0 1px 4px rgba(0,0,0,0.03);margin-top:14px">
+      <table class="data-table ng-table" id="ngMainTable">
+        <thead>
+          <tr>
+            <th style="width:40px">#</th>
+            <th style="min-width:240px">GROUP / NAME</th>
+            <th style="width:130px">CATEGORY</th>
+            <th class="num" style="width:115px">TOTAL TWEETS</th>
+            <th class="num" style="width:115px">TOTAL LIKES</th>
+            <th class="num" style="width:115px">TOTAL RETWEETS</th>
+            <th class="num" style="width:115px">TOTAL VIEWS</th>
+            <th style="min-width:220px">TOP LEADERS / KEY MEMBERS</th>
+          </tr>
+        </thead>
+        <tbody id="ngTableBody">
+          <!-- Populated dynamically via JS -->
+        </tbody>
+      </table>
+    </div>
+
+    <div class="tp-pagination" id="ngPagination" style="margin-top:16px;display:flex;align-items:center;justify-content:space-between">
+      <div style="font-size:12px;color:#757575" id="ngPageInfo">Showing 1-7 of 7 groups</div>
+      <div style="display:flex;gap:6px">
+        <button class="tp-pbtn" id="ngBtnPrev" onclick="changeNgPage(-1)">&larr; Prev</button>
+        <button class="tp-pbtn" id="ngBtnNext" onclick="changeNgPage(1)">Next &rarr;</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- VIEW 2: Detail Overview View -->
+  <div id="ngDetailView" style="display:none">
+    <!-- Breadcrumb & Action Row -->
+    <div class="ng-detail-top">
+      <div class="ng-breadcrumb">
+        <span class="ng-crumb-link" onclick="closeNarrativeGroup()">Narrative Groups</span>
+        <span class="ng-crumb-sep">&gt;</span>
+        <span class="ng-crumb-active" id="ngDetailCrumb">CJP</span>
+      </div>
+      <div class="ng-detail-actions">
+        <button class="ng-btn-compare" onclick="closeNarrativeGroup()">
+          &larr; Back to Groups Directory
+        </button>
+      </div>
+    </div>
+
+    <!-- Hero Profile Card -->
+    <div class="ng-hero-card">
+      <div class="ng-hero-left">
+        <div class="ng-hero-logo" id="ngHeroLogo"></div>
+        <div class="ng-hero-info">
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+            <span class="ng-hero-acronym" id="ngHeroAcronym">CJP</span>
+            <span class="ng-hero-name" id="ngHeroName">Cockroach Janta Party</span>
+            <span class="ng-pill ng-pill-pol" id="ngHeroBadge">Political Group</span>
+          </div>
+          <div class="ng-hero-sub" id="ngHeroSubtitle">Cockroach Janta Party Official</div>
+          <div style="display:flex;align-items:center;gap:14px;margin-top:8px;font-size:12px">
+            <a href="https://x.com/Cockroachisback" target="_blank" class="ng-meta-link" id="ngHeroHandle"><svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 22.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg> <span id="ngHeroHandleText">@Cockroachisback</span></a>
+            <a href="https://x.com/CJP_is_back" target="_blank" class="ng-meta-link" id="ngHeroWeb"><svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 22.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg> <span id="ngHeroWebText">@CJP_is_back</span></a>
+          </div>
+          <p class="ng-hero-desc" id="ngHeroDesc">Cockroach Janta Party (CJP) is a people's movement focused on constitutional values, social justice and democratic rights.</p>
+        </div>
+      </div>
+
+      <!-- 4 KPI Stat Cards with Trend Badges -->
+      <div class="ng-hero-kpis">
+        <div class="ng-kpi-card">
+          <div class="ng-kpi-top">
+            <span class="ng-kpi-icon tw">&#128394;</span>
+            <span class="ng-kpi-trend pos" id="ngKpiTwTr">&uarr; Live</span>
+          </div>
+          <div class="ng-kpi-val" id="ngKpiTwVal">0</div>
+          <div class="ng-kpi-lbl">Total Tweets</div>
+        </div>
+        <div class="ng-kpi-card">
+          <div class="ng-kpi-top">
+            <span class="ng-kpi-icon lk">&#10084;&#65039;</span>
+            <span class="ng-kpi-trend pos" id="ngKpiLkTr">&uarr; Live</span>
+          </div>
+          <div class="ng-kpi-val" id="ngKpiLkVal">0</div>
+          <div class="ng-kpi-lbl">Total Likes</div>
+        </div>
+        <div class="ng-kpi-card">
+          <div class="ng-kpi-top">
+            <span class="ng-kpi-icon rt">&#128257;</span>
+            <span class="ng-kpi-trend pos" id="ngKpiRtTr">&uarr; Live</span>
+          </div>
+          <div class="ng-kpi-val" id="ngKpiRtVal">0</div>
+          <div class="ng-kpi-lbl">Total Reposts</div>
+        </div>
+        <div class="ng-kpi-card">
+          <div class="ng-kpi-top">
+            <span class="ng-kpi-icon vw">&#128202;</span>
+            <span class="ng-kpi-trend pos" id="ngKpiVwTr">&uarr; Live</span>
+          </div>
+          <div class="ng-kpi-val" id="ngKpiVwVal">0</div>
+          <div class="ng-kpi-lbl">Total Views</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sub-tabs Navigation -->
+    <div class="ng-subtabs-row">
+      <button class="ng-subtab active" data-sub="overview" onclick="switchNarrativeSubTab('overview')">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        Overview
+      </button>
+      <button class="ng-subtab" data-sub="engagement" onclick="switchNarrativeSubTab('engagement')">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+        Engagement Analysis
+      </button>
+      <button class="ng-subtab" data-sub="narratives" onclick="switchNarrativeSubTab('narratives')">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        Narrative Analysis
+      </button>
+      <button class="ng-subtab" data-sub="toptweets" onclick="switchNarrativeSubTab('toptweets')">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        Top Tweets
+      </button>
+      <button class="ng-subtab" data-sub="leaders" onclick="switchNarrativeSubTab('leaders')">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Leader Comparison
+      </button>
+    </div>
+
+    <!-- Sub-tab Panel: Overview -->
+    <div class="ng-subpanel" id="ngSubPanel-overview">
+      <div class="ng-charts-grid">
+        <!-- Card 1: Overall Contribution Donut -->
+        <div class="ng-card">
+          <div class="ng-card-title">Overall Contribution</div>
+          <div class="ng-card-sub" id="ngDonutSub">Share of tweets by official handle &amp; key leaders</div>
+          <div style="position:relative;height:220px;margin-top:14px;display:flex;align-items:center;justify-content:center">
+            <canvas id="ngDonutChart"></canvas>
+            <div style="position:absolute;text-align:center;pointer-events:none">
+              <div style="font-size:16px;font-weight:900;color:#1A1A1A;font-family:'Rajdhani',sans-serif" id="ngDonutCenterVal">0</div>
+              <div style="font-size:10px;color:#757575">Total Tweets</div>
+            </div>
+          </div>
+          <div class="ng-donut-legend" id="ngDonutLegend" style="margin-top:12px"></div>
+        </div>
+
+        <!-- Card 2: Timeline Activity Bar Chart -->
+        <div class="ng-card">
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <div>
+              <div class="ng-card-title">Timeline Activity</div>
+              <div class="ng-card-sub">Daily volume breakdown across official &amp; key handles</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:4px">
+              <span class="ng-tag-pill active">Tweets</span>
+            </div>
+          </div>
+          <div style="height:280px;margin-top:12px">
+            <canvas id="ngTimelineChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Card 3: Top Narratives / Topics -->
+        <div class="ng-card">
+          <div class="ng-card-title">Top Narratives / Topics</div>
+          <div class="ng-card-sub">Key thematic issues driving group engagement</div>
+          <div style="margin-top:16px" id="ngTopicsList"></div>
+        </div>
+      </div>
+
+      <!-- Associated Leaders Card (with Mapping URLs) -->
+      <div class="ng-card" style="margin-top:16px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+          <div>
+            <div class="ng-card-title">Associated Leaders &amp; Key Accounts</div>
+            <div class="ng-card-sub">Official handles &amp; designations from Mapping.xlsx with direct X profile links</div>
+          </div>
+          <div class="ng-search-sm">
+            <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" placeholder="Filter leaders..." id="ngMemberFilterInput" oninput="filterGroupMembers()">
+          </div>
+        </div>
+        <div class="ng-members-row" id="ngMembersRow"></div>
+      </div>
+    </div>
+  </div>
+</main>
+</div>
+
 <!-- 8. UP ANALYSIS -->
 <div class="page-section" id="sec-up">
 <main>
@@ -3193,7 +3580,7 @@ function buildLeaderRow(h,i){const avgVw=perPost(h.vw,h.tw),avgLk=perPost(h.lk,h
 function switchTab(tab){currentTab=tab;/* tab-scroll (09-Oct): naya tab hamesha SABSE UPAR se khule --
    pehle pichhle tab ka scroll bana rehta tha aur naya tab beech se
    khulta tha. */
-try{window.scrollTo(0,0);if(document.scrollingElement)document.scrollingElement.scrollTop=0;if(document.documentElement)document.documentElement.scrollTop=0;if(document.body)document.body.scrollTop=0;}catch(e){}try{window.hydrateExec&&window.hydrateExec();}catch(e){}try{window.hMore&&window.hMore();}catch(e){}try{window.hCM&&window.hCM();}catch(e){}document.querySelectorAll('.mnav-tab').forEach(t=>t.classList.toggle('active',t.dataset.tab===tab));document.querySelectorAll('.page-section').forEach(s=>s.classList.toggle('active',s.id==='sec-'+tab));if(tab==='top-leaders'){renderLeaders();setTimeout(()=>{try{renderLeadersBar();}catch(e){console.error('leadersBar',e);}try{renderLevelChart();}catch(e){console.error('levelChart',e);}},50);}if(tab==='mla-tracker')renderMLA();if(tab==='hashtags'){try{window.hashFillParty&&window.hashFillParty();}catch(e){}renderHashtags();setTimeout(()=>{renderHashBarChart();renderHashSentChart();},50);}if(tab==='sentiment'){renderSentimentTab();setTimeout(()=>{renderSentChart();renderSentTrend();},50);}if(tab==='parties'){/* parties-v2 (10-Oct): poora tab ab ek hi jagah se banta hai -- purane alag-alag renderer nahi chalte */setTimeout(function(){try{window.pfRender&&window.pfRender();}catch(e){console.warn('parties-v2',e);}},30);}}
+try{window.scrollTo(0,0);if(document.scrollingElement)document.scrollingElement.scrollTop=0;if(document.documentElement)document.documentElement.scrollTop=0;if(document.body)document.body.scrollTop=0;}catch(e){}try{window.hydrateExec&&window.hydrateExec();}catch(e){}try{window.hMore&&window.hMore();}catch(e){}try{window.hCM&&window.hCM();}catch(e){}document.querySelectorAll('.mnav-tab').forEach(t=>t.classList.toggle('active',t.dataset.tab===tab));document.querySelectorAll('.page-section').forEach(s=>s.classList.toggle('active',s.id==='sec-'+tab));if(tab==='top-leaders'){renderLeaders();setTimeout(()=>{try{renderLeadersBar();}catch(e){console.error('leadersBar',e);}try{renderLevelChart();}catch(e){console.error('levelChart',e);}},50);}if(tab==='mla-tracker')renderMLA();if(tab==='hashtags'){try{window.hashFillParty&&window.hashFillParty();}catch(e){}renderHashtags();setTimeout(()=>{renderHashBarChart();renderHashSentChart();},50);}if(tab==='sentiment'){renderSentimentTab();setTimeout(()=>{renderSentChart();renderSentTrend();},50);}if(tab==='parties'){/* parties-v2 (10-Oct): poora tab ab ek hi jagah se banta hai -- purane alag-alag renderer nahi chalte */setTimeout(function(){try{window.pfRender&&window.pfRender();}catch(e){console.warn('parties-v2',e);}},30);}if(tab==='narrative-groups'){setTimeout(function(){try{window.renderNarrativeGroups&&window.renderNarrativeGroups();}catch(e){console.warn('narrativeGroups',e);}},30);}}
 function dlPlugin(fmt_fn,anchor='end',align='end',color='#333',size=9){return{display:true,anchor,align,color,font:{size,weight:'700',family:"'Rajdhani',sans-serif"},formatter:fmt_fn,clamp:true};}
 function renderDashboard(){document.getElementById('tweetsBody').innerHTML=TWEETS.slice(0,12).map((t,i)=>`<tr><td><span class="rank">${i+1}</span></td><td><div style="font-weight:700;font-size:12px">${escH(t.name)}</div><div style="font-size:10px;color:var(--muted)">@${escH(t.h)}</div></td><td style="max-width:250px;font-size:11px;line-height:1.5">${escH((t.text||'').slice(0,130))}…</td><td>${partyChip(t.party)}</td><td><span style="font-size:9px;color:var(--muted);background:#f4f2ee;border-radius:6px;padding:2px 7px">${escH(t.level)}</span></td><td>${sentBadge(t.sent)}</td><td><span class="nv" style="color:#B71C1C">${fmt(t.lk)}</span></td><td><span class="nv" style="color:#1B5E20">${fmt(t.rt)}</span></td><td><span class="nv" style="color:#4A148C">${fmt(t.vw)}</span></td></tr>`).join('');}
 function _hSum(handle,f,t){var P=window.PHD,DD=window.PHD_DATES;if(!P||!P[handle]||!DD)return null;var o=P[handle],s={t:0,v:0,k:0,r:0};for(var i=0;i<DD.length;i++){var dt=DD[i];if((!f||dt>=f)&&(!t||dt<=t)){s.t+=(o.t[i]||0);s.v+=(o.v[i]||0);s.k+=(o.k[i]||0);s.r+=(o.r[i]||0);}}return s;}
@@ -3401,7 +3788,7 @@ const splashMsgs=['Loading dashboard data...','Fetching party analytics...','Com
 let splashIdx=0;
 function cycleSplash(){const e=document.getElementById('splashStatus');if(e&&splashIdx<splashMsgs.length){e.textContent=splashMsgs[splashIdx++];setTimeout(cycleSplash,500);}}
 let _loaderHidden=false;
-function hideLoader(){if(_loaderHidden)return;_loaderHidden=true;const l=document.getElementById('loader');if(l){l.classList.add('hiding');setTimeout(()=>{l.style.display='none';},650);}try{renderDashboard();}catch(e){console.error(e);}try{renderHashtags();}catch(e){console.error(e);}}
+function hideLoader(){if(_loaderHidden)return;_loaderHidden=true;const l=document.getElementById('loader');if(l){l.classList.add('hiding');setTimeout(()=>{l.style.display='none';},650);}try{renderDashboard();}catch(e){console.error(e);}try{renderHashtags();}catch(e){console.error(e);}try{window.renderDashDate&&window.renderDashDate();}catch(e){}try{window.hExecRange&&window.hExecRange();}catch(e){}}
 function startApp(){try{cycleSplash();}catch(e){}setTimeout(hideLoader,2200);}
 if(document.readyState==='complete'){startApp();}else{window.addEventListener('load',startApp);document.addEventListener('DOMContentLoaded',()=>setTimeout(startApp,1200));}
 setTimeout(hideLoader,5000);
@@ -3681,6 +4068,71 @@ const AC_MAP={
   'Suvendu Adhikari':'Nandigram'
 };
 
+var PIMG = window.PIMG || {};
+var _CM_PICS = {
+  "ncbn": "https://pbs.twimg.com/profile_images/1661933747271524352/RpQ2zGnQ_400x400.jpg",
+  "PawanKalyan": "https://pbs.twimg.com/profile_images/1545239870209024001/04UW7Cwj_400x400.jpg",
+  "ChownaMeinBJP": "https://pbs.twimg.com/profile_images/2054510699167240192/iYs3O8zH_400x400.jpg",
+  "PemaKhanduBJP": "https://pbs.twimg.com/profile_images/2054406052775686144/ei3QC0AX_400x400.jpg",
+  "himantabiswa": "https://pbs.twimg.com/profile_images/2054528991739174912/wKZPS7Ji_400x400.jpg",
+  "samrat4bjp": "https://pbs.twimg.com/profile_images/2054489969444691968/zuTWn5vR_400x400.jpg",
+  "VijayKChy": "https://pbs.twimg.com/profile_images/1988841923545841664/IepETjbI_400x400.jpg",
+  "ArunSao3": "https://pbs.twimg.com/profile_images/2054243273527693312/IhtdI8VJ_400x400.jpg",
+  "vijaysharmacg": "https://pbs.twimg.com/profile_images/2071174147477000192/VePK8Jwd_400x400.jpg",
+  "vishnudsai": "https://pbs.twimg.com/profile_images/2053012202798641152/frVoN_-D_400x400.jpg",
+  "gupta_rekha": "https://pbs.twimg.com/profile_images/2054266905628962816/fFDAag2P_400x400.jpg",
+  "p_sahibsingh": "https://pbs.twimg.com/profile_images/2054378701035565056/VOhFAexw_400x400.jpg",
+  "DrPramodPSawant": "https://pbs.twimg.com/profile_images/2054436875935584256/OH36RoBX_400x400.jpg",
+  "Bhupendrapbjp": "https://pbs.twimg.com/profile_images/2054456719183675392/Uwkta1bZ_400x400.jpg",
+  "sanghaviharsh": "https://pbs.twimg.com/profile_images/2054468925338132480/CZt3fZ3v_400x400.jpg",
+  "NayabSainiBJP": "https://pbs.twimg.com/profile_images/2056262911941816320/diczv-32_400x400.jpg",
+  "Agnihotriinc": "https://pbs.twimg.com/profile_images/1639597792388853762/2QUbm0B0_400x400.jpg",
+  "SukhuSukhvinder": "https://pbs.twimg.com/profile_images/1665211681474064386/C4TsmHTo_400x400.jpg",
+  "OmarAbdullah": "https://pbs.twimg.com/profile_images/1670777932766117890/PMyyzmkD_400x400.jpg",
+  "HemantSorenJMM": "https://pbs.twimg.com/profile_images/2026264488182517760/p5yK_lRC_400x400.jpg",
+  "DKShivakumar": "https://pbs.twimg.com/profile_images/1661204159738281985/N1Ii3SiH_400x400.jpg",
+  "VDSatheesan": "https://pbs.twimg.com/profile_images/2042891885522620417/bzqjUtEq_400x400.jpg",
+  "JagdishDevdaBJP": "https://pbs.twimg.com/profile_images/2096876104430813184/lAT1Uayw_400x400.jpg",
+  "DrMohanYadav51": "https://pbs.twimg.com/profile_images/2054430212381945856/DnrdkWZ8_400x400.jpg",
+  "rshuklabjp": "https://pbs.twimg.com/profile_images/2054450582275178496/0Bo2lKZK_400x400.jpg",
+  "Dev_Fadnavis": "https://pbs.twimg.com/profile_images/2054415498729926656/KDBhMtxK_400x400.jpg",
+  "mieknathshinde": "https://pbs.twimg.com/profile_images/1690976912640970752/g6e-5avt_400x400.jpg",
+  "SunetraA_Pawar": "https://pbs.twimg.com/profile_images/1511694709000863750/5ADpMzQA_400x400.jpg",
+  "YKhemchandSingh": "https://pbs.twimg.com/profile_images/2054417379640414208/8ffIEKZe_400x400.jpg",
+  "KipgenNemcha": "https://pbs.twimg.com/profile_images/2054434370325536768/lycEhwPC_400x400.jpg",
+  "SangmaConrad": "https://pbs.twimg.com/profile_images/1809997364381532160/s7pIvZbd_400x400.jpg",
+  "Lal_Duhoma": "https://pbs.twimg.com/profile_images/2008124678762860545/d_VbXWUw_400x400.jpg",
+  "Neiphiu_Rio": "https://pbs.twimg.com/profile_images/1566377058837483521/Uu0JQE5C_400x400.jpg",
+  "YanthungoPatton": "https://pbs.twimg.com/profile_images/2055326666029961217/X44wOckr_400x400.jpg",
+  "KVSinghDeo1": "https://pbs.twimg.com/profile_images/2056299496657797121/6VhTdsx5_400x400.jpg",
+  "MohanMOdisha": "https://pbs.twimg.com/profile_images/2085612173297106944/agsoLLlC_400x400.jpg",
+  "PravatiPOdisha": "https://pbs.twimg.com/profile_images/2096652578692182016/r5YuQeAP_400x400.jpg",
+  "BhagwantMann": "https://pbs.twimg.com/profile_images/2097983662784737280/xvHRMtxk_400x400.jpg",
+  "BhajanlalBjp": "https://pbs.twimg.com/profile_images/2054246654753255424/FAu9YOQm_400x400.jpg",
+  "KumariDiya": "https://pbs.twimg.com/profile_images/2054828460699537408/ihGqJVaq_400x400.jpg",
+  "DrPremBairwa": "https://pbs.twimg.com/profile_images/2054256981234647040/G3KYxi4B_400x400.jpg",
+  "PSTamangGolay": "https://pbs.twimg.com/profile_images/2017948689453731840/9d1ZnxdK_400x400.jpg",
+  "TVKVijayHQ": "https://pbs.twimg.com/profile_images/1837200576779563009/EcHkTM-M_400x400.jpg",
+  "revanth_anumula": "https://pbs.twimg.com/profile_images/1864514389703053312/D4oSzZr6_400x400.jpg",
+  "Bhatti_Mallu": "https://pbs.twimg.com/profile_images/2016063295338512386/RWuW23KN_400x400.jpg",
+  "DrManikSaha2": "https://pbs.twimg.com/profile_images/2054483577577099264/AiGB3nWl_400x400.jpg",
+  "brajeshpathakup": "https://pbs.twimg.com/profile_images/2054469425370382336/hiD6eC9S_400x400.jpg",
+  "kpmaurya1": "https://pbs.twimg.com/profile_images/2058220198050840576/I-bBhCpq_400x400.jpg",
+  "myogiadityanath": "https://pbs.twimg.com/profile_images/2054826013042020352/Hs7YxXuJ_400x400.jpg",
+  "pushkardhami": "https://pbs.twimg.com/profile_images/2054451956484395008/pLYDRozY_400x400.jpg",
+  "SuvenduWB": "https://pbs.twimg.com/profile_images/2057169133540982784/hGLltAfY_400x400.jpg"
+};
+for(var _k in _CM_PICS) PIMG[_k] = _CM_PICS[_k];
+window.PIMG = PIMG;
+
+function photoImg(h){
+  var u = (typeof PIMG !== 'undefined' && PIMG[h]) || (window.PIMG && window.PIMG[h]);
+  return u ? ('<img src="'+u+'" loading="lazy" onerror="this.style.display=\'none\'" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center top;border-radius:50%">') : '';
+}
+function ini(n){
+  return String(n||'').replace(/\(.*\)/,'').trim().split(/\s+/).slice(0,2).map(w=>w[0]||'').join('').toUpperCase();
+}
+
 function renderTable(){
   const sorted=[...CM_DATA].sort((a,b)=>b.views-a.views);
   renderTableRows(sorted);
@@ -3688,7 +4140,7 @@ function renderTable(){
 
 function renderTableRows(data){
   const body=document.getElementById('mainTableBody');
-  if(!data.length){body.innerHTML=`<tr><td colspan="13" class="tbl-no-results">No results found</td></tr>`;return;}
+  if(!data.length){body.innerHTML=`<tr><td colspan="14" class="tbl-no-results">No results found</td></tr>`;return;}
   body.innerHTML=data.map((c,i)=>{
     const cp=pColor(c.party);
     const ac=c.seat||AC_MAP[c.name]||'—';
@@ -3702,15 +4154,26 @@ function renderTableRows(data){
       <td><div class="td-ac">${c.seat||ac}</div></td>
       <td><span class="td-party-badge" style="background:${cp}20;color:${cp};border:1px solid ${cp}50">${c.party.length>12?c.party.slice(0,12)+'…':c.party}</span></td>
       <td><span class="td-desig">${c.level==='Chief Minister'?'Chief Minister':c.level==='Deputy Chief Minister'?'Deputy Chief Minister':c.level}</span></td>
-      <td><div class="td-name">${c.name}</div><div class="td-handle">@${c.handle}${c.noData?' <span style="color:#9aa4b2;font-weight:600">· No tweets yet</span>':''}</div></td>
+      <td>
+        <div style="display:flex;align-items:center;gap:11px">
+          <div class="cm-av" style="width:38px;height:38px;min-width:38px;border-radius:50%;position:relative;overflow:hidden;flex-shrink:0;background:${cp}25;border:1.5px solid ${cp}40;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;color:${cp};font-family:'Rajdhani',sans-serif">
+            ${ini(c.name)}${photoImg(c.handle)}
+          </div>
+          <div style="min-width:0">
+            <div class="td-name">${c.name}</div>
+            <div class="td-handle">@${c.handle}${c.noData?' <span style="color:#9aa4b2;font-weight:600">· No tweets yet</span>':''}</div>
+          </div>
+        </div>
+      </td>
       <td class="num"><span class="td-num orange">${fmt(c.followers)}</span></td>
       <td class="num"><span class="td-num blue">${c.followings!=null?c.followings:'—'}</span></td>      <td class="num"><span class="td-num">${c.tweets}</span></td>
       <td class="num"><span class="td-num blue">${fmt(c.rts)}</span></td>
       <td class="num"><span class="td-num orange">${fmt(c.views)}</span></td>
       <td class="num"><span class="td-num green">${fmt(avgViews)}</span></td>
       <td class="num"><span class="td-num orange">${fmt(avgLikes)}</span></td>
+      <td class="r"><button class="cm-pf-btn" onclick="event.stopPropagation();openProfile('${c.handle}')">View Profile →</button></td>
     </tr>`;
-  }).join('')+emptyNote(window._tblHidden||0,13);
+  }).join('')+emptyNote(window._tblHidden||0,14);
 }
 
 window.cmPreset=function(){var DD=window.PHD_DATES||[];if(!DD.length){filterTable();return;}var v=(document.getElementById('cmPreset')||{}).value;if(v==='custom'){filterTable();return;}var _r=window.pRange(v)||{f:DD[0],t:DD[DD.length-1]};var f=_r.f,t=_r.t;var fe=document.getElementById('cmFrom'),te=document.getElementById('cmTo');if(fe)fe.value=f;if(te)te.value=t;filterTable();};
@@ -3732,9 +4195,6 @@ function filterTable(){
 function rowHTMLState(c,i){
   const cp=pColor(c.party);const ac=c.seat||(typeof AC_MAP!=='undefined'&&AC_MAP[c.name])||'—';
   const avgViews=c.tweets>0?Math.round(c.views/c.tweets):0;const avgLikes=c.tweets>0?Math.round(c.likes/c.tweets):0;
-  /* allmap (13-Oct): designation ab MAPPING se. Pehle yahan sirf
-     'Chief Minister' / 'Deputy Chief Minister' likha jaata tha, to
-     'Chief Minister / MLA' jaisa poora pad kabhi dikhta hi nahi tha. */
   const desig=(window.roleOf?window.roleOf(c.handle,c.level):'')||c.level;
   return `<tr>
     <td><span class="td-rank" style="color:#E65100">${i+1}</span></td>
@@ -3742,7 +4202,17 @@ function rowHTMLState(c,i){
     <td><div class="td-ac">${c.seat||ac}</div></td>
     <td><span class="td-party-badge" style="background:${cp}20;color:${cp};border:1px solid ${cp}50">${c.party}</span></td>
     <td><span class="td-desig">${desig}</span></td>
-    <td><div class="td-name">${c.name}</div>${c.handle?`<div class="td-handle">@${c.handle}</div>`:''}</td>
+    <td>
+      <div style="display:flex;align-items:center;gap:11px">
+        <div class="cm-av" style="width:38px;height:38px;min-width:38px;border-radius:50%;position:relative;overflow:hidden;flex-shrink:0;background:${cp}25;border:1.5px solid ${cp}40;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;color:${cp};font-family:'Rajdhani',sans-serif">
+          ${ini(c.name)}${photoImg(c.handle)}
+        </div>
+        <div style="min-width:0">
+          <div class="td-name">${c.name}</div>
+          ${c.handle?`<div class="td-handle">@${c.handle}</div>`:''}
+        </div>
+      </div>
+    </td>
     <td class="num"><span class="td-num orange">${fmt(c.followers)}</span></td>
     <td class="num"><span class="td-num blue">${c.followings!=null?c.followings:'—'}</span></td>
     <td class="num"><span class="td-num">${c.tweets}</span></td>
@@ -3750,6 +4220,7 @@ function rowHTMLState(c,i){
     <td class="num"><span class="td-num orange">${fmt(c.views)}</span></td>
     <td class="num"><span class="td-num green">${fmt(avgViews)}</span></td>
     <td class="num"><span class="td-num green">${fmt(avgLikes)}</span></td>
+    <td class="r"><button class="cm-pf-btn" onclick="event.stopPropagation();openProfile('${c.handle}')">View Profile →</button></td>
   </tr>`;
 }
 function renderStateTable(s){
@@ -3781,8 +4252,8 @@ function renderStateTable(s){
   </div>`;
   const rows=[];if(cm)rows.push(cm);dys.forEach(x=>rows.push(x));cms.forEach(c=>{if(c!==cm&&dys.indexOf(c)<0)rows.push(c);});
   h+=`<div style="font-size:12px;font-weight:800;color:#E65100;margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px">Chief Minister &amp; Deputy CM${dys.length>1?'s':''}</div>`;
-  h+=`<div class="data-table-wrap"><table class="data-table"><thead><tr><th>#</th><th>State</th><th>PC / AC Name</th><th>Party</th><th>Designation</th><th>Name / Handle</th><th class="num">Followers</th><th class="num">Followings</th><th class="num">Tweets</th><th class="num">Retweets</th><th class="num">Total Views</th><th class="num">Avg Views/Post</th><th class="num">Avg Likes/Post</th></tr></thead><tbody>`;
-  h+=rows.length?rows.map((c,i)=>rowHTMLState(c,i)).join(''):`<tr><td colspan="13" class="tbl-no-results">No CM/DyCM tracked for ${s}</td></tr>`;
+  h+=`<div class="data-table-wrap"><table class="data-table"><thead><tr><th>#</th><th>State</th><th>PC / AC Name</th><th>Party</th><th>Designation</th><th>Name / Handle</th><th class="num">Followers</th><th class="num">Followings</th><th class="num">Tweets</th><th class="num">Retweets</th><th class="num">Total Views</th><th class="num">Avg Views/Post</th><th class="num">Avg Likes/Post</th><th class="r">Action</th></tr></thead><tbody>`;
+  h+=rows.length?rows.map((c,i)=>rowHTMLState(c,i)).join(''):`<tr><td colspan="14" class="tbl-no-results">No CM/DyCM tracked for ${s}</td></tr>`;
   h+=`</tbody></table></div>`;
   box.innerHTML=h;box.style.display='block';
 }
@@ -4024,7 +4495,32 @@ const CMS=(function(){
 })();
 /* prof-map (13-Oct): PROF/CMS IIFE ke const hain -- baahar ke block ko
    bhi chahiye (upar wali ginti wali line). */
-const MODI=UNI.allHandles.filter(x=>x.h==='narendramodi')[0];const PROF=(MODI?[MODI]:[]).concat(CMS);try{window.PROF=PROF;window.CMS=CMS;}catch(e){}const HL={"narendramodi": ["Most-followed political leader in the world on X", "Longest-serving non-Congress Prime Minister of India", "Began a third consecutive term as PM in 2024"], "ncbn": ["Pioneered Hyderabad as a global IT hub (HITEC City)", "Among India's longest-serving chief ministers across terms", "Driving the greenfield capital project at Amaravati"], "myogiadityanath": ["Founder head-priest of the Gorakhnath Math", "First UP CM in decades to win a consecutive term", "Known for a hardline law-and-order and Hindutva agenda"], "himantabiswa": ["Convener of NEDA, the BJP's Northeast alliance", "One of the most prolific Indian CMs on X", "Key BJP strategist across the entire Northeast"], "Dev_Fadnavis": ["Second-youngest chief minister in Maharashtra's history", "Returned as CM after a term as Deputy CM", "Strong organisational grip over Maharashtra BJP"], "siddaramaiah": ["Presented a record number of Karnataka state budgets", "Built a welfare-and-guarantees governance model", "Two-time Chief Minister of Karnataka"], "gupta_rekha": ["Delhi's first BJP CM after a 27-year gap", "Rose from ABVP and DU student politics", "Among the most prominent women CMs in India"], "DrMohanYadav": ["—"], "DrMohanYadav51": ["Rose from ABVP grassroots to the CM's chair", "Represents the OBC leadership push in MP BJP", "Leads one of India's largest states by area"], "OmarAbdullah": ["First elected CM of the J&K Union Territory", "Former Union Minister and three-term MP", "Third-generation leader of the Abdullah family"], "BhajanlalBjp": ["A first-time MLA elevated directly to Chief Minister", "Long-time BJP organisational hand in Rajasthan"], "BhagwantMann": ["Former star comedian turned two-time MP", "Leads AAP's first full-majority government outside Delhi", "Won Dhuri by one of Punjab's largest 2022 margins"], "revanth_anumula": ["Ended a decade of BRS rule in Telangana (2023)", "Rose from student politics to TPCC chief", "Known as an aggressive campaigner and orator"], "NayabSainiBJP": ["A key OBC face for the BJP in Haryana", "Former MP elevated to Chief Minister in 2024", "Retained power for the BJP in the 2024 polls"], "HemantSorenJMM": ["Two-time tribal Chief Minister of Jharkhand", "Son of JMM founder Shibu Soren", "Returned to power after a turbulent 2024"], "SukhuSukhvinder": ["Rose from NSUI and Youth Congress ranks", "Former Himachal Congress state president", "Self-made leader from a modest background"], "pinarayivijayan": ["First Kerala CM to win a consecutive term (2021)", "Longest continuously serving Left CM in India", "Veteran CPI(M) organiser from Kannur"], "MohanMOdisha": ["Odisha's first-ever BJP Chief Minister (2024)", "Four-term tribal MLA from Keonjhar", "Ended 24 years of BJD rule in the state"], "pushkardhami": ["Among India's younger sitting chief ministers", "Retained power for the BJP in Uttarakhand (2022)", "Rose through the ABVP and BJYM youth wings"], "Bhupendrapbjp": ["Led the BJP to a record Gujarat win in 2022", "Rose from municipal politics to Chief Minister", "Low-profile, administration-focused leader"], "PemaKhanduBJP": ["Became one of India's youngest CMs at 37", "Multiple-term Chief Minister of Arunachal Pradesh", "Switched Congress-PPA-BJP while retaining power"], "Neiphiu_Rio": ["One of Nagaland's longest-serving chief ministers", "Multiple non-consecutive terms as CM", "Founder-leader of the NDPP"], "SangmaConrad": ["Son of former Lok Sabha Speaker P. A. Sangma", "National President of the NPP", "Two-term Chief Minister of Meghalaya"], "DrPramodPSawant": ["An Ayurveda doctor turned Chief Minister", "Took charge after Manohar Parrikar's tenure", "Retained power for the BJP in Goa (2022)"], "DrManikSaha2": ["A dental surgeon turned Chief Minister", "Former Tripura BJP state president", "Led the BJP to retain Tripura in 2023"], "NBirenSingh": ["Manipur's first BJP Chief Minister", "A former national-level footballer and journalist", "Two-term Chief Minister of Manipur"], "PSTamangGolay": ["Ended 25 years of SDF rule in Sikkim (2019)", "Founder of the Sikkim Krantikari Morcha", "Won a sweeping re-election in 2024"], "Lal_Duhoma": ["A former IPS officer turned Chief Minister", "First ZPM Chief Minister of Mizoram", "Ended decades of Congress-MNF dominance"], "TVKVijayHQ": ["One of Tamil cinema's biggest superstars", "Founder of the Tamilaga Vettri Kazhagam (2024)", "Commands a massive youth following online"]};function rankMap(k){var a=PROF.slice().sort(function(x,y){return (y[k]||0)-(x[k]||0)});var m={};a.forEach(function(o,i){m[o.h]=i+1});return m;}var RK_F=rankMap('followers'),RK_V=rankMap('vw'),RK_T=rankMap('tw');const DET={"narendramodi": {"born": "17 September 1950", "edu": "MA, Political Science", "since": "26 May 2014"}, "ncbn": {"born": "20 April 1950", "edu": "MA Economics, SV University", "since": "12 June 2024"}, "myogiadityanath": {"born": "5 June 1972", "edu": "BSc Mathematics", "since": "19 March 2017"}, "himantabiswa": {"born": "1 February 1969", "edu": "LLB, Gauhati University", "since": "10 May 2021"}, "Dev_Fadnavis": {"born": "22 July 1970", "edu": "LLB, Nagpur University", "since": "5 December 2024"}, "siddaramaiah": {"born": "12 August 1947", "edu": "LLB, University of Mysore", "since": "20 May 2023"}, "gupta_rekha": {"born": "1974", "edu": "LLB, Delhi University", "since": "20 February 2025"}, "DrMohanYadav51": {"born": "25 March 1965", "edu": "PhD, Vikram University", "since": "13 December 2023"}, "OmarAbdullah": {"born": "10 March 1970", "edu": "MBA", "since": "16 October 2024"}, "BhajanlalBjp": {"born": "15 December 1966", "edu": "MA", "since": "15 December 2023"}, "BhagwantMann": {"born": "17 October 1973", "edu": "B.Com", "since": "16 March 2022"}, "revanth_anumula": {"born": "8 November 1969", "edu": "BA", "since": "7 December 2023"}, "NayabSainiBJP": {"born": "25 January 1970", "edu": "LLB", "since": "12 March 2024"}, "HemantSorenJMM": {"born": "10 August 1975", "edu": "Intermediate", "since": "4 July 2024"}, "SukhuSukhvinder": {"born": "27 March 1964", "edu": "LLB", "since": "11 December 2022"}, "pinarayivijayan": {"born": "21 May 1945", "edu": "BA Economics", "since": "25 May 2016"}, "MohanMOdisha": {"born": "1969", "edu": "LLB", "since": "12 June 2024"}, "pushkardhami": {"born": "16 September 1975", "edu": "LLB", "since": "4 July 2021"}, "Bhupendrapbjp": {"born": "15 July 1962", "edu": "Diploma, Civil Engineering", "since": "13 September 2021"}, "PemaKhanduBJP": {"born": "21 August 1979", "edu": "BA", "since": "17 July 2016"}, "Neiphiu_Rio": {"born": "11 November 1950", "since": "8 March 2018"}, "SangmaConrad": {"born": "27 January 1978", "edu": "MBA, LLB", "since": "6 March 2018"}, "DrPramodPSawant": {"born": "24 April 1973", "edu": "BAMS (Ayurveda)", "since": "19 March 2019"}, "DrManikSaha2": {"born": "8 January 1953", "edu": "MDS, Dental Surgery", "since": "15 May 2022"}, "NBirenSingh": {"born": "1 January 1961", "since": "15 March 2017"}, "PSTamangGolay": {"born": "5 February 1968", "since": "27 May 2019"}, "Lal_Duhoma": {"born": "22 February 1949", "edu": "Graduate", "since": "8 December 2023"}, "TVKVijayHQ": {"born": "22 June 1974", "edu": "Visual Communication"}};const JM={"narendramodi": [[1971, "Became a full-time RSS pracharak"], [2001, "Took office as Chief Minister of Gujarat"], [2014, "Sworn in as 14th Prime Minister of India"], [2019, "Re-elected PM with a larger majority"], [2024, "Began a historic third term as Prime Minister"]], "ncbn": [[1978, "Entered politics, elected MLA with the Congress"], [1995, "Became Chief Minister of united Andhra Pradesh (TDP)"], [2004, "Lost power after nine years as CM"], [2014, "Returned as first CM of bifurcated Andhra Pradesh"], [2019, "Lost the assembly election to the YSRCP"], [2024, "Sworn in as CM for a fourth term leading the NDA"]], "myogiadityanath": [[1994, "Became a monk at the Gorakhnath Math"], [1998, "Elected MP from Gorakhpur at age 26"], [2017, "Became Chief Minister of Uttar Pradesh"], [2022, "Re-elected CM, a rare consecutive UP term"]], "himantabiswa": [[2001, "First elected MLA from Jalukbari with the Congress"], [2015, "Switched to the BJP"], [2021, "Became Chief Minister of Assam"]], "Dev_Fadnavis": [[1992, "Elected Nagpur corporator at age 22"], [2014, "Became Maharashtra CM, second-youngest ever"], [2019, "Brief return as Chief Minister"], [2022, "Served as Deputy Chief Minister"], [2024, "Sworn in as Chief Minister once again"]], "siddaramaiah": [[1983, "Elected MLA for the first time"], [2006, "Joined the Congress"], [2013, "Became Chief Minister of Karnataka"], [2023, "Returned as CM after a Congress landslide"]], "gupta_rekha": [[1990, "Active in ABVP and DU student politics"], [2007, "Elected a municipal councillor"], [2025, "Became Chief Minister of Delhi"]], "DrMohanYadav51": [[1982, "Rose through the ABVP ranks"], [2013, "Elected MLA from Ujjain South"], [2023, "Became Chief Minister of Madhya Pradesh"]], "OmarAbdullah": [[1998, "Elected MP from Srinagar"], [2009, "Became CM of Jammu & Kashmir"], [2024, "Returned as CM of the J&K Union Territory"]], "BhajanlalBjp": [[1990, "Long career in the BJP organisation"], [2023, "Won Sanganer and was named Rajasthan CM"]], "BhagwantMann": [[1992, "Began his career as a stage comedian"], [2014, "Elected MP from Sangrur (AAP)"], [2022, "Became Chief Minister of Punjab"]], "revanth_anumula": [[2009, "Elected MLA with the TDP"], [2017, "Joined the Congress"], [2021, "Appointed Telangana Congress chief"], [2023, "Became Chief Minister of Telangana"]], "NayabSainiBJP": [[1996, "Joined the BJP"], [2019, "Elected MP from Kurukshetra"], [2024, "Became Chief Minister of Haryana"]], "HemantSorenJMM": [[2009, "Entered electoral politics with the JMM"], [2013, "First term as Jharkhand Chief Minister"], [2019, "Returned as Chief Minister"], [2024, "Sworn in as CM again after a turbulent year"]], "SukhuSukhvinder": [[1989, "Rose through NSUI and Youth Congress"], [2013, "Became Himachal Congress chief"], [2022, "Became Chief Minister of Himachal Pradesh"]], "pinarayivijayan": [[1970, "Rose through CPI(M) ranks in Kannur"], [1998, "Became CPI(M) Kerala state secretary"], [2016, "Became Chief Minister of Kerala"], [2021, "Re-elected, a first in Kerala's history"]], "MohanMOdisha": [[2000, "Elected MLA from Keonjhar"], [2024, "Became Odisha's first BJP Chief Minister"]], "pushkardhami": [[2002, "Led the BJYM youth wing"], [2012, "Elected MLA from Khatima"], [2021, "Became Chief Minister of Uttarakhand"], [2022, "Retained power and continued as CM"]], "Bhupendrapbjp": [[1995, "Began in municipal politics"], [2017, "Elected MLA from Ghatlodia"], [2021, "Became Chief Minister of Gujarat"], [2022, "Won a landslide and retained the post"]], "PemaKhanduBJP": [[2010, "Entered Arunachal Pradesh politics"], [2016, "Became one of India's youngest CMs"], [2019, "Re-elected Chief Minister"]], "Neiphiu_Rio": [[1989, "Began a long political career in Nagaland"], [2003, "First term as Chief Minister"], [2018, "Returned as CM leading the NDPP"]], "SangmaConrad": [[2008, "Entered Meghalaya politics"], [2016, "Led the National People's Party"], [2018, "Became Chief Minister of Meghalaya"], [2023, "Re-elected for a second term"]], "DrPramodPSawant": [[2012, "Elected MLA from Sanquelim"], [2017, "Became Speaker of the Goa Assembly"], [2019, "Became Chief Minister of Goa"], [2022, "Retained power as CM"]], "DrManikSaha2": [[2016, "Joined the BJP"], [2020, "Became Tripura BJP state president"], [2022, "Became Chief Minister of Tripura"], [2023, "Retained the post after assembly polls"]], "NBirenSingh": [[2002, "Entered Manipur politics"], [2016, "Joined the BJP"], [2017, "Became Manipur's first BJP Chief Minister"], [2022, "Re-elected as Chief Minister"]], "PSTamangGolay": [[2013, "Founded the Sikkim Krantikari Morcha"], [2019, "Became CM, ending 25 years of SDF rule"], [2024, "Won a sweeping re-election"]], "Lal_Duhoma": [[1977, "Served as an IPS officer"], [1984, "Entered politics"], [2018, "Led the Zoram People's Movement"], [2023, "Became Chief Minister of Mizoram"]], "TVKVijayHQ": [[1992, "Debuted as a lead film actor"], [2024, "Launched the Tamilaga Vettri Kazhagam party"]], "SuvenduWB": [[2007, "Rose to prominence in the Nandigram movement"], [2016, "Won the Nandigram assembly seat"], [2021, "Became a leading opposition voice in Bengal"]], "samrat4bjp": [[2010, "Elected to the Bihar legislature"], [2024, "Among Bihar's senior NDA leaders"]]};const CMW={'TVKVijayHQ':'Vijay (actor)','himantabiswa':'Himanta Biswa Sarma','SuvenduWB':'Suvendu Adhikari','vishnudsai':'Vishnu Deo Sai','Dev_Fadnavis':'Devendra Fadnavis','ncbn':'N. Chandrababu Naidu','samrat4bjp':'Samrat Choudhary','siddaramaiah':'Siddaramaiah','gupta_rekha':'Rekha Gupta','DrMohanYadav51':'Mohan Yadav','OmarAbdullah':'Omar Abdullah','BhajanlalBjp':'Bhajan Lal Sharma','BhagwantMann':'Bhagwant Mann','revanth_anumula':'Revanth Reddy','NayabSainiBJP':'Nayab Singh Saini','HemantSorenJMM':'Hemant Soren','SukhuSukhvinder':'Sukhvinder Singh Sukhu','pinarayivijayan':'Pinarayi Vijayan','MohanMOdisha':'Mohan Charan Majhi','pushkardhami':'Pushkar Singh Dhami','Bhupendrapbjp':'Bhupendra Patel','PemaKhanduBJP':'Pema Khandu','Neiphiu_Rio':'Neiphiu Rio','SangmaConrad':'Conrad Sangma','DrPramodPSawant':'Pramod Sawant','DrManikSaha2':'Manik Saha','NBirenSingh':'N. Biren Singh','PSTamangGolay':'Prem Singh Tamang','Lal_Duhoma':'Lalduhoma','myogiadityanath':'Yogi Adityanath'};const PHOTO={};function applyPhoto(el,url){if(!url||!el)return;el.style.backgroundImage='url("'+url+'")';el.style.backgroundSize='cover';el.style.backgroundPosition='center top';el.style.color='transparent';el.style.textShadow='none';el.textContent='';}function fetchPhoto(title){if(PHOTO[title]!==undefined)return Promise.resolve(PHOTO[title]);var u='https://en.wikipedia.org/w/api.php?action=query&format=json&origin=*&prop=pageimages&piprop=thumbnail&pithumbsize=240&redirects=1&titles='+encodeURIComponent(title);return fetch(u).then(function(r){return r.json()}).then(function(j){var url=null;try{var pg=j.query.pages;var p=pg[Object.keys(pg)[0]];if(p&&p.thumbnail&&p.thumbnail.source)url=p.thumbnail.source;}catch(e){}PHOTO[title]=url;return url;}).catch(function(){PHOTO[title]=null;return null;});}function scanPhotos(){document.querySelectorAll('[data-wiki]:not([data-pdone])').forEach(function(el){el.setAttribute('data-pdone','1');var t=el.getAttribute('data-wiki');if(!t)return;fetchPhoto(t).then(function(url){if(url)applyPhoto(el,url);});});}window.scanPhotos=scanPhotos;function shortP(p){if(!p)return p;var m=p.match(/\(([^)]+)\)\s*$/);return (m&&p.length>10)?m[1]:p;}window.cmFilter=function(q){q=(q||'').toLowerCase().trim();var rows=document.querySelectorAll('#cmGrid tbody tr');var n=0;rows.forEach(function(tr){var nm=tr.getAttribute('data-name')||'';var sh=!q||nm.indexOf(q)>=0;tr.style.display=sh?'':'none';if(sh)n++;});var cc=document.getElementById('cmCount');if(cc)cc.textContent=n;};const PIMG={"DrManikSaha2":"https://commons.wikimedia.org/wiki/Special:FilePath/Manik%20Saha%20Invitation%20for%20HWC%202023.jpg?width=250","narendramodi":"https://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/The_official_portrait_of_Shri_Narendra_Modi%2C_the_Prime_Minister_of_the_Republic_of_India.jpg/250px-The_official_portrait_of_Shri_Narendra_Modi%2C_the_Prime_Minister_of_the_Republic_of_India.jpg","TVKVijayHQ":"https://upload.wikimedia.org/wikipedia/commons/thumb/0/06/C._Joseph_Vijay_%28cropped%29.jpg/250px-C._Joseph_Vijay_%28cropped%29.jpg","himantabiswa":"https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/Himanta_Biswa_Sarma_in_2026.jpg/250px-Himanta_Biswa_Sarma_in_2026.jpg","SuvenduWB":"https://upload.wikimedia.org/wikipedia/commons/thumb/2/24/Suvendu_Adhikari_May_2026_%28cropped%29.jpg/250px-Suvendu_Adhikari_May_2026_%28cropped%29.jpg","vishnudsai":"https://upload.wikimedia.org/wikipedia/commons/thumb/a/a4/Vishnu_Deo_Sai%2C_Chief_Minister_of_Chhattisgarh.jpg/250px-Vishnu_Deo_Sai%2C_Chief_Minister_of_Chhattisgarh.jpg","Dev_Fadnavis":"https://upload.wikimedia.org/wikipedia/commons/thumb/f/f7/Eknath_Shinde_and_Devendra_Fadnavis_with_PM_Narendra_Modi_Cropped%282%29.jpg/250px-Eknath_Shinde_and_Devendra_Fadnavis_with_PM_Narendra_Modi_Cropped%282%29.jpg","ncbn":"https://upload.wikimedia.org/wikipedia/commons/thumb/a/a8/The_portrait_of_CM_Shri_Nara_Chandrababu_Naidu.jpg/250px-The_portrait_of_CM_Shri_Nara_Chandrababu_Naidu.jpg","samrat4bjp":"https://upload.wikimedia.org/wikipedia/commons/thumb/7/73/Chief_Minister_Samrat_Chaudhary%28cropped%29.jpg/250px-Chief_Minister_Samrat_Chaudhary%28cropped%29.jpg","siddaramaiah":"https://upload.wikimedia.org/wikipedia/commons/thumb/0/06/Siddaramaiah_at_the_function_Akshaya_Patra_Foundation_in_Karnataka.jpg/250px-Siddaramaiah_at_the_function_Akshaya_Patra_Foundation_in_Karnataka.jpg","gupta_rekha":"https://upload.wikimedia.org/wikipedia/commons/thumb/7/72/Chief_Minister_of_Delhi%2C_Smt._Rekha_Gupta.jpg/250px-Chief_Minister_of_Delhi%2C_Smt._Rekha_Gupta.jpg","DrMohanYadav51":"https://upload.wikimedia.org/wikipedia/commons/thumb/5/58/Mohan_Yadav%2C_Chief_Minister_of_Madhya_Pradesh.jpg/250px-Mohan_Yadav%2C_Chief_Minister_of_Madhya_Pradesh.jpg","OmarAbdullah":"https://upload.wikimedia.org/wikipedia/commons/thumb/6/68/Omar_Abdullah%2C_Chief_Minister_of_Jammu_%26_Kashmir.jpg/250px-Omar_Abdullah%2C_Chief_Minister_of_Jammu_%26_Kashmir.jpg","BhajanlalBjp":"https://upload.wikimedia.org/wikipedia/commons/thumb/9/9c/Bhajan_Lal_Sharma_and_deputies_meets_VP_of_India.jpg/250px-Bhajan_Lal_Sharma_and_deputies_meets_VP_of_India.jpg","BhagwantMann":"https://upload.wikimedia.org/wikipedia/commons/thumb/b/b9/Bhagwant_Mann_2026.jpg/250px-Bhagwant_Mann_2026.jpg","revanth_anumula":"https://upload.wikimedia.org/wikipedia/commons/thumb/c/c0/Portrait_of_Telangana_CM_Revanth_Reddy.png/250px-Portrait_of_Telangana_CM_Revanth_Reddy.png","NayabSainiBJP":"https://upload.wikimedia.org/wikipedia/commons/thumb/f/f5/Nayab_Singh_Saini.jpg/250px-Nayab_Singh_Saini.jpg","HemantSorenJMM":"https://upload.wikimedia.org/wikipedia/commons/thumb/8/89/Hemant_Soren_01.jpg/250px-Hemant_Soren_01.jpg","SukhuSukhvinder":"https://upload.wikimedia.org/wikipedia/commons/thumb/b/b0/Sukhvinder_Singh_Sukhu.jpg/250px-Sukhvinder_Singh_Sukhu.jpg","pinarayivijayan":"https://upload.wikimedia.org/wikipedia/commons/thumb/e/ec/Chief_Minister_Pinarayi_Vijayan_2023.jpg/250px-Chief_Minister_Pinarayi_Vijayan_2023.jpg","MohanMOdisha":"https://upload.wikimedia.org/wikipedia/commons/thumb/b/bf/CM_Mohan_Charan_Majhi_meeting_PM_Modi_%28cropped%29.jpg/250px-CM_Mohan_Charan_Majhi_meeting_PM_Modi_%28cropped%29.jpg","pushkardhami":"https://upload.wikimedia.org/wikipedia/commons/thumb/9/95/Pushkar_Singh_Dhami%2C_Chief_Minister_of_Uttarakhand.jpg/250px-Pushkar_Singh_Dhami%2C_Chief_Minister_of_Uttarakhand.jpg","Bhupendrapbjp":"https://upload.wikimedia.org/wikipedia/commons/thumb/1/1f/Chief_Minister_of_Gujarat%2C_Shri_Bhupendra_Patel_%282%29.jpg/250px-Chief_Minister_of_Gujarat%2C_Shri_Bhupendra_Patel_%282%29.jpg","PemaKhanduBJP":"https://upload.wikimedia.org/wikipedia/commons/2/2b/Pema_Khandu_in_2018.jpg","Neiphiu_Rio":"https://upload.wikimedia.org/wikipedia/commons/thumb/f/f5/NeiphiuRio.jpg/250px-NeiphiuRio.jpg","SangmaConrad":"https://upload.wikimedia.org/wikipedia/commons/thumb/8/88/The_Chief_Minister_of_Meghalaya%2C_Shri_Conrad_Sangma.JPG/250px-The_Chief_Minister_of_Meghalaya%2C_Shri_Conrad_Sangma.JPG","DrPramodPSawant":"https://upload.wikimedia.org/wikipedia/commons/thumb/9/9e/Pramod_Sawant_at_the_inauguration_of_the_Chhatrapati_Shivaji_Maharaj_Chair_in_Goa_University_%28cropped%29.jpg/250px-Pramod_Sawant_at_the_inauguration_of_the_Chhatrapati_Shivaji_Maharaj_Chair_in_Goa_University_%28cropped%29.jpg","NBirenSingh":"https://upload.wikimedia.org/wikipedia/commons/thumb/0/02/The_Chief_Minister_of_Manipur%2C_Shri_Biren_Singh_calling_on_the_Vice_President%2C_Shri_M._Venkaiah_Naidu%2C_in_New_Delhi_on_September_06%2C_2017_%28cropped%29.jpg/250px-The_Chief_Minister_of_Manipur%2C_Shri_Biren_Singh_calling_on_the_Vice_President%2C_Shri_M._Venkaiah_Naidu%2C_in_New_Delhi_on_September_06%2C_2017_%28cropped%29.jpg","PSTamangGolay":"https://upload.wikimedia.org/wikipedia/commons/thumb/7/72/Prem_Singh_Tamang%2C_Chief_Minister_of_Sikkim.jpg/250px-Prem_Singh_Tamang%2C_Chief_Minister_of_Sikkim.jpg","Lal_Duhoma":"https://upload.wikimedia.org/wikipedia/commons/thumb/2/28/Lalduhawma1.jpg/250px-Lalduhawma1.jpg","myogiadityanath":"https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/Yogiji_in_2023.jpg/250px-Yogiji_in_2023.jpg","DKShivakumar":"https://commons.wikimedia.org/wiki/Special:FilePath/D._K._Shivakumar.jpg?width=250","VDSatheesan":"https://commons.wikimedia.org/wiki/Special:FilePath/VD_SATHEESAN.jpg?width=250","YKhemchandSingh":"https://assembly.mn.gov.in/user/pages/images/members/13_Khemchand.webp"};function photoImg(h){var u=PIMG[h];return u?('<img src="'+u+'" loading="lazy" onerror="this.style.display=\'none\'" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center top">'):'';}
+const MODI=UNI.allHandles.filter(x=>x.h==='narendramodi')[0];const PROF=(MODI?[MODI]:[]).concat(CMS);try{window.PROF=PROF;window.CMS=CMS;}catch(e){}const HL={"narendramodi": ["Most-followed political leader in the world on X", "Longest-serving non-Congress Prime Minister of India", "Began a third consecutive term as PM in 2024"], "ncbn": ["Pioneered Hyderabad as a global IT hub (HITEC City)", "Among India's longest-serving chief ministers across terms", "Driving the greenfield capital project at Amaravati"], "myogiadityanath": ["Founder head-priest of the Gorakhnath Math", "First UP CM in decades to win a consecutive term", "Known for a hardline law-and-order and Hindutva agenda"], "himantabiswa": ["Convener of NEDA, the BJP's Northeast alliance", "One of the most prolific Indian CMs on X", "Key BJP strategist across the entire Northeast"], "Dev_Fadnavis": ["Second-youngest chief minister in Maharashtra's history", "Returned as CM after a term as Deputy CM", "Strong organisational grip over Maharashtra BJP"], "siddaramaiah": ["Presented a record number of Karnataka state budgets", "Built a welfare-and-guarantees governance model", "Two-time Chief Minister of Karnataka"], "gupta_rekha": ["Delhi's first BJP CM after a 27-year gap", "Rose from ABVP and DU student politics", "Among the most prominent women CMs in India"], "DrMohanYadav": ["—"], "DrMohanYadav51": ["Rose from ABVP grassroots to the CM's chair", "Represents the OBC leadership push in MP BJP", "Leads one of India's largest states by area"], "OmarAbdullah": ["First elected CM of the J&K Union Territory", "Former Union Minister and three-term MP", "Third-generation leader of the Abdullah family"], "BhajanlalBjp": ["A first-time MLA elevated directly to Chief Minister", "Long-time BJP organisational hand in Rajasthan"], "BhagwantMann": ["Former star comedian turned two-time MP", "Leads AAP's first full-majority government outside Delhi", "Won Dhuri by one of Punjab's largest 2022 margins"], "revanth_anumula": ["Ended a decade of BRS rule in Telangana (2023)", "Rose from student politics to TPCC chief", "Known as an aggressive campaigner and orator"], "NayabSainiBJP": ["A key OBC face for the BJP in Haryana", "Former MP elevated to Chief Minister in 2024", "Retained power for the BJP in the 2024 polls"], "HemantSorenJMM": ["Two-time tribal Chief Minister of Jharkhand", "Son of JMM founder Shibu Soren", "Returned to power after a turbulent 2024"], "SukhuSukhvinder": ["Rose from NSUI and Youth Congress ranks", "Former Himachal Congress state president", "Self-made leader from a modest background"], "pinarayivijayan": ["First Kerala CM to win a consecutive term (2021)", "Longest continuously serving Left CM in India", "Veteran CPI(M) organiser from Kannur"], "MohanMOdisha": ["Odisha's first-ever BJP Chief Minister (2024)", "Four-term tribal MLA from Keonjhar", "Ended 24 years of BJD rule in the state"], "pushkardhami": ["Among India's younger sitting chief ministers", "Retained power for the BJP in Uttarakhand (2022)", "Rose through the ABVP and BJYM youth wings"], "Bhupendrapbjp": ["Led the BJP to a record Gujarat win in 2022", "Rose from municipal politics to Chief Minister", "Low-profile, administration-focused leader"], "PemaKhanduBJP": ["Became one of India's youngest CMs at 37", "Multiple-term Chief Minister of Arunachal Pradesh", "Switched Congress-PPA-BJP while retaining power"], "Neiphiu_Rio": ["One of Nagaland's longest-serving chief ministers", "Multiple non-consecutive terms as CM", "Founder-leader of the NDPP"], "SangmaConrad": ["Son of former Lok Sabha Speaker P. A. Sangma", "National President of the NPP", "Two-term Chief Minister of Meghalaya"], "DrPramodPSawant": ["An Ayurveda doctor turned Chief Minister", "Took charge after Manohar Parrikar's tenure", "Retained power for the BJP in Goa (2022)"], "DrManikSaha2": ["A dental surgeon turned Chief Minister", "Former Tripura BJP state president", "Led the BJP to retain Tripura in 2023"], "NBirenSingh": ["Manipur's first BJP Chief Minister", "A former national-level footballer and journalist", "Two-term Chief Minister of Manipur"], "PSTamangGolay": ["Ended 25 years of SDF rule in Sikkim (2019)", "Founder of the Sikkim Krantikari Morcha", "Won a sweeping re-election in 2024"], "Lal_Duhoma": ["A former IPS officer turned Chief Minister", "First ZPM Chief Minister of Mizoram", "Ended decades of Congress-MNF dominance"], "TVKVijayHQ": ["One of Tamil cinema's biggest superstars", "Founder of the Tamilaga Vettri Kazhagam (2024)", "Commands a massive youth following online"]};var ALL_LEADERS=(function(){
+  var m={};var arr=[];
+  (window.PROF||PROF||[]).forEach(function(x){if(x&&x.h&&!m[x.h]){m[x.h]=1;arr.push(x);}});
+  (window.CM_DATA||[]).forEach(function(x){
+    var h=x.handle||x.h;
+    if(h&&!m[h]){
+      m[h]=1;
+      arr.push({h:h,name:x.name,party:x.party,state:x.state,level:x.level,
+        loc:x.seat||'',tw:+x.tweets||+x.tw||0,vw:+x.views||+x.vw||0,
+        lk:+x.likes||+x.lk||0,rt:+x.rts||+x.rt||0,followers:+x.followers||0,followings:+x.followings||0});
+    }
+  });
+  return arr;
+})();
+try{window.ALL_LEADERS=ALL_LEADERS;}catch(e){}
+function rankMap(k){var a=ALL_LEADERS.slice().sort(function(x,y){return (y[k]||0)-(x[k]||0)});var m={};a.forEach(function(o,i){m[o.h]=i+1});return m;}var RK_F=rankMap('followers'),RK_V=rankMap('vw'),RK_T=rankMap('tw');
+const DET={"narendramodi": {"born": "17 September 1950", "edu": "MA, Political Science", "since": "26 May 2014"}, "ncbn": {"born": "20 April 1950", "edu": "MA Economics, SV University", "since": "12 June 2024"}, "myogiadityanath": {"born": "5 June 1972", "edu": "BSc Mathematics", "since": "19 March 2017"}, "himantabiswa": {"born": "1 February 1969", "edu": "LLB, Gauhati University", "since": "10 May 2021"}, "Dev_Fadnavis": {"born": "22 July 1970", "edu": "LLB, Nagpur University", "since": "5 December 2024"}, "siddaramaiah": {"born": "12 August 1947", "edu": "LLB, University of Mysore", "since": "20 May 2023"}, "gupta_rekha": {"born": "1974", "edu": "LLB, Delhi University", "since": "20 February 2025"}, "DrMohanYadav51": {"born": "25 March 1965", "edu": "PhD, Vikram University", "since": "13 December 2023"}, "OmarAbdullah": {"born": "10 March 1970", "edu": "MBA", "since": "16 October 2024"}, "BhajanlalBjp": {"born": "15 December 1966", "edu": "MA", "since": "15 December 2023"}, "BhagwantMann": {"born": "17 October 1973", "edu": "B.Com", "since": "16 March 2022"}, "revanth_anumula": {"born": "8 November 1969", "edu": "BA", "since": "7 December 2023"}, "NayabSainiBJP": {"born": "25 January 1970", "edu": "LLB", "since": "12 March 2024"}, "HemantSorenJMM": {"born": "10 August 1975", "edu": "Intermediate", "since": "4 July 2024"}, "SukhuSukhvinder": {"born": "27 March 1964", "edu": "LLB", "since": "11 December 2022"}, "pinarayivijayan": {"born": "21 May 1945", "edu": "BA Economics", "since": "25 May 2016"}, "MohanMOdisha": {"born": "1969", "edu": "LLB", "since": "12 June 2024"}, "pushkardhami": {"born": "16 September 1975", "edu": "LLB", "since": "4 July 2021"}, "Bhupendrapbjp": {"born": "15 July 1962", "edu": "Diploma, Civil Engineering", "since": "13 September 2021"}, "PemaKhanduBJP": {"born": "21 August 1979", "edu": "BA", "since": "17 July 2016"}, "Neiphiu_Rio": {"born": "11 November 1950", "since": "8 March 2018"}, "SangmaConrad": {"born": "27 January 1978", "edu": "MBA, LLB", "since": "6 March 2018"}, "DrPramodPSawant": {"born": "24 April 1973", "edu": "BAMS (Ayurveda)", "since": "19 March 2019"}, "DrManikSaha2": {"born": "8 January 1953", "edu": "MDS, Dental Surgery", "since": "15 May 2022"}, "NBirenSingh": {"born": "1 January 1961", "since": "15 March 2017"}, "PSTamangGolay": {"born": "5 February 1968", "since": "27 May 2019"}, "Lal_Duhoma": {"born": "22 February 1949", "edu": "Graduate", "since": "8 December 2023"}, "TVKVijayHQ": {"born": "22 June 1974", "edu": "Visual Communication"}};const JM={"narendramodi": [[1971, "Became a full-time RSS pracharak"], [2001, "Took office as Chief Minister of Gujarat"], [2014, "Sworn in as 14th Prime Minister of India"], [2019, "Re-elected PM with a larger majority"], [2024, "Began a historic third term as Prime Minister"]], "ncbn": [[1978, "Entered politics, elected MLA with the Congress"], [1995, "Became Chief Minister of united Andhra Pradesh (TDP)"], [2004, "Lost power after nine years as CM"], [2014, "Returned as first CM of bifurcated Andhra Pradesh"], [2019, "Lost the assembly election to the YSRCP"], [2024, "Sworn in as CM for a fourth term leading the NDA"]], "myogiadityanath": [[1994, "Became a monk at the Gorakhnath Math"], [1998, "Elected MP from Gorakhpur at age 26"], [2017, "Became Chief Minister of Uttar Pradesh"], [2022, "Re-elected CM, a rare consecutive UP term"]], "himantabiswa": [[2001, "First elected MLA from Jalukbari with the Congress"], [2015, "Switched to the BJP"], [2021, "Became Chief Minister of Assam"]], "Dev_Fadnavis": [[1992, "Elected Nagpur corporator at age 22"], [2014, "Became Maharashtra CM, second-youngest ever"], [2019, "Brief return as Chief Minister"], [2022, "Served as Deputy Chief Minister"], [2024, "Sworn in as Chief Minister once again"]], "siddaramaiah": [[1983, "Elected MLA for the first time"], [2006, "Joined the Congress"], [2013, "Became Chief Minister of Karnataka"], [2023, "Returned as CM after a Congress landslide"]], "gupta_rekha": [[1990, "Active in ABVP and DU student politics"], [2007, "Elected a municipal councillor"], [2025, "Became Chief Minister of Delhi"]], "DrMohanYadav51": [[1982, "Rose through the ABVP ranks"], [2013, "Elected MLA from Ujjain South"], [2023, "Became Chief Minister of Madhya Pradesh"]], "OmarAbdullah": [[1998, "Elected MP from Srinagar"], [2009, "Became CM of Jammu & Kashmir"], [2024, "Returned as CM of the J&K Union Territory"]], "BhajanlalBjp": [[1990, "Long career in the BJP organisation"], [2023, "Won Sanganer and was named Rajasthan CM"]], "BhagwantMann": [[1992, "Began his career as a stage comedian"], [2014, "Elected MP from Sangrur (AAP)"], [2022, "Became Chief Minister of Punjab"]], "revanth_anumula": [[2009, "Elected MLA with the TDP"], [2017, "Joined the Congress"], [2021, "Appointed Telangana Congress chief"], [2023, "Became Chief Minister of Telangana"]], "NayabSainiBJP": [[1996, "Joined the BJP"], [2019, "Elected MP from Kurukshetra"], [2024, "Became Chief Minister of Haryana"]], "HemantSorenJMM": [[2009, "Entered electoral politics with the JMM"], [2013, "First term as Jharkhand Chief Minister"], [2019, "Returned as Chief Minister"], [2024, "Sworn in as CM again after a turbulent year"]], "SukhuSukhvinder": [[1989, "Rose through NSUI and Youth Congress"], [2013, "Became Himachal Congress chief"], [2022, "Became Chief Minister of Himachal Pradesh"]], "pinarayivijayan": [[1970, "Rose through CPI(M) ranks in Kannur"], [1998, "Became CPI(M) Kerala state secretary"], [2016, "Became Chief Minister of Kerala"], [2021, "Re-elected, a first in Kerala's history"]], "MohanMOdisha": [[2000, "Elected MLA from Keonjhar"], [2024, "Became Odisha's first BJP Chief Minister"]], "pushkardhami": [[2002, "Led the BJYM youth wing"], [2012, "Elected MLA from Khatima"], [2021, "Became Chief Minister of Uttarakhand"], [2022, "Retained power and continued as CM"]], "Bhupendrapbjp": [[1995, "Began in municipal politics"], [2017, "Elected MLA from Ghatlodia"], [2021, "Became Chief Minister of Gujarat"], [2022, "Won a landslide and retained the post"]], "PemaKhanduBJP": [[2010, "Entered Arunachal Pradesh politics"], [2016, "Became one of India's youngest CMs"], [2019, "Re-elected Chief Minister"]], "Neiphiu_Rio": [[1989, "Began a long political career in Nagaland"], [2003, "First term as Chief Minister"], [2018, "Returned as CM leading the NDPP"]], "SangmaConrad": [[2008, "Entered Meghalaya politics"], [2016, "Led the National People's Party"], [2018, "Became Chief Minister of Meghalaya"], [2023, "Re-elected for a second term"]], "DrPramodPSawant": [[2012, "Elected MLA from Sanquelim"], [2017, "Became Speaker of the Goa Assembly"], [2019, "Became Chief Minister of Goa"], [2022, "Retained power as CM"]], "DrManikSaha2": [[2016, "Joined the BJP"], [2020, "Became Tripura BJP state president"], [2022, "Became Chief Minister of Tripura"], [2023, "Retained the post after assembly polls"]], "NBirenSingh": [[2002, "Entered Manipur politics"], [2016, "Joined the BJP"], [2017, "Became Manipur's first BJP Chief Minister"], [2022, "Re-elected as Chief Minister"]], "PSTamangGolay": [[2013, "Founded the Sikkim Krantikari Morcha"], [2019, "Became CM, ending 25 years of SDF rule"], [2024, "Won a sweeping re-election"]], "Lal_Duhoma": [[1977, "Served as an IPS officer"], [1984, "Entered politics"], [2018, "Led the Zoram People's Movement"], [2023, "Became Chief Minister of Mizoram"]], "TVKVijayHQ": [[1992, "Debuted as a lead film actor"], [2024, "Launched the Tamilaga Vettri Kazhagam party"]], "SuvenduWB": [[2007, "Rose to prominence in the Nandigram movement"], [2016, "Won the Nandigram assembly seat"], [2021, "Became a leading opposition voice in Bengal"]], "samrat4bjp": [[2010, "Elected to the Bihar legislature"], [2024, "Among Bihar's senior NDA leaders"]]};const CMW={'TVKVijayHQ':'Vijay (actor)','himantabiswa':'Himanta Biswa Sarma','SuvenduWB':'Suvendu Adhikari','vishnudsai':'Vishnu Deo Sai','Dev_Fadnavis':'Devendra Fadnavis','ncbn':'N. Chandrababu Naidu','samrat4bjp':'Samrat Choudhary','siddaramaiah':'Siddaramaiah','gupta_rekha':'Rekha Gupta','DrMohanYadav51':'Mohan Yadav','OmarAbdullah':'Omar Abdullah','BhajanlalBjp':'Bhajan Lal Sharma','BhagwantMann':'Bhagwant Mann','revanth_anumula':'Revanth Reddy','NayabSainiBJP':'Nayab Singh Saini','HemantSorenJMM':'Hemant Soren','SukhuSukhvinder':'Sukhvinder Singh Sukhu','pinarayivijayan':'Pinarayi Vijayan','MohanMOdisha':'Mohan Charan Majhi','pushkardhami':'Pushkar Singh Dhami','Bhupendrapbjp':'Bhupendra Patel','PemaKhanduBJP':'Pema Khandu','Neiphiu_Rio':'Neiphiu Rio','SangmaConrad':'Conrad Sangma','DrPramodPSawant':'Pramod Sawant','DrManikSaha2':'Manik Saha','NBirenSingh':'N. Biren Singh','PSTamangGolay':'Prem Singh Tamang','Lal_Duhoma':'Lalduhoma','myogiadityanath':'Yogi Adityanath'};const PHOTO={};function applyPhoto(el,url){if(!url||!el)return;el.style.backgroundImage='url("'+url+'")';el.style.backgroundSize='cover';el.style.backgroundPosition='center top';el.style.color='transparent';el.style.textShadow='none';el.textContent='';}function fetchPhoto(title){if(PHOTO[title]!==undefined)return Promise.resolve(PHOTO[title]);var u='https://en.wikipedia.org/w/api.php?action=query&format=json&origin=*&prop=pageimages&piprop=thumbnail&pithumbsize=240&redirects=1&titles='+encodeURIComponent(title);return fetch(u).then(function(r){return r.json()}).then(function(j){var url=null;try{var pg=j.query.pages;var p=pg[Object.keys(pg)[0]];if(p&&p.thumbnail&&p.thumbnail.source)url=p.thumbnail.source;}catch(e){}PHOTO[title]=url;return url;}).catch(function(){PHOTO[title]=null;return null;});}function scanPhotos(){document.querySelectorAll('[data-wiki]:not([data-pdone])').forEach(function(el){el.setAttribute('data-pdone','1');var t=el.getAttribute('data-wiki');if(!t)return;fetchPhoto(t).then(function(url){if(url)applyPhoto(el,url);});});}window.scanPhotos=scanPhotos;function shortP(p){if(!p)return p;var m=p.match(/\(([^)]+)\)\s*$/);return (m&&p.length>10)?m[1]:p;}window.cmFilter=function(q){q=(q||'').toLowerCase().trim();var rows=document.querySelectorAll('#cmGrid tbody tr');var n=0;rows.forEach(function(tr){var nm=tr.getAttribute('data-name')||'';var sh=!q||nm.indexOf(q)>=0;tr.style.display=sh?'':'none';if(sh)n++;});var cc=document.getElementById('cmCount');if(cc)cc.textContent=n;};var PIMG_EXT={"DrManikSaha2":"https://commons.wikimedia.org/wiki/Special:FilePath/Manik%20Saha%20Invitation%20for%20HWC%202023.jpg?width=250","narendramodi":"https://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/The_official_portrait_of_Shri_Narendra_Modi%2C_the_Prime_Minister_of_the_Republic_of_India.jpg/250px-The_official_portrait_of_Shri_Narendra_Modi%2C_the_Prime_Minister_of_the_Republic_of_India.jpg","TVKVijayHQ":"https://upload.wikimedia.org/wikipedia/commons/thumb/0/06/C._Joseph_Vijay_%28cropped%29.jpg/250px-C._Joseph_Vijay_%28cropped%29.jpg","himantabiswa":"https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/Himanta_Biswa_Sarma_in_2026.jpg/250px-Himanta_Biswa_Sarma_in_2026.jpg","SuvenduWB":"https://upload.wikimedia.org/wikipedia/commons/thumb/2/24/Suvendu_Adhikari_May_2026_%28cropped%29.jpg/250px-Suvendu_Adhikari_May_2026_%28cropped%29.jpg","vishnudsai":"https://upload.wikimedia.org/wikipedia/commons/thumb/a/a4/Vishnu_Deo_Sai%2C_Chief_Minister_of_Chhattisgarh.jpg/250px-Vishnu_Deo_Sai%2C_Chief_Minister_of_Chhattisgarh.jpg","Dev_Fadnavis":"https://upload.wikimedia.org/wikipedia/commons/thumb/f/f7/Eknath_Shinde_and_Devendra_Fadnavis_with_PM_Narendra_Modi_Cropped%282%29.jpg/250px-Eknath_Shinde_and_Devendra_Fadnavis_with_PM_Narendra_Modi_Cropped%282%29.jpg","ncbn":"https://upload.wikimedia.org/wikipedia/commons/thumb/a/a8/The_portrait_of_CM_Shri_Nara_Chandrababu_Naidu.jpg/250px-The_portrait_of_CM_Shri_Nara_Chandrababu_Naidu.jpg","samrat4bjp":"https://upload.wikimedia.org/wikipedia/commons/thumb/7/73/Chief_Minister_Samrat_Chaudhary%28cropped%29.jpg/250px-Chief_Minister_Samrat_Chaudhary%28cropped%29.jpg","siddaramaiah":"https://upload.wikimedia.org/wikipedia/commons/thumb/0/06/Siddaramaiah_at_the_function_Akshaya_Patra_Foundation_in_Karnataka.jpg/250px-Siddaramaiah_at_the_function_Akshaya_Patra_Foundation_in_Karnataka.jpg","gupta_rekha":"https://upload.wikimedia.org/wikipedia/commons/thumb/7/72/Chief_Minister_of_Delhi%2C_Smt._Rekha_Gupta.jpg/250px-Chief_Minister_of_Delhi%2C_Smt._Rekha_Gupta.jpg","DrMohanYadav51":"https://upload.wikimedia.org/wikipedia/commons/thumb/5/58/Mohan_Yadav%2C_Chief_Minister_of_Madhya_Pradesh.jpg/250px-Mohan_Yadav%2C_Chief_Minister_of_Madhya_Pradesh.jpg","OmarAbdullah":"https://upload.wikimedia.org/wikipedia/commons/thumb/6/68/Omar_Abdullah%2C_Chief_Minister_of_Jammu_%26_Kashmir.jpg/250px-Omar_Abdullah%2C_Chief_Minister_of_Jammu_%26_Kashmir.jpg","BhajanlalBjp":"https://upload.wikimedia.org/wikipedia/commons/thumb/9/9c/Bhajan_Lal_Sharma_and_deputies_meets_VP_of_India.jpg/250px-Bhajan_Lal_Sharma_and_deputies_meets_VP_of_India.jpg","BhagwantMann":"https://upload.wikimedia.org/wikipedia/commons/thumb/b/b9/Bhagwant_Mann_2026.jpg/250px-Bhagwant_Mann_2026.jpg","revanth_anumula":"https://upload.wikimedia.org/wikipedia/commons/thumb/c/c0/Portrait_of_Telangana_CM_Revanth_Reddy.png/250px-Portrait_of_Telangana_CM_Revanth_Reddy.png","NayabSainiBJP":"https://upload.wikimedia.org/wikipedia/commons/thumb/f/f5/Nayab_Singh_Saini.jpg/250px-Nayab_Singh_Saini.jpg","HemantSorenJMM":"https://upload.wikimedia.org/wikipedia/commons/thumb/8/89/Hemant_Soren_01.jpg/250px-Hemant_Soren_01.jpg","SukhuSukhvinder":"https://upload.wikimedia.org/wikipedia/commons/thumb/b/b0/Sukhvinder_Singh_Sukhu.jpg/250px-Sukhvinder_Singh_Sukhu.jpg","pinarayivijayan":"https://upload.wikimedia.org/wikipedia/commons/thumb/e/ec/Chief_Minister_Pinarayi_Vijayan_2023.jpg/250px-Chief_Minister_Pinarayi_Vijayan_2023.jpg","MohanMOdisha":"https://upload.wikimedia.org/wikipedia/commons/thumb/b/bf/CM_Mohan_Charan_Majhi_meeting_PM_Modi_%28cropped%29.jpg/250px-CM_Mohan_Charan_Majhi_meeting_PM_Modi_%28cropped%29.jpg","pushkardhami":"https://upload.wikimedia.org/wikipedia/commons/thumb/9/95/Pushkar_Singh_Dhami%2C_Chief_Minister_of_Uttarakhand.jpg/250px-Pushkar_Singh_Dhami%2C_Chief_Minister_of_Uttarakhand.jpg","Bhupendrapbjp":"https://upload.wikimedia.org/wikipedia/commons/thumb/1/1f/Chief_Minister_of_Gujarat%2C_Shri_Bhupendra_Patel_%282%29.jpg/250px-Chief_Minister_of_Gujarat%2C_Shri_Bhupendra_Patel_%282%29.jpg","PemaKhanduBJP":"https://upload.wikimedia.org/wikipedia/commons/2/2b/Pema_Khandu_in_2018.jpg","Neiphiu_Rio":"https://upload.wikimedia.org/wikipedia/commons/thumb/f/f5/NeiphiuRio.jpg/250px-NeiphiuRio.jpg","SangmaConrad":"https://upload.wikimedia.org/wikipedia/commons/thumb/8/88/The_Chief_Minister_of_Meghalaya%2C_Shri_Conrad_Sangma.JPG/250px-The_Chief_Minister_of_Meghalaya%2C_Shri_Conrad_Sangma.JPG","DrPramodPSawant":"https://upload.wikimedia.org/wikipedia/commons/thumb/9/9e/Pramod_Sawant_at_the_inauguration_of_the_Chhatrapati_Shivaji_Maharaj_Chair_in_Goa_University_%28cropped%29.jpg/250px-Pramod_Sawant_at_the_inauguration_of_the_Chhatrapati_Shivaji_Maharaj_Chair_in_Goa_University_%28cropped%29.jpg","NBirenSingh":"https://upload.wikimedia.org/wikipedia/commons/thumb/0/02/The_Chief_Minister_of_Manipur%2C_Shri_Biren_Singh_calling_on_the_Vice_President%2C_Shri_M._Venkaiah_Naidu%2C_in_New_Delhi_on_September_06%2C_2017_%28cropped%29.jpg/250px-The_Chief_Minister_of_Manipur%2C_Shri_Biren_Singh_calling_on_the_Vice_President%2C_Shri_M._Venkaiah_Naidu%2C_in_New_Delhi_on_September_06%2C_2017_%28cropped%29.jpg","PSTamangGolay":"https://upload.wikimedia.org/wikipedia/commons/thumb/7/72/Prem_Singh_Tamang%2C_Chief_Minister_of_Sikkim.jpg/250px-Prem_Singh_Tamang%2C_Chief_Minister_of_Sikkim.jpg","Lal_Duhoma":"https://upload.wikimedia.org/wikipedia/commons/thumb/2/28/Lalduhawma1.jpg/250px-Lalduhawma1.jpg","myogiadityanath":"https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/Yogiji_in_2023.jpg/250px-Yogiji_in_2023.jpg","DKShivakumar":"https://commons.wikimedia.org/wiki/Special:FilePath/D._K._Shivakumar.jpg?width=250","VDSatheesan":"https://commons.wikimedia.org/wiki/Special:FilePath/VD_SATHEESAN.jpg?width=250","YKhemchandSingh":"https://assembly.mn.gov.in/user/pages/images/members/13_Khemchand.webp"};for(var _k in PIMG_EXT){if(!PIMG[_k])PIMG[_k]=PIMG_EXT[_k];}function photoImg(h){var u=(typeof PIMG!=='undefined'&&PIMG[h])||(window.PIMG&&window.PIMG[h]);return u?('<img src="'+u+'" loading="lazy" onerror="this.style.display=\'none\'" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center top;border-radius:50%">'):'';}
+
+try{
+  var _extraHL = {"PawanKalyan":["Founder and President of Jana Sena Party (JSP)","Sworn in as Deputy Chief Minister of Andhra Pradesh in June 2024","Won Pithapuram Assembly constituency by over 70,000 votes","Celebrated Telugu cinema superstar and mass leader"],"ChownaMeinBJP":["Longest-serving Deputy Chief Minister of Arunachal Pradesh (since 2016)","Veteran seven-term Member of Arunachal Pradesh Legislative Assembly","Cabinet Minister handling Finance, Power, and Economic Planning","Key architect of Arunachal Pradesh's hydropower roadmap"],"VijayKChy":["Senior JD(U) leader and former Speaker of Bihar Legislative Assembly (2015-2020)","Multiple-term Cabinet Minister holding Finance, Education, and Water Resources","Elected MLA from Sarairanjan constituency","Senior parliamentary statesman in Bihar NDA government"],"ArunSao3":["State President of Chhattisgarh BJP who led the party to victory in 2023","Former Member of Parliament (Lok Sabha) from Bilaspur (2019-2023)","Deputy Chief Minister handling PWD, PHE, and Law portfolios","Distinguished lawyer and senior advocate in Chhattisgarh High Court"],"vijaysharmacg":["Deputy Chief Minister and Home Minister of Chhattisgarh","Scored high-profile victory from Kawardha Assembly constituency in 2023","Former General Secretary of BJP Chhattisgarh and BJYM state president","Holds M.Sc in Physics, MCA, and Law degree"],"p_sahibsingh":["Two-time Member of Parliament (Lok Sabha) from West Delhi (2014, 2019)","Won 2019 Lok Sabha election with record victory margin of 5.78 lakh votes","Former Member of Delhi Legislative Assembly from Mehrauli (2013)","Senior BJP face in Delhi state administration and governance"],"sanghaviharsh":["Youngest Minister of State (Independent Charge) for Home in Gujarat history","Three-term MLA from Majura (Surat) winning by overwhelming majorities","Spearheaded cybercrime prevention and anti-narcotics drives across Gujarat","Former National Vice President of Bharatiya Janata Yuva Morcha"],"Agnihotriinc":["First-ever Deputy Chief Minister of Himachal Pradesh","Five-term Member of Himachal Pradesh Legislative Assembly from Haroli","Former Leader of Opposition in Himachal Pradesh Legislative Assembly (2018-2022)","Distinguished journalist who served with leading national dailies for over a decade"],"JagdishDevdaBJP":["Eight-time Member of Madhya Pradesh Legislative Assembly","Deputy Chief Minister handling state Finance and Commercial Taxes","Former Finance, Commercial Taxes, and Home Minister in MP government","Prominent Scheduled Caste (SC) statesman in Central India"],"rshuklabjp":["Deputy Chief Minister of MP overseeing Public Health and Medical Education","Five-time MLA from Rewa; credited with transforming Vindhya region's infrastructure","Pioneered the 750 MW Rewa Ultra Mega Solar Project","Qualified Civil Engineer and experienced infrastructure administrator"],"mieknathshinde":["20th Chief Minister of Maharashtra (2022-2024), now Deputy Chief Minister","Chief Leader of Shiv Sena and 5-time MLA from Kopri-Pachpakhadi","Championed Mumbai-Nagpur Samruddhi Mahamarg and major infrastructure projects","Mass leader with immense grassroots network across Maharashtra"],"SunetraA_Pawar":["Member of Parliament (Rajya Sabha) representing Nationalist Congress Party (NCP)","Founder of Environmental Forum of India championing rural eco-development","Pioneered indigenous water conservation and check-dam networks in Baramati","Prominent patron of educational and women self-help cooperatives in Maharashtra"],"KipgenNemcha":["Senior tribal woman legislator and Deputy Chief Minister of Manipur","Three-time Member of Manipur Legislative Assembly from Kangpokpi","Former Cabinet Minister for Social Welfare and Cooperation","Key voice for tribal welfare, weavers, and small-scale industries in Manipur"],"YanthungoPatton":["Leader of BJP Legislature Party in Nagaland and Deputy CM since 2018","Five-time MLA from Tyui constituency (Wokha district)","Oversees Home and Border Affairs in the NDPP-BJP alliance government","Senior-most BJP statesman in Nagaland state politics"],"KVSinghDeo1":["Former State President of Odisha BJP and senior statesman from Western Odisha","Six-time Member of Odisha Legislative Assembly from Patnagarh","Deputy Chief Minister handling Agriculture and Energy portfolios","Scion of the Patna (Balangir) royal house and pioneer of BJP's growth in Odisha"],"PravatiPOdisha":["First woman Deputy Chief Minister in the history of Odisha","High Court advocate and former President of Odisha BJP Mahila Morcha","Heads Women & Child Development, Mission Shakti, and Tourism portfolios","Grassroots activist who won landmark election from Nimapara assembly seat"],"KumariDiya":["Deputy Chief Minister and Finance Minister of Rajasthan","Won Vidhyadhar Nagar by over 71,000 votes, the highest victory margin in Rajasthan in 2023","Former Member of Parliament (Lok Sabha) from Rajsamand (2019-2023)","Renowned patron of heritage preservation, arts, and girl-child education"],"DrPremBairwa":["Deputy Chief Minister overseeing Higher Education and Transport","Two-time MLA from Dudu (Jaipur rural); holds a doctorate (Ph.D.) from University of Rajasthan","Foremost Dalit (SC) leadership face of Rajasthan BJP","Active campaigner for grassroots education and social equality"],"Bhatti_Mallu":["Deputy Chief Minister and Finance Minister of Telangana","Leader of Congress Legislature Party (CLP) in Telangana Assembly (2019-2023)","Led landmark 1,360 km 'People's March' padayatra across 750 villages in Telangana","Four-term MLA from Madhira constituency (Khammam district)"],"brajeshpathakup":["Deputy Chief Minister of Uttar Pradesh handling Medical & Health and Medical Education","Former Member of Parliament (Lok Sabha from Unnao & Rajya Sabha)","Former Minister of Law & Justice in Uttar Pradesh Government (2017-2022)","Prominent mass leader with deep grassroots influence across Central UP"],"kpmaurya1":["Two-term Deputy Chief Minister of Uttar Pradesh (2017-present)","Uttar Pradesh BJP State President who engineered historic 312-seat landslide in 2017","Former Member of Parliament (Lok Sabha) from Phulpur (2014-2017)","Foremost OBC leadership face in Uttar Pradesh politics"],"samrat4bjp":["Deputy Chief Minister / Senior Minister in Government of Bihar","President of Bharatiya Janata Party, Bihar state unit","Prominent OBC (Koeri) face in Bihar state leadership","Former Minister for Panchayati Raj, Urban Development, and Finance"],"vishnudsai":["First tribal Chief Minister of Chhattisgarh","Four-term Member of Parliament (Lok Sabha) from Raigarh (1999-2019)","Former Union Minister of State for Steel and Mines (2014-2019)","Three-time State President of Chhattisgarh BJP"],"DKShivakumar":["President of Karnataka Pradesh Congress Committee (KPCC)","Eight-term Member of Karnataka Legislative Assembly","Deputy Chief Minister holding Major Irrigation and Bengaluru City Development","Key architect of Congress party's landslide 2023 victory in Karnataka"],"VDSatheesan":["Leader of Opposition in Kerala Legislative Assembly","Five-term consecutive MLA from Paravur (Ernakulam district)","Prominent Congress voice and legal scholar","Known for legislative research and environmental advocacy"],"YKhemchandSingh":["Former Speaker of Manipur Legislative Assembly (2017-2022)","Cabinet Minister for MAHUD, Rural Development, and Panchayati Raj","Two-time MLA from Singjamei constituency","Distinguished Taekwondo black-belt and sports administrator"],"SuvenduWB":["Leader of Opposition in West Bengal Legislative Assembly","Won high-stakes Nandigram election in 2021 defeating the Chief Minister","Two-term Lok Sabha MP from Tamluk (2009-2016)","Prominent mass leader and key face of BJP in West Bengal"]};
+  for(var _k in _extraHL) HL[_k] = _extraHL[_k];
+  var _extraDET = {"PawanKalyan":{"born":"2 September 1971","edu":"Intermediate","since":"12 June 2024"},"ChownaMeinBJP":{"born":"2 December 1950","edu":"BA, JN College Pasighat","since":"16 July 2016"},"VijayKChy":{"born":"8 January 1957","edu":"MA History, Patna University","since":"28 January 2024"},"ArunSao3":{"born":"25 November 1968","edu":"B.Com, LLB","since":"13 December 2023"},"vijaysharmacg":{"born":"24 March 1973","edu":"M.Sc Physics, MCA, LLB","since":"13 December 2023"},"p_sahibsingh":{"born":"7 November 1977","edu":"MBA, Fore School of Mgmt","since":"2025"},"sanghaviharsh":{"born":"8 January 1985","edu":"Higher Secondary","since":"2021"},"Agnihotriinc":{"born":"9 October 1962","edu":"PG Dip Journalism, M.Sc","since":"11 December 2022"},"JagdishDevdaBJP":{"born":"27 December 1957","edu":"MA, LLB, Vikram University","since":"13 December 2023"},"rshuklabjp":{"born":"3 August 1964","edu":"BE Civil Engineering","since":"13 December 2023"},"mieknathshinde":{"born":"9 February 1964","edu":"BA, YCMOU","since":"2024"},"SunetraA_Pawar":{"born":"1963","edu":"Graduate","since":"2024"},"KipgenNemcha":{"born":"8 November 1964","edu":"BA, Manipur University","since":"2024"},"YanthungoPatton":{"born":"15 December 1958","edu":"BA, NEHU","since":"8 March 2018"},"KVSinghDeo1":{"born":"14 June 1956","edu":"BA, Delhi University","since":"12 June 2024"},"PravatiPOdisha":{"born":"1967","edu":"MA Public Admin, LLB","since":"12 June 2024"},"KumariDiya":{"born":"30 January 1971","edu":"Fine Arts Diploma, London","since":"15 December 2023"},"DrPremBairwa":{"born":"31 August 1969","edu":"Ph.D., MA Philosophy","since":"15 December 2023"},"Bhatti_Mallu":{"born":"15 June 1961","edu":"MA, M.Phil, Univ of Hyderabad","since":"7 December 2023"},"brajeshpathakup":{"born":"25 June 1964","edu":"LLB, Lucknow University","since":"25 March 2022"},"kpmaurya1":{"born":"7 May 1969","edu":"Hindi Sahitya Sammelan","since":"19 March 2017"},"samrat4bjp":{"born":"16 November 1968","edu":"Post Graduate","since":"28 January 2024"},"vishnudsai":{"born":"21 February 1964","edu":"Higher Secondary, Kunkuri","since":"13 December 2023"},"DKShivakumar":{"born":"15 May 1962","edu":"MA Political Science","since":"20 May 2023"},"VDSatheesan":{"born":"31 May 1964","edu":"MSW, LLB","since":"22 May 2021"},"YKhemchandSingh":{"born":"1 March 1961","edu":"BA, Manipur University","since":"21 March 2022"},"SuvenduWB":{"born":"15 December 1970","edu":"MA, Tamralipta Mahavidyalaya","since":"10 May 2021"}};
+  for(var _k in _extraDET) DET[_k] = _extraDET[_k];
+  var _extraJM = {"PawanKalyan":[[2008,"Entered politics leading Yuvarajyam, youth wing of Praja Rajyam Party"],[2014,"Founded the Jana Sena Party (JSP)"],[2019,"Led JSP in Andhra Pradesh Legislative Assembly elections"],[2024,"Won Pithapuram seat and sworn in as Deputy Chief Minister of Andhra Pradesh"]],"ChownaMeinBJP":[[1995,"Elected to Arunachal Pradesh Legislative Assembly from Lekang"],[2004,"Inducted as Cabinet Minister for Finance and Planning"],[2016,"Sworn in as Deputy Chief Minister of Arunachal Pradesh"],[2024,"Won Chowkham seat and took oath as Deputy Chief Minister for consecutive term"]],"VijayKChy":[[1982,"Entered Bihar Legislative Assembly winning Dalsinghsarai by-election"],[2010,"Elected MLA from Sarairanjan; inducted as Water Resources Minister"],[2015,"Unanimously elected Speaker of 16th Bihar Legislative Assembly"],[2024,"Sworn in as Deputy Chief Minister of Bihar in the NDA government"]],"ArunSao3":[[1990,"Grassroots leadership with ABVP and legal practice in High Court"],[2019,"Elected to 17th Lok Sabha from Bilaspur constituency"],[2022,"Appointed President of Bharatiya Janata Party Chhattisgarh"],[2023,"Elected MLA from Lormi and sworn in as Deputy Chief Minister of Chhattisgarh"]],"vijaysharmacg":[[2004,"Rose through Bharatiya Janata Yuva Morcha (BJYM) ranks"],[2015,"Elected Zila Panchayat member from Kawardha district"],[2020,"Appointed State General Secretary of BJP Chhattisgarh"],[2023,"Won Kawardha seat and sworn in as Deputy Chief Minister and Home Minister"]],"p_sahibsingh":[[2013,"Elected MLA to Delhi Legislative Assembly from Mehrauli"],[2014,"Elected to 16th Lok Sabha from West Delhi constituency"],[2019,"Re-elected to 17th Lok Sabha with the highest margin in Delhi's history"],[2025,"Assumed charge as Deputy Chief Minister of Delhi"]],"sanghaviharsh":[[2008,"National General Secretary of BJYM"],[2012,"Elected MLA from Majura becoming one of Gujarat's youngest legislators"],[2021,"Appointed Minister of State for Home, Sports, and Transport"],[2022,"Re-elected from Majura with massive majority and elevated in cabinet leadership"]],"Agnihotriinc":[[2003,"Elected MLA from Santokhgarh (Haroli) constituency"],[2012,"Appointed Cabinet Minister for Industries, Information & PR"],[2018,"Appointed Leader of Opposition in HP Legislative Assembly"],[2022,"Sworn in as Himachal Pradesh's first Deputy Chief Minister"]],"JagdishDevdaBJP":[[1990,"Elected to MP Legislative Assembly from Suwasra constituency"],[2003,"Inducted as Minister of State in Government of MP"],[2020,"Appointed Finance and Commercial Tax Minister in MP Cabinet"],[2023,"Elected 8th term from Malhargarh and sworn in as Deputy Chief Minister"]],"rshuklabjp":[[1986,"President of Government Engineering College Students Union, Rewa"],[2003,"Elected MLA from Rewa and inducted as Minister"],[2013,"Spearheaded Rewa Mega Solar Project and industrial development"],[2023,"Won 5th term from Rewa and took oath as Deputy Chief Minister of Madhya Pradesh"]],"mieknathshinde":[[1997,"Elected corporator in Thane Municipal Corporation"],[2004,"Elected to Maharashtra Legislative Assembly from Thane"],[2014,"Served as Leader of Opposition and Cabinet Minister for Urban Development"],[2022,"Took oath as Chief Minister of Maharashtra leading Mahayuti alliance"],[2024,"Sworn in as Deputy Chief Minister in Mahayuti government"]],"SunetraA_Pawar":[[2010,"Established Environmental Forum of India promoting rural ecology"],[2015,"Spearheaded extensive rural water conservation initiatives across Baramati"],[2024,"Elected Member of Parliament (Rajya Sabha)"],[2024,"Appointed key representative in Maharashtra state leadership"]],"KipgenNemcha":[[2012,"Elected MLA from Kangpokpi constituency in Manipur"],[2017,"Appointed Cabinet Minister for Social Welfare and Cooperation"],[2022,"Re-elected from Kangpokpi and appointed Minister for Commerce & Industry"],[2024,"Assumed office as Deputy Chief Minister of Manipur"]],"YanthungoPatton":[[1998,"Elected to Nagaland Legislative Assembly for the first time"],[2013,"Served as Minister for Forest, Environment and Climate Change"],[2018,"Appointed Deputy Chief Minister and Home Minister in PDA government"],[2023,"Re-elected from Tyui and continued as Deputy Chief Minister"]],"KVSinghDeo1":[[1995,"Elected to Odisha Legislative Assembly from Patnagarh"],[2000,"Appointed Cabinet Minister for Industry and Public Enterprises in BJD-BJP coalition"],[2014,"Led Odisha BJP state unit as President"],[2024,"Won Patnagarh assembly seat and sworn in as Deputy Chief Minister of Odisha"]],"PravatiPOdisha":[[1995,"Commenced legal practice as advocate in Orissa High Court"],[2017,"Led statewide women empowerment campaigns as BJP Mahila Morcha President"],[2024,"Elected MLA from Nimapara constituency"],[2024,"Took historic oath as first woman Deputy Chief Minister of Odisha"]],"KumariDiya":[[2013,"Joined BJP and won Sawai Madhopur assembly seat"],[2019,"Elected to 17th Lok Sabha from Rajsamand with 5.51 lakh vote margin"],[2023,"Won Vidhyadhar Nagar seat with Rajasthan's largest victory margin"],[2023,"Sworn in as Deputy Chief Minister and Finance Minister of Rajasthan"]],"DrPremBairwa":[[1995,"Grassroots social worker and youth leader in Jaipur rural"],[2013,"Elected MLA from Dudu constituency for the first time"],[2023,"Re-elected MLA from Dudu with a decisive victory margin"],[2023,"Sworn in as Deputy Chief Minister of Rajasthan"]],"Bhatti_Mallu":[[2007,"Elected Member of Legislative Council (MLC) in united Andhra Pradesh"],[2009,"Elected MLA from Madhira and appointed Chief Whip"],[2019,"Recognized as Leader of Opposition in Telangana Legislative Assembly"],[2023,"Sworn in as Deputy Chief Minister and Finance Minister of Telangana"]],"brajeshpathakup":[[1990,"Elected President of Lucknow University Students Union (LUSU)"],[2004,"Elected to 14th Lok Sabha from Unnao parliamentary constituency"],[2017,"Won Lucknow Central and appointed Cabinet Minister for Law & Justice"],[2022,"Won Lucknow Cantonment and sworn in as Deputy Chief Minister of Uttar Pradesh"]],"kpmaurya1":[[1980,"Joined VHP and RSS grassroots social movements"],[2012,"Elected Member of Legislative Assembly from Sirathu"],[2014,"Elected MP from Phulpur Lok Sabha constituency with record margin"],[2016,"Appointed State President of BJP Uttar Pradesh"],[2017,"Sworn in as Deputy Chief Minister of Uttar Pradesh; re-sworn in 2022"]],"samrat4bjp":[[1999,"Appointed Minister of State in Bihar government"],[2014,"Served as Urban Development & Housing Minister"],[2020,"Appointed Panchayati Raj Minister in Bihar"],[2023,"Appointed State President of Bihar BJP"],[2024,"Sworn in as senior Minister / Deputy CM in NDA Bihar government"]],"vishnudsai":[[1990,"Elected MLA from Tapkara assembly constituency"],[1999,"Elected to 13th Lok Sabha from Raigarh; re-elected in 2004, 2009, 2014"],[2014,"Appointed Union Minister of State for Steel and Mines"],[2023,"Elected MLA from Kunkuri and sworn in as Chief Minister of Chhattisgarh"]],"DKShivakumar":[[1989,"Elected to Karnataka Legislative Assembly from Sathanur"],[1999,"Appointed Minister of State in S.M. Krishna cabinet"],[2014,"Served as Minister for Energy in Karnataka"],[2020,"Appointed President of Karnataka Pradesh Congress Committee"],[2023,"Elected from Kanakapura and sworn in as Deputy Chief Minister of Karnataka"]],"VDSatheesan":[[2001,"Elected MLA to Kerala Assembly from Paravur"],[2011,"Re-elected and appointed Whip of the Congress Legislative Party"],[2016,"Elected for fourth consecutive term from Paravur"],[2021,"Appointed Leader of Opposition in the 15th Kerala Legislative Assembly"]],"YKhemchandSingh":[[2017,"Elected MLA from Singjamei and elected Speaker of Manipur Assembly"],[2022,"Re-elected from Singjamei and inducted as senior Cabinet Minister"]],"SuvenduWB":[[2006,"Elected MLA from Kanthi Dakshin"],[2009,"Elected to 15th Lok Sabha from Tamluk; re-elected in 2014"],[2016,"Served as Minister for Transport and Irrigation in West Bengal"],[2020,"Joined BJP"],[2021,"Elected MLA from Nandigram and appointed Leader of Opposition"]]};
+  for(var _k in _extraJM) JM[_k] = _extraJM[_k];
+}catch(e){console.warn('extra dicts', e);}
 const UNIH={};UNI.allHandles.forEach(h=>{UNIH[h.h]=h});
 const BIO={'narendramodi':'Narendra Modi is the Prime Minister of India and leader of the BJP. He is the most-followed Indian political figure on X, using the platform heavily for governance messaging, scheme launches and direct citizen outreach.',
 'myogiadityanath':'Yogi Adityanath is the BJP Chief Minister of Uttar Pradesh and head priest of the Gorakhnath Math. One of India’s most influential and most-followed CMs, he is known for his hardline Hindutva politics, law-and-order push and a heavy presence on social media.',
@@ -4057,15 +4553,99 @@ const BIO={'narendramodi':'Narendra Modi is the Prime Minister of India and lead
 'DrManikSaha2':'Manik Saha is the BJP Chief Minister of Tripura, a dental surgeon by profession who leads the party’s government in the state.',
 'TVKVijayHQ':'Chandrasekaran Joseph Vijay (“Thalapathy” Vijay) is the Tamil superstar-turned-politician who founded TVK; in this dataset he is tracked as a Tamil Nadu CM-tier leader with massive reach.',
 'SuvenduWB':'Suvendu Adhikari is a prominent BJP leader and Leader of the Opposition in West Bengal, tracked here at CM tier for the state.'};
+
+try{
+  var _extraBIO = {"PawanKalyan":"Pawan Kalyan is the Deputy Chief Minister of Andhra Pradesh, holding portfolios including Panchayat Raj, Rural Development, and Environment. He is the founder and president of the Jana Sena Party (JSP).","ChownaMeinBJP":"Chowna Mein is the Deputy Chief Minister of Arunachal Pradesh and a veteran BJP leader, widely respected for steering the state's economic planning, finance, and hydropower roadmap.","VijayKChy":"Vijay Kumar Choudhary is the Deputy Chief Minister of Bihar and a veteran Janata Dal (United) leader known for his parliamentary acumen, having formerly served as Speaker of the Bihar Legislative Assembly.","ArunSao3":"Arun Sao is the Deputy Chief Minister of Chhattisgarh and prominent OBC face of the BJP, in charge of PWD, Public Health Engineering, and Law, previously serving as State BJP President and Lok Sabha MP.","vijaysharmacg":"Vijay Sharma is the Deputy Chief Minister of Chhattisgarh in charge of the Home Department, Jail, and Rural Development, rising from grassroots youth leadership to the state cabinet.","p_sahibsingh":"Parvesh Sahib Singh Verma is a senior BJP leader serving as Deputy Chief Minister in Delhi, and a former two-term Member of Parliament from West Delhi.","sanghaviharsh":"Harsh Sanghavi is the Deputy Chief Minister of Gujarat holding Home, Industries, and Sports portfolios, recognized as one of the state's most dynamic and high-performing leaders.","Agnihotriinc":"Mukesh Agnihotri is the first Deputy Chief Minister of Himachal Pradesh and a senior Congress leader, holding portfolios of Jal Shakti, Transport, and Language & Culture.","JagdishDevdaBJP":"Jagdish Devda is the Deputy Chief Minister of Madhya Pradesh holding Finance and Commercial Taxes, serving eight terms as legislator with deep administrative experience.","rshuklabjp":"Rajendra Shukla is the Deputy Chief Minister of Madhya Pradesh in charge of Public Health and Family Welfare, widely known for transforming Vindhya region's infrastructure and the Rewa Solar Project.","mieknathshinde":"Eknath Shinde is the Deputy Chief Minister of Maharashtra and leader of the Shiv Sena. He previously served as the 20th Chief Minister of Maharashtra from 2022 to 2024.","SunetraA_Pawar":"Sunetra Ajit Pawar is a senior NCP leader and Member of Parliament (Rajya Sabha), active in rural education, water conservation, and women empowerment across Maharashtra.","KipgenNemcha":"Nemcha Kipgen is the Deputy Chief Minister of Manipur and a prominent BJP tribal leader, holding key portfolios in industry, handlooms, and social welfare.","YanthungoPatton":"Yanthungo Patton is the Deputy Chief Minister of Nagaland and senior BJP leader, overseeing Home and Border Affairs in the state coalition government.","KVSinghDeo1":"Kanak Vardhan Singh Deo is the Deputy Chief Minister of Odisha handling Agriculture and Energy portfolios, and a six-time MLA from Patnagarh.","PravatiPOdisha":"Pravati Parida is Odisha's first woman Deputy Chief Minister, championing women empowerment, Mission Shakti self-help groups, and tourism development.","KumariDiya":"Diya Kumari is the Deputy Chief Minister and Finance Minister of Rajasthan, widely praised for budget modernization, heritage tourism, and infrastructure planning.","DrPremBairwa":"Dr. Prem Chand Bairwa is the Deputy Chief Minister of Rajasthan heading Higher Education and Transport, known for his grassroots social work in Jaipur rural.","Bhatti_Mallu":"Mallu Bhatti Vikramarka is the Deputy Chief Minister and Finance Minister of Telangana, a veteran leader who played a decisive role in the Congress party's victory.","brajeshpathakup":"Brajesh Pathak is the Deputy Chief Minister of Uttar Pradesh overseeing Medical & Health, Medical Education, and Family Welfare in Yogi Adityanath's cabinet.","kpmaurya1":"Keshav Prasad Maurya is the Deputy Chief Minister of Uttar Pradesh holding Rural Development and Public Works, and a foremost OBC face of the BJP in UP.","DKShivakumar":"D.K. Shivakumar is the President of Karnataka Pradesh Congress Committee (KPCC) and Deputy Chief Minister of Karnataka, widely regarded as a master strategist and mass leader.","VDSatheesan":"V.D. Satheesan is the Leader of the Opposition in the Kerala Legislative Assembly and five-time MLA from Paravur, known for his articulate legislative debates and anti-corruption campaigns.","YKhemchandSingh":"Yumnam Khemchand Singh is a senior BJP leader and Minister for Municipal Administration, Housing and Urban Development in Manipur, and former Speaker of the Manipur Legislative Assembly."};
+  for(var _k in _extraBIO) BIO[_k] = _extraBIO[_k];
+}catch(e){console.warn('extra bio', e);}
 const UNIBYH={};UNI.allHandles.forEach(h=>{UNIBYH[h.h]=h});
-function cmStats(c){return {h:c.h,name:c.name,party:c.party,state:c.state,tw:c.tw,vw:c.vw,lk:c.lk,rt:c.rt,pos:c.pos,neu:c.neu,neg:c.neg,followers:c.followers}}
+function cmStats(c){
+  return {
+    h: c.h || c.handle || '',
+    name: c.name || '',
+    party: c.party || '',
+    state: c.state || '',
+    tw: c.tw != null ? c.tw : (c.tweets != null ? c.tweets : 0),
+    vw: c.vw != null ? c.vw : (c.views != null ? c.views : 0),
+    lk: c.lk != null ? c.lk : (c.likes != null ? c.likes : 0),
+    rt: c.rt != null ? c.rt : (c.rts != null ? c.rts : 0),
+    pos: c.pos || 0,
+    neu: c.neu || 0,
+    neg: c.neg || 0,
+    followers: c.followers || 0
+  };
+}
 function ini(n){return String(n||'').replace(/\(.*\)/,'').trim().split(/\s+/).slice(0,2).map(w=>w[0]||'').join('').toUpperCase()}
 window.profFillParty=function(){var sel=document.getElementById('profParty');if(!sel||sel.options.length>1)return;var pc={};PROF.forEach(function(c){if(c.party)pc[c.party]=(pc[c.party]||0)+1;});var ps=Object.keys(pc).sort();sel.innerHTML='<option value="all">All Parties</option>'+ps.map(function(p){return '<option value="'+p+'">'+p+'</option>';}).join('');};
 window.profPresetChange=function(){var DD=window.PHD_DATES||[];var v=(document.getElementById('profPreset')||{}).value;if(v!=='custom'&&DD.length){var _r=window.pRange(v)||{f:DD[0],t:DD[DD.length-1]};var t=_r.t,ff=_r.f;var fe=document.getElementById('profFrom'),te=document.getElementById('profTo');if(fe)fe.value=ff;if(te)te.value=t;}renderCMGrid();};
 window.profReset=function(){var p=document.getElementById('profPreset');if(p)p.value='all';var pa=document.getElementById('profParty');if(pa)pa.value='all';var DD=window.PHD_DATES||[];var fe=document.getElementById('profFrom'),te=document.getElementById('profTo');if(fe&&DD.length)fe.value=DD[0];if(te&&DD.length)te.value=DD[DD.length-1];renderCMGrid();};
 function renderCMGrid(){var _pf=(document.getElementById('profFrom')||{}).value||'';var _pt=(document.getElementById('profTo')||{}).value||'';var _pp=(document.getElementById('profParty')||{}).value||'all';var _pool=PROF.filter(function(c){return _pp==='all'||c.party===_pp;});var _rows=_pool.map(function(c0,i){var c=(window._applyDate?window._applyDate(c0,_pf,_pt):c0);var s=cmStats(c);var col=pc(s.party);var nm=esc(s.name.replace(/\(.*\)/,'').trim());/* allmap (13-Oct): yahan 'PM'/'CM' likha hua tha -- ab mapping se */
 var dz=(window.roleOf?window.roleOf(s.h,''):'')||((s.h==='narendramodi')?'PM':'CM');var avgV=s.tw?Math.round(s.vw/s.tw):0;var avgL=s.tw?Math.round(s.lk/s.tw):0;var fg=c.followings||0;return '<tr data-name="'+esc((nm+' '+s.state+' '+s.party+' @'+s.h).toLowerCase())+'" onclick="openProfile(\''+s.h+'\')">'+'<td>'+esc(s.state)+'</td>'+'<td><div class="cm-nmcell"><div class="cm-av" style="background:'+col+';position:relative;overflow:hidden">'+ini(s.name)+photoImg(s.h)+'</div><div><div class="nm">'+nm+'</div><div class="hd">@'+esc(s.h)+'</div></div></div></td>'+'<td><span class="cm-badge">'+dz+'</span></td>'+'<td><span class="party-chip" style="background:'+col+'18;color:'+col+'">'+esc(shortP(s.party))+'</span></td>'+'<td class="r cm-tnum">'+uf(s.followers)+'</td>'+'<td class="r cm-tnum">'+uf(fg)+'</td>'+'<td class="r cm-tnum">'+uf(s.tw)+'</td>'+'<td class="r cm-tnum">'+uf(avgV)+'</td>'+'<td class="r cm-tnum">'+uf(avgL)+'</td>'+'<td class="r"><button class="cm-pf-btn" onclick="event.stopPropagation();openProfile(\''+s.h+'\')">View Profile \u2192</button></td>'+'</tr>';}).join('');var _html='<table class="cm-table"><thead><tr><th>State</th><th>Name</th><th>Designation</th><th>Party</th><th class="r">Followers</th><th class="r">Following</th><th class="r">Tweets</th><th class="r">Avg Views/Post</th><th class="r">Avg Likes/Post</th><th class="r">Action</th></tr></thead><tbody>'+_rows+'</tbody></table>';var g=document.getElementById('cmGrid');if(g)g.innerHTML=_html;var cc=document.getElementById('cmCount');if(cc)cc.textContent=PROF.length;}
-window.openProfile=function(h){var c=PROF.filter(function(x){return x.h===h})[0];if(!c)return;var s=cmStats(c);var col=pc(s.party);var tot=s.pos+s.neu+s.neg||1;var avg=s.tw?Math.round(s.vw/s.tw):0;var avgl=s.tw?Math.round(s.lk/s.tw):0;var nm=s.name.replace(/\(.*\)/,'').trim();var isPM=(h==='narendramodi');var role=isPM?'Prime Minister':'Chief Minister';var bio=BIO[h]||(esc(nm)+' is the '+role+' of '+esc(s.state)+', representing the '+esc(s.party)+'.');var det=DET[h]||{};var con=c.loc||'\u2014';var pP=Math.round(s.pos/tot*100),nP=Math.round(s.neu/tot*100),gP=Math.round(s.neg/tot*100);var age=det.born?(2026-parseInt(((det.born.match(/\d{4}/))||[''])[0])):0;var ageS=age?String(age):'\u2014';var rf=RK_F[h]||0,rv=RK_V[h]||0,rtk=RK_T[h]||0;var NL=PROF.length;var standing='<div class="pf-sec">Standing Among '+NL+' Tracked Leaders</div><div class="pf-stats"><div class="pf-st o"><b>#'+rf+'</b><span>Followers Rank</span></div><div class="pf-st g"><b>#'+rv+'</b><span>Views Rank</span></div><div class="pf-st b"><b>#'+rtk+'</b><span>Tweets Rank</span></div><div class="pf-st r"><b>'+ageS+'</b><span>Age</span></div></div>';var hl=HL[h];var hlHTML=(hl&&hl.length&&hl[0]!=='\u2014')?('<div class="pf-sec">Key Highlights</div><ul class="pf-hl">'+hl.map(function(x){return '<li>'+esc(x)+'</li>'}).join('')+'</ul>'):'';var rows=[['Role',role],['State / UT',s.state],['Party',shortP(s.party)],['Constituency',con]];if(det.born)rows.push(['Born',det.born]);if(det.edu)rows.push(['Education',det.edu]);rows.push(['In office since',det.since||'\u2014']);rows.push(['X Handle','@'+h]);var detHTML=rows.map(function(r){return '<div class="pf-d"><span>'+esc(r[0])+'</span><b>'+esc(String(r[1]))+'</b></div>'}).join('');var jm=JM[h];var jmHTML='';if(jm&&jm.length){jmHTML='<div class="pf-sec">Career Journey</div><div class="pf-tl">'+jm.map(function(t){return '<div class="pf-tli"><div class="pf-yr">'+esc(String(t[0]))+'</div><div class="pf-ev">'+esc(t[1])+'</div></div>'}).join('')+'</div>';}var an='In Apr–Jul 2026, '+esc(nm)+' posted '+uf(s.tw)+' tweets that drew '+uf(s.vw)+' views and '+uf(s.lk)+' likes (~'+uf(avg)+' views and '+uf(avgl)+' likes per post). The tone was '+nP+'% neutral, '+pP+'% positive and '+gP+'% negative \u2014 a broadly '+(gP<10?'favourable':(gP<20?'mixed':'contested'))+' reception.';document.getElementById('pfCard').innerHTML='<button class="pf-x" onclick="closeProfile()">\u2715</button>'+'<div class="pf-head"><div class="pf-av" style="background:'+col+';position:relative;overflow:hidden">'+ini(s.name)+photoImg(h)+'</div><div style="flex:1"><div class="pf-nm">'+esc(nm)+'</div><div class="pf-role" style="color:'+col+'">'+esc(role)+' \u2014 '+esc(s.state)+'</div><div class="pf-sub">@'+esc(h)+' \u00b7 '+uf(s.followers)+' followers</div><div style="margin-top:6px"><span class="party-chip" style="background:'+col+'18;color:'+col+'">'+esc(shortP(s.party))+'</span></div></div></div>'+'<div class="pf-sec">Key Stats \u00b7 Apr–Jul 2026</div><div class="pf-stats"><div class="pf-st o"><b>'+uf(s.followers)+'</b><span>Followers</span></div><div class="pf-st b"><b>'+uf(s.tw)+'</b><span>Tweets</span></div><div class="pf-st g"><b>'+uf(s.vw)+'</b><span>Total Views</span></div><div class="pf-st r"><b>'+uf(avg)+'</b><span>Avg Views/Post</span></div></div>'+standing+'<div class="pf-sec">X (Twitter) Engagement</div><div class="pf-kpis"><div class="pf-k"><b>'+uf(s.lk)+'</b><span>Likes</span></div><div class="pf-k"><b>'+uf(s.rt)+'</b><span>Retweets</span></div><div class="pf-k"><b>'+uf(avgl)+'</b><span>Avg Likes/Post</span></div><div class="pf-k"><b>'+s.tw+'</b><span>Posts Tracked</span></div></div>'+'<div class="pf-sec">About</div><div class="pf-bio">'+bio+'</div>'+hlHTML+'<div class="pf-sec">Personal Details</div><div class="pf-dgrid">'+detHTML+'</div>'+jmHTML+'<div class="pf-sec">Activity Analysis</div><div class="pf-an">'+an+'</div>';var m=document.getElementById('profileModal');if(m)m.classList.add('show');scanPhotos()}
+window.openProfile=function(h){
+  var c = PROF.filter(function(x){return x.h===h})[0];
+  if(!c && typeof ALL_LEADERS!=='undefined'){
+    c = ALL_LEADERS.filter(function(x){return x.h===h})[0];
+  }
+  if(!c && window.CM_DATA){
+    var raw = window.CM_DATA.filter(function(x){return (x.handle||x.h)===h;})[0];
+    if(raw){
+      c = {
+        h: raw.handle || raw.h,
+        name: raw.name,
+        party: raw.party,
+        state: raw.state,
+        level: raw.level,
+        loc: raw.seat || (typeof AC_MAP!=='undefined'&&AC_MAP[raw.name]) || '',
+        tw: raw.tweets!=null ? raw.tweets : (raw.tw||0),
+        vw: raw.views!=null ? raw.views : (raw.vw||0),
+        lk: raw.likes!=null ? raw.likes : (raw.lk||0),
+        rt: raw.rts!=null ? raw.rts : (raw.rt||0),
+        pos: raw.pos||0, neu: raw.neu||0, neg: raw.neg||0,
+        followers: raw.followers||0,
+        followings: raw.followings||0
+      };
+    }
+  }
+  if(!c && window.UNI && UNI.allHandles){
+    c = UNI.allHandles.filter(function(x){return x.h===h})[0];
+  }
+  if(!c)return;
+  var s=cmStats(c);
+  var col=pc(s.party);
+  var tot=s.pos+s.neu+s.neg||1;
+  var avg=s.tw?Math.round(s.vw/s.tw):0;
+  var avgl=s.tw?Math.round(s.lk/s.tw):0;
+  var nm=s.name.replace(/\(.*\)/,'').trim();
+  var isPM=(h==='narendramodi');
+  var role = isPM ? 'Prime Minister' : ((window.roleOf ? window.roleOf(h, c.level) : '') || c.level || 'Chief Minister');
+  var bio=BIO[h]||(esc(nm)+' is the '+role+' of '+esc(s.state)+', representing the '+esc(s.party)+'.');
+  var det=DET[h]||{};
+  var con=c.loc||c.seat||(typeof AC_MAP!=='undefined'&&AC_MAP[c.name])||'—';
+  var pP=Math.round(s.pos/tot*100),nP=Math.round(s.neu/tot*100),gP=Math.round(s.neg/tot*100);
+  var age=det.born?(2026-parseInt(((det.born.match(/\d{4}/))||[''])[0])):0;
+  var ageS=age?String(age):'—';
+  var rf=RK_F[h]||0,rv=RK_V[h]||0,rtk=RK_T[h]||0;
+  var NL=(typeof ALL_LEADERS!=='undefined'&&ALL_LEADERS.length)||PROF.length;
+  var standing='<div class="pf-sec">Standing Among '+NL+' Tracked Leaders</div><div class="pf-stats"><div class="pf-st o"><b>'+(rf?'#'+rf:'—')+'</b><span>Followers Rank</span></div><div class="pf-st g"><b>'+(rv?'#'+rv:'—')+'</b><span>Views Rank</span></div><div class="pf-st b"><b>'+(rtk?'#'+rtk:'—')+'</b><span>Tweets Rank</span></div><div class="pf-st r"><b>'+ageS+'</b><span>Age</span></div></div>';
+  var hl=HL[h];
+  var hlHTML=(hl&&hl.length&&hl[0]!=='—')?('<div class="pf-sec">Key Highlights</div><ul class="pf-hl">'+hl.map(function(x){return '<li>'+esc(x)+'</li>'}).join('')+'</ul>'):'';
+  var rows=[['Role',role],['State / UT',s.state],['Party',shortP(s.party)],['Constituency',con]];
+  if(det.born)rows.push(['Born',det.born]);
+  if(det.edu)rows.push(['Education',det.edu]);
+  rows.push(['In office since',det.since||'—']);
+  rows.push(['X Handle','@'+h]);
+  var detHTML=rows.map(function(r){return '<div class="pf-d"><span>'+esc(r[0])+'</span><b>'+esc(String(r[1]))+'</b></div>'}).join('');
+  var jm=JM[h];
+  var jmHTML='';
+  if(jm&&jm.length){
+    jmHTML='<div class="pf-sec">Career Journey</div><div class="pf-tl">'+jm.map(function(t){return '<div class="pf-tli"><div class="pf-yr">'+esc(String(t[0]))+'</div><div class="pf-ev">'+esc(t[1])+'</div></div>'}).join('')+'</div>';
+  }
+  var an='In Apr–Jul 2026, '+esc(nm)+' posted '+uf(s.tw)+' tweets that drew '+uf(s.vw)+' views and '+uf(s.lk)+' likes (~'+uf(avg)+' views and '+uf(avgl)+' likes per post). The tone was '+nP+'% neutral, '+pP+'% positive and '+gP+'% negative — a broadly '+(gP<10?'favourable':(gP<20?'mixed':'contested'))+' reception.';
+  document.getElementById('pfCard').innerHTML='<button class="pf-x" onclick="closeProfile()">✕</button>'+'<div class="pf-head"><div class="pf-av" style="background:'+col+';position:relative;overflow:hidden">'+ini(s.name)+photoImg(h)+'</div><div style="flex:1"><div class="pf-nm">'+esc(nm)+'</div><div class="pf-role" style="color:'+col+'">'+esc(role)+' — '+esc(s.state)+'</div><div class="pf-sub">@'+esc(h)+' · '+uf(s.followers)+' followers</div><div style="margin-top:6px"><span class="party-chip" style="background:'+col+'18;color:'+col+'">'+esc(shortP(s.party))+'</span></div></div></div>'+'<div class="pf-sec">Key Stats · Apr–Jul 2026</div><div class="pf-stats"><div class="pf-st o"><b>'+uf(s.followers)+'</b><span>Followers</span></div><div class="pf-st b"><b>'+uf(s.tw)+'</b><span>Tweets</span></div><div class="pf-st g"><b>'+uf(s.vw)+'</b><span>Total Views</span></div><div class="pf-st r"><b>'+uf(avg)+'</b><span>Avg Views/Post</span></div></div>'+standing+'<div class="pf-sec">X (Twitter) Engagement</div><div class="pf-kpis"><div class="pf-k"><b>'+uf(s.lk)+'</b><span>Likes</span></div><div class="pf-k"><b>'+uf(s.rt)+'</b><span>Retweets</span></div><div class="pf-k"><b>'+uf(avgl)+'</b><span>Avg Likes/Post</span></div><div class="pf-k"><b>'+s.tw+'</b><span>Posts Tracked</span></div></div>'+'<div class="pf-sec">About</div><div class="pf-bio">'+bio+'</div>'+hlHTML+'<div class="pf-sec">Personal Details</div><div class="pf-dgrid">'+detHTML+'</div>'+jmHTML+'<div class="pf-sec">Activity Analysis</div><div class="pf-an">'+an+'</div>';
+  var m=document.getElementById('profileModal');
+  if(m)m.classList.add('show');
+  scanPhotos();
+};
 window.closeProfile=function(){const m=document.getElementById('profileModal');if(m)m.classList.remove('show')}
 
 // ---- party-card click: focus charts on selected party ----
@@ -4281,9 +4861,9 @@ const GROWTH="__MONGO_GROWTH__";try{window.GROWTH=GROWTH;}catch(e){}
    var avg=tot.t?Math.round(tot.v/tot.t):0;
    var full=(f===AD[0]&&t===AD[AD.length-1]);
    var rlab=full?'Full Range · '+tot.t.toLocaleString('en-IN')+' tweets':(f.slice(5)+' → '+t.slice(5)+' · '+idx.length+' days');
-   function kc(val,lbl,sub,col){return '<div class="kpi" style="--ka:'+col+'"><div class="kpi-val">'+uf2(val)+'</div><div class="kpi-lbl">'+lbl+'</div><div class="kpi-sub">'+sub+'</div><div class="kpi-action"><span class="kpi-action-txt">Tap for Analysis</span><span class="kpi-action-arrow">&#x25BE;</span></div><div class="kpi-spark"><canvas class="kspark"></canvas></div></div>';}
+   function kc(key,val,lbl,sub,col){return '<div class="kpi" data-kpi="'+key+'" onclick="window.kpiOpenDetail(\''+key+'\')" style="--ka:'+col+';cursor:pointer"><div class="kpi-val">'+uf2(val)+'</div><div class="kpi-lbl">'+lbl+'</div><div class="kpi-sub">'+sub+'</div><div class="kpi-action"><span class="kpi-action-txt">Tap for Analysis</span><span class="kpi-action-arrow">&#x25BE;</span></div><div class="kpi-spark"><canvas class="kspark"></canvas></div></div>';}
    var kk=document.getElementById('dashKpis');
-   if(kk)kk.innerHTML=kc(tot.t,'Total Tweets',rlab,'#1a1a1a')+kc(tot.k,'Total Likes','Engagement','#B71C1C')+kc(tot.r,'Retweets','Amplification','#1B5E20')+kc(tot.v,'Total Views','Impressions','#4A148C')+kc(avg,'Avg Views/Tweet','Content efficiency','#E65100')+kc(tot.t?Math.round(tot.k/tot.t):0,'Avg Likes/Tweet','Engagement per tweet','#00838F');
+   if(kk)kk.innerHTML=kc('tweets',tot.t,'Total Tweets',rlab,'#1a1a1a')+kc('likes',tot.k,'Total Likes','Engagement','#B71C1C')+kc('rts',tot.r,'Retweets','Amplification','#1B5E20')+kc('views',tot.v,'Total Views','Impressions','#4A148C')+kc('avgvpt',avg,'Avg Views/Tweet','Content efficiency','#E65100')+kc('avglpt',tot.t?Math.round(tot.k/tot.t):0,'Avg Likes/Tweet','Engagement per tweet','#00838F');
    try{window.updateLevelStrip&&window.updateLevelStrip();}catch(e){}
    if(kk&&typeof Chart!=='undefined'){var _davg=dser_t.map(function(x,i){return x?Math.round(dser_v[i]/x):0;});var _davl=dser_t.map(function(x,i){return x?Math.round(dser_k[i]/x):0;});var _sser=[dser_t,dser_k,dser_r,dser_v,_davg,_davl];var _scol=['#1a1a1a','#B71C1C','#1B5E20','#4A148C','#E65100','#00838F'];var _cvs=kk.querySelectorAll('canvas.kspark');window._ksp=window._ksp||[];for(var _ci=0;_ci<_cvs.length&&_ci<_sser.length;_ci++){if(window._ksp[_ci]){try{window._ksp[_ci].destroy();}catch(e){}}window._ksp[_ci]=new Chart(_cvs[_ci],{type:'line',data:{labels:_sser[_ci].map(function(_,j){return j;}),datasets:[{data:_sser[_ci],borderColor:_scol[_ci],backgroundColor:_scol[_ci]+'22',fill:true,tension:0.4,pointRadius:0,borderWidth:1.8}]},options:{maintainAspectRatio:false,animation:false,plugins:{legend:{display:false},datalabels:{display:false},tooltip:{enabled:false}},scales:{x:{display:false},y:{display:false}}}});}}
    var top=Object.keys(per).map(function(h){return {h:h,v:per[h].v,t:per[h].t,k:per[h].k};}).sort(function(a,b){return b.v-a.v;}).slice(0,8);
@@ -4332,7 +4912,7 @@ window.updateLevelStrip=function(){try{
   function slv(id){var v=document.getElementById('lv'+id);if(v)v.textContent=(lvT[id]||0).toLocaleString('en-IN');var hh=document.getElementById('lv'+id+'h');if(hh)hh.textContent=(lvH[id]||0)+' handles';}
   ['LSMP','RSMP','MLA','Cont','MLC','CM','DyCM','Others'].forEach(slv);
 }catch(e){}};
-window.renderDashDate=renderDashDate;
+window.AD=AD;window.renderDashDate=renderDashDate;try{renderDashDate();}catch(e){}
 
 /* ===== kpi-expand (F1 17-Oct): KPI card click-to-expand ===== */
 (function () {
@@ -4362,36 +4942,63 @@ window.renderDashDate=renderDashDate;
   /* Get current daily array for a metric, filtered by party + date range */
   function _getDailyData(def) {
     var D = window.D;
-    if (!D || !D.partyDaily || !D.AD) return { labels: [], vals: [], total: 0 };
-
+    var dates = (D && D.AD) || window.PHD_DATES || (window.AGG && window.AGG.dates) || [];
     var party  = (document.getElementById('dashParty')  || {value:'all'}).value || 'all';
     var fromV  = (document.getElementById('dashFrom')   || {value:''}).value;
     var toV    = (document.getElementById('dashTo')     || {value:''}).value;
 
-    /* build per-day sums */
-    var allKeys = Object.keys(D.partyDaily);
-    var N = D.AD.length;
+    if (!dates.length) return { labels: [], vals: [], total: 0 };
+    var N = dates.length;
     var tArr = new Array(N).fill(0);
     var vArr = new Array(N).fill(0);
     var kArr = new Array(N).fill(0);
     var rArr = new Array(N).fill(0);
 
-    var keysToUse = (party === 'all') ? allKeys : (D.partyDaily[party] ? [party] : allKeys);
-    keysToUse.forEach(function(pk) {
-      var pd = D.partyDaily[pk];
-      if (!pd) return;
-      for (var i = 0; i < N; i++) {
-        tArr[i] += (pd.t && pd.t[i]) || 0;
-        vArr[i] += (pd.v && pd.v[i]) || 0;
-        kArr[i] += (pd.k && pd.k[i]) || 0;
-        rArr[i] += (pd.r && pd.r[i]) || 0;
+    if (D && D.partyDaily) {
+      var allKeys = Object.keys(D.partyDaily);
+      var keysToUse = (party === 'all') ? allKeys : (D.partyDaily[party] ? [party] : allKeys);
+      keysToUse.forEach(function(pk) {
+        var pd = D.partyDaily[pk];
+        if (!pd) return;
+        for (var i = 0; i < N; i++) {
+          tArr[i] += (pd.t && pd.t[i]) || 0;
+          vArr[i] += (pd.v && pd.v[i]) || 0;
+          kArr[i] += (pd.k && pd.k[i]) || 0;
+          rArr[i] += (pd.r && pd.r[i]) || 0;
+        }
+      });
+    } else if (window.AGG && window.AGG.S) {
+      var sKey = (party === 'all') ? 'ALL|ALL' : ('ALL|' + party);
+      var sObj = window.AGG.S[sKey] || window.AGG.S['ALL|ALL'];
+      if (sObj) {
+        for (var i = 0; i < N; i++) {
+          tArr[i] = (sObj.t && sObj.t[i]) || 0;
+          vArr[i] = (sObj.v && sObj.v[i]) || 0;
+          kArr[i] = (sObj.k && sObj.k[i]) || 0;
+          rArr[i] = (sObj.r && sObj.r[i]) || 0;
+        }
       }
-    });
+    } else if (window.PHD) {
+      var P = window.PHD, G = (window.GROWTH && window.GROWTH.H) || {};
+      Object.keys(P).forEach(function(h) {
+        if (party !== 'all') {
+          var hp = (G[h] || {}).p;
+          if (hp !== party) return;
+        }
+        var o = P[h];
+        for (var i = 0; i < N; i++) {
+          tArr[i] += (o.t && o.t[i]) || 0;
+          vArr[i] += (o.v && o.v[i]) || 0;
+          kArr[i] += (o.k && o.k[i]) || 0;
+          rArr[i] += (o.r && o.r[i]) || 0;
+        }
+      });
+    }
 
     /* filter by date range */
     var labels = [], vals = [];
     var sumT = 0, sumV = 0, sumK = 0, sumR = 0;
-    D.AD.forEach(function(d, i) {
+    dates.forEach(function(d, i) {
       if (fromV && d < fromV) return;
       if (toV   && d > toV)   return;
       labels.push(d);
@@ -4572,6 +5179,9 @@ window.renderDashDate=renderDashDate;
 
   /* Also patch on DOMContentLoaded */
   document.addEventListener('DOMContentLoaded', function() {
+    try { window.renderDashDate && window.renderDashDate(); } catch(e) {}
+    try { window.hExecRange && window.hExecRange(); } catch(e) {}
+    setTimeout(_patchKpiCards, 50);
     setTimeout(_patchKpiCards, 200);
     setTimeout(_patchKpiCards, 1000);
   });
@@ -4883,21 +5493,17 @@ window.renderDashDate=renderDashDate;
    var f=document.getElementById('gFrom'),t=document.getElementById('gTo');
    if(f)f.addEventListener('change',window.renderGrowth);if(t)t.addEventListener('change',window.renderGrowth);
    var nv=document.querySelector('.mnav-tab[data-tab="growth"]');if(nv)nv.addEventListener('click',function(){setTimeout(window.renderGrowth,80);});
-   try{if(localStorage.getItem('ipp_theme')==='dark')document.body.classList.add('dark');}catch(e){}var _tlb=document.getElementById('themeLbl');if(_tlb)_tlb.textContent=document.body.classList.contains('dark')?'Dark Mode':'Light Mode';var _nd=document.querySelector('.mnav-tab[data-tab="dashboard"]');if(_nd)_nd.addEventListener('click',function(){setTimeout(function(){try{window.renderDashboard&&window.renderDashboard();}catch(e){}var _df=document.getElementById('dashFrom'),_dt=document.getElementById('dashTo');if(_df)_df.addEventListener('change',function(){try{renderDashDate();}catch(e){}});if(_dt)_dt.addEventListener('change',function(){try{renderDashDate();}catch(e){}});var _nd2=document.querySelector('.mnav-tab[data-tab="dashboard"]');if(_nd2)_nd2.addEventListener('click',function(){setTimeout(function(){try{renderDashDate();}catch(e){}},110);});try{renderDashDate();}catch(e){}},80);});try{window.renderDashboard&&window.renderDashboard();}catch(e){}
+   try{if(localStorage.getItem('ipp_theme')==='dark')document.body.classList.add('dark');}catch(e){}var _tlb=document.getElementById('themeLbl');if(_tlb)_tlb.textContent=document.body.classList.contains('dark')?'Dark Mode':'Light Mode';var _nd=document.querySelector('.mnav-tab[data-tab="dashboard"]');if(_nd)_nd.addEventListener('click',function(){setTimeout(function(){try{window.renderDashboard&&window.renderDashboard();}catch(e){}var _df=document.getElementById('dashFrom'),_dt=document.getElementById('dashTo');if(_df)_df.addEventListener('change',function(){try{renderDashDate();}catch(e){}});if(_dt)_dt.addEventListener('change',function(){try{renderDashDate();}catch(e){}});var _nd2=document.querySelector('.mnav-tab[data-tab="dashboard"]');if(_nd2)_nd2.addEventListener('click',function(){setTimeout(function(){try{renderDashDate();}catch(e){}},110);});try{renderDashDate();}catch(e){}},80);});try{window.renderDashboard&&window.renderDashboard();}catch(e){}try{window.renderDashDate&&window.renderDashDate();}catch(e){}try{window.hExecRange&&window.hExecRange();}catch(e){}
  });
 })();
 </script>
 <!-- hdr-layout: purana hover/pin wala sidebar script hata diya -->
 <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M6.3 17.7l-1.4 1.4M19.1 4.9l-1.4 1.4"/></svg><span id="themeLbl">Light Mode</span></button>
 <script>
+const D="__MONGO_D__";
+try{window.D=D;}catch(e){}
 (function(){
 if(typeof Chart==='undefined')return;
-const D="__MONGO_D__";
-/* D is IIFE ke andar band tha -> bahar wale script block (hExecRange) ko
-   dikhta hi nahi tha, isliye wo chupchaap pehli hi line par laut jaata tha
-   aur Executive Summary ke card date filter maante hi nahi the.
-   Global par expose kar diya -- wahi dikkat UNI ke saath bhi thi. */
-try{window.D=D;}catch(e){}
 const N=D.dayLabels.length;
 const uf=n=>{n=Math.round(n);return n>=1e7?(n/1e7).toFixed(2)+' Cr':n>=1e5?(n/1e5).toFixed(2)+' L':n>=1e3?(n/1e3).toFixed(1)+'K':(''+n);};
 const PC={BJP:'#E65100',INC:'#0D47A1',SP:'#1B5E20',TVK:'#7B1FA2',DMK:'#C62828',AAP:'#1565C0',SS:'#00838F',TDP:'#FF8F00',AITC:'#1B5E20','JD(U)':'#1A237E',Others:'#a99f92'};
@@ -5054,7 +5660,8 @@ function pkDay(i) {
 window.pkDay = pkDay;
 function hExecRange(f, t) {
   try {
-    if (typeof D === 'undefined' || !D || !D.AD || !D.handles) return;
+    var D = window.D || (typeof D !== 'undefined' ? D : null);
+    if (!D || !D.AD || !D.handles) return;
     var AD = D.AD;
     f = f || AD[0]; t = t || AD[AD.length - 1];
     var idx = [];
@@ -8990,6 +9597,541 @@ W.__pfByParty = byParty; W.__pfMetrics = metrics; W.__pfCATS = CATS; W.__pfDAYS 
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',setSub);
   else setSub();
   setTimeout(setSub,800);setTimeout(setSub,2000);
+})();
+
+
+
+/* ====== NARRATIVE GROUPS TAB LOGIC ====== */
+var NARRATIVE_GROUPS_DATA = [{"id": "cjp", "name": "Cockroach Janta Party", "subtitle": "Cockroach Janta Party Official", "acronym": "CJP", "category": "Political Group", "color": "#FF5722", "website": "https://x.com/Cockroachisback", "handle": "Cockroachisback", "desc": "Cockroach Janta Party (CJP) is a people's movement focused on constitutional values, social justice and democratic rights.", "handles": ["Cockroachisback", "CJP_is_back", "abhijeet_dipke", "SauravDassss", "AshutoshRanka", "Aafreen_Nawazz", "VijayMallangi", "AjinkyaCJP", "Ankitrevolution", "rohan_ad", "deepakbaliyan90", "whattalawyer", "Vaishnavii_gaur", "mehrpasr", "neha_aisa"], "leaders": [{"name": "Cockroach Janta Party - CJP", "handle": "Cockroachisback", "role": "Official Party Page", "url": "https://x.com/Cockroachisback", "avatar": "https://unavatar.io/twitter/Cockroachisback", "tweets": 0, "likes": 0, "rts": 0, "views": 0}, {"name": "CJP Updates", "handle": "CJP_is_back", "role": "Party Page", "url": "https://x.com/CJP_is_back", "avatar": "https://unavatar.io/twitter/CJP_is_back", "tweets": 0, "likes": 0, "rts": 0, "views": 0}, {"name": "Abhijeet Dipke", "handle": "abhijeet_dipke", "role": "Founder & Convenor - Cockroach Janta Party", "url": "https://x.com/abhijeet_dipke", "avatar": "https://unavatar.io/twitter/abhijeet_dipke", "tweets": 0, "likes": 0, "rts": 0, "views": 0}, {"name": "Saurav Das", "handle": "SauravDassss", "role": "Co-convenor, Cockroach Janta Party", "url": "https://x.com/SauravDassss", "avatar": "https://unavatar.io/twitter/SauravDassss", "tweets": 0, "likes": 0, "rts": 0, "views": 0}, {"name": "Ashutosh Ranka", "handle": "AshutoshRanka", "role": "Co-Convener, CJP", "url": "https://x.com/AshutoshRanka", "avatar": "https://unavatar.io/twitter/AshutoshRanka", "tweets": 0, "likes": 0, "rts": 0, "views": 0}, {"name": "Aafreen", "handle": "Aafreen_Nawazz", "role": "National Secretary - Cockroach Janta Party", "url": "https://x.com/Aafreen_Nawazz", "avatar": "https://unavatar.io/twitter/Aafreen_Nawazz", "tweets": 0, "likes": 0, "rts": 0, "views": 0}, {"name": "Ratna Singh", "handle": "whattalawyer", "role": "Legal Affairs Head CJP", "url": "https://x.com/whattalawyer", "avatar": "https://unavatar.io/twitter/whattalawyer", "tweets": 0, "likes": 0, "rts": 0, "views": 0}, {"name": "Ajinkya Shinde", "handle": "AjinkyaCJP", "role": "National Organisation In-charge CJP", "url": "https://x.com/AjinkyaCJP", "avatar": "https://unavatar.io/twitter/AjinkyaCJP", "tweets": 0, "likes": 0, "rts": 0, "views": 0}, {"name": "Vijay Mallangi", "handle": "VijayMallangi", "role": "Media & South Zone Lead CJP", "url": "https://x.com/VijayMallangi", "avatar": "https://unavatar.io/twitter/VijayMallangi", "tweets": 0, "likes": 0, "rts": 0, "views": 0}, {"name": "Ankit Bhardwaj", "handle": "Ankitrevolution", "role": "East & North-East Zonal Lead", "url": "https://x.com/Ankitrevolution", "avatar": "https://unavatar.io/twitter/Ankitrevolution", "tweets": 0, "likes": 0, "rts": 0, "views": 0}, {"name": "Rohan", "handle": "rohan_ad", "role": "Technology Lead CJP", "url": "https://x.com/rohan_ad", "avatar": "https://unavatar.io/twitter/rohan_ad", "tweets": 0, "likes": 0, "rts": 0, "views": 0}, {"name": "Deepak Baliyan", "handle": "deepakbaliyan90", "role": "Organisational Co-Incharge", "url": "https://x.com/deepakbaliyan90", "avatar": "https://unavatar.io/twitter/deepakbaliyan90", "tweets": 0, "likes": 0, "rts": 0, "views": 0}, {"name": "Vaishnavi Gaur", "handle": "Vaishnavii_gaur", "role": "Policy, Politics, and other things", "url": "https://x.com/Vaishnavii_gaur", "avatar": "https://unavatar.io/twitter/Vaishnavii_gaur", "tweets": 0, "likes": 0, "rts": 0, "views": 0}, {"name": "Mehr", "handle": "mehrpasr", "role": "Party Leader", "url": "https://x.com/mehrpasr", "avatar": "https://unavatar.io/twitter/mehrpasr", "tweets": 0, "likes": 0, "rts": 0, "views": 0}, {"name": "Neha Bora", "handle": "neha_aisa", "role": "Associated Member", "url": "https://x.com/neha_aisa", "avatar": "https://unavatar.io/twitter/neha_aisa", "tweets": 0, "likes": 0, "rts": 0, "views": 0}], "logoUrl": "https://unavatar.io/twitter/Cockroachisback", "stats": {"tweets": 0, "likes": 0, "rts": 0, "views": 0}, "trends": {"tweets": "+12%", "likes": "+18%", "rts": "+10%", "views": "+22%"}, "topNarratives": [{"topic": "Constitution & Democracy", "pct": 28}, {"topic": "Social Justice & Rights", "pct": 24}, {"topic": "Student Movements & Education", "pct": 20}, {"topic": "Public Welfare & Inflation", "pct": 16}, {"topic": "Governance Criticism", "pct": 12}]}, {"id": "iyc", "name": "Indian Youth Congress", "subtitle": "Youth Wing of Indian National Congress", "acronym": "IYC", "category": "Political Wing", "color": "#1976D2", "website": "https://x.com/IYC", "handle": "IYC", "desc": "Indian Youth Congress is the youth wing of the Indian National Congress party, actively mobilizing youth on social and political issues.", "handles": ["IYC", "srinivasiyc", "Tanzil_NSUI", "ABHIRANJANIYC", "gaurang_iyc", "mathura_iyc"], "leaders": [{"name": "IYC Official", "handle": "IYC", "role": "Party Page", "url": "https://x.com/IYC", "avatar": "https://unavatar.io/twitter/IYC", "tweets": 0, "likes": 0, "rts": 0, "views": 0}, {"name": "Srinivas BV", "handle": "srinivasiyc", "role": "Former President - Indian Youth Congress", "url": "https://x.com/srinivasiyc", "avatar": "https://unavatar.io/twitter/srinivasiyc", "tweets": 0, "likes": 0, "rts": 0, "views": 0}, {"name": "Tanzil Hussain", "handle": "Tanzil_NSUI", "role": "Vice President Assam Pradesh Youth Congress", "url": "https://x.com/Tanzil_NSUI", "avatar": "https://unavatar.io/twitter/Tanzil_NSUI", "tweets": 0, "likes": 0, "rts": 0, "views": 0}], "logoUrl": "https://unavatar.io/twitter/IYC", "stats": {"tweets": 0, "likes": 0, "rts": 0, "views": 0}, "trends": {"tweets": "+12%", "likes": "+18%", "rts": "+10%", "views": "+22%"}, "topNarratives": [{"topic": "Constitution & Democracy", "pct": 28}, {"topic": "Social Justice & Rights", "pct": 24}, {"topic": "Student Movements & Education", "pct": 20}, {"topic": "Public Welfare & Inflation", "pct": 16}, {"topic": "Governance Criticism", "pct": 12}]}, {"id": "bhim_army", "name": "Bhim Army Student Federation", "subtitle": "Student Federation of Bhim Army", "acronym": "BASF", "category": "Political Group", "color": "#0288D1", "website": "https://x.com/BhimArmyChief", "handle": "BhimArmyChief", "desc": "Bhim Army Student Federation advocates for student rights, educational equity, and social justice.", "handles": ["BhimArmyChief"], "leaders": [{"name": "Chandra Shekhar Aazad", "handle": "BhimArmyChief", "role": "National President", "url": "https://x.com/BhimArmyChief", "avatar": "https://unavatar.io/twitter/BhimArmyChief", "tweets": 0, "likes": 0, "rts": 0, "views": 0}], "logoUrl": "https://unavatar.io/twitter/BhimArmyChief", "stats": {"tweets": 0, "likes": 0, "rts": 0, "views": 0}, "trends": {"tweets": "+12%", "likes": "+18%", "rts": "+10%", "views": "+22%"}, "topNarratives": [{"topic": "Constitution & Democracy", "pct": 28}, {"topic": "Social Justice & Rights", "pct": 24}, {"topic": "Student Movements & Education", "pct": 20}, {"topic": "Public Welfare & Inflation", "pct": 16}, {"topic": "Governance Criticism", "pct": 12}]}, {"id": "aisf", "name": "All India Students' Federation", "subtitle": "Oldest Student Organisation in India", "acronym": "AISF", "category": "Student Wing", "color": "#D32F2F", "website": "https://x.com/aisftweets", "handle": "aisftweets", "desc": "All India Students' Federation is the oldest student organization in India, founded on 12 August 1936.", "handles": ["nawsad_siddique", "AdvocateKanhaiya", "aisftweets"], "leaders": [{"name": "Md Nawsad Siddique", "handle": "nawsad_siddique", "role": "Leader / MLA", "url": "https://x.com/nawsad_siddique", "avatar": "https://unavatar.io/twitter/nawsad_siddique", "tweets": 0, "likes": 0, "rts": 0, "views": 0}, {"name": "Kanhaiya Kumar (Alum)", "handle": "AdvocateKanhaiya", "role": "Former President", "url": "https://x.com/AdvocateKanhaiya", "avatar": "https://unavatar.io/twitter/AdvocateKanhaiya", "tweets": 0, "likes": 0, "rts": 0, "views": 0}], "logoUrl": "https://unavatar.io/twitter/aisftweets", "stats": {"tweets": 0, "likes": 0, "rts": 0, "views": 0}, "trends": {"tweets": "+12%", "likes": "+18%", "rts": "+10%", "views": "+22%"}, "topNarratives": [{"topic": "Constitution & Democracy", "pct": 28}, {"topic": "Social Justice & Rights", "pct": 24}, {"topic": "Student Movements & Education", "pct": 20}, {"topic": "Public Welfare & Inflation", "pct": 16}, {"topic": "Governance Criticism", "pct": 12}]}, {"id": "sfi", "name": "Students' Federation of India", "subtitle": "Independence, Democracy, Socialism", "acronym": "SFI", "category": "Student Wing", "color": "#C62828", "website": "https://x.com/SFI_CEC", "handle": "SFI_CEC", "desc": "Students' Federation of India is an Indian student organization politically aligned to the CPI(M).", "handles": ["SFI_CEC", "AisheGhosh"], "leaders": [{"name": "SFI Central Executive", "handle": "SFI_CEC", "role": "Official Handle", "url": "https://x.com/SFI_CEC", "avatar": "https://unavatar.io/twitter/SFI_CEC", "tweets": 0, "likes": 0, "rts": 0, "views": 0}, {"name": "Aishe Ghosh", "handle": "AisheGhosh", "role": "Student Leader", "url": "https://x.com/AisheGhosh", "avatar": "https://unavatar.io/twitter/AisheGhosh", "tweets": 0, "likes": 0, "rts": 0, "views": 0}], "logoUrl": "https://unavatar.io/twitter/SFI_CEC", "stats": {"tweets": 0, "likes": 0, "rts": 0, "views": 0}, "trends": {"tweets": "+12%", "likes": "+18%", "rts": "+10%", "views": "+22%"}, "topNarratives": [{"topic": "Constitution & Democracy", "pct": 28}, {"topic": "Social Justice & Rights", "pct": 24}, {"topic": "Student Movements & Education", "pct": 20}, {"topic": "Public Welfare & Inflation", "pct": 16}, {"topic": "Governance Criticism", "pct": 12}]}, {"id": "aisa", "name": "All India Students' Association", "subtitle": "Left Student Organisation", "acronym": "AISA", "category": "Student Wing", "color": "#E53935", "website": "https://x.com/aisa_official_", "handle": "aisa_official_", "desc": "All India Students' Association is a left-wing student organization committed to fighting for students' rights and social justice.", "handles": ["aisa_official_", "neha_aisa", "AISA_tweets"], "leaders": [{"name": "AISA Official", "handle": "aisa_official_", "role": "Official Handle", "url": "https://x.com/aisa_official_", "avatar": "https://unavatar.io/twitter/aisa_official_", "tweets": 0, "likes": 0, "rts": 0, "views": 0}, {"name": "Neha Bora", "handle": "neha_aisa", "role": "Student Activist", "url": "https://x.com/neha_aisa", "avatar": "https://unavatar.io/twitter/neha_aisa", "tweets": 0, "likes": 0, "rts": 0, "views": 0}], "logoUrl": "https://unavatar.io/twitter/aisa_official_", "stats": {"tweets": 0, "likes": 0, "rts": 0, "views": 0}, "trends": {"tweets": "+12%", "likes": "+18%", "rts": "+10%", "views": "+22%"}, "topNarratives": [{"topic": "Constitution & Democracy", "pct": 28}, {"topic": "Social Justice & Rights", "pct": 24}, {"topic": "Student Movements & Education", "pct": 20}, {"topic": "Public Welfare & Inflation", "pct": 16}, {"topic": "Governance Criticism", "pct": 12}]}, {"id": "creators", "name": "Independent Creators Network", "subtitle": "Independent Political Commentators", "acronym": "Creators", "category": "Independent", "color": "#7B1FA2", "website": "https://x.com/dhruv_rathee", "handle": "dhruv_rathee", "desc": "Network of independent political analysts, journalists, and satirists driving digital narratives across India.", "handles": ["dhruv_rathee", "kunalkamra88", "thevirdas", "prakashraaj", "sardesairajdeep"], "leaders": [{"name": "Dhruv Rathee", "handle": "dhruv_rathee", "role": "Political Commentator", "url": "https://x.com/dhruv_rathee", "avatar": "https://unavatar.io/twitter/dhruv_rathee", "tweets": 0, "likes": 0, "rts": 0, "views": 0}, {"name": "Rajdeep Sardesai", "handle": "sardesairajdeep", "role": "Senior Journalist", "url": "https://x.com/sardesairajdeep", "avatar": "https://unavatar.io/twitter/sardesairajdeep", "tweets": 0, "likes": 0, "rts": 0, "views": 0}, {"name": "Kunal Kamra", "handle": "kunalkamra88", "role": "Satirist & Commentator", "url": "https://x.com/kunalkamra88", "avatar": "https://unavatar.io/twitter/kunalkamra88", "tweets": 0, "likes": 0, "rts": 0, "views": 0}, {"name": "Prakash Raj", "handle": "prakashraaj", "role": "Actor & Activist", "url": "https://x.com/prakashraaj", "avatar": "https://unavatar.io/twitter/prakashraaj", "tweets": 0, "likes": 0, "rts": 0, "views": 0}, {"name": "Vir Das", "handle": "thevirdas", "role": "Satirist", "url": "https://x.com/thevirdas", "avatar": "https://unavatar.io/twitter/thevirdas", "tweets": 0, "likes": 0, "rts": 0, "views": 0}], "logoUrl": "https://unavatar.io/twitter/dhruv_rathee", "stats": {"tweets": 0, "likes": 0, "rts": 0, "views": 0}, "trends": {"tweets": "+12%", "likes": "+18%", "rts": "+10%", "views": "+22%"}, "topNarratives": [{"topic": "Constitution & Democracy", "pct": 28}, {"topic": "Social Justice & Rights", "pct": 24}, {"topic": "Student Movements & Education", "pct": 20}, {"topic": "Public Welfare & Inflation", "pct": 16}, {"topic": "Governance Criticism", "pct": 12}]}];
+
+var _ngActiveGroup = null;
+var _ngCurrentPage = 1;
+var _ngPageSize = 10;
+var _ngDonutInst = null;
+var _ngTimelineInst = null;
+
+// Format numbers in Indian Lakh / Crore notation
+function fmtNgNum(n){
+  var v = Math.round(Number(n) || 0);
+  if(v >= 10000000) return (v / 10000000).toFixed(2) + ' Cr';
+  if(v >= 100000) return (v / 100000).toFixed(2) + ' L';
+  if(v >= 1000) return (v / 1000).toFixed(1) + ' K';
+  return v.toLocaleString('en-IN');
+}
+
+// Aggregate stats dynamically from window.UNI.allHandles (instant initial load)
+function syncStatsFromUni(){
+  if(!window.UNI || !Array.isArray(window.UNI.allHandles)) return;
+  var map = {};
+  window.UNI.allHandles.forEach(function(h){
+    if(h && h.h) map[h.h.toLowerCase()] = h;
+  });
+
+  var grandTw = 0, grandHandles = 0;
+  NARRATIVE_GROUPS_DATA.forEach(function(g){
+    var gTw = 0, gLk = 0, gRt = 0, gVw = 0;
+    (g.leaders || []).forEach(function(m){
+      var doc = map[(m.handle || '').toLowerCase()];
+      if(doc){
+        m.tweets = doc.tw || doc.tweets || 0;
+        m.likes = doc.lk || doc.likes || 0;
+        m.rts = doc.rt || doc.retweets || 0;
+        m.views = doc.vw || doc.views || 0;
+      }
+      gTw += (m.tweets || 0);
+      gLk += (m.likes || 0);
+      gRt += (m.rts || 0);
+      gVw += (m.views || 0);
+    });
+    g.stats = { tweets: gTw, likes: gLk, rts: gRt, views: gVw };
+    grandTw += gTw;
+    grandHandles += (g.leaders || []).length;
+
+    // Recalculate share percentage
+    (g.leaders || []).forEach(function(m){
+      m.sharePct = gTw > 0 ? Math.round((m.tweets / gTw) * 100) : 0;
+    });
+  });
+
+  var stElem = document.getElementById('ngTotalStats');
+  if(stElem) stElem.textContent = fmtNgNum(grandTw) + ' tweets · ' + grandHandles + ' handles';
+}
+
+// Live fetch directly from MongoDB aggregation endpoint: GET /api/narrative-groups/stats
+function fetchLiveNarrativeGroupStats(showNotice){
+  var stElem = document.getElementById('ngTotalStats');
+  if(showNotice && stElem) stElem.textContent = 'Syncing MongoDB...';
+
+  fetch('/api/narrative-groups/stats')
+    .then(function(res){ return res.json(); })
+    .then(function(data){
+      if(data && data.ok && data.stats){
+        var statsMap = data.stats;
+        var grandTw = 0, grandHandles = 0;
+        NARRATIVE_GROUPS_DATA.forEach(function(g){
+          var gTw = 0, gLk = 0, gRt = 0, gVw = 0;
+          (g.leaders || []).forEach(function(m){
+            var st = statsMap[m.handle] || { tweets: 0, likes: 0, rts: 0, views: 0 };
+            if(st && st.tweets > 0){
+              m.tweets = st.tweets;
+              m.likes = st.likes;
+              m.rts = st.rts;
+              m.views = st.views;
+            }
+            gTw += (m.tweets || 0);
+            gLk += (m.likes || 0);
+            gRt += (m.rts || 0);
+            gVw += (m.views || 0);
+          });
+          g.stats = { tweets: gTw, likes: gLk, rts: gRt, views: gVw };
+          grandTw += gTw;
+          grandHandles += (g.leaders || []).length;
+
+          (g.leaders || []).forEach(function(m){
+            m.sharePct = gTw > 0 ? Math.round((m.tweets / gTw) * 100) : 0;
+          });
+        });
+
+        if(stElem) stElem.textContent = fmtNgNum(grandTw) + ' tweets · ' + grandHandles + ' handles (Live Mongo)';
+        
+        // Re-render directory or detail if active
+        if(_ngActiveGroup){
+          openNarrativeGroup(_ngActiveGroup.id);
+        } else {
+          renderNarrativeGroupsTable();
+        }
+        if(showNotice) console.log('[Live Mongo Sync] Updated all Narrative Groups successfully.');
+      }
+    })
+    .catch(function(e){
+      // Standalone mode: fallback to UNI
+      syncStatsFromUni();
+    });
+}
+window.fetchLiveNarrativeGroupStats = fetchLiveNarrativeGroupStats;
+
+// Populate Top Filters: Date Range, Levels, State, Party, All Groups
+function initNarrativeGroupFilters(){
+  // 1. Levels
+  var lvlSel = document.getElementById('ngFilterLevel');
+  if(lvlSel && lvlSel.options.length <= 1){
+    var levels = ['National', 'MLA', 'LS MP', 'RS MP', 'Chief Minister', 'Dy CM', 'Others'];
+    levels.forEach(function(lvl){
+      var opt = document.createElement('option');
+      opt.value = lvl;
+      opt.textContent = lvl;
+      lvlSel.appendChild(opt);
+    });
+  }
+
+  // 2. States
+  var stSel = document.getElementById('ngFilterState');
+  if(stSel && stSel.options.length <= 1){
+    var states = [];
+    if(window.UNI && Array.isArray(window.UNI.states)){
+      states = window.UNI.states.slice();
+    } else {
+      states = ['Andhra Pradesh','Assam','Bihar','Delhi','Gujarat','Haryana','Karnataka','Kerala','Madhya Pradesh','Maharashtra','Punjab','Rajasthan','Tamil Nadu','Telangana','Uttar Pradesh','West Bengal'];
+    }
+    states.sort().forEach(function(st){
+      var opt = document.createElement('option');
+      opt.value = st;
+      opt.textContent = st;
+      stSel.appendChild(opt);
+    });
+  }
+
+  // 3. Parties
+  var pSel = document.getElementById('ngFilterParty');
+  if(pSel && pSel.options.length <= 1){
+    var parties = ['CJP', 'INC', 'BJP', 'SP', 'AAP', 'CPI(M)', 'IND', 'TMC', 'DMK'];
+    parties.forEach(function(p){
+      var opt = document.createElement('option');
+      opt.value = p;
+      opt.textContent = p;
+      pSel.appendChild(opt);
+    });
+  }
+
+  // 4. All Groups dropdown
+  var gSel = document.getElementById('ngFilterGroup');
+  if(gSel && gSel.options.length <= 1){
+    NARRATIVE_GROUPS_DATA.forEach(function(g){
+      var opt = document.createElement('option');
+      opt.value = g.id;
+      opt.textContent = g.name + ' (' + g.acronym + ')';
+      gSel.appendChild(opt);
+    });
+  }
+}
+
+// Handle Filter Changes
+function onNgFilterChange(){
+  var rSel = document.getElementById('ngFilterRange');
+  var custBox = document.getElementById('ngCustomDates');
+  if(custBox){
+    custBox.style.display = (rSel && rSel.value === 'custom') ? 'inline-flex' : 'none';
+  }
+  _ngCurrentPage = 1;
+  renderNarrativeGroupsTable();
+}
+window.onNgFilterChange = onNgFilterChange;
+
+function getFilteredNarrativeGroups(){
+  var q = (document.getElementById('ngSearchInput') ? document.getElementById('ngSearchInput').value : '').toLowerCase().trim();
+  var groupFilter = document.getElementById('ngFilterGroup') ? document.getElementById('ngFilterGroup').value : 'all';
+  var partyFilter = document.getElementById('ngFilterParty') ? document.getElementById('ngFilterParty').value : 'all';
+
+  return NARRATIVE_GROUPS_DATA.filter(function(g){
+    var mQ = !q || (g.name.toLowerCase().indexOf(q) >= 0 || g.acronym.toLowerCase().indexOf(q) >= 0 || (g.category||'').toLowerCase().indexOf(q) >= 0);
+    var mGroup = (groupFilter === 'all') || (g.id === groupFilter);
+    var mParty = (partyFilter === 'all') || (g.id === partyFilter.toLowerCase()) || ((g.category||'').indexOf(partyFilter) >= 0);
+    return mQ && mGroup && mParty;
+  });
+}
+
+function renderNarrativeGroupsTable(){
+  var list = getFilteredNarrativeGroups();
+  var total = list.length;
+  var totalPages = Math.ceil(total / _ngPageSize) || 1;
+  if(_ngCurrentPage > totalPages) _ngCurrentPage = 1;
+  
+  var start = (_ngCurrentPage - 1) * _ngPageSize;
+  var end = Math.min(start + _ngPageSize, total);
+  var pageItems = list.slice(start, end);
+
+  var tbody = document.getElementById('ngTableBody');
+  if(!tbody) return;
+
+  if(!pageItems.length){
+    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:32px;color:#888;font-size:13px">No narrative groups match the filter criteria</td></tr>';
+  } else {
+    tbody.innerHTML = pageItems.map(function(g, idx){
+      var rank = start + idx + 1;
+      var catClass = g.category === 'Political Group' ? 'ng-pill-pol' : (g.category === 'Student Wing' ? 'ng-pill-stu' : (g.category === 'Political Wing' ? 'ng-pill-wing' : 'ng-pill-ind'));
+      
+      // Member avatars stack with larger 36px circles
+      var avs = (g.leaders || []).slice(0, 4).map(function(m){
+        return '<div class="ng-av-circle" title="'+(m.name||'')+' (@'+(m.handle||'')+') - '+(m.role||'')+'">' +
+          '<img src="'+(m.avatar||'')+'" onerror="this.src=\'https://abs.twimg.com/responsive-web/client-web/icon-default.7410068a.png\'">' +
+        '</div>';
+      }).join('');
+      
+      var extra = (g.leaders || []).length - 4;
+      var moreChip = (extra > 0) ? '<div class="ng-av-more">+'+extra+'</div>' : '';
+      var memberNames = (g.leaders || []).slice(0, 4).map(function(m){ return m.name; }).join(', ');
+
+      var logoHtml = '<div class="ng-logo-box"><img src="'+g.logoUrl+'" onerror="this.src=\'https://abs.twimg.com/responsive-web/client-web/icon-default.7410068a.png\'"></div>';
+
+      return '<tr onclick="openNarrativeGroup(\''+g.id+'\')">' +
+        '<td><span class="td-rank" style="color:#E65100;font-weight:800">'+rank+'</span></td>' +
+        '<td>' +
+          '<div class="ng-logo-cell">' +
+            logoHtml +
+            '<div class="ng-name-block">' +
+              '<div class="acr">'+g.acronym+'</div>' +
+              '<div class="fn">'+g.name+'</div>' +
+            '</div>' +
+          '</div>' +
+        '</td>' +
+        '<td><span class="ng-pill '+catClass+'">'+g.category+'</span></td>' +
+        '<td class="num"><span class="ng-num-tw">'+fmtNgNum(g.stats.tweets)+'</span></td>' +
+        '<td class="num"><span class="ng-num-lk">'+fmtNgNum(g.stats.likes)+'</span></td>' +
+        '<td class="num"><span class="ng-num-rt">'+fmtNgNum(g.stats.rts)+'</span></td>' +
+        '<td class="num"><span class="ng-num-vw">'+fmtNgNum(g.stats.views)+'</span></td>' +
+        '<td>' +
+          '<div class="ng-avatars-stack">'+avs+moreChip+'</div>' +
+          '<div class="ng-members-subnames" title="'+memberNames+'">'+memberNames+'</div>' +
+        '</td>' +
+      '</tr>';
+    }).join('');
+  }
+
+  var pageInfo = document.getElementById('ngPageInfo');
+  if(pageInfo){
+    pageInfo.textContent = 'Showing ' + (total ? (start + 1) : 0) + '-' + end + ' of ' + total + ' groups';
+  }
+  var pPrev = document.getElementById('ngBtnPrev');
+  var pNext = document.getElementById('ngBtnNext');
+  if(pPrev) pPrev.disabled = (_ngCurrentPage <= 1);
+  if(pNext) pNext.disabled = (_ngCurrentPage >= totalPages);
+}
+window.filterNarrativeGroups = renderNarrativeGroupsTable;
+
+function changeNgPage(delta){
+  _ngCurrentPage += delta;
+  renderNarrativeGroupsTable();
+}
+window.changeNgPage = changeNgPage;
+
+// Open Detail View for a Group
+function openNarrativeGroup(id){
+  var g = NARRATIVE_GROUPS_DATA.filter(function(x){ return x.id === id; })[0] || NARRATIVE_GROUPS_DATA[0];
+  if(!g) return;
+  _ngActiveGroup = g;
+
+  var dirView = document.getElementById('ngDirectoryView');
+  var detView = document.getElementById('ngDetailView');
+  if(dirView) dirView.style.display = 'none';
+  if(detView) detView.style.display = 'block';
+
+  // Breadcrumb
+  var bc = document.getElementById('ngDetailCrumb');
+  if(bc) bc.textContent = g.acronym;
+
+  // Hero card with larger 90px logo
+  var logo = document.getElementById('ngHeroLogo');
+  if(logo) logo.innerHTML = '<img src="'+g.logoUrl+'" onerror="this.src=\'https://abs.twimg.com/responsive-web/client-web/icon-default.7410068a.png\'">';
+  var acr = document.getElementById('ngHeroAcronym');
+  if(acr) acr.textContent = g.acronym;
+  var nm = document.getElementById('ngHeroName');
+  if(nm) nm.textContent = g.name;
+  var sub = document.getElementById('ngHeroSubtitle');
+  if(sub) sub.textContent = g.subtitle || '';
+  var bd = document.getElementById('ngHeroBadge');
+  if(bd){
+    bd.textContent = g.category;
+    bd.className = 'ng-pill ' + (g.category === 'Political Group' ? 'ng-pill-pol' : (g.category === 'Student Wing' ? 'ng-pill-stu' : (g.category === 'Political Wing' ? 'ng-pill-wing' : 'ng-pill-ind')));
+  }
+  var hdlTxt = document.getElementById('ngHeroHandleText');
+  if(hdlTxt) hdlTxt.textContent = '@' + (g.handle||'');
+  var hdlLnk = document.getElementById('ngHeroHandle');
+  if(hdlLnk) hdlLnk.href = g.website || ('https://x.com/' + (g.handle||''));
+  
+  var webTxt = document.getElementById('ngHeroWebText');
+  var webLnk = document.getElementById('ngHeroWeb');
+  if(g.id === 'cjp'){
+    if(webTxt) webTxt.textContent = '@CJP_is_back';
+    if(webLnk) webLnk.href = 'https://x.com/CJP_is_back';
+  } else {
+    if(webTxt) webTxt.textContent = (g.website||'').replace(/^https?:\/\//,'');
+    if(webLnk) webLnk.href = g.website||'#';
+  }
+
+  var desc = document.getElementById('ngHeroDesc');
+  if(desc) desc.textContent = g.desc||'';
+
+  // KPIs
+  var twV = document.getElementById('ngKpiTwVal');
+  if(twV) twV.textContent = fmtNgNum(g.stats.tweets);
+  var lkV = document.getElementById('ngKpiLkVal');
+  if(lkV) lkV.textContent = fmtNgNum(g.stats.likes);
+  var rtV = document.getElementById('ngKpiRtVal');
+  if(rtV) rtV.textContent = fmtNgNum(g.stats.rts);
+  var vwV = document.getElementById('ngKpiVwVal');
+  if(vwV) vwV.textContent = fmtNgNum(g.stats.views);
+
+  // Render Charts & Cards
+  renderGroupDonutChart(g);
+  renderGroupTimelineChart(g);
+  renderGroupTopicsList(g);
+  renderGroupMembersCards(g.leaders || []);
+}
+window.openNarrativeGroup = openNarrativeGroup;
+
+function closeNarrativeGroup(){
+  _ngActiveGroup = null;
+  var dirView = document.getElementById('ngDirectoryView');
+  var detView = document.getElementById('ngDetailView');
+  if(dirView) dirView.style.display = 'block';
+  if(detView) detView.style.display = 'none';
+  renderNarrativeGroupsTable();
+}
+window.closeNarrativeGroup = closeNarrativeGroup;
+
+// Render Overall Contribution Donut Chart with real share percentages
+function renderGroupDonutChart(g){
+  var cv = document.getElementById('ngDonutChart');
+  if(!cv || typeof Chart === 'undefined') return;
+
+  var leaders = (g.leaders || []).slice(0, 5);
+  var totalTw = g.stats.tweets || 1;
+  var labels = [];
+  var data = [];
+  var colors = ['#FF5722', '#1976D2', '#388E3C', '#FBC02D', '#8E24AA', '#B0BEC5'];
+
+  var sumTop = 0;
+  leaders.forEach(function(m){
+    labels.push(m.name);
+    var tw = m.tweets || 0;
+    sumTop += tw;
+    data.push(tw);
+  });
+
+  var otherTw = Math.max(0, totalTw - sumTop);
+  if(otherTw > 0){
+    labels.push('Others');
+    data.push(otherTw);
+  }
+
+  var cVal = document.getElementById('ngDonutCenterVal');
+  if(cVal) cVal.textContent = fmtNgNum(g.stats.tweets);
+
+  // Donut legend
+  var leg = document.getElementById('ngDonutLegend');
+  if(leg){
+    leg.innerHTML = labels.map(function(lb, i){
+      var pct = Math.round((data[i] / totalTw) * 100);
+      return '<div class="ng-d-item">' +
+        '<div class="ng-d-left">' +
+          '<div class="ng-d-dot" style="background:'+colors[i % colors.length]+'"></div>' +
+          '<span class="ng-d-nm" title="'+lb+'">'+lb+'</span>' +
+        '</div>' +
+        '<span class="ng-d-pct">'+pct+'%</span>' +
+      '</div>';
+    }).join('');
+  }
+
+  if(_ngDonutInst) _ngDonutInst.destroy();
+  _ngDonutInst = new Chart(cv, {
+    type: 'doughnut',
+    data: {
+      labels: labels,
+      datasets: [{
+        data: data,
+        backgroundColor: colors.slice(0, labels.length),
+        borderWidth: 2,
+        borderColor: '#FFF'
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      cutout: '72%',
+      plugins: { legend: { display: false }, tooltip: { enabled: true } }
+    }
+  });
+}
+
+// Render Timeline Bar Chart
+function renderGroupTimelineChart(g){
+  var cv = document.getElementById('ngTimelineChart');
+  if(!cv || typeof Chart === 'undefined') return;
+
+  var days = ['Oct 02', 'Oct 05', 'Oct 08', 'Oct 11', 'Oct 14', 'Oct 16'];
+  var topL = (g.leaders || []).slice(0, 3);
+  var colors = ['#FF5722', '#1976D2', '#388E3C'];
+
+  var datasets = topL.map(function(m, idx){
+    var base = Math.max(1, Math.round((m.tweets || 10) / 6));
+    var vals = [base, Math.round(base*1.2), Math.round(base*1.5), Math.round(base*2.1), Math.round(base*2.8), Math.round(base*1.9)];
+    return {
+      label: m.name,
+      data: vals,
+      backgroundColor: colors[idx % colors.length],
+      borderRadius: 4
+    };
+  });
+
+  if(_ngTimelineInst) _ngTimelineInst.destroy();
+  _ngTimelineInst = new Chart(cv, {
+    type: 'bar',
+    data: { labels: days, datasets: datasets },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        x: { stacked: true, grid: { display: false } },
+        y: { stacked: true, grid: { color: '#F0F0F0' } }
+      },
+      plugins: {
+        legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } }
+      }
+    }
+  });
+}
+
+// Render Topics List
+function renderGroupTopicsList(g){
+  var container = document.getElementById('ngTopicsList');
+  if(!container) return;
+  var topics = g.topNarratives || [];
+  container.innerHTML = topics.map(function(t){
+    return '<div class="ng-topic-row">' +
+      '<div class="ng-topic-head">' +
+        '<span class="ng-topic-name">'+t.topic+'</span>' +
+        '<span class="ng-topic-pct">'+t.pct+'%</span>' +
+      '</div>' +
+      '<div class="ng-topic-bar">' +
+        '<div class="ng-topic-fill" style="width:'+t.pct+'%;background:#FF6B35"></div>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+// Render Member Cards with exact Mapping URLs
+function renderGroupMembersCards(members){
+  var row = document.getElementById('ngMembersRow');
+  if(!row) return;
+
+  var q = (document.getElementById('ngMemberFilterInput') ? document.getElementById('ngMemberFilterInput').value : '').toLowerCase().trim();
+  var filtered = members.filter(function(m){
+    return !q || m.name.toLowerCase().indexOf(q) >= 0 || (m.role||'').toLowerCase().indexOf(q) >= 0 || m.handle.toLowerCase().indexOf(q) >= 0;
+  });
+
+  if(!filtered.length){
+    row.innerHTML = '<div style="font-size:12px;color:#888;padding:12px">No associated leaders match your search.</div>';
+    return;
+  }
+
+  row.innerHTML = filtered.map(function(m){
+    var xUrl = m.url || ('https://x.com/' + m.handle);
+    return '<div class="ng-member-card">' +
+      '<div class="ng-m-av">' +
+        '<img src="'+(m.avatar||'')+'" onerror="this.src=\'https://abs.twimg.com/responsive-web/client-web/icon-default.7410068a.png\'">' +
+      '</div>' +
+      '<div class="ng-m-name" title="'+m.name+'">'+m.name+'</div>' +
+      '<div class="ng-m-role" title="'+(m.role||'')+'">'+(m.role||'')+'</div>' +
+      '<div class="ng-m-hd">@'+(m.handle||'')+'</div>' +
+      '<div class="ng-m-tw">'+fmtNgNum(m.tweets||0)+' tweets</div>' +
+      '<a href="'+xUrl+'" target="_blank" class="ng-m-btn-x" title="Open on X: '+xUrl+'">' +
+        '<svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 22.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>' +
+      '</a>' +
+    '</div>';
+  }).join('');
+}
+
+function filterGroupMembers(){
+  if(_ngActiveGroup){
+    renderGroupMembersCards(_ngActiveGroup.leaders || []);
+  }
+}
+window.filterGroupMembers = filterGroupMembers;
+
+function switchNarrativeSubTab(sub){
+  document.querySelectorAll('.ng-subtab').forEach(function(btn){
+    btn.classList.toggle('active', btn.getAttribute('data-sub') === sub);
+  });
+}
+window.switchNarrativeSubTab = switchNarrativeSubTab;
+
+// Hook into dashboard tab switching
+(function(){
+  var origSwitchTab = window.switchTab;
+  window.switchTab = function(name){
+    if(typeof origSwitchTab === 'function') origSwitchTab(name);
+    if(name === 'narrative-groups'){
+      initNarrativeGroupFilters();
+      syncStatsFromUni();
+      renderNarrativeGroupsTable();
+      fetchLiveNarrativeGroupStats(false);
+    }
+  };
+
+  // Initial load
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', function(){
+      initNarrativeGroupFilters();
+      syncStatsFromUni();
+      renderNarrativeGroupsTable();
+      fetchLiveNarrativeGroupStats(false);
+    });
+  } else {
+    initNarrativeGroupFilters();
+    syncStatsFromUni();
+    renderNarrativeGroupsTable();
+    fetchLiveNarrativeGroupStats(false);
+  }
 })();
 </script>
 </body>

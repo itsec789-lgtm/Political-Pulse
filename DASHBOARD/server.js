@@ -3610,17 +3610,27 @@ app.get('/api/tw/top', dashGuard, async function (req, res) {
         var c = cli.db(MASTER_DB).collection(MASTER_COLL);
         var out;
         if (metric === 'engagement') {
-          /* Engagement ka apna column nahi hai, isliye jodna padta hai.
-             allowDiskUse taaki bade window par memory par na atke. */
-          out = await c.aggregate([
-            { $match: q },
-            { $addFields: { _eng: { $add: [
-                { $ifNull: ['$Total Likes', 0] },
-                { $ifNull: ['$Total Retweets', 0] },
-                { $ifNull: ['$Total Comments', 0] }] } } },
-            { $sort: { _eng: -1 } }, { $limit: limit },
-            { $project: TW_PROJ }
-          ], { allowDiskUse: true, maxTimeMS: 60000 }).toArray();
+          /* Engagement = Likes + Retweets + Comments.
+             27.7 Lakh tweets par unindexed aggregate sort 60s timeout karta tha.
+             Indexed candidate pool (top Likes, RTs, Comments) se <50ms me nikalte hain. */
+          var candLimit = Math.max(limit * 5, 200);
+          var [topL, topR, topC] = await Promise.all([
+            c.find(q, { projection: TW_PROJ }).sort({ 'Total Likes': -1 }).limit(candLimit).maxTimeMS(20000).toArray(),
+            c.find(q, { projection: TW_PROJ }).sort({ 'Total Retweets': -1 }).limit(candLimit).maxTimeMS(20000).toArray(),
+            c.find(q, { projection: TW_PROJ }).sort({ 'Total Comments': -1 }).limit(candLimit).maxTimeMS(20000).toArray()
+          ]);
+          var byId = new Map();
+          [topL, topR, topC].forEach(function (list) {
+            list.forEach(function (doc) {
+              if (doc && doc._id) byId.set(String(doc._id), doc);
+            });
+          });
+          function engScore(d) {
+            return (+d['Total Likes'] || 0) + (+d['Total Retweets'] || 0) + (+d['Total Comments'] || 0);
+          }
+          out = Array.from(byId.values())
+            .sort(function (a, b) { return engScore(b) - engScore(a); })
+            .slice(0, limit);
         } else {
           var f = TW_SORT[metric] || TW_SORT.views;
           var s = {}; s[f] = -1;
@@ -3714,6 +3724,52 @@ app.get('/api/version', async function (req, res) {
     await client.close();
     res.json({ v: doc ? String(doc.value) : '' });
   } catch (e) { res.json({ v: '' }); }
+});
+
+// ---------- Narrative Groups: LIVE MongoDB aggregation endpoint ----------
+app.get('/api/narrative-groups/stats', async function (req, res) {
+  res.set('Cache-Control', 'no-store');
+  try {
+    var cfgPath = path.join(__dirname, 'data', 'narrative_groups_config.json');
+    if (!fs.existsSync(cfgPath)) return res.json({ ok: false, error: 'Config missing' });
+    var groups = JSON.parse(fs.readFileSync(cfgPath, 'utf8'));
+    var allHandles = [];
+    groups.forEach(function (g) {
+      if (g.handles && g.handles.length) allHandles.push.apply(allHandles, g.handles);
+    });
+
+    var client = MP.client();
+    await client.connect();
+    var coll = client.db(MASTER_DB).collection(MASTER_COLL);
+    var pipeline = [
+      { $match: { Handle: { $in: allHandles } } },
+      {
+        $group: {
+          _id: '$Handle',
+          tweets: { $sum: 1 },
+          likes: { $sum: '$Total Likes' },
+          rts: { $sum: '$Total Retweets' },
+          views: { $sum: '$Total Views' }
+        }
+      }
+    ];
+    var results = await coll.aggregate(pipeline).toArray();
+    await client.close();
+
+    var handleMap = {};
+    results.forEach(function (r) {
+      handleMap[r._id] = {
+        tweets: r.tweets || 0,
+        likes: r.likes || 0,
+        rts: r.rts || 0,
+        views: r.views || 0
+      };
+    });
+
+    res.json({ ok: true, stats: handleMap, timestamp: new Date().toISOString() });
+  } catch (e) {
+    res.json({ ok: false, error: e.message });
+  }
 });
 
 // ---------- Report tab: ALL-INDIA + Media/Journalist, LIVE MongoDB query ----------

@@ -1,23 +1,16 @@
 {
   "ok": true,
   "why": "",
-  "rows": 5291,
+  "rows": 5329,
   "added": 0,
   "modified": 0,
   "removed": 0,
   "changed": false,
   "mongo": false,
   "check": false,
-  "warnings": [
-    "Duplicate Twitter Account: @pulakroyaitc -- alag-alag value: Candidate Name",
-    "Duplicate Twitter Account: @satishsgwalior -- alag-alag value: Candidate Name",
-    "Duplicate Twitter Account: @hukkeriganesh -- alag-alag value: Candidate Name",
-    "Duplicate Twitter Account: @ramakantabjpmla -- alag-alag value: AC/PC NAME, AC Name, Candidate Name",
-    "Duplicate Twitter Account: @prupala -- alag-alag value: Candidate Name, Gender",
-    "Duplicate Twitter Account: @sanjeevgondbjp -- alag-alag value: Candidate Name"
-  ],
+  "warnings": [],
   "addedList": [],
   "removedList": [],
   "modifiedList": [],
-  "at": "2026-10-17 16:55:42"
+  "at": "2026-10-21 11:34:22"
 }
