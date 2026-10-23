@@ -3549,6 +3549,7 @@ app.get('/api/live', newsGuard, async function (req, res) {
 app.get('/api/news', newsGuard, async function (req, res) {
   res.set('Cache-Control', 'no-store');
   var scope = String(req.query.scope || 'all');
+  var tab = String(req.query.tab || 'all');
   var cat = String(req.query.cat || 'All');
   var sort = String(req.query.sort || 'latest');
   var limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 30, 1), 100);
@@ -3556,16 +3557,38 @@ app.get('/api/news', newsGuard, async function (req, res) {
   try {
     var all = await newsWindow();
     var f = NEWS.forScope(all.slice(), scope);
-    var rows = NEWS.dedupe(NEWS.sortRows(f.rows, sort));
-    if (cat && cat !== 'All') rows = rows.filter(function (r) { return r.cat === cat; });
-    var counts = {};
-    rows.forEach(function (r) { counts[r.cat] = (counts[r.cat] || 0) + 1; });
+    var deduped = NEWS.dedupe(NEWS.sortRows(f.rows, sort));
+
+    // Tab counts across current scope
+    var tabCounts = { national: 0, international: 0, intl_india: 0, all: deduped.length };
+    deduped.forEach(function (r) {
+      if (r.scopeTab === 'international') tabCounts.international++;
+      else if (r.scopeTab === 'intl_india') tabCounts.intl_india++;
+      else tabCounts.national++;
+    });
+
+    // Filter by tab if requested
+    var rows = deduped;
+    if (tab && tab !== 'all') {
+      rows = rows.filter(function (r) { return r.scopeTab === tab; });
+    }
+
+    // Category counts within active tab
+    var catCounts = {};
+    rows.forEach(function (r) { catCounts[r.cat] = (catCounts[r.cat] || 0) + 1; });
+
+    // Filter by category if requested
+    if (cat && cat !== 'All') {
+      rows = rows.filter(function (r) { return r.cat === cat; });
+    }
+
     var newest = rows.reduce(function (m, r) { return r.ts > m ? r.ts : m; }, 0);
     res.json({
-      scope: scope, cat: cat, sort: sort,
+      scope: scope, tab: tab, cat: cat, sort: sort,
       total: rows.length,
       breaking: rows.filter(function (r) { return r.breaking; }).length,
-      counts: counts,
+      counts: catCounts,
+      tabs: tabCounts,
       newest: newest ? new Date(newest).toISOString() : null,
       pool: all.length,
       rows: rows.slice(skip, skip + limit)
@@ -3580,13 +3603,17 @@ app.get('/api/news', newsGuard, async function (req, res) {
 app.get('/api/news/meta', newsGuard, async function (req, res) {
   res.set('Cache-Control', 'no-store');
   var scope = String(req.query.scope || 'all');
+  var tab = String(req.query.tab || 'all');
   var since = Date.parse(String(req.query.since || '')) || 0;
   try {
     var all = await newsWindow();
     var rows = NEWS.dedupe(NEWS.forScope(all.slice(), scope).rows);
+    if (tab && tab !== 'all') {
+      rows = rows.filter(function (r) { return r.scopeTab === tab; });
+    }
     var newest = rows.reduce(function (m, r) { return r.ts > m ? r.ts : m; }, 0);
     res.json({
-      scope: scope,
+      scope: scope, tab: tab,
       total: rows.length,
       newest: newest ? new Date(newest).toISOString() : null,
       fresh: since ? rows.filter(function (r) { return r.ts > since; }).length : 0
@@ -4093,7 +4120,7 @@ app.get('/api/narrative-groups/comparison', async function (req, res) {
 // ==============================================================================
 var _avatarCache = {};
 
-// Pre-load known high-res avatars from scraped_avatars.json if available
+// Pre-load known high-res avatars from scraped_avatars.json and media_avatars.json if available
 try {
   var avPath = path.join(__dirname, '..', 'scraped_avatars.json');
   if (!fs.existsSync(avPath)) avPath = path.join(__dirname, 'scraped_avatars.json');
@@ -4102,6 +4129,15 @@ try {
     for (var kh in rawAv) {
       if (rawAv[kh]) {
         _avatarCache[kh.toLowerCase()] = { url: rawAv[kh], expires: Date.now() + 7 * 86400000 };
+      }
+    }
+  }
+  var medPath = path.join(__dirname, 'media_avatars.json');
+  if (fs.existsSync(medPath)) {
+    var rawMed = JSON.parse(fs.readFileSync(medPath, 'utf8'));
+    for (var km in rawMed) {
+      if (rawMed[km]) {
+        _avatarCache[km.toLowerCase()] = { url: rawMed[km], expires: Date.now() + 7 * 86400000 };
       }
     }
   }

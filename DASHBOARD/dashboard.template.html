@@ -5134,41 +5134,92 @@ window.sentCardsHTML = function (S, suffix) {
 .ti-pane.on{display:block}
 @media(max-width:600px){.ti-tabs{padding:8px 10px 0}.ti-tab{padding:8px 14px;font-size:12px}}
 
-/* ---- BREAKING NEWS (news v1) ---- */
-.bn-bar{display:flex;gap:7px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
-.bn-chip{border:1px solid var(--border);background:#fff;color:#6B5443;border-radius:20px;
-  padding:5px 13px;font-size:11.5px;font-weight:700;cursor:pointer;transition:.15s;font-family:inherit}
-.bn-chip:hover{border-color:#F0A868;color:#C2410C}
-.bn-chip.on{background:linear-gradient(150deg,#E9701C,#C0430D);border-color:#C0430D;color:#fff}
-.bn-chip b{font-weight:700;opacity:.75;margin-left:5px;font-size:10px}
-.bn-live{display:inline-flex;align-items:center;gap:6px;margin-left:auto;font-size:11px;
-  font-weight:700;color:#6B5443;background:#fff;border:1px solid var(--border);
-  border-radius:20px;padding:5px 12px}
-.bn-dot{width:8px;height:8px;border-radius:50%;background:#16a34a;box-shadow:0 0 0 0 rgba(22,163,74,.6);
-  animation:bnPulse 2s infinite}
-.bn-dot.warn{background:#F59E0B;animation:none}
-.bn-dot.bad{background:#DC2626;animation:none}
-@keyframes bnPulse{0%{box-shadow:0 0 0 0 rgba(22,163,74,.55)}70%{box-shadow:0 0 0 7px rgba(22,163,74,0)}
-  100%{box-shadow:0 0 0 0 rgba(22,163,74,0)}}
-.bn-new{background:#DC2626;color:#fff;border:none;border-radius:20px;padding:5px 13px;
-  font-size:11.5px;font-weight:700;cursor:pointer;font-family:inherit;display:none}
-.bn-new.show{display:inline-block}
-.bn-card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:14px 16px;
-  border-left:4px solid #E5D9CD}
-.bn-card.brk{border-left-color:#DC2626}
-.bn-hd{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:7px}
-.bn-badge{background:#DC2626;color:#fff;border-radius:5px;padding:2px 8px;font-size:9.5px;
-  font-weight:800;letter-spacing:.4px}
-.bn-cat{background:#FBF0E6;color:#B45309;border-radius:5px;padding:2px 8px;font-size:9.5px;font-weight:700}
-.bn-loc{background:#EEF2FF;color:#4338CA;border-radius:5px;padding:2px 8px;font-size:9.5px;font-weight:700}
-.bn-h{font-size:14.5px;font-weight:700;line-height:1.45;color:#2E1C10}
-.bn-s{font-size:12px;line-height:1.6;color:#6B5443;margin-top:5px}
-.bn-ft{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-top:10px;padding-top:8px;
-  border-top:1px solid #F3EAE1;font-size:11px;color:var(--muted)}
-.bn-src{font-weight:700;color:#3A2418}
-.bn-ft b{color:#3A2418}
-.bn-ft a{color:#C2410C;text-decoration:none;font-weight:700;margin-left:auto}
-@media(max-width:600px){.bn-h{font-size:13.5px}.bn-ft{gap:9px}}
+/* ---- BREAKING NEWS (news v2) ---- */
+.bn-scope-tabs{display:flex;background:var(--card,#fff);border:1.5px solid var(--border,#E5D9CD);border-radius:12px;padding:4px;gap:6px;margin-bottom:16px;box-shadow:0 1px 4px rgba(60,30,10,0.03)}
+.bn-scope-tab{flex:1;display:flex;align-items:center;justify-content:center;gap:8px;padding:10px 16px;border-radius:8px;border:none;background:transparent;color:var(--muted,#666);font-family:inherit;font-size:13.5px;font-weight:700;cursor:pointer;transition:all .18s cubic-bezier(0.16,1,0.3,1)}
+.bn-scope-tab:hover{background:var(--bg,#F7F5F2);color:var(--text,#1A1A1A)}
+.bn-scope-tab.active{background:linear-gradient(145deg,#E65100,#C2410C);color:#FFFFFF;box-shadow:0 2px 8px rgba(194,65,12,0.3)}
+.bn-scope-tab .tab-cnt{font-size:11px;font-weight:800;padding:2px 7px;border-radius:10px;background:rgba(0,0,0,0.07)}
+.bn-scope-tab.active .tab-cnt{background:rgba(255,255,255,0.25);color:#fff}
+
+/* Category Filter Section & Drawer */
+.bn-filter-section{background:var(--card,#fff);border:1.5px solid var(--border,#E5D9CD);border-radius:12px;padding:14px 18px;margin-bottom:16px;box-shadow:0 1px 4px rgba(60,30,10,0.03)}
+.bn-filter-bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.bn-chip{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:20px;border:1.5px solid var(--border,#E5D9CD);background:var(--bg,#F7F5F2);color:#5A483C;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;transition:all .15s ease}
+.bn-chip:hover{border-color:#FDBA74;color:#C2410C;background:#FFF7ED}
+.bn-chip.active{background:#C2410C;border-color:#C2410C;color:#FFFFFF;box-shadow:0 2px 8px rgba(194,65,12,0.25)}
+.bn-chip .cnt{font-size:10px;font-weight:800;opacity:0.85}
+
+/* Special "All" Badge */
+.bn-chip-all{font-weight:800;border-color:#CBD5E1}
+.bn-chip-all.active{background:#1E293B;border-color:#1E293B;color:#FFFFFF}
+body.dark .bn-chip-all.active{background:#F8FAFC;border-color:#F8FAFC;color:#0F172A}
+
+/* "More Categories" Accordion Button */
+.bn-more-btn{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:20px;border:1.5px dashed #C2410C;background:#FFF7ED;color:#C2410C;font-family:inherit;font-size:12px;font-weight:800;cursor:pointer;transition:all .15s ease;margin-left:auto}
+.bn-more-btn:hover,.bn-more-btn.open{background:#C2410C;color:#FFFFFF;border-style:solid}
+.bn-more-btn svg{transition:transform 0.2s ease}
+.bn-more-btn.open svg{transform:rotate(180deg)}
+
+/* Expandable Drawer */
+.bn-drawer{display:none;margin-top:14px;padding-top:14px;border-top:1px dashed var(--border,#E5D9CD);animation:bnSlideDown 0.2s cubic-bezier(0.16,1,0.3,1)}
+.bn-drawer.open{display:block}
+@keyframes bnSlideDown{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+.bn-drawer-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;font-size:11.5px;color:var(--muted,#666);font-weight:600}
+.bn-collapse-btn{background:none;border:none;color:#C2410C;font-weight:700;cursor:pointer;font-size:11.5px;display:inline-flex;align-items:center;gap:4px;text-decoration:underline;font-family:inherit}
+.bn-collapse-btn:hover{color:#9A3412}
+
+/* Sort Controls & Live Alert */
+.bn-sort-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;gap:12px;flex-wrap:wrap}
+.bn-sort-group{display:flex;gap:6px;background:var(--card,#fff);border:1.5px solid var(--border,#E5D9CD);padding:4px;border-radius:8px;box-shadow:0 1px 4px rgba(60,30,10,0.03)}
+.bn-sort-btn{border:none;background:transparent;padding:6px 14px;border-radius:6px;font-size:12px;font-weight:700;color:var(--muted,#666);cursor:pointer;font-family:inherit;transition:all .15s}
+.bn-sort-btn:hover{color:var(--text,#1A1A1A)}
+.bn-sort-btn.active{background:var(--bg,#F7F5F2);color:#C2410C;box-shadow:0 1px 3px rgba(0,0,0,0.06)}
+.bn-new{background:#DC2626;color:#fff;border:none;border-radius:20px;padding:6px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;display:none;align-items:center;gap:6px;box-shadow:0 2px 8px rgba(220,38,38,0.3)}
+.bn-new.show{display:inline-flex}
+
+/* News Cards */
+.bn-card{background:var(--card,#fff);border:1.5px solid var(--border,#E5D9CD);border-radius:12px;padding:16px 20px;border-left:4px solid #CBD5E1;box-shadow:0 1px 4px rgba(60,30,10,0.04);transition:all .2s cubic-bezier(0.16,1,0.3,1);margin-bottom:12px}
+.bn-card:hover{border-color:#D6C6B2;box-shadow:0 4px 18px rgba(60,30,10,0.08);transform:translateY(-2px)}
+.bn-card.is-breaking{border-left-color:#DC2626;background:linear-gradient(to right,rgba(220,38,38,0.015),var(--card,#fff) 20%)}
+.bn-card-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+.badge-breaking{background:#DC2626;color:#fff;font-size:9.5px;font-weight:800;padding:2px 8px;border-radius:4px;letter-spacing:0.4px;display:inline-flex;align-items:center;gap:4px;box-shadow:0 2px 6px rgba(220,38,38,0.25)}
+.badge-category{background:var(--bg,#F7F5F2);color:#5A483C;font-size:10.5px;font-weight:700;padding:2px 8px;border-radius:4px;border:1px solid var(--border,#E5D9CD)}
+.badge-scope{font-size:10.5px;font-weight:700;padding:2px 8px;border-radius:4px}
+.badge-scope.nat{background:#EEF2FF;color:#4338CA}
+.badge-scope.intl{background:#F0FDF4;color:#15803D}
+.badge-scope.intl-india{background:#FAF5FF;color:#7E22CE}
+
+.bn-card-headline{font-size:15.5px;font-weight:700;line-height:1.45;color:var(--text,#1A1A1A);margin-bottom:6px}
+.bn-card-summary{font-size:13px;line-height:1.55;color:var(--muted,#666);margin-bottom:12px}
+
+/* Card Bottom with Verified Media Avatars */
+.bn-card-bottom{display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding-top:12px;border-top:1px solid var(--border,#E5D9CD);font-size:11.5px;color:var(--muted,#666)}
+.bn-source-wrap{display:flex;align-items:center;gap:10px}
+.bn-source-avatar{width:32px;height:32px;border-radius:50%;object-fit:cover;border:1.5px solid var(--border,#E5D9CD);background:var(--bg,#F7F5F2);flex-shrink:0;box-shadow:0 1px 3px rgba(0,0,0,0.08)}
+.bn-source-meta{display:flex;flex-direction:column;gap:1px}
+.bn-source-name{font-weight:800;color:var(--text,#1A1A1A);font-size:12.5px}
+.bn-source-handle{font-size:11px;color:var(--muted,#666);font-weight:500}
+.bn-source-tag{background:var(--bg,#F7F5F2);color:#5A483C;padding:1px 6px;border-radius:4px;font-size:10px;font-weight:700;border:1px solid var(--border,#E5D9CD)}
+.bn-metrics{display:flex;align-items:center;gap:12px;font-variant-numeric:tabular-nums;margin-left:auto}
+.bn-metrics b{color:var(--text,#1A1A1A)}
+.bn-read-more{color:#C2410C;text-decoration:none;font-weight:700;padding:4px 10px;border-radius:6px;background:#FFF7ED;border:1px solid #FDBA74;transition:all 0.15s ease}
+.bn-read-more:hover{background:#C2410C;color:#FFFFFF;text-decoration:none}
+
+/* Dark mode overrides */
+body.dark .bn-scope-tabs{background:#161B22;border-color:#30363D}
+body.dark .bn-scope-tab:hover{background:#0D1117;color:#F0F6FC}
+body.dark .bn-filter-section{background:#161B22;border-color:#30363D}
+body.dark .bn-chip{background:#0D1117;border-color:#30363D;color:#C9D1D9}
+body.dark .bn-more-btn{background:rgba(194,65,12,0.15);border-color:#C2410C;color:#FB923C}
+body.dark .bn-more-btn:hover,body.dark .bn-more-btn.open{background:#C2410C;color:#fff}
+body.dark .bn-sort-group{background:#161B22;border-color:#30363D}
+body.dark .bn-sort-btn.active{background:#0D1117;color:#FB923C}
+body.dark .bn-card{background:#161B22;border-color:#30363D}
+body.dark .bn-card-headline{color:#F0F6FC}
+body.dark .bn-card-bottom{border-top-color:#30363D}
+body.dark .bn-source-name{color:#F0F6FC}
+body.dark .bn-metrics b{color:#F0F6FC}
 
 .nt-top{display:flex;align-items:center;gap:9px;margin-bottom:7px;flex-wrap:wrap}
 .nt-av{width:32px;height:32px;border-radius:50%;background:#F3E7DC;color:#C2410C;display:flex;
@@ -5292,19 +5343,52 @@ window.sentCardsHTML = function (S, suffix) {
 <!-- BREAKING NEWS -->
 <div class="page-section" id="sec-breaking">
 <main>
-  <div class="sec-title">Breaking News</div>
-  <div class="bn-bar" id="bnCats"></div>
-  <div class="bn-bar">
-    <button class="bn-chip on" data-s="latest">Latest</button>
-    <button class="bn-chip" data-s="breaking">Breaking first</button>
-    <button class="bn-chip" data-s="relevant">Most relevant</button>
-    <button class="bn-new" id="bnNew">&#128308; New stories</button>
-    <!-- bn-live (09-Oct): "LIVE / DELAYED 10 hours / STALE" wali chip hata di gayi.
-         bnFresh() khud hi chup ho jaata hai kyunki uske element ab maujood nahi. -->
+  <div class="sec-title" style="display:flex;align-items:center;justify-content:space-between">
+    <span>Breaking News</span>
+    <span class="badge-breaking" style="font-size:10px;padding:3px 8px;border-radius:4px">&#128308; Live Intelligence</span>
   </div>
+
+  <!-- 1. THREE NEWS TABS -->
+  <div class="bn-scope-tabs" id="bnScopeTabs">
+    <button class="bn-scope-tab active" data-tab="national">
+      <span>National News</span>
+      <span class="tab-cnt" id="cntTabNat">0</span>
+    </button>
+    <button class="bn-scope-tab" data-tab="international">
+      <span>International</span>
+      <span class="tab-cnt" id="cntTabIntl">0</span>
+    </button>
+    <button class="bn-scope-tab" data-tab="intl_india">
+      <span>International Towards India</span>
+      <span class="tab-cnt" id="cntTabIntlIndia">0</span>
+    </button>
+  </div>
+
+  <!-- 2. CATEGORY FILTERS & MORE CATEGORIES DRAWER -->
+  <div class="bn-filter-section">
+    <div class="bn-filter-bar" id="bnPrimaryCats"></div>
+    <div class="bn-drawer" id="bnCatDrawer">
+      <div class="bn-drawer-header">
+        <span>Secondary &amp; Specialized Categories</span>
+        <button class="bn-collapse-btn" id="bnCollapseBtn">Collapse &#9650;</button>
+      </div>
+      <div class="bn-filter-bar" id="bnDrawerCats"></div>
+    </div>
+  </div>
+
+  <!-- 3. SORTING CONTROLS & LIVE UPDATE -->
+  <div class="bn-sort-row">
+    <div class="bn-sort-group" id="bnSortGroup">
+      <button class="bn-sort-btn active" data-s="latest">Latest</button>
+      <button class="bn-sort-btn" data-s="breaking">Breaking first</button>
+      <button class="bn-sort-btn" data-s="relevant">Most relevant</button>
+    </div>
+    <button class="bn-new" id="bnNew">&#128308; New stories</button>
+  </div>
+
   <div class="nt-feed" id="bnFeed"><div class="nt-msg">Loading&hellip;</div></div>
   <div style="text-align:center;margin-top:14px">
-    <button class="bn-chip" id="bnMore" style="display:none">Show more</button>
+    <button class="bn-chip" id="bnMore" style="display:none;padding:8px 24px">Show more</button>
   </div>
 </main>
 </div>
@@ -5471,7 +5555,7 @@ window.WORDCLOUD = "__MONGO_WORDCLOUD__";
      Mongo me hain. Card ki har cheez tweet ki apni hai; kuch banaya nahi jaata.
      Trending/Explorer wale hi helpers (esc, nf, ntJson, fail, scope) use hote
      hain -- alag se koi data-fetching logic nahi likha. */
-  var bnCat = 'All', bnSort = 'latest', bnSkip = 0, bnBusy = false, bnSeen = null;
+  var bnTab = 'national', bnCat = 'All', bnSort = 'latest', bnSkip = 0, bnBusy = false, bnSeen = null;
   var BN_PAGE = 30;
 
   function bnAgo(iso) {
@@ -5484,26 +5568,39 @@ window.WORDCLOUD = "__MONGO_WORDCLOUD__";
   }
 
   function bnCard(r) {
-    var loc = r.scope === 'up' ? 'Uttar Pradesh'
-            : r.scope === 'punjab' ? 'Punjab'
-            : r.scope === 'other' ? (r.st || 'State') : 'National';
-    return '<div class="bn-card' + (r.breaking ? ' brk' : '') + '">'
-      + '<div class="bn-hd">'
-      +   (r.breaking ? '<span class="bn-badge">&#128308; BREAKING</span>' : '')
-      +   '<span class="bn-cat">' + esc(r.cat) + '</span>'
-      +   '<span class="bn-loc">' + esc(loc) + '</span>'
+    var loc = r.scopeTab === 'international' ? 'International'
+            : r.scopeTab === 'intl_india' ? 'Intl → India'
+            : (r.scope === 'up' ? 'Uttar Pradesh' : (r.scope === 'punjab' ? 'Punjab' : 'National'));
+    var scopeCls = r.scopeTab === 'international' ? 'intl'
+                 : (r.scopeTab === 'intl_india' ? 'intl-india' : 'nat');
+
+    var av = r.avatar || ('/api/avatar/' + encodeURIComponent(r.h));
+
+    return '<div class="bn-card' + (r.breaking ? ' is-breaking' : '') + '">'
+      + '<div class="bn-card-meta">'
+      +   (r.breaking ? '<span class="badge-breaking">&#128308; BREAKING</span>' : '')
+      +   '<span class="badge-category">' + esc(r.cat) + '</span>'
+      +   '<span class="badge-scope ' + scopeCls + '">' + esc(loc) + '</span>'
       + '</div>'
-      + '<div class="bn-h">' + esc(r.head) + '</div>'
-      + (r.sum ? '<div class="bn-s">' + esc(r.sum) + '</div>' : '')
-      + '<div class="bn-ft">'
-      +   '<span class="bn-src">' + esc(r.src || r.h) + '</span>'
-      +   '<span>' + esc(r.kind) + '</span>'
+      + '<div class="bn-card-headline">' + esc(r.head) + '</div>'
+      + (r.sum ? '<div class="bn-card-summary">' + esc(r.sum) + '</div>' : '')
+      + '<div class="bn-card-bottom">'
+      +   '<div class="bn-source-wrap">'
+      +     '<img class="bn-source-avatar" src="' + esc(av) + '" alt="' + esc(r.src || r.h) + '" onerror="this.src=\'https://abs.twimg.com/sticky/default_profile_images/default_profile_400x400.png\'" />'
+      +     '<div class="bn-source-meta">'
+      +       '<span class="bn-source-name">' + esc(r.src || r.h) + '</span>'
+      +       '<span class="bn-source-handle">@' + esc(r.h) + '</span>'
+      +     '</div>'
+      +   '</div>'
+      +   '<span class="bn-source-tag">' + esc(r.kind || 'Media House') + '</span>'
       +   '<span title="' + esc(r.date) + '">' + esc(bnAgo(r.date.replace(' ', 'T'))) + '</span>'
       +   '<span class="bn-upd" title="Dashboard data refresh">&#8635; updated &mdash;</span>'
-      +   '<span>&#128065; <b>' + nf(r.vw) + '</b></span>'
-      +   '<span>&#10084; <b>' + nf(r.lk) + '</b></span>'
-      +   '<span>&#128257; <b>' + nf(r.rt) + '</b></span>'
-      +   (r.url ? '<a href="' + esc(r.url) + '" target="_blank" rel="noopener">Read full story &#8594;</a>' : '')
+      +   '<div class="bn-metrics">'
+      +     '<span>&#128065; <b>' + nf(r.vw) + '</b></span>'
+      +     '<span>&#10084; <b>' + nf(r.lk) + '</b></span>'
+      +     '<span>&#128257; <b>' + nf(r.rt) + '</b></span>'
+      +   '</div>'
+      +   (r.url ? '<a href="' + esc(r.url) + '" target="_blank" rel="noopener" class="bn-read-more">Read full story &#8594;</a>' : '')
       + '</div></div>';
   }
 
@@ -5521,22 +5618,59 @@ window.WORDCLOUD = "__MONGO_WORDCLOUD__";
   }
 
   function bnCatBar(counts, total) {
-    var box = $('bnCats'); if (!box) return;
-    var names = ['All', 'Politics', 'Government', 'Crime', 'Law & Order', 'Elections',
-      'Economy', 'Business', 'Education', 'Health', 'Weather', 'Sports', 'International', 'Other'];
-    box.innerHTML = names.map(function (n) {
-      var c = n === 'All' ? total : (counts[n] || 0);
-      if (n !== 'All' && !c) return '';           // khaali category dikhane ka fayda nahi
-      return '<button class="bn-chip' + (n === bnCat ? ' on' : '') + '" data-c="' + esc(n) + '">'
-        + esc(n) + '<b>' + c + '</b></button>';
+    var pBox = $('bnPrimaryCats'), dBox = $('bnDrawerCats');
+    if (!pBox || !dBox) return;
+
+    var primary = ['Politics', 'Government', 'Elections', 'Economy', 'Crime', 'Law & Order'];
+    var secondary = ['Business', 'Education', 'Health', 'Weather', 'Sports', 'Other'];
+
+    var pHtml = primary.map(function (n) {
+      var c = counts[n] || 0;
+      return '<button class="bn-chip' + (n === bnCat ? ' active' : '') + '" data-c="' + esc(n) + '">'
+        + esc(n) + ' <span class="cnt">' + c + '</span></button>';
     }).join('');
+
+    var dToggle = '<button class="bn-more-btn" id="bnMoreToggle">'
+      + '<span>More Categories</span>'
+      + '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg>'
+      + '</button>';
+
+    pBox.innerHTML = pHtml + dToggle;
+
+    var allChip = '<button class="bn-chip bn-chip-all' + (bnCat === 'All' ? ' active' : '') + '" data-c="All">'
+      + 'All News <span class="cnt">' + total + '</span></button>';
+
+    var sHtml = secondary.map(function (n) {
+      var c = counts[n] || 0;
+      return '<button class="bn-chip' + (n === bnCat ? ' active' : '') + '" data-c="' + esc(n) + '">'
+        + esc(n) + ' <span class="cnt">' + c + '</span></button>';
+    }).join('');
+
+    dBox.innerHTML = allChip + sHtml;
+
+    // Attach drawer toggle
+    var toggleBtn = $('bnMoreToggle');
+    var drawer = $('bnCatDrawer');
+    if (toggleBtn && drawer) {
+      toggleBtn.onclick = function () {
+        drawer.classList.toggle('open');
+        toggleBtn.classList.toggle('open');
+      };
+    }
+    var colBtn = $('bnCollapseBtn');
+    if (colBtn && drawer && toggleBtn) {
+      colBtn.onclick = function () {
+        drawer.classList.remove('open');
+        toggleBtn.classList.remove('open');
+      };
+    }
   }
 
   window.bnLoad = function (reset) {
     var box = $('bnFeed'); if (!box || bnBusy) return;
     bnBusy = true;
     if (reset) { bnSkip = 0; box.innerHTML = '<div class="nt-msg">Loading&hellip;</div>'; }
-    var u = '/api/news?scope=' + scope() + '&cat=' + encodeURIComponent(bnCat)
+    var u = '/api/news?scope=' + scope() + '&tab=' + encodeURIComponent(bnTab) + '&cat=' + encodeURIComponent(bnCat)
           + '&sort=' + bnSort + '&limit=' + BN_PAGE + '&skip=' + bnSkip;
     fetch(u, { cache: 'no-store' }).then(ntJson).then(function (j) {
       bnBusy = false;
@@ -5544,6 +5678,14 @@ window.WORDCLOUD = "__MONGO_WORDCLOUD__";
       bnFresh(j.newest);
       bnSeen = j.newest || bnSeen;
       var nb = $('bnNew'); if (nb) nb.classList.remove('show');
+
+      // Update tab count badges if provided
+      if (j.tabs) {
+        var tNat = $('cntTabNat'); if (tNat) tNat.textContent = nf(j.tabs.national || 0);
+        var tIntl = $('cntTabIntl'); if (tIntl) tIntl.textContent = nf(j.tabs.international || 0);
+        var tIntlInd = $('cntTabIntlIndia'); if (tIntlInd) tIntlInd.textContent = nf(j.tabs.intl_india || 0);
+      }
+
       if (bnSkip === 0) bnCatBar(j.counts || {}, j.total || 0);
       var html = (j.rows || []).map(bnCard).join('');
       if (bnSkip === 0) {
@@ -5802,19 +5944,46 @@ window.WORDCLOUD = "__MONGO_WORDCLOUD__";
     });
     var q = $('exQ');
     if (q) q.addEventListener('keydown', function (e) { if (e.key === 'Enter') window.ntExplore(true); });
-    /* ---- Breaking News ---- */
-    var bnc = $('bnCats');
-    if (bnc) bnc.addEventListener('click', function (e) {
-      var b = e.target.closest('.bn-chip'); if (!b) return;
-      bnCat = b.dataset.c; window.bnLoad(true);
+    /* ---- Breaking News Event Listeners ---- */
+    ['bnPrimaryCats', 'bnDrawerCats'].forEach(function (boxId) {
+      var box = $(boxId);
+      if (box) {
+        box.addEventListener('click', function (e) {
+          var b = e.target.closest('.bn-chip'); if (!b) return;
+          bnCat = b.dataset.c;
+          if (bnCat === 'All') {
+            var dr = $('bnCatDrawer'), tg = $('bnMoreToggle');
+            if (dr) dr.classList.remove('open');
+            if (tg) tg.classList.remove('open');
+          }
+          window.bnLoad(true);
+        });
+      }
     });
-    var bns = document.querySelectorAll('#sec-breaking .bn-bar .bn-chip[data-s]');
-    Array.prototype.forEach.call(bns, function (b) {
+
+    var tabBtns = document.querySelectorAll('#bnScopeTabs .bn-scope-tab');
+    Array.prototype.forEach.call(tabBtns, function (b) {
       b.addEventListener('click', function () {
-        Array.prototype.forEach.call(bns, function (x) { x.classList.remove('on'); });
-        b.classList.add('on'); bnSort = b.dataset.s; window.bnLoad(true);
+        Array.prototype.forEach.call(tabBtns, function (x) { x.classList.remove('active'); });
+        b.classList.add('active');
+        bnTab = b.dataset.tab;
+        var dr = $('bnCatDrawer'), tg = $('bnMoreToggle');
+        if (dr) dr.classList.remove('open');
+        if (tg) tg.classList.remove('open');
+        window.bnLoad(true);
       });
     });
+
+    var bns = document.querySelectorAll('#bnSortGroup .bn-sort-btn');
+    Array.prototype.forEach.call(bns, function (b) {
+      b.addEventListener('click', function () {
+        Array.prototype.forEach.call(bns, function (x) { x.classList.remove('active'); });
+        b.classList.add('active');
+        bnSort = b.dataset.s;
+        window.bnLoad(true);
+      });
+    });
+
     var bnm = $('bnMore'); if (bnm) bnm.addEventListener('click', function () { window.bnLoad(false); });
     var bnn = $('bnNew'); if (bnn) bnn.addEventListener('click', function () { window.bnLoad(true); });
     setInterval(bnPoll, 60000);

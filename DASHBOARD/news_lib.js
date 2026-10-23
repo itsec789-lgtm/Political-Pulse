@@ -21,7 +21,31 @@
  * =========================================================================== */
 'use strict';
 
+const path = require('path');
+const fs = require('fs');
+
 const MEDIA_CATS = ['Media House', 'Journalist'];
+
+// Load live scraped media avatars
+var MEDIA_AVATARS = {};
+try {
+  var avPath = path.join(__dirname, 'media_avatars.json');
+  if (fs.existsSync(avPath)) {
+    MEDIA_AVATARS = JSON.parse(fs.readFileSync(avPath, 'utf8'));
+  }
+} catch (e) {}
+
+/* ---------------------------------------------------------------- scope tabs */
+const INTL_HINT = /\b(pakistan|china|chinese|usa|america|american|russia|russian|ukraine|israel|palestine|gaza|iran|iranian|un\b|united nations|bilateral|visa|embassy|foreign minister|border tension|white house|pentagon|beijing|moscow|islamabad|kyiv|tel aviv|washington|cepa|treaty|diplomat|nato|eu\b|european union)\b|पाकिस्तान|चीन|अमेरिका|रूस|यूक्रेन|इजरायल|गाजा|विदेश मंत्री/i;
+const INDIA_HINT = /\b(india|indian|delhi|modi|jaishankar|bharat|hindustan|new delhi|isro|mea|parliament|bjp|congress|eam|diaspora)\b|भारत|भारतीय|मोदी|जयशंकर|दिल्ली/i;
+
+function scopeTabOf(cat, text) {
+  var t = String(text || '');
+  var hasIntl = (cat === 'International') || INTL_HINT.test(t);
+  if (!hasIntl) return 'national';
+  var hasIndia = INDIA_HINT.test(t);
+  return hasIndia ? 'intl_india' : 'international';
+}
 
 /* ---------------------------------------------------------------- category */
 /* Har category ke apne shabd. Pehla match jeetta hai (upar wale zyada khaas).
@@ -145,13 +169,23 @@ function pct(sorted, p) {
   return sorted[i];
 }
 
+const NON_BREAKING = /सुप्रभात|शुभ प्रभात|good morning|दर्शन|आरती|मंगला आरती|ज्योतिर्लिंग|राशिफल|horoscope|shree ram|darshan|aarti|happy birthday|जन्मदिन|tribute|condolence|श्रद्धांजलि/i;
+const CRITICAL_NEWS = /\b(breaking|breaking news|flash|alert|urgent|just in|verdict|supreme court|high court|arrested|election dates|cabinet|treaty|pact|accident|blast|killed|order|orders)\b|ब्रेकिंग|बड़ी खबर|अभी-अभी|ताज़ा खबर|बड़ा फैसला|फैसला|सुप्रीम कोर्ट|हाईकोर्ट|गिरफ्तार|घोषणा/i;
+
 function score(rows) {
   var engs = rows.map(function (r) { return r.eng; }).sort(function (a, b) { return a - b; });
   var p90 = pct(engs, 0.90);
   var newest = rows.reduce(function (m, r) { return r.ts > m ? r.ts : m; }, 0);
   var cut = newest - 24 * 3600 * 1000;
+  var urgentCut = newest - 12 * 3600 * 1000;
   rows.forEach(function (r) {
-    r.breaking = (r.ts >= cut) && (r.eng >= p90) && p90 > 0;
+    var fullText = (r.head + ' ' + (r.sum || ''));
+    var isRoutine = NON_BREAKING.test(fullText);
+    var hasCritical = CRITICAL_NEWS.test(fullText);
+    var highVelocity = (r.ts >= urgentCut) && (r.eng >= p90) && (r.cat !== 'Other');
+
+    // Strict qualification: genuine breaking news only
+    r.breaking = !isRoutine && (r.ts >= cut) && (hasCritical || highVelocity);
     // "relevance" = engagement, par taaza cheez ko halka sa upar (24h me 1.0 -> 0)
     var ageH = Math.max(0, (newest - r.ts) / 3600000);
     r.rel = r.eng * (1 + Math.max(0, 1 - ageH / 168));   // 7 din me asar khatam
@@ -171,16 +205,23 @@ function toItems(docs) {
     var dt = String(d['Tweet Date'] || '');
     var ts = Date.parse(dt.replace(' ', 'T')) || Date.parse(dt.slice(0, 10)) || 0;
     var lk = +d['Total Likes'] || 0, rt = +d['Total Retweets'] || 0, cm = +d['Total Comments'] || 0;
+    var cat = categorise(txt);
+    var scopeTab = scopeTabOf(cat, txt);
+    var handle = (d.Handle || '').trim();
+    var avatar = MEDIA_AVATARS[handle.toLowerCase()] || MEDIA_AVATARS[handle] || ('/api/avatar/' + encodeURIComponent(handle));
+
     out.push({
       id: String(d._id || ''),
       head: s.head,
       sum: s.sum,
       src: (d['Candidate Name'] || d.Handle || '').trim(),
-      h: d.Handle || '',
+      h: handle,
+      avatar: avatar,
       kind: d.Category || '',                         // Media House / Journalist
       date: dt.slice(0, 19),
       ts: ts,
-      cat: categorise(txt),
+      cat: cat,
+      scopeTab: scopeTab,
       scope: scopeOf(d.State, txt),
       st: (d.State || '').trim(),
       vw: +d['Total Views'] || 0, lk: lk, rt: rt, cm: cm,
@@ -237,6 +278,8 @@ module.exports = {
   CATEGORIES: CATEGORIES,
   categorise: categorise,
   scopeOf: scopeOf,
+  scopeTabOf: scopeTabOf,
+  MEDIA_AVATARS: MEDIA_AVATARS,
   split: split,
   toItems: toItems,
   forScope: forScope,

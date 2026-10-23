@@ -25,6 +25,9 @@ mongo_dump_py/**/*.gz
 mj_daily.json
 scratch/
 .temp/
+*.lock
+.pipeline.lock
+.push_pending
 
 # OS files
 .DS_Store
