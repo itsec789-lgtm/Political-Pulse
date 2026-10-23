@@ -1,0 +1,1649 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Creators Hub · Leader Analysis Preview (Sample Plan)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;600;700&family=Rajdhani:wght@600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+:root {
+  --sb-w: 200px;
+  --header-h: 60px;
+  --primary: #EA580C;
+  --primary-light: #FFF7ED;
+  --primary-border: #FFEDD5;
+  --bg: #F8FAFC;
+  --card-bg: #FFFFFF;
+  --border: #E2E8F0;
+  --text-main: #0F172A;
+  --text-muted: #64748B;
+  --text-dim: #94A3B8;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.02);
+  --shadow-md: 0 4px 14px -2px rgba(15,23,42,0.06), 0 2px 6px -1px rgba(15,23,42,0.03);
+  --radius-lg: 16px;
+  --radius-md: 12px;
+}
+
+body {
+  background: #F1F5F9;
+  color: var(--text-main);
+  font-family: 'Plus Jakarta Sans', 'DM Sans', sans-serif;
+  min-height: 100vh;
+}
+
+/* TOP STATUS BAR */
+.preview-status-bar {
+  background: #0F172A;
+  color: #fff;
+  padding: 10px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+  position: sticky;
+  top: 0;
+  z-index: 2000;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+.ps-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.ps-pill {
+  background: #EA580C;
+  color: #fff;
+  font-weight: 800;
+  font-size: 10px;
+  padding: 3px 8px;
+  border-radius: 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.view-switcher {
+  display: flex;
+  background: rgba(255,255,255,0.12);
+  padding: 3px;
+  border-radius: 8px;
+  gap: 4px;
+}
+.vs-btn {
+  background: transparent;
+  border: none;
+  color: #CBD5E1;
+  padding: 5px 14px;
+  border-radius: 6px;
+  font-size: 11.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.vs-btn.active {
+  background: #ffffff;
+  color: #0F172A;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+
+/* CONTAINER */
+.page-container {
+  max-width: 1360px;
+  margin: 20px auto 60px;
+  padding: 0 20px;
+}
+
+/* =====================================================================
+   VIEW 1: GROUP OVERVIEW WITH MEMBER LIST ON LEFT OF DONUT CHART (PHASE 1)
+   ===================================================================== */
+#groupOverviewView {
+  display: block;
+}
+
+.group-hero-card {
+  background: #ffffff;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 24px 28px;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+.gh-left {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+.gh-logo {
+  width: 74px; height: 74px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, #8E24AA, #E91E63, #FF5722);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  flex-shrink: 0;
+  box-shadow: 0 8px 20px rgba(142,36,170,0.25);
+}
+.gh-info h2 {
+  font-size: 22px;
+  font-weight: 800;
+  color: #0F172A;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.pill-ind {
+  background: #F3E8FF;
+  color: #7E22CE;
+  font-size: 10px;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 12px;
+  text-transform: uppercase;
+}
+.gh-meta {
+  display: flex;
+  gap: 16px;
+  font-size: 12px;
+  color: var(--text-muted);
+  margin: 6px 0 8px;
+}
+.gh-desc {
+  font-size: 12.5px;
+  color: var(--text-muted);
+  max-width: 620px;
+  line-height: 1.45;
+}
+
+.gh-kpis {
+  display: flex;
+  gap: 12px;
+}
+.gh-kpi {
+  background: #F8FAFC;
+  border: 1px solid var(--border);
+  padding: 12px 18px;
+  border-radius: var(--radius-md);
+  min-width: 110px;
+  text-align: center;
+}
+.gh-kpi-val {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 22px;
+  font-weight: 800;
+  color: #EA580C;
+}
+.gh-kpi-lbl {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  margin-top: 2px;
+}
+
+/* ROW 1: MEMBER LIST (LEFT) + OVERALL CONTRIBUTION DONUT (RIGHT) */
+.donut-row-layout {
+  display: grid;
+  grid-template-columns: 1.35fr 1fr;
+  gap: 20px;
+  margin-bottom: 24px;
+}
+
+.section-box {
+  background: #ffffff;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 20px 24px;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+}
+.box-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+.box-title {
+  font-size: 15px;
+  font-weight: 800;
+  color: #0F172A;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.box-subtitle {
+  font-size: 11.5px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+/* MEMBER ROSTER LIST TABLE (PHASE 1 SPEC) */
+.member-roster-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 340px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+.member-roster-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background: #F8FAFC;
+  border: 1px solid #EDF2F7;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.member-roster-item:hover {
+  background: #FFF7ED;
+  border-color: #FED7AA;
+  transform: translateX(4px);
+  box-shadow: 0 4px 12px rgba(234, 88, 12, 0.08);
+}
+.mri-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.mri-avatar {
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #fff;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+}
+.mri-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: #0F172A;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.mri-handle {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+.mri-right {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.mri-stats {
+  text-align: right;
+}
+.mri-stat-num {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  color: #0F172A;
+}
+.mri-stat-lbl {
+  font-size: 9.5px;
+  font-weight: 600;
+  color: var(--text-dim);
+  text-transform: uppercase;
+}
+.mri-btn-action {
+  background: #ffffff;
+  border: 1px solid #CBD5E1;
+  color: #0F172A;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 6px 12px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+.member-roster-item:hover .mri-btn-action {
+  background: #EA580C;
+  color: #fff;
+  border-color: #EA580C;
+  box-shadow: 0 2px 8px rgba(234,88,12,0.3);
+}
+
+/* DONUT CHART CONTAINER */
+.donut-wrap {
+  position: relative;
+  height: 220px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 10px 0;
+}
+.donut-center-info {
+  position: absolute;
+  text-align: center;
+  pointer-events: none;
+}
+.dci-val {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 22px;
+  font-weight: 800;
+  color: #0F172A;
+}
+.dci-lbl {
+  font-size: 10.5px;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+.donut-legend-mini {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  font-size: 11px;
+  margin-top: 10px;
+}
+.dl-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #334155;
+  font-weight: 600;
+}
+.dl-dot {
+  width: 9px; height: 9px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* ASSOCIATED LEADERS SECTION (KEPT INTACT AS REQUESTED) */
+.associated-leaders-wrap {
+  background: #ffffff;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 20px 24px;
+  box-shadow: var(--shadow-sm);
+}
+.al-cards-scroll {
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  padding: 12px 2px 16px;
+}
+.al-card {
+  min-width: 175px;
+  max-width: 175px;
+  background: #F8FAFC;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 18px 12px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: all 0.2s;
+  cursor: pointer;
+}
+.al-card:hover {
+  background: #ffffff;
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+  border-color: #EA580C;
+}
+.al-avatar {
+  width: 58px; height: 58px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #fff;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+  margin-bottom: 10px;
+}
+.al-name {
+  font-size: 12.5px;
+  font-weight: 800;
+  color: #0F172A;
+  line-height: 1.25;
+}
+.al-role {
+  font-size: 10.5px;
+  color: #EA580C;
+  font-weight: 600;
+  margin: 3px 0 2px;
+  line-height: 1.2;
+}
+.al-handle {
+  font-size: 10px;
+  color: var(--text-dim);
+}
+.al-tweets {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 14px;
+  font-weight: 800;
+  color: #EA580C;
+  margin-top: 8px;
+}
+
+
+/* =====================================================================
+   VIEW 2: INDIVIDUAL LEADER ANALYSIS VIEW (MATCHING USER SCREENSHOT 1)
+   ===================================================================== */
+#leaderAnalysisView {
+  display: none;
+  animation: fadeIn 0.25s ease-in-out;
+}
+@keyframes fadeIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:none} }
+
+/* Top Breadcrumb & Return Button */
+.analysis-nav-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+.an-crumbs {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.an-crumb-link {
+  color: #0F172A;
+  cursor: pointer;
+  transition: color 0.15s;
+}
+.an-crumb-link:hover { color: #EA580C; }
+.an-crumb-active {
+  color: #EA580C;
+  font-weight: 700;
+}
+.btn-back-group {
+  background: #ffffff;
+  border: 1px solid var(--border);
+  color: #EA580C;
+  padding: 8px 16px;
+  border-radius: 10px;
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s;
+  box-shadow: var(--shadow-sm);
+}
+.btn-back-group:hover {
+  background: #FFF7ED;
+  border-color: #FED7AA;
+  transform: translateX(-2px);
+}
+
+/* LEADER PROFILE HEADER CARD (SCREENSHOT 1 TOP ROW) */
+.leader-hero-grid {
+  display: grid;
+  grid-template-columns: 1.4fr 1.6fr;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+.leader-bio-card {
+  background: #ffffff;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 22px 26px;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+.lbc-avatar {
+  width: 90px; height: 90px;
+  border-radius: 18px;
+  object-fit: cover;
+  border: 3px solid #fff;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+  flex-shrink: 0;
+}
+.lbc-info h1 {
+  font-size: 22px;
+  font-weight: 800;
+  color: #0F172A;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.badge-verified-svg {
+  width: 17px; height: 17px;
+  fill: #1D9BF0;
+  display: inline-block;
+}
+.lbc-handle {
+  font-size: 12.5px;
+  color: var(--text-muted);
+  font-weight: 600;
+  margin-top: 1px;
+}
+.lbc-role {
+  font-size: 12px;
+  font-weight: 700;
+  color: #334155;
+  margin: 6px 0 6px;
+}
+.lbc-desc {
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.4;
+  margin-bottom: 10px;
+}
+.lbc-links {
+  display: flex;
+  gap: 14px;
+  font-size: 12px;
+  font-weight: 700;
+}
+.lbc-links a {
+  color: #0284C7;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.lbc-links a:hover { text-decoration: underline; }
+
+/* 4 KPI CARDS (MATCHING SCREENSHOT 1) */
+.leader-kpi-quad {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+}
+.lk-card {
+  background: #ffffff;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 16px 20px;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.lk-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.lk-icon {
+  width: 44px; height: 44px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+.lk-icon.tw { background: #0F172A; color: #fff; }
+.lk-icon.lk { background: #FEE2E2; color: #DC2626; }
+.lk-icon.rt { background: #DCFCE7; color: #16A34A; }
+.lk-icon.vw { background: #F3E8FF; color: #9333EA; }
+
+.lk-nums .lk-val {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 24px;
+  font-weight: 800;
+  color: #0F172A;
+  line-height: 1;
+}
+.lk-nums .lk-lbl {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-muted);
+  margin-top: 3px;
+}
+.lk-trend-badge {
+  font-size: 11.5px;
+  font-weight: 800;
+  color: #16A34A;
+  background: #DCFCE7;
+  padding: 3px 8px;
+  border-radius: 20px;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+/* SUB TABS NAVIGATION (SCREENSHOT 1) */
+.analysis-subtabs-row {
+  background: #ffffff;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 6px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  box-shadow: var(--shadow-sm);
+}
+.subtabs-left {
+  display: flex;
+  gap: 6px;
+}
+.as-tab-btn {
+  background: transparent;
+  border: none;
+  padding: 8px 18px;
+  border-radius: 8px;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #64748B;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.15s;
+}
+.as-tab-btn.active {
+  background: #EA580C;
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(234,88,12,0.3);
+}
+.as-tab-btn:hover:not(.active) {
+  background: #F1F5F9;
+  color: #0F172A;
+}
+
+/* MAIN CHARTS + DRILLDOWN ACCORDION ROW */
+.analysis-main-grid {
+  display: grid;
+  grid-template-columns: 1.8fr 1.2fr;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+/* LEFT: ENGAGEMENT TREND CHART */
+.trend-chart-box {
+  background: #ffffff;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 22px 24px;
+  box-shadow: var(--shadow-sm);
+}
+.tcb-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+.tcb-title {
+  font-size: 15px;
+  font-weight: 800;
+  color: #0F172A;
+}
+.tcb-legend {
+  display: flex;
+  gap: 12px;
+  font-size: 11px;
+  font-weight: 700;
+}
+.tcb-leg-item { display: flex; align-items: center; gap: 5px; }
+
+/* RIGHT: ACCORDION / DRILLDOWN PANELS */
+.accordion-panels-col {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.acc-panel {
+  background: #ffffff;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.2s;
+}
+.acc-head {
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  background: #ffffff;
+  transition: background 0.15s;
+}
+.acc-head:hover { background: #F8FAFC; }
+.acc-head-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13.5px;
+  font-weight: 800;
+  color: #0F172A;
+}
+.acc-icon {
+  width: 28px; height: 28px;
+  border-radius: 8px;
+  background: #FFF7ED;
+  color: #EA580C;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+}
+.acc-arrow {
+  color: #94A3B8;
+  font-size: 12px;
+  transition: transform 0.2s;
+}
+.acc-panel.expanded .acc-arrow { transform: rotate(180deg); }
+
+.acc-body {
+  padding: 16px 20px 20px;
+  border-top: 1px solid #F1F5F9;
+  background: #F8FAFC;
+  display: none;
+}
+.acc-panel.expanded .acc-body { display: block; }
+
+/* Topics horizontal bar breakdown */
+.topic-bar-row {
+  margin-bottom: 12px;
+}
+.tb-top {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11.5px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+.tb-bar-bg {
+  height: 8px;
+  background: #E2E8F0;
+  border-radius: 4px;
+  overflow: hidden;
+}
+.tb-bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  background: linear-gradient(90deg, #F97316, #EA580C);
+}
+
+/* BOTTOM ROW: TOP PERFORMING TWEETS + RECENT TWEETS */
+.tweets-bottom-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+.tweets-card-box {
+  background: #ffffff;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 22px 24px;
+  box-shadow: var(--shadow-sm);
+}
+.tcb-top-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+.view-all-link {
+  font-size: 11.5px;
+  font-weight: 800;
+  color: #EA580C;
+  text-decoration: none;
+}
+.view-all-link:hover { text-decoration: underline; }
+
+/* Real Tweet Card (Screenshot 1 Bottom Left) */
+.tweet-display-card {
+  background: #F8FAFC;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px 18px;
+  margin-bottom: 12px;
+}
+.tdc-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.tdc-avatar {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+.tdc-user { font-size: 12.5px; font-weight: 800; color: #0F172A; }
+.tdc-time { font-size: 11px; color: var(--text-dim); }
+.tdc-text {
+  font-size: 12.5px;
+  color: #1E293B;
+  line-height: 1.45;
+  margin-bottom: 12px;
+}
+.tdc-media-mock {
+  width: 100%;
+  height: 160px;
+  border-radius: 10px;
+  background: #CBD5E1 url('https://images.unsplash.com/photo-1540910419892-4a36d2c3266c?auto=format&fit=crop&w=600&q=80') center/cover;
+  margin-bottom: 12px;
+}
+.tdc-metrics {
+  display: flex;
+  gap: 24px;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+.tdc-met-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+/* Recent Tweet Mini Items (Screenshot 1 Bottom Right) */
+.recent-tweet-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 0;
+  border-bottom: 1px solid #EDF2F7;
+}
+.recent-tweet-item:last-child { border-bottom: none; }
+.rti-avatar {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+.rti-content { flex: 1; }
+.rti-text { font-size: 12px; color: #1E293B; line-height: 1.35; margin-bottom: 6px; }
+.rti-metrics { display: flex; gap: 16px; font-size: 10.5px; font-weight: 700; color: var(--text-dim); }
+</style>
+</head>
+<body>
+
+<!-- TOP PREVIEW CONTROL BAR -->
+<div class="preview-status-bar">
+  <div class="ps-left">
+    <span class="ps-pill">Sample Prototype</span>
+    <span>Creators Hub · Member List &amp; Live Analysis Plan</span>
+  </div>
+
+  <div class="view-switcher">
+    <button class="vs-btn active" id="btnView1" onclick="switchPreviewView(1)">
+      Phase 1: Member List (Left of Donut)
+    </button>
+    <button class="vs-btn" id="btnView2" onclick="switchPreviewView(2)">
+      Phase 2: Individual Analysis View
+    </button>
+  </div>
+</div>
+
+<div class="page-container">
+
+  <!-- ================================================================= -->
+  <!-- VIEW 1: GROUP OVERVIEW WITH MEMBER LIST ON LEFT OF DONUT (PHASE 1)-->
+  <!-- ================================================================= -->
+  <div id="groupOverviewView">
+
+    <!-- Group Hero Banner -->
+    <div class="group-hero-card">
+      <div class="gh-left">
+        <div class="gh-logo">
+          <svg viewBox="0 0 24 24" width="38" height="38" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/></svg>
+        </div>
+        <div class="gh-info">
+          <h2>
+            Creators Hub
+            <span class="pill-ind">Independent Digital Media</span>
+          </h2>
+          <div class="gh-meta">
+            <span>🌐 Digital Media Network</span>
+            <span>•</span>
+            <span>👥 8 Key Creators &amp; Commentators</span>
+          </div>
+          <p class="gh-desc">Hub of independent digital creators, political commentators, analysts, and satirists driving digital narratives across India.</p>
+        </div>
+      </div>
+
+      <div class="gh-kpis">
+        <div class="gh-kpi">
+          <div class="gh-kpi-val">2,014</div>
+          <div class="gh-kpi-lbl">Total Tweets</div>
+        </div>
+        <div class="gh-kpi">
+          <div class="gh-kpi-val">33.58 L</div>
+          <div class="gh-kpi-lbl">Total Likes</div>
+        </div>
+        <div class="gh-kpi">
+          <div class="gh-kpi-val">13.80 L</div>
+          <div class="gh-kpi-lbl">Total Reposts</div>
+        </div>
+        <div class="gh-kpi">
+          <div class="gh-kpi-val">11.30 Cr</div>
+          <div class="gh-kpi-lbl">Total Views</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ROW 1: THE REQUESTED MEMBER LIST (LEFT) + OVERALL CONTRIBUTION DONUT (RIGHT) -->
+    <div class="donut-row-layout">
+
+      <!-- LEFT SIDE: MEMBER ROSTER TABLE (PHASE 1 CORE) -->
+      <div class="section-box">
+        <div class="box-header">
+          <div>
+            <div class="box-title">
+              <span>👥</span>
+              Creators &amp; Key Members Roster
+            </div>
+            <div class="box-subtitle">Click on any creator to open deep-dive analysis dashboard</div>
+          </div>
+          <span style="font-size:11px;font-weight:700;color:#EA580C;background:#FFF7ED;border:1px solid #FFEDD5;padding:3px 8px;border-radius:12px">8 Active Voices</span>
+        </div>
+
+        <div class="member-roster-list" id="memberRosterList">
+          <!-- Populated dynamically via JS with real Mongo data -->
+        </div>
+      </div>
+
+      <!-- RIGHT SIDE: OVERALL CONTRIBUTION DONUT CHART -->
+      <div class="section-box">
+        <div class="box-header">
+          <div>
+            <div class="box-title">Overall Contribution</div>
+            <div class="box-subtitle">Share of tweets across key creator handles</div>
+          </div>
+        </div>
+
+        <div class="donut-wrap">
+          <canvas id="demoDonutChart"></canvas>
+          <div class="donut-center-info">
+            <div class="dci-val">2,014</div>
+            <div class="dci-lbl">Total Tweets</div>
+          </div>
+        </div>
+
+        <div class="donut-legend-mini" id="donutLegendMini">
+          <!-- Populated dynamically -->
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ROW 2: ASSOCIATED LEADERS & KEY ACCOUNTS (KEPT INTACT AS REQUESTED) -->
+    <div class="associated-leaders-wrap">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <div>
+          <div style="font-size:15px;font-weight:800;color:#0F172A">Associated Leaders &amp; Key Accounts</div>
+          <div style="font-size:11.5px;color:var(--text-muted)">Official handles &amp; designations with direct X profile links</div>
+        </div>
+      </div>
+
+      <div class="al-cards-scroll" id="alCardsScroll">
+        <!-- Populated dynamically -->
+      </div>
+    </div>
+
+  </div>
+
+
+  <!-- ================================================================= -->
+  <!-- VIEW 2: INDIVIDUAL LEADER ANALYSIS VIEW (MATCHING SCREENSHOT 1)   -->
+  <!-- ================================================================= -->
+  <div id="leaderAnalysisView">
+
+    <!-- Top Breadcrumb & Return Action -->
+    <div class="analysis-nav-row">
+      <div class="an-crumbs">
+        <span class="an-crumb-link" onclick="switchPreviewView(1)">Narrative Groups</span>
+        <span>&gt;</span>
+        <span class="an-crumb-link" onclick="switchPreviewView(1)" id="crumbGroupName">Creators Hub</span>
+        <span>&gt;</span>
+        <span class="an-crumb-active" id="crumbLeaderName">Dhruv Rathee</span>
+      </div>
+
+      <button class="btn-back-group" onclick="switchPreviewView(1)">
+        &larr; Back to Creators Hub Group
+      </button>
+    </div>
+
+    <!-- LEADER PROFILE & 4 KPI CARDS (TOP ROW) -->
+    <div class="leader-hero-grid">
+      <!-- Profile Card -->
+      <div class="leader-bio-card">
+        <img class="lbc-avatar" id="lbcAvatar" src="https://pbs.twimg.com/profile_images/1257381512498077696/ACJBYZ-n_400x400.jpg" alt="Dhruv Rathee">
+        <div class="lbc-info">
+          <h1>
+            <span id="lbcName">Dhruv Rathee</span>
+            <svg class="badge-verified-svg" viewBox="0 0 24 24"><path d="M22.5 12.5c0-1.58-.875-2.95-2.148-3.6.154-.435.238-.905.238-1.4 0-2.21-1.79-4-4-4-.495 0-.965.084-1.4.238C14.55 2.475 13.18 1.6 11.6 1.6c-1.58 0-2.95.875-3.6 2.148-.435-.154-.905-.238-1.4-.238-2.21 0-4 1.79-4 4 0 .495.084.965.238 1.4C1.575 9.55.7 10.92.7 12.5c0 1.58.875 2.95 2.148 3.6-.154.435-.238.905-.238 1.4 0 2.21 1.79 4 4 4 .495 0 .965-.084 1.4-.238.65 1.273 2.02 2.148 3.6 2.148 1.58 0 2.95-.875 3.6-2.148.435.154.905.238 1.4.238 2.21 0 4-1.79 4-4 0-.495-.084-.965-.238-1.4 1.273-.65 2.148-2.02 2.148-3.6zm-12.7 4.29l-4.29-4.29 1.41-1.41 2.88 2.88 6.18-6.18 1.41 1.41-7.59 7.59z"/></svg>
+          </h1>
+          <div class="lbc-handle" id="lbcHandle">@dhruv_rathee</div>
+          <div class="lbc-role" id="lbcRole">Digital Creator &amp; Commentator | Creators Hub</div>
+          <p class="lbc-desc" id="lbcDesc">Independent digital creator and educator focusing on political analysis, current affairs, environmental issues, and socio-economic accountability.</p>
+          <div class="lbc-links">
+            <a href="https://x.com/dhruv_rathee" target="_blank" id="lbcXLink">🔗 @dhruv_rathee</a>
+            <a href="https://youtube.com/dhruvrathee" target="_blank" id="lbcWebLink">🌐 youtube.com/dhruvrathee</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4 KPI Cards -->
+      <div class="leader-kpi-quad">
+        <div class="lk-card">
+          <div class="lk-left">
+            <div class="lk-icon tw">𝕏</div>
+            <div class="lk-nums">
+              <div class="lk-val" id="lkValTw">27</div>
+              <div class="lk-lbl">Total Tweets</div>
+            </div>
+          </div>
+          <span class="lk-trend-badge">↑ 14%</span>
+        </div>
+
+        <div class="lk-card">
+          <div class="lk-left">
+            <div class="lk-icon lk">❤️</div>
+            <div class="lk-nums">
+              <div class="lk-val" id="lkValLk">9.22 L</div>
+              <div class="lk-lbl">Total Likes</div>
+            </div>
+          </div>
+          <span class="lk-trend-badge">↑ 18%</span>
+        </div>
+
+        <div class="lk-card">
+          <div class="lk-left">
+            <div class="lk-icon rt">🔁</div>
+            <div class="lk-nums">
+              <div class="lk-val" id="lkValRt">2.09 L</div>
+              <div class="lk-lbl">Total Reposts</div>
+            </div>
+          </div>
+          <span class="lk-trend-badge">↑ 12%</span>
+        </div>
+
+        <div class="lk-card">
+          <div class="lk-left">
+            <div class="lk-icon vw">📊</div>
+            <div class="lk-nums">
+              <div class="lk-val" id="lkValVw">2.95 Cr</div>
+              <div class="lk-lbl">Total Views</div>
+            </div>
+          </div>
+          <span class="lk-trend-badge">↑ 26%</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- SUBTABS ROW -->
+    <div class="analysis-subtabs-row">
+      <div class="subtabs-left">
+        <button class="as-tab-btn active">📊 Overview</button>
+        <button class="as-tab-btn">🐦 Tweets</button>
+        <button class="as-tab-btn">⚡ Engagement</button>
+        <button class="as-tab-btn">📢 Narratives / Topics</button>
+        <button class="as-tab-btn">🎭 Sentiment</button>
+      </div>
+
+      <div style="font-size:12px;font-weight:700;color:#64748B;display:flex;align-items:center;gap:8px">
+        <span>📅 Range:</span>
+        <select style="border:1px solid #CBD5E1;padding:4px 10px;border-radius:6px;font-size:11.5px;font-weight:700;color:#0F172A">
+          <option>Last 30 Days</option>
+          <option>Full Range</option>
+          <option>Today</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- MAIN GRID: TREND CHART + ACCORDION TOPICS -->
+    <div class="analysis-main-grid">
+
+      <!-- Engagement Trend Multi-line Chart -->
+      <div class="trend-chart-box">
+        <div class="tcb-head">
+          <div class="tcb-title">Engagement Trend</div>
+          <div class="tcb-legend">
+            <div class="tcb-leg-item"><span style="width:8px;height:8px;background:#3B82F6;border-radius:50%"></span> Tweets</div>
+            <div class="tcb-leg-item"><span style="width:8px;height:8px;background:#EF4444;border-radius:50%"></span> Likes</div>
+            <div class="tcb-leg-item"><span style="width:8px;height:8px;background:#10B981;border-radius:50%"></span> Reposts</div>
+            <div class="tcb-leg-item"><span style="width:8px;height:8px;background:#8B5CF6;border-radius:50%"></span> Views</div>
+          </div>
+        </div>
+        <div style="height:270px;position:relative">
+          <canvas id="analysisTrendChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Accordion Drilldowns -->
+      <div class="accordion-panels-col">
+
+        <!-- Panel 1: Top Narratives / Topics (Expanded as in screenshot) -->
+        <div class="acc-panel expanded">
+          <div class="acc-head" onclick="toggleAcc(this)">
+            <div class="acc-head-left">
+              <span class="acc-icon">💬</span>
+              <span>Top Narratives / Topics</span>
+            </div>
+            <span class="acc-arrow">▼</span>
+          </div>
+          <div class="acc-body">
+            <div class="topic-bar-row">
+              <div class="tb-top"><span>Electoral Integrity &amp; Transparency</span><span>38%</span></div>
+              <div class="tb-bar-bg"><div class="tb-bar-fill" style="width:38%"></div></div>
+            </div>
+            <div class="topic-bar-row">
+              <div class="tb-top"><span>Constitution &amp; Democratic Norms</span><span>24%</span></div>
+              <div class="tb-bar-bg"><div class="tb-bar-fill" style="width:24%"></div></div>
+            </div>
+            <div class="topic-bar-row">
+              <div class="tb-top"><span>Public Welfare &amp; Economy</span><span>18%</span></div>
+              <div class="tb-bar-bg"><div class="tb-bar-fill" style="width:18%"></div></div>
+            </div>
+            <div class="topic-bar-row">
+              <div class="tb-top"><span>Youth &amp; Employment</span><span>12%</span></div>
+              <div class="tb-bar-bg"><div class="tb-bar-fill" style="width:12%"></div></div>
+            </div>
+            <div class="topic-bar-row">
+              <div class="tb-top"><span>Media Analysis</span><span>8%</span></div>
+              <div class="tb-bar-bg"><div class="tb-bar-fill" style="width:8%"></div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Panel 2: Sentiment Analysis -->
+        <div class="acc-panel">
+          <div class="acc-head" onclick="toggleAcc(this)">
+            <div class="acc-head-left">
+              <span class="acc-icon">🎭</span>
+              <span>Sentiment Analysis</span>
+            </div>
+            <span class="acc-arrow">▼</span>
+          </div>
+          <div class="acc-body">
+            <div style="font-size:12px;color:#64748B">Positive: 32% | Neutral: 44% | Critical: 24%</div>
+          </div>
+        </div>
+
+        <!-- Panel 3: Engagement Breakdown -->
+        <div class="acc-panel">
+          <div class="acc-head" onclick="toggleAcc(this)">
+            <div class="acc-head-left">
+              <span class="acc-icon">📈</span>
+              <span>Engagement Breakdown</span>
+            </div>
+            <span class="acc-arrow">▼</span>
+          </div>
+          <div class="acc-body">
+            <div style="font-size:12px;color:#64748B">Avg Views / Post: 10.93 Lakh | Engagement Rate: 4.8%</div>
+          </div>
+        </div>
+
+        <!-- Panel 4: Audience Insights -->
+        <div class="acc-panel">
+          <div class="acc-head" onclick="toggleAcc(this)">
+            <div class="acc-head-left">
+              <span class="acc-icon">👥</span>
+              <span>Audience Insights</span>
+            </div>
+            <span class="acc-arrow">▼</span>
+          </div>
+          <div class="acc-body">
+            <div style="font-size:12px;color:#64748B">Top Audience: Hindi Belt, NCR, Maharashtra, Karnataka</div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- BOTTOM ROW: TOP PERFORMING TWEET + RECENT TWEETS -->
+    <div class="tweets-bottom-grid">
+
+      <!-- Top Performing Tweets -->
+      <div class="tweets-card-box">
+        <div class="tcb-top-row">
+          <div style="font-size:14px;font-weight:800;color:#0F172A">Top Performing Tweets</div>
+          <a href="#" class="view-all-link">View All &rarr;</a>
+        </div>
+
+        <div class="tweet-display-card" id="topTweetCard">
+          <div class="tdc-header">
+            <img class="tdc-avatar" id="ttcAvatar" src="https://pbs.twimg.com/profile_images/1257381512498077696/ACJBYZ-n_400x400.jpg">
+            <div>
+              <div class="tdc-user" id="ttcName">Dhruv Rathee</div>
+              <div class="tdc-time" id="ttcDate">Oct 15, 2026 • 20:47 IST</div>
+            </div>
+          </div>
+          <div class="tdc-text" id="ttcText">
+            The complete truth behind the corporate funding and political parties. Facts speak for themselves, no matter how much they try to suppress it. Watch the full breakdown.
+          </div>
+          <div class="tdc-media-mock"></div>
+          <div class="tdc-metrics">
+            <div class="tdc-met-item">💬 <span id="ttcComments">3.06 K</span></div>
+            <div class="tdc-met-item">🔁 <span id="ttcRts">9.08 K</span></div>
+            <div class="tdc-met-item">❤️ <span id="ttcLikes">59.6 K</span></div>
+            <div class="tdc-met-item">👁️ <span id="ttcViews">5.09 M</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Tweets -->
+      <div class="tweets-card-box">
+        <div class="tcb-top-row">
+          <div style="font-size:14px;font-weight:800;color:#0F172A">Recent Tweets</div>
+          <a href="#" class="view-all-link">View All &rarr;</a>
+        </div>
+
+        <div id="recentTweetsList">
+          <!-- Populated dynamically -->
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+// Live Data from MongoDB for Creators Hub
+const CREATORS_DATA = [
+  {
+    name: "Dhruv Rathee",
+    handle: "dhruv_rathee",
+    role: "Digital Creator & Commentator",
+    avatar: "https://pbs.twimg.com/profile_images/1257381512498077696/ACJBYZ-n_400x400.jpg",
+    tweets: 27,
+    likes: 922152,
+    rts: 209135,
+    views: 29518132,
+    bio: "Independent digital creator and educator focusing on political analysis, current affairs, environmental issues, and socio-economic accountability.",
+    topTweet: {
+      text: "The complete truth behind the corporate funding and political parties. Facts speak for themselves, no matter how much they try to suppress it. Watch the full breakdown.",
+      date: "Oct 15, 2026 • 20:47 IST",
+      comments: "3,063",
+      rts: "9,087",
+      likes: "59,604",
+      views: "5.09 M"
+    }
+  },
+  {
+    name: "Ajit Anjum",
+    handle: "ajitanjum",
+    role: "Senior Independent Journalist",
+    avatar: "https://pbs.twimg.com/profile_images/1551587717670379520/G682Ux1s_400x400.jpg",
+    tweets: 871,
+    likes: 1405816,
+    rts: 632695,
+    views: 35471441,
+    bio: "Former Managing Editor News 24 & India TV. Ramnath Goenka Awardee. Senior journalist covering ground reality and mass political pulses across India.",
+    topTweet: {
+      text: "Ground report from rural Uttar Pradesh: Farmers and youth speak candidly about inflation, local governance, and electoral promises.",
+      date: "Oct 14, 2026 • 18:22 IST",
+      comments: "1,842",
+      rts: "6,410",
+      likes: "42,100",
+      views: "2.85 M"
+    }
+  },
+  {
+    name: "Rajdeep Sardesai",
+    handle: "sardesairajdeep",
+    role: "Senior Journalist & Consulting Editor",
+    avatar: "https://pbs.twimg.com/profile_images/1851246667829235712/fzBcQGQG_400x400.jpg",
+    tweets: 709,
+    likes: 471266,
+    rts: 82088,
+    views: 35328377,
+    bio: "Consulting Editor India Today Group. Author, 2024: The Election that Surprised India. 35 years in broadcast journalism.",
+    topTweet: {
+      text: "Key takeaways from today's high-stakes election battleground rallies: voter turnout patterns reveal a razor-sharp contest.",
+      date: "Oct 13, 2026 • 21:05 IST",
+      comments: "980",
+      rts: "3,110",
+      likes: "18,400",
+      views: "1.92 M"
+    }
+  },
+  {
+    name: "Abhisar Sharma",
+    handle: "abhisar_sharma",
+    role: "Journalist & Political Commentator",
+    avatar: "https://pbs.twimg.com/profile_images/1362382729925419013/yXs1eOx6_400x400.jpg",
+    tweets: 316,
+    likes: 299699,
+    rts: 330448,
+    views: 6479020,
+    bio: "Ramnath Goenka Awardee journalist. Author. Host of 'Bole Bharat' analyzing democratic rights and political accountability.",
+    topTweet: {
+      text: "Why are mainstream channels ignoring the unemployment protests? Here is the unvarnished ground truth.",
+      date: "Oct 12, 2026 • 19:30 IST",
+      comments: "1,205",
+      rts: "4,800",
+      likes: "24,500",
+      views: "890 K"
+    }
+  },
+  {
+    name: "Prakash Raj",
+    handle: "prakashraaj",
+    role: "Actor, Activist & Commentator",
+    avatar: "https://pbs.twimg.com/profile_images/1081544964700426241/bOcibzHN_400x400.jpg",
+    tweets: 50,
+    likes: 131199,
+    rts: 101852,
+    views: 2170143,
+    bio: "Actor, producer, and social activist raising citizen queries on constitution, civil liberties, and democratic dialogue. #justasking",
+    topTweet: {
+      text: "To those who question citizens asking questions: democracy survives only when questions are asked fearlessly. #justasking",
+      date: "Oct 11, 2026 • 14:15 IST",
+      comments: "850",
+      rts: "3,200",
+      likes: "19,200",
+      views: "640 K"
+    }
+  },
+  {
+    name: "Punya Prasun Bajpai",
+    handle: "ppbajpai",
+    role: "Senior Journalist & Analyst",
+    avatar: "https://pbs.twimg.com/profile_images/875628311837265920/5fJPmXhK_400x400.jpg",
+    tweets: 33,
+    likes: 97113,
+    rts: 16382,
+    views: 1980586,
+    bio: "Senior journalist and independent analyst. 30 years in Hindi journalism deciphering political power structures.",
+    topTweet: {
+      text: "Economic reality vs campaign promises: An in-depth audit of manufacturing claims and rural distress.",
+      date: "Oct 10, 2026 • 20:00 IST",
+      comments: "410",
+      rts: "1,850",
+      likes: "12,900",
+      views: "480 K"
+    }
+  },
+  {
+    name: "Vir Das",
+    handle: "thevirdas",
+    role: "Comedian & Satirist",
+    avatar: "https://pbs.twimg.com/profile_images/1359394524980629508/xYuMlKUp_400x400.jpg",
+    tweets: 7,
+    likes: 1608,
+    rts: 31,
+    views: 96037,
+    bio: "International Emmy Award winning comedian, actor, and political satirist.",
+    topTweet: {
+      text: "Two Indias: where the common person pays taxes for roads and still drives on potholes.",
+      date: "Oct 09, 2026 • 22:10 IST",
+      comments: "95",
+      rts: "310",
+      likes: "1,608",
+      views: "96 K"
+    }
+  },
+  {
+    name: "Kunal Kamra",
+    handle: "kunalkamra88",
+    role: "Stand-up Comedian & Satirist",
+    avatar: "https://pbs.twimg.com/profile_images/1598166022753726464/TBuJT4IY_400x400.jpg",
+    tweets: 2,
+    likes: 29858,
+    rts: 7868,
+    views: 2022188,
+    bio: "Stand-up comedian and socio-political commentator. Host of 'Shut Up Ya Kunal'.",
+    topTweet: {
+      text: "A quick masterclass in how electoral arithmetic changes when citizens demand accountability.",
+      date: "Oct 08, 2026 • 16:45 IST",
+      comments: "720",
+      rts: "3,900",
+      likes: "21,000",
+      views: "1.45 M"
+    }
+  }
+];
+
+// Switch between View 1 and View 2
+function switchPreviewView(v) {
+  const v1 = document.getElementById('groupOverviewView');
+  const v2 = document.getElementById('leaderAnalysisView');
+  const b1 = document.getElementById('btnView1');
+  const b2 = document.getElementById('btnView2');
+
+  if (v === 1) {
+    v1.style.display = 'block';
+    v2.style.display = 'none';
+    b1.classList.add('active');
+    b2.classList.remove('active');
+    window.scrollTo({top: 0, behavior: 'smooth'});
+  } else {
+    v1.style.display = 'none';
+    v2.style.display = 'block';
+    b1.classList.remove('active');
+    b2.classList.add('active');
+    window.scrollTo({top: 0, behavior: 'smooth'});
+    renderAnalysisTrendChart();
+  }
+}
+
+// Open Analysis for a specific Creator
+function openCreatorAnalysis(handle) {
+  const c = CREATORS_DATA.find(x => x.handle === handle) || CREATORS_DATA[0];
+
+  document.getElementById('crumbLeaderName').textContent = c.name;
+  document.getElementById('lbcName').textContent = c.name;
+  document.getElementById('lbcHandle').textContent = '@' + c.handle;
+  document.getElementById('lbcRole').textContent = c.role + ' | Creators Hub';
+  document.getElementById('lbcDesc').textContent = c.bio;
+  document.getElementById('lbcAvatar').src = c.avatar;
+  document.getElementById('lbcXLink').textContent = '🔗 @' + c.handle;
+  document.getElementById('lbcXLink').href = 'https://x.com/' + c.handle;
+
+  document.getElementById('lkValTw').textContent = c.tweets.toLocaleString();
+  document.getElementById('lkValLk').textContent = fmtNum(c.likes);
+  document.getElementById('lkValRt').textContent = fmtNum(c.rts);
+  document.getElementById('lkValVw').textContent = fmtNum(c.views);
+
+  // Top Tweet
+  if (c.topTweet) {
+    document.getElementById('ttcAvatar').src = c.avatar;
+    document.getElementById('ttcName').textContent = c.name;
+    document.getElementById('ttcDate').textContent = c.topTweet.date;
+    document.getElementById('ttcText').textContent = c.topTweet.text;
+    document.getElementById('ttcComments').textContent = c.topTweet.comments;
+    document.getElementById('ttcRts').textContent = c.topTweet.rts;
+    document.getElementById('ttcLikes').textContent = c.topTweet.likes;
+    document.getElementById('ttcViews').textContent = c.topTweet.views;
+  }
+
+  // Populate Recent Tweets
+  const rList = document.getElementById('recentTweetsList');
+  rList.innerHTML = [
+    { text: "Detailed audit of the latest economic survey and job growth trends across key industrial states.", date: "Oct 14, 2026", lk: "12 K", rt: "1.8 K", vw: "380 K" },
+    { text: "Constitutional values and public institutions must be preserved for future generations. Our collective responsibility.", date: "Oct 11, 2026", lk: "8.4 K", rt: "1.2 K", vw: "210 K" },
+    { text: "Live interaction answering top citizen queries on inflation and ground reality.", date: "Oct 08, 2026", lk: "6.1 K", rt: "980", vw: "180 K" }
+  ].map(t => `
+    <div class="recent-tweet-item">
+      <img class="rti-avatar" src="${c.avatar}">
+      <div class="rti-content">
+        <div class="rti-text">${t.text}</div>
+        <div class="rti-metrics">
+          <span>📅 ${t.date}</span>
+          <span>❤️ ${t.lk}</span>
+          <span>🔁 ${t.rt}</span>
+          <span>👁️ ${t.vw}</span>
+        </div>
+      </div>
+    </div>
+  `).join('');
+
+  switchPreviewView(2);
+}
+
+function fmtNum(n) {
+  if (n >= 10000000) return (n / 10000000).toFixed(2) + ' Cr';
+  if (n >= 100000) return (n / 100000).toFixed(2) + ' L';
+  if (n >= 1000) return (n / 1000).toFixed(1) + ' K';
+  return n.toLocaleString();
+}
+
+// Toggle Accordion Panel
+function toggleAcc(el) {
+  const panel = el.parentElement;
+  panel.classList.toggle('expanded');
+}
+
+// Populate Member Roster List (Phase 1)
+function populateRoster() {
+  const list = document.getElementById('memberRosterList');
+  list.innerHTML = CREATORS_DATA.map((c, i) => `
+    <div class="member-roster-item" onclick="openCreatorAnalysis('${c.handle}')">
+      <div class="mri-left">
+        <img class="mri-avatar" src="${c.avatar}">
+        <div>
+          <div class="mri-name">
+            ${c.name}
+            <svg class="badge-verified-svg" style="width:13px;height:13px" viewBox="0 0 24 24"><path d="M22.5 12.5c0-1.58-.875-2.95-2.148-3.6.154-.435.238-.905.238-1.4 0-2.21-1.79-4-4-4-.495 0-.965.084-1.4.238C14.55 2.475 13.18 1.6 11.6 1.6c-1.58 0-2.95.875-3.6 2.148-.435-.154-.905-.238-1.4-.238-2.21 0-4 1.79-4 4 0 .495.084.965.238 1.4C1.575 9.55.7 10.92.7 12.5c0 1.58.875 2.95 2.148 3.6-.154.435-.238.905-.238 1.4 0 2.21 1.79 4 4 4 .495 0 .965-.084 1.4-.238.65 1.273 2.02 2.148 3.6 2.148 1.58 0 2.95-.875 3.6-2.148.435.154.905.238 1.4.238 2.21 0 4-1.79 4-4 0-.495-.084-.965-.238-1.4 1.273-.65 2.148-2.02 2.148-3.6zm-12.7 4.29l-4.29-4.29 1.41-1.41 2.88 2.88 6.18-6.18 1.41 1.41-7.59 7.59z"/></svg>
+          </div>
+          <div class="mri-handle">@${c.handle}</div>
+        </div>
+      </div>
+      <div class="mri-right">
+        <div class="mri-stats">
+          <div class="mri-stat-num">${c.tweets} tw</div>
+          <div class="mri-stat-lbl">${fmtNum(c.views)} views</div>
+        </div>
+        <button class="mri-btn-action">
+          Analysis &rarr;
+        </button>
+      </div>
+    </div>
+  `).join('');
+
+  // Populate Associated Leaders scroll cards
+  const scroll = document.getElementById('alCardsScroll');
+  scroll.innerHTML = CREATORS_DATA.map(c => `
+    <div class="al-card" onclick="openCreatorAnalysis('${c.handle}')">
+      <img class="al-avatar" src="${c.avatar}">
+      <div class="al-name">${c.name}</div>
+      <div class="al-role">${c.role}</div>
+      <div class="al-handle">@${c.handle}</div>
+      <div class="al-tweets">${c.tweets} tweets</div>
+    </div>
+  `).join('');
+}
+
+// Donut Chart
+let donutChartInst = null;
+function renderDemoDonut() {
+  const ctx = document.getElementById('demoDonutChart');
+  if (!ctx) return;
+  const top4 = CREATORS_DATA.slice(0, 4);
+  const colors = ['#EA580C', '#0284C7', '#10B981', '#8B5CF6'];
+
+  donutChartInst = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: top4.map(c => c.name),
+      datasets: [{
+        data: top4.map(c => c.tweets),
+        backgroundColor: colors,
+        borderWidth: 2,
+        borderColor: '#ffffff'
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      cutout: '72%',
+      plugins: {
+        legend: { display: false }
+      }
+    }
+  });
+
+  const leg = document.getElementById('donutLegendMini');
+  leg.innerHTML = top4.map((c, i) => `
+    <div class="dl-item">
+      <span class="dl-dot" style="background:${colors[i]}"></span>
+      <span>${c.name.split(' ')[0]}: ${c.tweets}</span>
+    </div>
+  `).join('');
+}
+
+// Multi-line Trend Chart for Analysis View (Screenshot 1)
+let trendChartInst = null;
+function renderAnalysisTrendChart() {
+  const ctx = document.getElementById('analysisTrendChart');
+  if (!ctx) return;
+  if (trendChartInst) trendChartInst.destroy();
+
+  const labels = ['Oct 02', 'Oct 05', 'Oct 08', 'Oct 11', 'Oct 14', 'Oct 16'];
+
+  trendChartInst = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [
+        {
+          label: 'Views',
+          data: [40, 110, 160, 150, 220, 130],
+          borderColor: '#8B5CF6',
+          backgroundColor: 'rgba(139, 92, 246, 0.08)',
+          tension: 0.35,
+          fill: true,
+          pointRadius: 4
+        },
+        {
+          label: 'Likes',
+          data: [15, 65, 80, 115, 85, 65],
+          borderColor: '#EF4444',
+          tension: 0.35,
+          pointRadius: 4
+        },
+        {
+          label: 'Reposts',
+          data: [8, 30, 45, 55, 45, 30],
+          borderColor: '#10B981',
+          tension: 0.35,
+          pointRadius: 4
+        },
+        {
+          label: 'Tweets',
+          data: [4, 12, 18, 22, 16, 10],
+          borderColor: '#3B82F6',
+          tension: 0.35,
+          pointRadius: 4
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        y: {
+          grid: { color: '#F1F5F9' },
+          ticks: { font: { size: 10 }, color: '#94A3B8' }
+        },
+        x: {
+          grid: { display: false },
+          ticks: { font: { size: 10 }, color: '#94A3B8' }
+        }
+      },
+      plugins: {
+        legend: { display: false }
+      }
+    }
+  });
+}
+
+window.onload = function() {
+  populateRoster();
+  renderDemoDonut();
+};
+</script>
+</body>
+</html>

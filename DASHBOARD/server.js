@@ -29,6 +29,7 @@ const crypto = require('crypto');
 
 const app = express();
 app.use(express.urlencoded({ extended: false }));
+app.use('/assets', express.static(path.join(__dirname, 'assets')));
 
 /* ---------- GZIP ----------
  * Dashboard ka HTML ~6 MB ka hai (saara data usi me bake hota hai).
@@ -3726,6 +3727,26 @@ app.get('/api/version', async function (req, res) {
   } catch (e) { res.json({ v: '' }); }
 });
 
+// Preview routes for Leader Comparison mockup
+app.get('/sample_leader_comparison_preview.html', function (req, res) {
+  res.set('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
+  res.sendFile(path.join(__dirname, 'sample_leader_comparison_preview.html'));
+});
+app.get('/sample_party_detail_preview.html', function (req, res) {
+  res.set('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
+  res.sendFile(path.join(__dirname, 'sample_party_detail_preview.html'));
+});
+app.get('/sample_showcase_preview.html', function (req, res) {
+  res.set('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
+  var f = fs.existsSync(path.join(__dirname, 'sample_showcase_preview.html'))
+    ? 'sample_showcase_preview.html' : 'sample_leader_comparison_preview.html';
+  res.sendFile(path.join(__dirname, f));
+});
+app.get('/leader_comparison_slides.html', function (req, res) {
+  res.set('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
+  res.sendFile(path.join(__dirname, 'leader_comparison_slides.html'));
+});
+
 // ---------- Narrative Groups: LIVE MongoDB aggregation endpoint ----------
 // ---------- Narrative Groups: LIVE MongoDB aggregation endpoint (Date Filter aware) ----------
 app.get('/api/narrative-groups/stats', async function (req, res) {
@@ -3898,6 +3919,175 @@ app.get('/api/narrative-groups/leader-analysis/:handle', async function (req, re
   }
 });
 
+// ---------- Narrative Groups: LIVE MongoDB Leader Comparison Endpoint ----------
+app.get('/api/narrative-groups/comparison', async function (req, res) {
+  res.set('Cache-Control', 'no-store');
+  try {
+    var groupId = String(req.query.group || 'cjp').trim().toLowerCase();
+    var cfgPath = path.join(__dirname, 'data', 'narrative_groups_config.json');
+    if (!fs.existsSync(cfgPath)) return res.json({ ok: false, error: 'Config missing' });
+    var groups = JSON.parse(fs.readFileSync(cfgPath, 'utf8'));
+    var group = groups.find(function (g) { return g.id.toLowerCase() === groupId; }) || groups[0];
+    if (!group) return res.json({ ok: false, error: 'Group not found' });
+
+    var leaders = group.leaders || [];
+    var leaderHandles = leaders.map(function (l) { return l.handle; }).filter(Boolean);
+    if (!leaderHandles.length) leaderHandles = group.handles || [];
+
+    var allHandleVars = [];
+    leaderHandles.forEach(function (h) {
+      allHandleVars.push(h, h.toLowerCase(), h.toUpperCase());
+    });
+
+    var matchCond = { Handle: { $in: Array.from(new Set(allHandleVars)) } };
+
+    // Date range
+    var dFrom = String(req.query.from || '').trim().slice(0, 10);
+    var dTo   = String(req.query.to   || '').trim().slice(0, 10);
+    if (!dFrom && !dTo && req.query.days && req.query.days !== 'all') {
+      var numDays = parseInt(req.query.days, 10);
+      if (!isNaN(numDays) && numDays > 0) {
+        var now = new Date();
+        dTo = now.toISOString().slice(0, 10);
+        var past = new Date(now);
+        past.setDate(past.getDate() - numDays);
+        dFrom = past.toISOString().slice(0, 10);
+      }
+    }
+    if (dFrom || dTo) {
+      matchCond['Tweet Date'] = {};
+      if (dFrom) matchCond['Tweet Date'].$gte = dFrom;
+      if (dTo)   matchCond['Tweet Date'].$lte = dTo + ' 23:59:59';
+    }
+
+    // Sentiment filter
+    var sentFilter = String(req.query.sentiment || '').trim();
+    if (sentFilter && sentFilter.toLowerCase() !== 'all') {
+      matchCond['Sentiment'] = sentFilter;
+    }
+
+    var client = MP.client();
+    await client.connect();
+    var coll = client.db('pulse_master').collection('master_tweets');
+
+    var pipeline = [
+      { $match: matchCond },
+      {
+        $facet: {
+          leaderStats: [
+            {
+              $group: {
+                _id: '$Handle',
+                tweets: { $sum: 1 },
+                likes: { $sum: '$Total Likes' },
+                reposts: { $sum: '$Total Retweets' },
+                views: { $sum: '$Total Views' },
+                comments: { $sum: '$Total Comments' }
+              }
+            }
+          ],
+          leaderTimelines: [
+            {
+              $group: {
+                _id: {
+                  handle: '$Handle',
+                  date: { $substr: ['$Tweet Date', 0, 10] }
+                },
+                tweets: { $sum: 1 },
+                likes: { $sum: '$Total Likes' },
+                reposts: { $sum: '$Total Retweets' },
+                views: { $sum: '$Total Views' }
+              }
+            },
+            { $sort: { '_id.date': 1 } }
+          ],
+          leaderSentiments: [
+            {
+              $group: {
+                _id: {
+                  handle: '$Handle',
+                  sentiment: '$Sentiment'
+                },
+                count: { $sum: 1 }
+              }
+            }
+          ]
+        }
+      }
+    ];
+
+    var results = await coll.aggregate(pipeline).toArray();
+    await client.close();
+
+    var facet = (results && results.length) ? results[0] : {};
+    var rawStats = facet.leaderStats || [];
+    var rawTimelines = facet.leaderTimelines || [];
+    var rawSentiments = facet.leaderSentiments || [];
+
+    var statsMap = {};
+    rawStats.forEach(function (r) {
+      var hKey = String(r._id || '').toLowerCase();
+      statsMap[hKey] = {
+        handle: r._id,
+        tweets: r.tweets || 0,
+        likes: r.likes || 0,
+        reposts: r.reposts || 0,
+        views: r.views || 0,
+        comments: r.comments || 0
+      };
+    });
+
+    var dateSet = new Set();
+    rawTimelines.forEach(function (t) {
+      if (t._id && t._id.date) dateSet.add(t._id.date);
+    });
+    var sortedDates = Array.from(dateSet).sort();
+
+    var timelineMap = {};
+    rawTimelines.forEach(function (t) {
+      var hKey = String(t._id.handle || '').toLowerCase();
+      if (!timelineMap[hKey]) timelineMap[hKey] = {};
+      timelineMap[hKey][t._id.date] = {
+        tweets: t.tweets || 0,
+        likes: t.likes || 0,
+        reposts: t.reposts || 0,
+        views: t.views || 0
+      };
+    });
+
+    var sentimentMap = {};
+    rawSentiments.forEach(function (s) {
+      var hKey = String(s._id.handle || '').toLowerCase();
+      if (!sentimentMap[hKey]) sentimentMap[hKey] = {};
+      var sName = s._id.sentiment || 'No-Sentiment';
+      sentimentMap[hKey][sName] = (sentimentMap[hKey][sName] || 0) + (s.count || 0);
+    });
+
+    // Sort leaders by tweet count descending (highest to lowest)
+    leaders.sort(function (a, b) {
+      var sA = statsMap[String(a.handle || '').toLowerCase()] || { tweets: 0 };
+      var sB = statsMap[String(b.handle || '').toLowerCase()] || { tweets: 0 };
+      return (sB.tweets || 0) - (sA.tweets || 0);
+    });
+
+    res.json({
+      ok: true,
+      group: { id: group.id, name: group.name, acronym: group.acronym, color: group.color },
+      leaders: leaders,
+      dates: sortedDates,
+      stats: statsMap,
+      timelines: timelineMap,
+      sentiments: sentimentMap,
+      from: dFrom,
+      to: dTo,
+      sentimentFilter: sentFilter,
+      timestamp: new Date().toISOString()
+    });
+  } catch (e) {
+    res.json({ ok: false, error: e.message });
+  }
+});
+
 // ==============================================================================
 // LIVE X PROFILE PHOTO SCRAPER & PROXY (/api/avatar/:handle)
 // ==============================================================================
@@ -3943,6 +4133,224 @@ function scrapeXAvatarLive(handle) {
     req.on('timeout', function () { req.destroy(); resolve(null); });
   });
 }
+
+// ---------- Parties: LIVE MongoDB Leader Comparison Endpoint ----------
+app.get('/api/parties/comparison', async function (req, res) {
+  res.set('Cache-Control', 'no-store');
+  try {
+    var party = String(req.query.party || 'BJP').trim().toUpperCase();
+    var hmPath = path.join(__dirname, 'data', 'handle_master.json');
+    var handleMaster = {};
+    if (fs.existsSync(hmPath)) {
+      try { handleMaster = JSON.parse(fs.readFileSync(hmPath, 'utf8')); } catch (e) {}
+    }
+
+    // Find all party handles
+    var partyHandleMap = {};
+    Object.keys(handleMaster).forEach(function (hKey) {
+      var info = handleMaster[hKey] || {};
+      if ((info.party || '').toUpperCase() === party) {
+        partyHandleMap[hKey.toLowerCase()] = info;
+      }
+    });
+
+    var requestedHandles = String(req.query.handles || '').trim();
+    var targetHandles = [];
+    if (requestedHandles) {
+      targetHandles = requestedHandles.split(',').map(function (h) { return h.trim().replace(/^@/, ''); }).filter(Boolean);
+    } else {
+      // Pick top 6 leaders of the party from mapping
+      targetHandles = Object.keys(partyHandleMap).slice(0, 6);
+    }
+
+    var allHandleVars = [];
+    targetHandles.forEach(function (h) {
+      allHandleVars.push(h, h.toLowerCase(), h.toUpperCase());
+    });
+
+    var matchCond = { Handle: { $in: Array.from(new Set(allHandleVars)) } };
+
+    // Date range
+    var dFrom = String(req.query.from || '').trim().slice(0, 10);
+    var dTo   = String(req.query.to   || '').trim().slice(0, 10);
+    if (!dFrom && !dTo && req.query.days && req.query.days !== 'all') {
+      var numDays = parseInt(req.query.days, 10);
+      if (!isNaN(numDays) && numDays > 0) {
+        var now = new Date();
+        dTo = now.toISOString().slice(0, 10);
+        var past = new Date(now);
+        past.setDate(past.getDate() - numDays);
+        dFrom = past.toISOString().slice(0, 10);
+      }
+    }
+    if (dFrom || dTo) {
+      matchCond['Tweet Date'] = {};
+      if (dFrom) matchCond['Tweet Date'].$gte = dFrom;
+      if (dTo)   matchCond['Tweet Date'].$lte = dTo + ' 23:59:59';
+    }
+
+    // Sentiment filter
+    var sentFilter = String(req.query.sentiment || '').trim();
+    if (sentFilter && sentFilter.toLowerCase() !== 'all') {
+      matchCond['Sentiment'] = sentFilter;
+    }
+
+    var client = MP.client();
+    await client.connect();
+    var coll = client.db('pulse_master').collection('master_tweets');
+
+    var pipeline = [
+      { $match: matchCond },
+      {
+        $facet: {
+          leaderStats: [
+            {
+              $group: {
+                _id: '$Handle',
+                tweets: { $sum: 1 },
+                likes: { $sum: '$Total Likes' },
+                reposts: { $sum: '$Total Retweets' },
+                views: { $sum: '$Total Views' },
+                comments: { $sum: '$Total Comments' }
+              }
+            }
+          ],
+          leaderTimelines: [
+            {
+              $group: {
+                _id: {
+                  handle: '$Handle',
+                  date: { $substr: ['$Tweet Date', 0, 10] }
+                },
+                tweets: { $sum: 1 },
+                likes: { $sum: '$Total Likes' },
+                reposts: { $sum: '$Total Retweets' },
+                views: { $sum: '$Total Views' }
+              }
+            },
+            { $sort: { '_id.date': 1 } }
+          ],
+          leaderSentiments: [
+            {
+              $group: {
+                _id: {
+                  handle: '$Handle',
+                  sentiment: '$Sentiment'
+                },
+                count: { $sum: 1 }
+              }
+            }
+          ]
+        }
+      }
+    ];
+
+    var results = await coll.aggregate(pipeline).toArray();
+    await client.close();
+
+    var facet = (results && results.length) ? results[0] : {};
+    var rawStats = facet.leaderStats || [];
+    var rawTimelines = facet.leaderTimelines || [];
+    var rawSentiments = facet.leaderSentiments || [];
+
+    var statsMap = {};
+    rawStats.forEach(function (r) {
+      var hKey = String(r._id || '').toLowerCase();
+      if (!statsMap[hKey]) {
+        statsMap[hKey] = {
+          handle: r._id,
+          tweets: r.tweets || 0,
+          likes: r.likes || 0,
+          reposts: r.reposts || 0,
+          views: r.views || 0,
+          comments: r.comments || 0
+        };
+      } else {
+        statsMap[hKey].tweets += (r.tweets || 0);
+        statsMap[hKey].likes += (r.likes || 0);
+        statsMap[hKey].reposts += (r.reposts || 0);
+        statsMap[hKey].views += (r.views || 0);
+        statsMap[hKey].comments += (r.comments || 0);
+      }
+    });
+
+    var dateSet = new Set();
+    rawTimelines.forEach(function (t) {
+      if (t._id && t._id.date) dateSet.add(t._id.date);
+    });
+    var sortedDates = Array.from(dateSet).sort();
+
+    var timelineMap = {};
+    rawTimelines.forEach(function (t) {
+      var hKey = String(t._id.handle || '').toLowerCase();
+      if (!timelineMap[hKey]) timelineMap[hKey] = {};
+      var cur = timelineMap[hKey][t._id.date] || { tweets: 0, likes: 0, reposts: 0, views: 0 };
+      cur.tweets += (t.tweets || 0);
+      cur.likes += (t.likes || 0);
+      cur.reposts += (t.reposts || 0);
+      cur.views += (t.views || 0);
+      timelineMap[hKey][t._id.date] = cur;
+    });
+
+    var sentimentMap = {};
+    rawSentiments.forEach(function (s) {
+      var hKey = String(s._id.handle || '').toLowerCase();
+      if (!sentimentMap[hKey]) sentimentMap[hKey] = {};
+      var st = s._id.sentiment || 'Neutral';
+      sentimentMap[hKey][st] = (sentimentMap[hKey][st] || 0) + (s.count || 0);
+    });
+
+    var leadersList = targetHandles.map(function (h) {
+      var hKey = h.toLowerCase();
+      var meta = partyHandleMap[hKey] || {};
+      var stats = statsMap[hKey] || { tweets: 0, likes: 0, reposts: 0, views: 0, comments: 0 };
+      var tl = timelineMap[hKey] || {};
+      var sent = sentimentMap[hKey] || {};
+
+      var dayPoints = sortedDates.map(function (d) {
+        return tl[d] ? (tl[d].tweets || 0) : 0;
+      });
+      var dayLikes = sortedDates.map(function (d) {
+        return tl[d] ? (tl[d].likes || 0) : 0;
+      });
+      var dayViews = sortedDates.map(function (d) {
+        return tl[d] ? (tl[d].views || 0) : 0;
+      });
+
+      return {
+        handle: meta.handle || h,
+        name: meta.name || h,
+        designation: (meta.designations && meta.designations[0]) || meta.level || 'Party Leader',
+        state: meta.state || '',
+        avatar: '/api/avatar/' + (meta.handle || h),
+        stats: stats,
+        timeline: {
+          dates: sortedDates,
+          tweets: dayPoints,
+          likes: dayLikes,
+          views: dayViews
+        },
+        sentiments: sent
+      };
+    });
+
+    // Sort leaders descending by tweets
+    leadersList.sort(function (a, b) {
+      return (b.stats.tweets || 0) - (a.stats.tweets || 0);
+    });
+
+    res.json({
+      ok: true,
+      party: party,
+      dates: sortedDates,
+      leaders: leadersList,
+      totalPartyHandles: Object.keys(partyHandleMap).length
+    });
+  } catch (err) {
+    console.error('Error in /api/parties/comparison:', err);
+    res.status(500).json({ ok: false, error: err.message });
+  }
+});
 
 app.get('/api/avatar/:handle', async function (req, res) {
   var handle = String(req.params.handle || '').trim().replace(/^@/, '');

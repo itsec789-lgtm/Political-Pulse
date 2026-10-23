@@ -1,5 +1,6 @@
 {
  "access_requests": [],
+ "handle_requests": [],
  "handles_seen": [],
  "login_log": [
   {
@@ -117,7 +118,50 @@
     ]
    ],
    "unique": false
+  },
+  {
+   "name": "Handle_1_Tweet Date_-1",
+   "key": [
+    [
+     "Handle",
+     1
+    ],
+    [
+     "Tweet Date",
+     -1
+    ]
+   ],
+   "unique": false
+  },
+  {
+   "name": "Source Folders_1",
+   "key": [
+    [
+     "Source Folders",
+     1
+    ]
+   ],
+   "unique": false
+  },
+  {
+   "name": "Source Folders_1_Handle_1",
+   "key": [
+    [
+     "Source Folders",
+     1
+    ],
+    [
+     "Handle",
+     1
+    ]
+   ],
+   "unique": false
   }
  ],
- "portal_users": []
+ "pending_handles": [],
+ "pending_tweets": [],
+ "portal_users": [],
+ "tracked_handles": [],
+ "tracker_cfg": [],
+ "x_profiles": []
 }

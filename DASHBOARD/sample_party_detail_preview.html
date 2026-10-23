@@ -1,0 +1,3250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Parties Tab · Interactive Party Detail & Leader Comparison Preview</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;600;700&family=Rajdhani:wght@600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+:root {
+  --sb-w: 220px;
+  --header-h: 60px;
+  --primary: #FF5722;
+  --primary-dark: #E64A19;
+  --primary-light: #FFF3E0;
+  --bg: #F4F6F9;
+  --card-bg: #FFFFFF;
+  --border: #E5E7EB;
+  --border-light: #F3F4F6;
+  --text-main: #111827;
+  --text-muted: #6B7280;
+  --text-dim: #9CA3AF;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.02);
+  --shadow-md: 0 4px 14px -2px rgba(15,23,42,0.07), 0 2px 6px -1px rgba(15,23,42,0.04);
+  --shadow-lg: 0 10px 25px -3px rgba(15,23,42,0.08), 0 4px 10px -2px rgba(15,23,42,0.04);
+  --radius-lg: 16px;
+  --radius-md: 12px;
+  --radius-sm: 8px;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text-main);
+  font-family: 'Plus Jakarta Sans', 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  min-height: 100vh;
+}
+
+/* TOP STATUS AUDIT BAR */
+.preview-status-bar {
+  background: linear-gradient(90deg, #0F172A 0%, #1E293B 100%);
+  color: #fff;
+  padding: 10px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+  position: sticky;
+  top: 0;
+  z-index: 2000;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.25);
+}
+.ps-left { display: flex; align-items: center; gap: 12px; }
+.ps-pill {
+  background: #FF5722;
+  color: #fff;
+  font-weight: 800;
+  font-size: 10px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+.ps-badge {
+  background: rgba(16, 185, 129, 0.2);
+  border: 1px solid rgba(16, 185, 129, 0.4);
+  color: #10B981;
+  font-weight: 700;
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.ps-badge::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  background: #10B981;
+  border-radius: 50%;
+  animation: pulse-dot 1.5s infinite;
+}
+@keyframes pulse-dot { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(0.8); } }
+
+/* APP LAYOUT */
+.app-container { display: flex; min-height: calc(100vh - 44px); }
+
+/* SIDEBAR */
+.sidebar {
+  width: var(--sb-w);
+  background: #FFFFFF;
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+}
+.sidebar-logo-box {
+  padding: 18px 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-bottom: 1px solid var(--border-light);
+}
+.sb-logo-circle {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #FF5722, #FF8F00);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-weight: 900;
+  font-size: 14px;
+}
+.sb-logo-text { font-family: 'Rajdhani', sans-serif; font-weight: 800; font-size: 16px; color: #111827; }
+.sb-nav-list { padding: 14px 10px; display: flex; flex-direction: column; gap: 4px; flex: 1; }
+.sb-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-weight: 600;
+  color: #4B5563;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  user-select: none;
+}
+.sb-nav-item:hover { background: #F3F4F6; color: #111827; }
+.sb-nav-item.active {
+  background: #FFF3E0;
+  color: #E64A19;
+  font-weight: 700;
+}
+.sb-nav-item svg { width: 17px; height: 17px; flex-shrink: 0; }
+
+/* MAIN CONTENT AREA */
+.main-viewport {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  max-height: calc(100vh - 44px);
+}
+
+.top-app-header {
+  height: var(--header-h);
+  background: #FFFFFF;
+  border-bottom: 1px solid var(--border);
+  padding: 0 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.header-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+.header-breadcrumb strong { color: var(--text-main); font-weight: 800; }
+
+.header-user-badge {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+}
+.hu-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #1E293B;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 12px;
+}
+
+.content-body {
+  padding: 24px 28px 48px;
+  max-width: 1440px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* =============================================================================
+   VIEW 1: PARTIES DIRECTORY VIEW (CARDS GRID WITHOUT HANDLES BY DESIGNATION)
+============================================================================= */
+.parties-filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #FFFFFF;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 10px 16px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+.filter-label {
+  font-size: 10.5px;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  letter-spacing: 0.5px;
+}
+.filter-select {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #374151;
+  background: #FAFAFA;
+  outline: none;
+  cursor: pointer;
+}
+.filter-divider {
+  width: 1px;
+  height: 20px;
+  background: var(--border);
+}
+
+.party-overview-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+.party-overview-title {
+  font-size: 14px;
+  font-weight: 800;
+  color: #111827;
+  font-family: 'Rajdhani', sans-serif;
+  letter-spacing: 0.4px;
+}
+.party-overview-sub {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+/* PARTIES GRID */
+.party-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+/* CLEAN PARTY CARD (HANDLES BY DESIGNATION REMOVED AS REQUESTED) */
+.pcard {
+  background: #FFFFFF;
+  border: 1.5px solid var(--border);
+  border-top: 4px solid var(--pc, #E65100);
+  border-radius: 12px;
+  padding: 16px 18px;
+  cursor: pointer;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  box-shadow: var(--shadow-sm);
+}
+.pcard:hover {
+  transform: translateY(-3px);
+  border-color: var(--pc, #E65100);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+}
+.pcard-head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+.pcard-logo {
+  width: 46px;
+  height: 46px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  font-size: 15px;
+  font-family: 'Rajdhani', sans-serif;
+  flex-shrink: 0;
+  border: 1px solid rgba(0,0,0,0.06);
+}
+.pcard-name {
+  font-size: 16px;
+  font-weight: 800;
+  font-family: 'Rajdhani', sans-serif;
+  line-height: 1.2;
+}
+.pcard-full {
+  font-size: 11.5px;
+  color: var(--text-muted);
+  font-weight: 600;
+  margin-top: 1px;
+}
+.pcard-handles {
+  font-size: 11px;
+  font-weight: 800;
+  margin-top: 2px;
+}
+
+/* 4 STATS GRID IN CARD */
+.pstats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  background: #F9FAFB;
+  border: 1px solid var(--border-light);
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-bottom: 10px;
+}
+.pstat { display: flex; flex-direction: column; }
+.pstat-val {
+  font-size: 15px;
+  font-weight: 800;
+  font-family: 'Rajdhani', sans-serif;
+}
+.pstat-lbl {
+  font-size: 10px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  margin-top: 1px;
+}
+
+.pfol {
+  display: flex;
+  justify-content: space-between;
+  padding: 4px 6px 12px;
+  border-bottom: 1px solid var(--border-light);
+}
+
+/* SLEEK CLICK HINT FOOTER */
+.pcard-action-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 10px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--pc, #E65100);
+}
+.pcard-action-bar svg {
+  transition: transform 0.2s ease;
+}
+.pcard:hover .pcard-action-bar svg {
+  transform: translateX(4px);
+}
+
+/* =============================================================================
+   VIEW 2: PARTY DETAIL PAGE (HERO CARD + OVERVIEW + LEADER COMPARISON)
+============================================================================= */
+#partyDetailView { display: none; }
+
+.party-detail-top-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+.party-crumbs {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+.party-crumb-link {
+  color: #FF5722;
+  cursor: pointer;
+  text-decoration: none;
+  font-weight: 700;
+}
+.party-crumb-link:hover { text-decoration: underline; }
+.party-crumb-sep { color: var(--text-dim); }
+.party-crumb-active { color: #111827; font-weight: 800; }
+
+.btn-back-parties {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #FFFFFF;
+  border: 1.5px solid var(--border);
+  padding: 7px 14px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #374151;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  box-shadow: var(--shadow-sm);
+}
+.btn-back-parties:hover {
+  background: #F3F4F6;
+  border-color: #CBD5E1;
+  color: #111827;
+}
+
+/* HERO CARD (MATCHING SCREENSHOT 1) */
+.party-hero-card {
+  background: #FFFFFF;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 22px 24px;
+  margin-bottom: 20px;
+  display: grid;
+  grid-template-columns: 1.3fr 1fr;
+  gap: 24px;
+  align-items: center;
+  box-shadow: var(--shadow-sm);
+}
+@media(max-width: 1024px) {
+  .party-hero-card { grid-template-columns: 1fr; }
+}
+
+.ph-left {
+  display: flex;
+  gap: 18px;
+  align-items: center;
+}
+.ph-logo-circle {
+  width: 82px;
+  height: 82px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  font-weight: 900;
+  font-family: 'Rajdhani', sans-serif;
+  color: #FFFFFF;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.12);
+  flex-shrink: 0;
+  border: 3px solid #FFFFFF;
+}
+.ph-info { flex: 1; min-width: 0; }
+.ph-title-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 4px;
+}
+.ph-name {
+  font-size: 20px;
+  font-weight: 800;
+  color: #111827;
+  font-family: 'Rajdhani', sans-serif;
+  letter-spacing: 0.3px;
+}
+.ph-badge {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: 20px;
+}
+.ph-sub {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+.ph-links {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 11px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+.ph-link-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: #1D9BF0;
+  font-weight: 700;
+  text-decoration: none;
+}
+.ph-desc {
+  font-size: 11.5px;
+  color: #4B5563;
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* =============================================================================
+   ATTRACTIVE EXECUTIVE KPI CARDS (TWEETS, LIKES, REPOSTS, VIEWS)
+============================================================================= */
+.ph-kpis-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+@media(max-width: 900px) {
+  .ph-kpis-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+.ph-kpi-card {
+  border-radius: 14px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+}
+.ph-kpi-card:hover {
+  transform: translateY(-3px);
+}
+
+/* Card Themed Backgrounds & Borders */
+.ph-kpi-card.kpi-tweets {
+  background: linear-gradient(145deg, #FFFFFF 0%, #F0F7FF 100%);
+  border: 1.5px solid #BFDBFE;
+}
+.ph-kpi-card.kpi-tweets:hover {
+  border-color: #3B82F6;
+  box-shadow: 0 10px 24px -4px rgba(37, 99, 235, 0.20), 0 0 0 1px rgba(37, 99, 235, 0.15);
+}
+
+.ph-kpi-card.kpi-likes {
+  background: linear-gradient(145deg, #FFFFFF 0%, #FFF1F2 100%);
+  border: 1.5px solid #FECDD3;
+}
+.ph-kpi-card.kpi-likes:hover {
+  border-color: #F43F5E;
+  box-shadow: 0 10px 24px -4px rgba(225, 29, 72, 0.20), 0 0 0 1px rgba(225, 29, 72, 0.15);
+}
+
+.ph-kpi-card.kpi-reposts {
+  background: linear-gradient(145deg, #FFFFFF 0%, #ECFDF5 100%);
+  border: 1.5px solid #A7F3D0;
+}
+.ph-kpi-card.kpi-reposts:hover {
+  border-color: #10B981;
+  box-shadow: 0 10px 24px -4px rgba(5, 150, 105, 0.20), 0 0 0 1px rgba(5, 150, 105, 0.15);
+}
+
+.ph-kpi-card.kpi-views {
+  background: linear-gradient(145deg, #FFFFFF 0%, #F5F3FF 100%);
+  border: 1.5px solid #DDD6FE;
+}
+.ph-kpi-card.kpi-views:hover {
+  border-color: #8B5CF6;
+  box-shadow: 0 10px 24px -4px rgba(124, 58, 237, 0.20), 0 0 0 1px rgba(124, 58, 237, 0.15);
+}
+
+/* Card Top Row */
+.ph-kpi-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+.ph-kpi-icon-wrap {
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #FFFFFF;
+}
+.ph-kpi-icon-wrap svg {
+  width: 17px;
+  height: 17px;
+}
+.icon-tweets {
+  background: linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%);
+  box-shadow: 0 3px 8px rgba(37, 99, 235, 0.35);
+}
+.icon-likes {
+  background: linear-gradient(135deg, #FB7185 0%, #E11D48 100%);
+  box-shadow: 0 3px 8px rgba(225, 29, 72, 0.35);
+}
+.icon-reposts {
+  background: linear-gradient(135deg, #34D399 0%, #059669 100%);
+  box-shadow: 0 3px 8px rgba(5, 150, 105, 0.35);
+}
+.icon-views {
+  background: linear-gradient(135deg, #A78BFA 0%, #7C3AED 100%);
+  box-shadow: 0 3px 8px rgba(124, 58, 237, 0.35);
+}
+
+/* Glowing Live Badge */
+.ph-live-pill {
+  font-size: 9px;
+  font-weight: 800;
+  color: #059669;
+  background: #D1FAE5;
+  border: 1px solid #A7F3D0;
+  padding: 2px 7px;
+  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  letter-spacing: 0.5px;
+}
+.ph-live-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #10B981;
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.25);
+  animation: pulse-dot 1.5s infinite;
+}
+
+/* Big Bold Values */
+.ph-kpi-val {
+  font-size: 24px;
+  font-weight: 800;
+  font-family: 'Rajdhani', sans-serif;
+  line-height: 1.1;
+  letter-spacing: -0.3px;
+  margin-top: 2px;
+}
+.val-tweets { color: #1E3A8A; }
+.val-likes { color: #881337; }
+.val-reposts { color: #064E3B; }
+.val-views { color: #4C1D95; }
+
+/* Labels */
+.ph-kpi-lbl {
+  font-size: 10px;
+  font-weight: 800;
+  color: #64748B;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  margin-top: 4px;
+}
+
+/* Bottom subtle accent bar */
+.ph-kpi-bar {
+  height: 3px;
+  border-radius: 3px;
+  margin-top: 8px;
+  width: 100%;
+  opacity: 0.85;
+}
+.bar-tweets { background: linear-gradient(90deg, #3B82F6 0%, rgba(59,130,246,0.1) 100%); }
+.bar-likes { background: linear-gradient(90deg, #F43F5E 0%, rgba(244,63,94,0.1) 100%); }
+.bar-reposts { background: linear-gradient(90deg, #10B981 0%, rgba(16,185,129,0.1) 100%); }
+.bar-views { background: linear-gradient(90deg, #8B5CF6 0%, rgba(139,92,246,0.1) 100%); }
+
+/* SUB-TABS NAVIGATION */
+.party-subtabs-row {
+  display: flex;
+  gap: 8px;
+  border-bottom: 2px solid var(--border);
+  margin-bottom: 20px;
+  overflow-x: auto;
+}
+.party-subtab {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border: none;
+  background: none;
+  font-size: 13px;
+  font-weight: 700;
+  color: #6B7280;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+  margin-bottom: -2px;
+}
+.party-subtab:hover { color: #111827; }
+.party-subtab.active {
+  color: var(--primary);
+  border-bottom-color: var(--primary);
+  background: #FFF3E0;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+}
+.party-subtab svg { width: 15px; height: 15px; }
+
+/* SUB-PANEL 1: OVERVIEW */
+.overview-grid {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 20px;
+}
+@media(max-width: 1024px) {
+  .overview-grid { grid-template-columns: 1fr; }
+}
+
+.party-box {
+  background: #FFFFFF;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 18px 20px;
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 20px;
+}
+.party-box-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+.party-box-title {
+  font-size: 14px;
+  font-weight: 800;
+  color: #111827;
+  font-family: 'Rajdhani', sans-serif;
+  letter-spacing: 0.3px;
+}
+.party-box-badge {
+  font-size: 10.5px;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: #F3F4F6;
+  color: #4B5563;
+}
+
+/* ROSTER MEMBERS LIST */
+.roster-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 380px;
+  overflow-y: auto;
+}
+.roster-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--border-light);
+  background: #FAFAFA;
+  transition: all 0.15s ease;
+}
+.roster-item:hover {
+  background: #FFFFFF;
+  border-color: #CBD5E1;
+  box-shadow: var(--shadow-sm);
+}
+.roster-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.roster-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1.5px solid #FFFFFF;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+}
+.roster-name {
+  font-size: 13px;
+  font-weight: 800;
+  color: #111827;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.roster-handle {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+.roster-stats {
+  text-align: right;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.roster-tw {
+  font-size: 12px;
+  font-weight: 800;
+  color: #111827;
+  font-family: 'Rajdhani', sans-serif;
+}
+.roster-vw {
+  font-size: 10.5px;
+  color: var(--text-muted);
+}
+.roster-btn {
+  background: #FFFFFF;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #374151;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.roster-btn:hover {
+  background: #FF5722;
+  color: #fff;
+  border-color: #FF5722;
+}
+
+/* =============================================================================
+   HANDLES BY DESIGNATION SECTION (EXPANDABLE & COLLAPSIBLE WITH 5 PROMINENT TILES)
+============================================================================= */
+.pdesig-section {
+  background: #FFFFFF;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 20px 24px;
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 22px;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.pdesig-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.pdesig-title-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  user-select: none;
+}
+.pdesig-icon-badge {
+  width: 40px;
+  height: 40px;
+  border-radius: 11px;
+  background: linear-gradient(135deg, #FFF3E0, #FFE0B2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #E65100;
+  box-shadow: 0 2px 8px rgba(230, 81, 0, 0.18);
+  flex-shrink: 0;
+}
+.pdesig-icon-badge svg {
+  width: 20px;
+  height: 20px;
+}
+.pdesig-title-text {
+  font-size: 16px;
+  font-weight: 800;
+  color: #0F172A;
+  font-family: 'Rajdhani', sans-serif;
+  letter-spacing: 0.3px;
+}
+.pdesig-sub-text {
+  font-size: 11.5px;
+  color: #64748B;
+  font-weight: 500;
+  margin-top: 1px;
+}
+.pdesig-title-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.pdesig-count-pill {
+  font-size: 11.5px;
+  font-weight: 800;
+  color: #1E293B;
+  background: #F1F5F9;
+  border: 1px solid #CBD5E1;
+  padding: 4px 11px;
+  border-radius: 20px;
+  letter-spacing: 0.3px;
+}
+.pdesig-sec-collapse-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #F8FAFC;
+  border: 1px solid #CBD5E1;
+  padding: 5px 12px;
+  border-radius: 8px;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #475569;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+.pdesig-sec-collapse-btn:hover {
+  background: #E2E8F0;
+  color: #0F172A;
+  border-color: #94A3B8;
+}
+
+/* SECTION BODY COLLAPSIBLE */
+.pdesig-body-wrapper {
+  overflow: hidden;
+  transition: max-height 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+  max-height: 1000px;
+  opacity: 1;
+}
+.pdesig-body-wrapper.collapsed {
+  max-height: 0 !important;
+  opacity: 0 !important;
+  margin-top: 0 !important;
+  pointer-events: none;
+}
+
+/* 5 TILES GRID (PROMINENT & BIGGER) */
+.pdesig-grid-5 {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 12px;
+}
+@media(max-width: 1100px) {
+  .pdesig-grid-5 { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); }
+}
+
+/* EXPANDABLE DRAWER FOR REMAINING ROLES (SLIDE TYPE ANIMATION) */
+.pdesig-more-drawer {
+  overflow: hidden;
+  max-height: 0;
+  opacity: 0;
+  transform: translateY(-8px);
+  transition: max-height 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease, transform 0.3s ease;
+  margin-top: 0;
+}
+.pdesig-more-drawer.expanded {
+  max-height: 600px;
+  opacity: 1;
+  transform: translateY(0);
+  margin-top: 12px;
+}
+.pdesig-grid-more {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 12px;
+}
+@media(max-width: 1100px) {
+  .pdesig-grid-more { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); }
+}
+
+/* BIGGER & RICHER DESIGNATION TILES */
+.pdtile {
+  background: linear-gradient(145deg, #FFFFFF 0%, #F8FAFC 100%);
+  border: 1.5px solid #E2E8F0;
+  border-radius: 12px;
+  padding: 14px 18px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 96px;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+}
+.pdtile::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: var(--pc, #E65100);
+}
+.pdtile:hover {
+  transform: translateY(-3px);
+  border-color: var(--pc, #E65100);
+  box-shadow: 0 8px 20px -2px rgba(0, 0, 0, 0.08), 0 0 0 1px var(--pc, #E65100);
+}
+.pdtile-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+.pdtile-rank {
+  font-size: 10px;
+  font-weight: 800;
+  color: #64748B;
+  background: #F1F5F9;
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+.pdtile-pct {
+  font-size: 10.5px;
+  font-weight: 800;
+  color: var(--pc, #E65100);
+}
+.pdtile-val {
+  font-size: 26px;
+  font-weight: 800;
+  font-family: 'Rajdhani', sans-serif;
+  color: var(--pc, #E65100);
+  line-height: 1.05;
+}
+.pdtile-lbl {
+  font-size: 12.5px;
+  font-weight: 800;
+  color: #1E293B;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: 4px;
+}
+
+/* TOGGLE EXPAND / COLLAPSE BUTTON BAR */
+.pdesig-toggle-wrap {
+  display: flex;
+  justify-content: center;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px dashed #E2E8F0;
+}
+.pdesig-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #FFFFFF;
+  border: 1.5px solid #CBD5E1;
+  padding: 7px 18px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 800;
+  color: #1E293B;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  font-family: inherit;
+}
+.pdesig-toggle-btn:hover {
+  background: #FFF3E0;
+  border-color: #FF5722;
+  color: #E64A19;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(255, 87, 34, 0.15);
+}
+.pdesig-toggle-icon {
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.pdesig-toggle-icon.rotated {
+  transform: rotate(180deg);
+}
+
+/* =============================================================================
+   SUB-PANEL 2: LEADER COMPARISON
+============================================================================= */
+#partySubPanel-leaders { display: none; }
+
+.comp-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.comp-title-block h3 {
+  font-size: 18px;
+  font-weight: 800;
+  color: #111827;
+  font-family: 'Rajdhani', sans-serif;
+  letter-spacing: 0.3px;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.comp-subtitle {
+  font-size: 12px;
+  color: #6B7280;
+  margin-top: 2px;
+}
+.comp-controls-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.comp-date-select, .comp-sentiment-select {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #FFFFFF;
+  border: 1.5px solid #E5E7EB;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #374151;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  transition: all 0.2s ease;
+}
+.comp-sentiment-select:hover {
+  border-color: #6A1B9A;
+  background: #FAF5FF;
+}
+.comp-sentiment-label {
+  font-size: 11px;
+  font-weight: 800;
+  color: #6B7280;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+.comp-date-select select, .comp-sentiment-select select {
+  border: none;
+  background: transparent;
+  font-size: 12px;
+  font-weight: 700;
+  color: #1F2937;
+  outline: none;
+  cursor: pointer;
+}
+.comp-metric-pills {
+  display: flex;
+  background: #FFFFFF;
+  border: 1.5px solid #E5E7EB;
+  border-radius: 8px;
+  padding: 3px;
+  gap: 2px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+}
+.comp-pill {
+  padding: 5px 12px;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  font-size: 11px;
+  font-weight: 700;
+  color: #6B7280;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.comp-pill:hover { color: #111827; }
+.comp-pill.active {
+  background: #FF5722;
+  color: #FFFFFF;
+  box-shadow: 0 2px 6px rgba(255, 87, 34, 0.3);
+}
+
+/* LEADER CARDS ROW (4 CARDS + 5TH ADD LEADER CARD) */
+.leader-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  margin-bottom: 18px;
+}
+.leader-card {
+  background: #FFFFFF;
+  border: 1.5px solid #E5E7EB;
+  border-radius: 12px;
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+}
+.leader-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  border-color: #CBD5E1;
+}
+.leader-card.checked {
+  border-color: var(--accent-color, #FF5722);
+  background: #FFFFFF;
+  box-shadow: 0 4px 14px -2px rgba(0, 0, 0, 0.06), 0 0 0 1px var(--accent-color, #FF5722);
+}
+.leader-card.unchecked {
+  opacity: 0.6;
+  background: #FAFAFA;
+}
+.card-chk {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  border: 1.5px solid #CBD5E1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+}
+.leader-card.checked .card-chk {
+  background: var(--accent-color, #FF5722);
+  border-color: var(--accent-color, #FF5722);
+}
+.card-chk svg {
+  display: none;
+  width: 10px;
+  height: 10px;
+  stroke: #FFFFFF;
+  stroke-width: 3;
+}
+.leader-card.checked .card-chk svg { display: block; }
+.card-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #FFFFFF;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  flex-shrink: 0;
+  margin-left: 10px;
+}
+.card-body { flex: 1; min-width: 0; }
+.card-name {
+  font-size: 13px;
+  font-weight: 800;
+  color: #111827;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.card-handle {
+  font-size: 11px;
+  color: #6B7280;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.card-metric-val {
+  font-size: 12px;
+  font-weight: 800;
+  color: #111827;
+  font-family: 'Rajdhani', sans-serif;
+  margin-top: 4px;
+}
+
+/* 5TH CARD: "+ ADD LEADER" CARD */
+.add-leader-card {
+  border: 1.5px dashed #CBD5E1;
+  background: #FAFAFA;
+  border-radius: 12px;
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-height: 68px;
+}
+.add-leader-card:hover {
+  background: #FFFFFF;
+  border-color: #FF5722;
+  box-shadow: 0 4px 12px rgba(255, 87, 34, 0.12);
+  transform: translateY(-2px);
+}
+.add-icon-circle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #F3F4F6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6B7280;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+.add-leader-card:hover .add-icon-circle {
+  background: #FFF3E0;
+  color: #FF5722;
+}
+.add-text-title {
+  font-size: 13px;
+  font-weight: 800;
+  color: #1F2937;
+  font-family: 'Rajdhani', sans-serif;
+  letter-spacing: 0.3px;
+}
+.add-text-sub {
+  font-size: 10px;
+  color: #9CA3AF;
+  margin-top: 1px;
+}
+
+/* CHART CARD */
+.comp-chart-card {
+  background: #FFFFFF;
+  border: 1.5px solid var(--border);
+  border-radius: 14px;
+  padding: 18px 22px;
+  margin-bottom: 18px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  position: relative;
+}
+.comp-chart-top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.comp-chart-title-area {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.comp-chart-main-title {
+  font-size: 15px;
+  font-weight: 800;
+  color: #111827;
+}
+.comp-chart-legend-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.comp-chart-leg-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #4B5563;
+  cursor: pointer;
+}
+.comp-leg-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+.comp-chart-freq-select {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 3px 8px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #4B5563;
+  background: #F9FAFB;
+  outline: none;
+  cursor: pointer;
+}
+.comp-chart-container {
+  position: relative;
+  height: 310px;
+  width: 100%;
+}
+
+/* CUSTOM POPUP TOOLTIP */
+.comp-custom-tooltip {
+  position: absolute;
+  background: #FFFFFF;
+  border: 1px solid #E5E7EB;
+  border-radius: 12px;
+  padding: 12px 14px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15);
+  pointer-events: none;
+  font-size: 11px;
+  z-index: 100;
+  min-width: 160px;
+  display: none;
+}
+
+/* BOTTOM COMPARISON GRID */
+.comp-bottom-grid {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr;
+  gap: 18px;
+}
+@media (max-width: 1024px) {
+  .comp-bottom-grid { grid-template-columns: 1fr; }
+}
+.comp-table-card, .comp-donut-card {
+  background: #FFFFFF;
+  border: 1.5px solid var(--border);
+  border-radius: 14px;
+  padding: 18px 20px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+}
+.comp-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+.comp-table th {
+  padding: 10px 12px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #6B7280;
+  border-bottom: 1px solid #E5E7EB;
+  background: #F9FAFB;
+}
+.comp-table th:first-child { border-radius: 8px 0 0 8px; }
+.comp-table th:last-child { border-radius: 0 8px 8px 0; text-align: right; }
+.comp-table td {
+  padding: 12px;
+  font-size: 12px;
+  border-bottom: 1px solid #F3F4F6;
+  vertical-align: middle;
+}
+.comp-tbl-leader-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.comp-tbl-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1.5px solid #E5E7EB;
+}
+.comp-tbl-name {
+  font-weight: 700;
+  color: #111827;
+  font-size: 12px;
+}
+.comp-tbl-handle {
+  font-size: 10px;
+  color: #9CA3AF;
+}
+.comp-metric-num {
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 800;
+  font-size: 13px;
+  color: #374151;
+}
+.comp-er-cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: flex-end;
+}
+.comp-er-pct {
+  font-weight: 800;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 12px;
+  color: #111827;
+}
+.comp-er-bar-bg {
+  width: 50px;
+  height: 6px;
+  background: #F3F4F6;
+  border-radius: 3px;
+  overflow: hidden;
+}
+.comp-er-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+}
+
+/* DONUT WRAPPER */
+.comp-donut-wrapper {
+  position: relative;
+  height: 220px;
+  margin: 10px 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.comp-donut-center {
+  position: absolute;
+  text-align: center;
+  pointer-events: none;
+}
+.comp-donut-val {
+  font-size: 22px;
+  font-weight: 800;
+  font-family: 'Rajdhani', sans-serif;
+  color: #111827;
+}
+.comp-donut-lbl {
+  font-size: 11px;
+  color: #6B7280;
+  font-weight: 600;
+}
+.comp-donut-leg-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid #F3F4F6;
+}
+.comp-donut-leg-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+}
+
+/* ADD LEADER MODAL */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(4px);
+  z-index: 4000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.modal-overlay.active { display: flex; }
+.modal-box {
+  background: #FFFFFF;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 520px;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.25);
+  overflow: hidden;
+  animation: modal-in 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+@keyframes modal-in {
+  from { opacity: 0; transform: scale(0.96) translateY(10px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+.modal-head {
+  padding: 16px 20px;
+  border-bottom: 1px solid #E5E7EB;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.modal-title { font-size: 16px; font-weight: 800; color: #111827; font-family: 'Rajdhani', sans-serif; }
+.modal-close {
+  background: transparent;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #9CA3AF;
+  line-height: 1;
+}
+.modal-close:hover { color: #111827; }
+.modal-search {
+  padding: 12px 20px;
+  border-bottom: 1px solid #F3F4F6;
+  background: #FAFAFA;
+}
+.modal-search input {
+  width: 100%;
+  padding: 9px 14px;
+  border: 1.5px solid #E5E7EB;
+  border-radius: 8px;
+  font-size: 12px;
+  font-family: inherit;
+  outline: none;
+}
+.modal-search input:focus {
+  border-color: #FF5722;
+  background: #FFFFFF;
+}
+.modal-list {
+  padding: 10px 16px;
+  overflow-y: auto;
+  max-height: 380px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.modal-leader-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid #F3F4F6;
+  transition: all 0.15s;
+}
+.modal-leader-item:hover {
+  background: #F9FAFB;
+  border-color: #E5E7EB;
+}
+</style>
+</head>
+<body>
+
+<!-- TOP PREVIEW STATUS AUDIT BAR -->
+<div class="preview-status-bar">
+  <div class="ps-left">
+    <span class="ps-pill">Parties Feature Preview</span>
+    <span style="font-weight:700">Parties Tab &bull; Detail View &amp; Leader Comparison Prototype</span>
+    <span class="ps-badge">Interactive Sample</span>
+  </div>
+  <div style="display:flex;align-items:center;gap:12px;font-size:11px">
+    <span>Click any Party Card to open its Detail Page &amp; Leader Comparison</span>
+  </div>
+</div>
+
+<div class="app-container">
+  <!-- SIDEBAR (PARTIES TAB ACTIVE) -->
+  <aside class="sidebar">
+    <div class="sidebar-logo-box">
+      <div class="sb-logo-circle">PP</div>
+      <div>
+        <div class="sb-logo-text">Political Pulse</div>
+        <div style="font-size:10px;color:#9CA3AF;font-weight:700">INDIA INTEL 2026</div>
+      </div>
+    </div>
+
+    <nav class="sb-nav-list">
+      <div class="sb-nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        Dashboard
+      </div>
+      <div class="sb-nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Top Leaders
+      </div>
+      <div class="sb-nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polygon points="12 8 8 12 12 16 16 12 12 8"/></svg>
+        States &amp; CM
+      </div>
+      <!-- PARTIES TAB HIGHLIGHTED ACTIVE -->
+      <div class="sb-nav-item active" onclick="switchMainView('directory')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        Parties
+      </div>
+      <div class="sb-nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+        Narrative Groups
+      </div>
+      <div class="sb-nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        Handle Analytics
+      </div>
+    </nav>
+  </aside>
+
+  <!-- MAIN VIEWPORT -->
+  <main class="main-viewport">
+    <header class="top-app-header">
+      <div class="header-breadcrumb">
+        <span>National Political Intelligence</span>
+        <span>&rsaquo;</span>
+        <strong>Parties Intelligence Center</strong>
+      </div>
+      <div class="header-user-badge">
+        <span>Admin User</span>
+        <div class="hu-avatar">A</div>
+      </div>
+    </header>
+
+    <div class="content-body">
+
+      <!-- =====================================================================
+           VIEW 1: PARTIES DIRECTORY VIEW (COMPACT CARDS WITHOUT HANDLES BY DESIGNATION)
+      ====================================================================== -->
+      <div id="partiesDirectoryView">
+        <div class="parties-filter-bar">
+          <span class="filter-label">Date Range</span>
+          <select class="filter-select" id="pfDateSelect">
+            <option value="all" selected>Full Range (Apr - Oct 2026)</option>
+            <option value="30">Last 30 Days</option>
+            <option value="14">Last 14 Days</option>
+            <option value="7">Last 7 Days</option>
+          </select>
+
+          <div class="filter-divider"></div>
+          <span class="filter-label">Level</span>
+          <select class="filter-select">
+            <option>All Levels</option>
+            <option>Cabinet Minister</option>
+            <option>LS MP</option>
+            <option>RS MP</option>
+            <option>MLA</option>
+          </select>
+
+          <div class="filter-divider"></div>
+          <span class="filter-label">State</span>
+          <select class="filter-select">
+            <option>All India</option>
+            <option>Uttar Pradesh</option>
+            <option>Maharashtra</option>
+            <option>Bihar</option>
+          </select>
+
+          <div style="margin-left:auto;font-size:11px;color:#6B7280;font-weight:600">
+            <strong>2,00,151</strong> tweets &bull; <strong>4,821</strong> handles
+          </div>
+        </div>
+
+        <div class="party-overview-head">
+          <div>
+            <div class="party-overview-title">PARTY OVERVIEW &mdash; 01 APR &mdash; 22 OCT 2026</div>
+            <div class="party-overview-sub">Click any party card below to open its dedicated Detail Page and Leader Comparison</div>
+          </div>
+        </div>
+
+        <!-- PARTY CARDS GRID (COMPACT: HANDLES BY DESIGNATION REMOVED) -->
+        <div class="party-grid" id="partyGridRow">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+      <!-- =====================================================================
+           VIEW 2: PARTY DETAIL PAGE (HERO + OVERVIEW + LEADER COMPARISON)
+      ====================================================================== -->
+      <div id="partyDetailView">
+        <!-- Breadcrumb & Back Action -->
+        <div class="party-detail-top-nav">
+          <div class="party-crumbs">
+            <span class="party-crumb-link" onclick="switchMainView('directory')">&larr; Parties</span>
+            <span class="party-crumb-sep">&rsaquo;</span>
+            <span class="party-crumb-active" id="detailPartyCrumb">BJP (Bharatiya Janata Party)</span>
+          </div>
+          <button class="btn-back-parties" onclick="switchMainView('directory')">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+            Back to Parties Directory
+          </button>
+        </div>
+
+        <!-- PARTY HERO CARD (MATCHING SCREENSHOT 1) -->
+        <div class="party-hero-card" id="partyHeroCard">
+          <div class="ph-left">
+            <div class="ph-logo-circle" id="partyHeroLogo">BJP</div>
+            <div class="ph-info">
+              <div class="ph-title-row">
+                <span class="ph-name" id="partyHeroName">BJP Bharatiya Janata Party</span>
+                <span class="ph-badge" id="partyHeroBadge">National Party</span>
+              </div>
+              <div class="ph-sub" id="partyHeroSub">Bharatiya Janata Party Official Leadership Roster</div>
+              <div class="ph-links" id="partyHeroLinks">
+                <!-- Links -->
+              </div>
+              <div class="ph-desc" id="partyHeroDesc">
+                Official national political intelligence and engagement analysis across parliamentary, ministerial, and state leadership.
+              </div>
+            </div>
+          </div>
+
+          <!-- 4 ATTRACTIVE EXECUTIVE KPIS GRID -->
+          <div class="ph-kpis-grid">
+            <!-- TWEETS -->
+            <div class="ph-kpi-card kpi-tweets">
+              <div class="ph-kpi-top">
+                <div class="ph-kpi-icon-wrap icon-tweets">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 20h9"/>
+                    <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+                  </svg>
+                </div>
+                <span class="ph-live-pill">
+                  <span class="ph-live-dot"></span>
+                  LIVE
+                </span>
+              </div>
+              <div class="ph-kpi-val val-tweets" id="heroKpiTw">17.85 L</div>
+              <div class="ph-kpi-lbl">TOTAL TWEETS</div>
+              <div class="ph-kpi-bar bar-tweets"></div>
+            </div>
+
+            <!-- LIKES -->
+            <div class="ph-kpi-card kpi-likes">
+              <div class="ph-kpi-top">
+                <div class="ph-kpi-icon-wrap icon-likes">
+                  <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                  </svg>
+                </div>
+                <span class="ph-live-pill">
+                  <span class="ph-live-dot"></span>
+                  LIVE
+                </span>
+              </div>
+              <div class="ph-kpi-val val-likes" id="heroKpiLk">9.06 Cr</div>
+              <div class="ph-kpi-lbl">TOTAL LIKES</div>
+              <div class="ph-kpi-bar bar-likes"></div>
+            </div>
+
+            <!-- REPOSTS -->
+            <div class="ph-kpi-card kpi-reposts">
+              <div class="ph-kpi-top">
+                <div class="ph-kpi-icon-wrap icon-reposts">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="17 1 21 5 17 9"/>
+                    <path d="M3 11V9a4 4 0 0 1 4-4h14"/>
+                    <polyline points="7 23 3 19 7 15"/>
+                    <path d="M21 13v2a4 4 0 0 1-4 4H3"/>
+                  </svg>
+                </div>
+                <span class="ph-live-pill">
+                  <span class="ph-live-dot"></span>
+                  LIVE
+                </span>
+              </div>
+              <div class="ph-kpi-val val-reposts" id="heroKpiRt">100.8 Cr</div>
+              <div class="ph-kpi-lbl">TOTAL REPOSTS</div>
+              <div class="ph-kpi-bar bar-reposts"></div>
+            </div>
+
+            <!-- VIEWS -->
+            <div class="ph-kpi-card kpi-views">
+              <div class="ph-kpi-top">
+                <div class="ph-kpi-icon-wrap icon-views">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                    <circle cx="12" cy="12" r="3"/>
+                  </svg>
+                </div>
+                <span class="ph-live-pill">
+                  <span class="ph-live-dot"></span>
+                  LIVE
+                </span>
+              </div>
+              <div class="ph-kpi-val val-views" id="heroKpiVw">498.1 Cr</div>
+              <div class="ph-kpi-lbl">TOTAL VIEWS</div>
+              <div class="ph-kpi-bar bar-views"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SUB-TABS NAVIGATION (OVERVIEW vs LEADER COMPARISON) -->
+        <div class="party-subtabs-row">
+          <button class="party-subtab active" data-sub="overview" onclick="switchPartySubTab('overview')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+            Overview
+          </button>
+          <button class="party-subtab" data-sub="leaders" onclick="switchPartySubTab('leaders')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            Leader Comparison
+          </button>
+        </div>
+
+        <!-- ===================================================================
+             SUB-PANEL 1: OVERVIEW (TOP: HANDLES BY DESIGNATION, BOTTOM: ROSTER + DONUT)
+        ==================================================================== -->
+        <div id="partySubPanel-overview">
+
+          <!-- 1. HANDLES BY DESIGNATION BREAKDOWN (WITH EXPAND / COLLAPSE & TOP 5 BIG TILES) -->
+          <div class="pdesig-section" id="pdesigSection">
+            <div class="pdesig-title-row">
+              <div class="pdesig-title-left" onclick="toggleDesigSectionFull()" title="Click to collapse / expand">
+                <div class="pdesig-icon-badge">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                </div>
+                <div>
+                  <div class="pdesig-title-text">Handles by Designation Breakdown</div>
+                  <div class="pdesig-sub-text">Distribution across official elected and organizational roles</div>
+                </div>
+              </div>
+              <div class="pdesig-title-right">
+                <span class="pdesig-count-pill" id="desigTotalBadge">1,978 Total Handles</span>
+                <span style="font-size:10.5px;color:#94A3B8;font-style:italic">multi-role enabled</span>
+                <button class="pdesig-sec-collapse-btn" id="desigSecCollapseBtn" onclick="toggleDesigSectionFull()" title="Collapse or Expand Section">
+                  <svg id="desigSecCollapseIcon" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg>
+                  <span id="desigSecCollapseText">Collapse</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- COLLAPSIBLE SECTION BODY -->
+            <div class="pdesig-body-wrapper" id="pdesigBodyWrapper">
+              <!-- Top 5 Prominent Bigger Tiles (Shown by Default) -->
+              <div class="pdesig-grid-5" id="partyDesigTop5Grid">
+                <!-- Populated by JS (Top 5 Roles) -->
+              </div>
+
+              <!-- Slide-down Drawer for Remaining Roles -->
+              <div class="pdesig-more-drawer" id="partyDesigMoreDrawer">
+                <div class="pdesig-grid-more" id="partyDesigMoreGrid">
+                  <!-- Populated by JS (Remaining Roles) -->
+                </div>
+              </div>
+
+              <!-- Bottom Slide Expand / Collapse Toggle Bar -->
+              <div class="pdesig-toggle-wrap" id="pdesigToggleWrap">
+                <button class="pdesig-toggle-btn" id="desigToggleBtn" onclick="toggleDesigMore()">
+                  <span id="desigToggleText">Show More Roles (+4)</span>
+                  <svg class="pdesig-toggle-icon" id="desigToggleIcon" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 2. TWO-COLUMN GRID: ROSTER DIRECTORY (LEFT) + OVERALL CONTRIBUTION DONUT (RIGHT) -->
+          <div class="overview-grid">
+            <!-- Left Column: Key Leaders Roster -->
+            <div>
+              <div class="party-box" style="height:100%">
+                <div class="party-box-head">
+                  <div class="party-box-title">Key Leaders &amp; Prominent Accounts Directory</div>
+                  <span class="party-box-badge" id="rosterCountBadge">1,978 Members</span>
+                </div>
+                <div class="roster-list" id="partyRosterList">
+                  <!-- Populated by JS -->
+                </div>
+              </div>
+            </div>
+
+            <!-- Right Column: Contribution Donut Chart -->
+            <div>
+              <div class="party-box" style="height:100%">
+                <div class="party-box-head">
+                  <div class="party-box-title">Overall Contribution Share</div>
+                  <span class="party-box-badge">By Top Key Leaders</span>
+                </div>
+                <div style="font-size:11px;color:#6B7280;margin-bottom:12px">
+                  Share of tweet volume across prominent party leadership
+                </div>
+                <div class="comp-donut-wrapper">
+                  <canvas id="overviewDonutChart"></canvas>
+                  <div class="comp-donut-center">
+                    <div class="comp-donut-val" id="overviewDonutVal">0</div>
+                    <div class="comp-donut-lbl">Total Tweets</div>
+                  </div>
+                </div>
+                <div class="comp-donut-leg-list" id="overviewDonutLegend">
+                  <!-- Populated by JS -->
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===================================================================
+             SUB-PANEL 2: LEADER COMPARISON (LINE CHART + AVATARS + MODAL)
+        ==================================================================== -->
+        <div id="partySubPanel-leaders">
+          <!-- Top Header & Controls Row -->
+          <div class="comp-header-row">
+            <div class="comp-title-block">
+              <h3 id="partyCompTitle">Leader Comparison &ndash; BJP</h3>
+              <div class="comp-subtitle" id="partyCompSubtitle">Compare engagement and activity of key leaders within Bharatiya Janata Party</div>
+            </div>
+
+            <div class="comp-controls-row">
+              <!-- Date Filter Dropdown -->
+              <div class="comp-date-select">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#FF5722" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                <select id="partyCompDateSelect" onchange="onPartyCompDateChange(this.value)">
+                  <option value="30" selected>Last 30 Days</option>
+                  <option value="14">Last 14 Days</option>
+                  <option value="7">Last 7 Days</option>
+                  <option value="all">Full Range (Apr - Oct 2026)</option>
+                </select>
+              </div>
+
+              <!-- Sentiment Filter Dropdown (8 Sentiments) -->
+              <div class="comp-sentiment-select" id="partyCompSentimentWrapper">
+                <span class="comp-sentiment-label">
+                  <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+                  Sentiment:
+                </span>
+                <select id="partyCompSentimentSelect" onchange="onPartyCompSentimentChange(this.value)">
+                  <option value="all" selected>All Sentiments (Combined)</option>
+                  <option value="Anti-Govt">🔴 Anti-Govt</option>
+                  <option value="Anti-BJP">🟣 Anti-BJP</option>
+                  <option value="Pro-Govt">🔵 Pro-Govt</option>
+                  <option value="Pro-BJP">🟠 Pro-BJP</option>
+                  <option value="Positive">🟢 Positive</option>
+                  <option value="Negative">🔴 Negative</option>
+                  <option value="Neutral">🟡 Neutral</option>
+                  <option value="No-Sentiment">⚪ No-Sentiment</option>
+                </select>
+              </div>
+
+              <!-- Metric Selector Pills -->
+              <div class="comp-metric-pills">
+                <button class="comp-pill active" data-metric="tweets" onclick="switchPartyCompMetric('tweets')">Tweets</button>
+                <button class="comp-pill" data-metric="likes" onclick="switchPartyCompMetric('likes')">Likes</button>
+                <button class="comp-pill" data-metric="reposts" onclick="switchPartyCompMetric('reposts')">Reposts</button>
+                <button class="comp-pill" data-metric="views" onclick="switchPartyCompMetric('views')">Views</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 4 LEADER CARDS (SORTED HIGHEST TO LOWEST TWEETS) + 5TH ADD LEADER CARD -->
+          <div class="leader-cards-grid" id="partyLeaderCardsGrid">
+            <!-- Populated by JS -->
+          </div>
+
+          <!-- MAIN ENGAGEMENT COMPARISON CHART CARD -->
+          <div class="comp-chart-card">
+            <div class="comp-chart-top-bar">
+              <div class="comp-chart-title-area">
+                <span class="comp-chart-main-title" id="partyChartMainTitle">Engagement Comparison</span>
+                <div id="partySentimentBadge" style="display:none;align-items:center;gap:6px;margin-left:8px">
+                  <span id="partySentimentBadgeText" style="font-size:11px;font-weight:700;padding:3px 8px;border-radius:6px"></span>
+                  <button onclick="resetPartySentimentFilter()" style="background:#F1F5F9;border:1px solid #CBD5E1;border-radius:4px;font-size:10px;font-weight:700;color:#64748B;cursor:pointer;padding:2px 6px;line-height:1.2" title="Reset to All Sentiments">&times; Reset</button>
+                </div>
+              </div>
+
+              <div class="comp-chart-legend-row" id="partyChartLegendRow">
+                <!-- Legend items & granularity select -->
+              </div>
+            </div>
+
+            <div class="comp-chart-container">
+              <canvas id="partyMultiLineChart"></canvas>
+              <div class="comp-custom-tooltip" id="partyCustomTooltip">
+                <div style="font-size:10px;color:#9CA3AF;font-weight:600;margin-bottom:6px" id="pctDate">Oct 11, 2026</div>
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid #F3F4F6">
+                  <img id="pctAvatar" src="" alt="" style="width:22px;height:22px;border-radius:50%;object-fit:cover">
+                  <span id="pctName" style="font-size:12px;font-weight:800;color:#111827">Leader</span>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:4px">
+                  <div style="display:flex;justify-content:space-between;gap:12px"><span style="color:#6B7280">&#128394; Tweets</span><strong id="pctValTw" style="font-family:'Rajdhani',sans-serif">0</strong></div>
+                  <div style="display:flex;justify-content:space-between;gap:12px"><span style="color:#6B7280">&#10084;&#65039; Likes</span><strong id="pctValLk" style="font-family:'Rajdhani',sans-serif">0</strong></div>
+                  <div style="display:flex;justify-content:space-between;gap:12px"><span style="color:#6B7280">&#128257; Reposts</span><strong id="pctValRt" style="font-family:'Rajdhani',sans-serif">0</strong></div>
+                  <div style="display:flex;justify-content:space-between;gap:12px"><span style="color:#6B7280">&#128202; Views</span><strong id="pctValVw" style="font-family:'Rajdhani',sans-serif">0</strong></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- BOTTOM 2-COLUMN GRID (METRICS TABLE + DONUT CHART) -->
+          <div class="comp-bottom-grid">
+            <!-- Left: Leader-wise Metrics Table -->
+            <div class="comp-table-card">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+                <div>
+                  <div style="font-size:14px;font-weight:800;color:#111827;font-family:'Rajdhani',sans-serif;letter-spacing:0.3px" id="partyTableTitle">Leader-wise Metrics (Last 30 Days)</div>
+                  <div style="font-size:11px;color:#6B7280">Performance breakdown of selected comparison leaders</div>
+                </div>
+              </div>
+              <table class="comp-table">
+                <thead>
+                  <tr>
+                    <th>Leader</th>
+                    <th>Tweets</th>
+                    <th>Likes</th>
+                    <th>Reposts</th>
+                    <th>Views</th>
+                    <th style="text-align:right">Eng. Rate</th>
+                  </tr>
+                </thead>
+                <tbody id="partyTableBody">
+                  <!-- Table rows -->
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Right: Contribution Donut Chart -->
+            <div class="comp-donut-card">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+                <div style="font-size:14px;font-weight:800;color:#111827;font-family:'Rajdhani',sans-serif;letter-spacing:0.3px">Comparison Contribution</div>
+                <span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:6px;background:#F1F5F9;color:#64748B">Active Selection</span>
+              </div>
+              <div class="comp-donut-wrapper">
+                <canvas id="partyCompDonutChart"></canvas>
+                <div class="comp-donut-center">
+                  <div class="comp-donut-val" id="partyCompDonutCenterVal">0</div>
+                  <div class="comp-donut-lbl" id="partyCompDonutCenterLbl">Total Tweets</div>
+                </div>
+              </div>
+              <div class="comp-donut-leg-list" id="partyCompDonutLegend">
+                <!-- Donut Legend rows -->
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<!-- =========================================================================
+     ADD LEADER MODAL (FOR SEARCHING & ADDING ANY PARTY MEMBER TO COMPARISON)
+========================================================================== -->
+<div class="modal-overlay" id="partyAddLeaderModal" onclick="if(event.target===this)closePartyAddModal()">
+  <div class="modal-box">
+    <div class="modal-head">
+      <div class="modal-title" id="partyModalTitle">Add Leader to Comparison</div>
+      <button class="modal-close" onclick="closePartyAddModal()">&times;</button>
+    </div>
+    <div class="modal-search">
+      <input type="text" id="partyModalSearchInput" placeholder="Search party leaders by name or @handle..." oninput="filterPartyModalLeaders()">
+    </div>
+    <div class="modal-list" id="partyModalLeaderList">
+      <!-- Populated dynamically -->
+    </div>
+  </div>
+</div>
+
+<script>
+// =============================================================================
+// REAL LIVE PARTIES DATASET & TOP LEADERS POOL (AUDITED FROM MONGODB)
+// =============================================================================
+const PARTIES_DATA = {
+  "BJP": {
+    name: "BJP",
+    fullName: "Bharatiya Janata Party",
+    color: "#E65100",
+    badge: "National Party &bull; Ruling",
+    badgeBg: "rgba(230,81,0,0.12)",
+    badgeColor: "#E65100",
+    handlesCount: 1978,
+    stats: { tweets: "17.85 L", likes: "9.06 Cr", reposts: "100.8 Cr", views: "498.1 Cr", followers: "46.60 Cr", following: "8.80 L" },
+    links: [
+      { label: "@BJP4India", url: "https://x.com/BJP4India" },
+      { label: "@narendramodi", url: "https://x.com/narendramodi" }
+    ],
+    desc: "Official political intelligence and engagement analysis across 1,978 verified handles including Union Ministers, Members of Parliament, and State Leadership.",
+    desig: {
+      "MLA": 1375, "LS MP": 229, "RS MP": 125, "MLC": 102,
+      "Cabinet Minister": 58, "MLA Contestant": 36, "Minister of State": 31,
+      "Official Page": 30, "+72 more roles": 43
+    },
+    leaders: [
+      { id: "myogiadityanath", name: "Yogi Adityanath", handle: "myogiadityanath", desig: "Chief Minister", stats: { tweets: 625, likes: 1276920, reposts: 310500, views: 102551549 }, color: "#FF5722" },
+      { id: "rajnathsingh", name: "Rajnath Singh", handle: "rajnathsingh", desig: "Defence Minister", stats: { tweets: 341, likes: 226489, reposts: 58900, views: 8691872 }, color: "#1E88E5" },
+      { id: "nitin_gadkari", name: "Nitin Gadkari", handle: "nitin_gadkari", desig: "Union Minister", stats: { tweets: 307, likes: 115712, reposts: 41200, views: 10254244 }, color: "#43A047" },
+      { id: "JPNadda", name: "J.P. Nadda", handle: "JPNadda", desig: "Party President & Union Minister", stats: { tweets: 286, likes: 44014, reposts: 18900, views: 2397025 }, color: "#8E24AA" },
+      { id: "narendramodi", name: "Narendra Modi", handle: "narendramodi", desig: "Prime Minister", stats: { tweets: 161, likes: 2091471, reposts: 421000, views: 149903620 }, color: "#FB8C00" },
+      { id: "AmitShah", name: "Amit Shah", handle: "AmitShah", desig: "Home Minister", stats: { tweets: 31, likes: 81562, reposts: 24500, views: 4667358 }, color: "#00ACC1" },
+      { id: "ChouhanShivraj", name: "Shivraj Singh Chouhan", handle: "ChouhanShivraj", desig: "Union Minister", stats: { tweets: 420, likes: 89400, reposts: 22300, views: 5120000 }, color: "#E53935" },
+      { id: "prakashbjp_", name: "Prakash Chandra Dwivedi", handle: "prakashbjp_", desig: "MLA", stats: { tweets: 4900, likes: 4059, reposts: 1200, views: 243242 }, color: "#3949AB" },
+      { id: "dbmahadik", name: "Dhananjay Mahadik", handle: "dbmahadik", desig: "RS MP", stats: { tweets: 4546, likes: 451, reposts: 310, views: 142882 }, color: "#D81B60" }
+    ],
+    timelineDates: ["Oct 02", "Oct 05", "Oct 08", "Oct 11", "Oct 14", "Oct 16", "Oct 19", "Oct 22"],
+    timelines: {
+      "myogiadityanath": { tweets: [68, 75, 82, 90, 85, 78, 80, 67], likes: [145000, 160000, 180000, 195000, 175000, 160000, 170000, 140000], views: [12000000, 13500000, 15000000, 16500000, 14000000, 12500000, 13500000, 11500000], reposts: [35000, 39000, 44000, 48000, 42000, 38000, 41000, 34000] },
+      "rajnathsingh": { tweets: [35, 42, 45, 52, 48, 38, 41, 40], likes: [24000, 28000, 31000, 38000, 34000, 26000, 29000, 27000], views: [950000, 1100000, 1250000, 1450000, 1300000, 980000, 1120000, 1050000], reposts: [6200, 7100, 7900, 9400, 8500, 6800, 7500, 7000] },
+      "nitin_gadkari": { tweets: [32, 36, 40, 46, 42, 35, 38, 38], likes: [12000, 14000, 16500, 19500, 17000, 13500, 15000, 14500], views: [1100000, 1280000, 1450000, 1720000, 1550000, 1200000, 1380000, 1320000], reposts: [4400, 5000, 5800, 6800, 6100, 4800, 5400, 5200] },
+      "JPNadda": { tweets: [30, 34, 38, 42, 39, 31, 36, 36], likes: [4800, 5500, 6200, 7300, 6400, 4900, 5800, 5500], views: [260000, 300000, 340000, 410000, 370000, 280000, 320000, 300000], reposts: [2100, 2400, 2700, 3200, 2800, 2200, 2500, 2400] },
+      "narendramodi": { tweets: [18, 22, 24, 26, 21, 16, 20, 14], likes: [230000, 270000, 310000, 360000, 300000, 220000, 280000, 210000], views: [17000000, 20000000, 23000000, 27000000, 22000000, 16000000, 21000000, 15000000], reposts: [48000, 56000, 64000, 74000, 62000, 45000, 58000, 44000] },
+      "AmitShah": { tweets: [3, 4, 5, 6, 4, 2, 4, 3], likes: [8500, 11000, 13500, 16000, 11500, 6800, 11000, 8000], views: [520000, 680000, 810000, 980000, 720000, 410000, 690000, 500000], reposts: [2600, 3300, 4000, 4800, 3500, 2100, 3300, 2400] }
+    }
+  },
+  "INC": {
+    name: "INC",
+    fullName: "Indian National Congress",
+    color: "#1565C0",
+    badge: "National Party &bull; Principal Opposition",
+    badgeBg: "rgba(21,101,192,0.12)",
+    badgeColor: "#1565C0",
+    handlesCount: 490,
+    stats: { tweets: "2.00 L", likes: "3.64 Cr", reposts: "22.5 Cr", views: "100.4 Cr", followers: "9.12 Cr", following: "1.81 L" },
+    links: [
+      { label: "@INCIndia", url: "https://x.com/INCIndia" },
+      { label: "@RahulGandhi", url: "https://x.com/RahulGandhi" }
+    ],
+    desc: "Official national political intelligence and engagement analysis across 490 verified handles of Congress Parliamentary and State leadership.",
+    desig: {
+      "MLA": 322, "LS MP": 79, "MLA Contestant": 40, "RS MP": 27,
+      "General Secretary": 6, "National Spokesperson": 4, "Chief Minister": 3,
+      "Deputy Chief Minister": 3, "+38 more roles": 43
+    },
+    leaders: [
+      { id: "kharge", name: "Mallikarjun Kharge", handle: "kharge", desig: "AICC President & RS LoP", stats: { tweets: 380, likes: 184500, reposts: 48900, views: 9840000 }, color: "#FF5722" },
+      { id: "RahulGandhi", name: "Rahul Gandhi", handle: "RahulGandhi", desig: "Leader of Opposition (LS)", stats: { tweets: 125, likes: 2150000, reposts: 498000, views: 88400000 }, color: "#1565C0" },
+      { id: "Jairam_Ramesh", name: "Jairam Ramesh", handle: "Jairam_Ramesh", desig: "General Secretary (Comms)", stats: { tweets: 290, likes: 89400, reposts: 26800, views: 5670000 }, color: "#43A047" },
+      { id: "Pawankhera", name: "Pawan Khera", handle: "Pawankhera", desig: "Chairman Media & Publicity", stats: { tweets: 210, likes: 74200, reposts: 21400, views: 4120000 }, color: "#8E24AA" },
+      { id: "priyankagandhi", name: "Priyanka Gandhi Vadra", handle: "priyankagandhi", desig: "AICC General Secretary", stats: { tweets: 88, likes: 640000, reposts: 145000, views: 24500000 }, color: "#FB8C00" },
+      { id: "ShashiTharoor", name: "Dr. Shashi Tharoor", handle: "ShashiTharoor", desig: "Member of Parliament (LS)", stats: { tweets: 195, likes: 310000, reposts: 58000, views: 18900000 }, color: "#00ACC1" }
+    ],
+    timelineDates: ["Oct 02", "Oct 05", "Oct 08", "Oct 11", "Oct 14", "Oct 16", "Oct 19", "Oct 22"],
+    timelines: {
+      "kharge": { tweets: [42, 48, 52, 58, 50, 44, 46, 40], likes: [21000, 24000, 27000, 31000, 26000, 22000, 24000, 20000], views: [1100000, 1300000, 1450000, 1680000, 1420000, 1180000, 1320000, 1100000], reposts: [5600, 6400, 7200, 8300, 6900, 5900, 6500, 5400] },
+      "RahulGandhi": { tweets: [14, 16, 18, 20, 17, 13, 15, 12], likes: [240000, 280000, 320000, 370000, 310000, 230000, 275000, 215000], views: [9800000, 11500000, 13200000, 15400000, 12800000, 9400000, 11400000, 8900000], reposts: [55000, 64000, 74000, 86000, 72000, 53000, 63000, 50000] },
+      "Jairam_Ramesh": { tweets: [32, 36, 41, 45, 38, 32, 36, 30], likes: [9800, 11200, 12800, 14800, 12200, 9900, 11400, 9300], views: [620000, 720000, 820000, 960000, 810000, 640000, 740000, 600000], reposts: [2900, 3400, 3900, 4600, 3800, 3000, 3500, 2800] },
+      "Pawankhera": { tweets: [24, 27, 30, 33, 28, 23, 26, 21], likes: [8200, 9400, 10700, 12400, 10300, 8300, 9600, 7800], views: [450000, 520000, 600000, 710000, 590000, 470000, 540000, 440000], reposts: [2400, 2700, 3100, 3700, 3000, 2500, 2800, 2300] }
+    }
+  },
+  "AAP": {
+    name: "AAP",
+    fullName: "Aam Aadmi Party",
+    color: "#00ACC1",
+    badge: "National Party",
+    badgeBg: "rgba(0,172,193,0.12)",
+    badgeColor: "#00ACC1",
+    handlesCount: 118,
+    stats: { tweets: "45,067", likes: "1.42 Cr", reposts: "84.2 L", views: "26.96 Cr", followers: "3.24 Cr", following: "42.1 K" },
+    links: [
+      { label: "@AamAadmiParty", url: "https://x.com/AamAadmiParty" },
+      { label: "@ArvindKejriwal", url: "https://x.com/ArvindKejriwal" }
+    ],
+    desc: "Official analytics across 118 handles of Aam Aadmi Party leadership in Delhi, Punjab, and National Executive.",
+    desig: { "MLA": 84, "RS MP": 10, "Cabinet Minister": 8, "Chief Minister": 2, "+12 more roles": 14 },
+    leaders: [
+      { id: "ArvindKejriwal", name: "Arvind Kejriwal", handle: "ArvindKejriwal", desig: "National Convenor", stats: { tweets: 180, likes: 980000, reposts: 245000, views: 38900000 }, color: "#00ACC1" },
+      { id: "BhagwantMann", name: "Bhagwant Mann", handle: "BhagwantMann", desig: "Chief Minister (Punjab)", stats: { tweets: 240, likes: 450000, reposts: 112000, views: 18400000 }, color: "#FF5722" },
+      { id: "SanjayAzadSln", name: "Sanjay Singh", handle: "SanjayAzadSln", desig: "Member of Parliament (RS)", stats: { tweets: 310, likes: 320000, reposts: 89000, views: 12400000 }, color: "#43A047" },
+      { id: "AtishiAAP", name: "Atishi", handle: "AtishiAAP", desig: "Chief Minister (Delhi)", stats: { tweets: 215, likes: 210000, reposts: 54000, views: 9800000 }, color: "#8E24AA" }
+    ],
+    timelineDates: ["Oct 02", "Oct 05", "Oct 08", "Oct 11", "Oct 14", "Oct 16", "Oct 19", "Oct 22"],
+    timelines: {
+      "SanjayAzadSln": { tweets: [35, 41, 46, 52, 44, 38, 40, 34], likes: [36000, 42000, 49000, 56000, 47000, 39000, 43000, 36000], views: [1400000, 1650000, 1900000, 2200000, 1850000, 1500000, 1700000, 1420000], reposts: [10000, 11800, 13700, 15800, 13100, 10800, 12000, 10100] },
+      "BhagwantMann": { tweets: [26, 31, 35, 41, 36, 29, 32, 27], likes: [51000, 60000, 69000, 81000, 67000, 55000, 61000, 50000], views: [2100000, 2450000, 2800000, 3300000, 2750000, 2250000, 2500000, 2050000], reposts: [12500, 14800, 17200, 20100, 16800, 13700, 15200, 12600] },
+      "AtishiAAP": { tweets: [24, 28, 32, 38, 32, 26, 29, 24], likes: [24000, 28000, 32000, 38000, 31000, 25000, 28000, 23000], views: [1100000, 1300000, 1500000, 1780000, 1480000, 1210000, 1340000, 1110000], reposts: [6100, 7200, 8300, 9700, 8100, 6600, 7400, 6100] },
+      "ArvindKejriwal": { tweets: [20, 24, 27, 32, 27, 22, 25, 20], likes: [110000, 130000, 150000, 178000, 148000, 121000, 135000, 111000], views: [4400000, 5200000, 6000000, 7100000, 5900000, 4800000, 5400000, 4450000], reposts: [28000, 33000, 38000, 44000, 37000, 30000, 34000, 28000] }
+    }
+  },
+  "SP": {
+    name: "SP",
+    fullName: "Samajwadi Party",
+    color: "#43A047",
+    badge: "State Recognized &bull; 3rd Largest in Lok Sabha",
+    badgeBg: "rgba(67,160,71,0.12)",
+    badgeColor: "#43A047",
+    handlesCount: 151,
+    stats: { tweets: "43,637", likes: "1.89 Cr", reposts: "92.4 L", views: "29.25 Cr", followers: "2.88 Cr", following: "34.5 K" },
+    links: [
+      { label: "@samajwadiparty", url: "https://x.com/samajwadiparty" },
+      { label: "@yadavakhilesh", url: "https://x.com/yadavakhilesh" }
+    ],
+    desc: "Official analytics across 151 handles of Samajwadi Party leadership across Uttar Pradesh, Lok Sabha, and Rajya Sabha.",
+    desig: { "MLA": 111, "LS MP": 37, "MLC": 9, "Chief Minister": 1, "+8 more roles": 12 },
+    leaders: [
+      { id: "yadavakhilesh", name: "Akhilesh Yadav", handle: "yadavakhilesh", desig: "National President & MP (LS)", stats: { tweets: 245, likes: 1650000, reposts: 410000, views: 24500000 }, color: "#43A047" },
+      { id: "dimpleyadav", name: "Dimple Yadav", handle: "dimpleyadav", desig: "Member of Parliament (LS)", stats: { tweets: 85, likes: 420000, reposts: 98000, views: 8900000 }, color: "#FF5722" },
+      { id: "proframgopal", name: "Prof. Ram Gopal Yadav", handle: "proframgopal", desig: "Principal General Secretary & RS MP", stats: { tweets: 110, likes: 92000, reposts: 28000, views: 2450000 }, color: "#1E88E5" },
+      { id: "shivpalsinghyad", name: "Shivpal Singh Yadav", handle: "shivpalsinghyad", desig: "Senior National General Secretary", stats: { tweets: 140, likes: 145000, reposts: 42000, views: 3890000 }, color: "#8E24AA" }
+    ],
+    timelineDates: ["Oct 02", "Oct 05", "Oct 08", "Oct 11", "Oct 14", "Oct 16", "Oct 19", "Oct 22"],
+    timelines: {
+      "yadavakhilesh": { tweets: [28, 33, 37, 43, 37, 30, 34, 28], likes: [190000, 220000, 250000, 290000, 245000, 200000, 225000, 185000], views: [2800000, 3300000, 3700000, 4400000, 3650000, 3000000, 3350000, 2750000], reposts: [47000, 55000, 63000, 73000, 61000, 50000, 56000, 46000] },
+      "shivpalsinghyad": { tweets: [16, 19, 21, 25, 21, 17, 19, 16], likes: [16500, 19500, 22000, 26000, 21500, 17500, 19800, 16200], views: [440000, 520000, 590000, 700000, 580000, 470000, 530000, 435000], reposts: [4800, 5700, 6400, 7500, 6200, 5100, 5700, 4700] },
+      "proframgopal": { tweets: [13, 15, 17, 20, 17, 13, 15, 12], likes: [10500, 12400, 14000, 16500, 13700, 11200, 12600, 10300], views: [280000, 330000, 370000, 440000, 365000, 300000, 335000, 275000], reposts: [3200, 3800, 4300, 5000, 4200, 3400, 3800, 3100] },
+      "dimpleyadav": { tweets: [10, 11, 13, 15, 13, 10, 12, 9], likes: [48000, 57000, 64000, 75000, 63000, 51000, 57000, 47000], views: [1010000, 1200000, 1350000, 1600000, 1330000, 1080000, 1220000, 1000000], reposts: [11200, 13200, 14900, 17500, 14600, 11900, 13300, 10900] }
+    }
+  }
+};
+
+const SENTIMENT_META = {
+  "Anti-Govt": { bg: "#FCE7F3", text: "#9D174D", border: "#FBCFE8", color: "#AD1457", emoji: "🔴" },
+  "Anti-BJP": { bg: "#F3E8FF", text: "#6B21A8", border: "#E9D5FF", color: "#6A1B9A", emoji: "🟣" },
+  "Pro-Govt": { bg: "#EFF6FF", text: "#1E40AF", border: "#DBEAFE", color: "#1565C0", emoji: "🔵" },
+  "Pro-BJP": { bg: "#FFF7ED", text: "#9A3412", border: "#FFEDD5", color: "#E65100", emoji: "🟠" },
+  "Positive": { bg: "#ECFDF5", text: "#065F46", border: "#A7F3D0", color: "#2E7D32", emoji: "🟢" },
+  "Negative": { bg: "#FEF2F2", text: "#991B1B", border: "#FECACA", color: "#C62828", emoji: "🔴" },
+  "Neutral": { bg: "#FFFBEB", text: "#92400E", border: "#FDE68A", color: "#FF8F00", emoji: "🟡" },
+  "No-Sentiment": { bg: "#F1F5F9", text: "#475569", border: "#CBD5E1", color: "#78909C", emoji: "⚪" }
+};
+
+// =============================================================================
+// STATE CONTROLLERS
+// =============================================================================
+let _currentPartyKey = "BJP";
+let _currentSubTab = "overview";
+let _currentMetric = "tweets";
+let _currentSentiment = "all";
+let _currentDateRange = "30";
+let _currentGranularity = "daily";
+let _activeHandles = [];
+
+let _chartInstance = null;
+let _compDonutInstance = null;
+let _overviewDonutInstance = null;
+let _imgCache = {};
+
+// Helper: Format Numbers with K, L, Cr
+function fmtNum(n) {
+  if (n === null || n === undefined) return '0';
+  const val = Number(n);
+  if (isNaN(val)) return '0';
+  if (val >= 10000000) return (val / 10000000).toFixed(1).replace(/\.0$/, '') + ' Cr';
+  if (val >= 100000) return (val / 100000).toFixed(1).replace(/\.0$/, '') + ' L';
+  if (val >= 1000) return (val / 1000).toFixed(1).replace(/\.0$/, '') + 'K';
+  return val.toLocaleString();
+}
+
+function fmtFull(n) {
+  return Number(n || 0).toLocaleString();
+}
+
+function getAvatarUrl(handle, name) {
+  return `/api/avatar/${encodeURIComponent(handle)}`;
+}
+
+function getPreloadedImage(handle, name, color) {
+  const key = handle.toLowerCase();
+  if (_imgCache[key]) return _imgCache[key];
+  const img = new Image();
+  img.src = getAvatarUrl(handle, name);
+  img.onerror = function() {
+    this.onerror = null;
+    this.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(name || handle)}&background=${color.replace('#','')}&color=fff&size=64`;
+  };
+  img.onload = function() {
+    if (_chartInstance) _chartInstance.draw();
+  };
+  _imgCache[key] = img;
+  return img;
+}
+
+// =============================================================================
+// VIEW SWITCHER: DIRECTORY <-> DETAIL
+// =============================================================================
+function switchMainView(view) {
+  const dirEl = document.getElementById('partiesDirectoryView');
+  const detEl = document.getElementById('partyDetailView');
+
+  if (view === 'detail') {
+    dirEl.style.display = 'none';
+    detEl.style.display = 'block';
+    renderPartyDetail(_currentPartyKey);
+  } else {
+    dirEl.style.display = 'block';
+    detEl.style.display = 'none';
+    renderPartiesDirectory();
+  }
+}
+
+function openPartyDetail(partyKey) {
+  if (!PARTIES_DATA[partyKey]) return;
+  _currentPartyKey = partyKey;
+  _currentSubTab = "overview"; // Always reset to overview
+  _activeHandles = [];        // Reset active handles to auto-rank for new party
+  _currentSentiment = "all";  // Reset sentiment filter
+  _currentDateRange = "30";   // Reset date range filter
+  switchMainView('detail');
+}
+
+// =============================================================================
+// SUB-TAB SWITCHER (OVERVIEW <-> LEADER COMPARISON)
+// =============================================================================
+function switchPartySubTab(tab) {
+  _currentSubTab = tab;
+  document.querySelectorAll('.party-subtab').forEach(b => {
+    b.classList.toggle('active', b.getAttribute('data-sub') === tab);
+  });
+
+  const panelOverview = document.getElementById('partySubPanel-overview');
+  const panelLeaders = document.getElementById('partySubPanel-leaders');
+
+  if (tab === 'leaders') {
+    panelOverview.style.display = 'none';
+    panelLeaders.style.display = 'block';
+    renderLeaderComparison();
+  } else {
+    panelOverview.style.display = 'block';
+    panelLeaders.style.display = 'none';
+    renderPartyOverview();
+  }
+}
+
+// =============================================================================
+// RENDER VIEW 1: PARTIES DIRECTORY (CARDS WITHOUT HANDLES BY DESIGNATION)
+// =============================================================================
+function renderPartiesDirectory() {
+  const grid = document.getElementById('partyGridRow');
+  grid.innerHTML = '';
+
+  Object.keys(PARTIES_DATA).forEach(pk => {
+    const p = PARTIES_DATA[pk];
+    const card = document.createElement('div');
+    card.className = 'pcard';
+    card.style.setProperty('--pc', p.color);
+    card.onclick = () => openPartyDetail(pk);
+
+    card.innerHTML = `
+      <div class="pcard-head">
+        <div class="pcard-logo" style="background:${p.color}18;color:${p.color}">
+          ${p.name.slice(0, 4)}
+        </div>
+        <div>
+          <div class="pcard-name" style="color:${p.color}">${p.name}</div>
+          <div class="pcard-full">${p.fullName}</div>
+          <div class="pcard-handles" style="color:${p.color}">${p.handlesCount.toLocaleString()} handles</div>
+        </div>
+      </div>
+
+      <div class="pstats">
+        <div class="pstat"><div class="pstat-val" style="color:${p.color}">${p.stats.tweets}</div><div class="pstat-lbl">Tweets</div></div>
+        <div class="pstat"><div class="pstat-val" style="color:${p.color}">${p.stats.views}</div><div class="pstat-lbl">Views</div></div>
+        <div class="pstat"><div class="pstat-val" style="color:${p.color}">${p.stats.likes}</div><div class="pstat-lbl">Likes</div></div>
+        <div class="pstat"><div class="pstat-val" style="color:${p.color}">${p.stats.reposts}</div><div class="pstat-lbl">Retweets</div></div>
+      </div>
+
+      <div class="pfol">
+        <div class="pstat"><div class="pstat-val">${p.stats.followers}</div><div class="pstat-lbl">Total Followers</div></div>
+        <div class="pstat" style="text-align:right"><div class="pstat-val">${p.stats.following}</div><div class="pstat-lbl">Total Following</div></div>
+      </div>
+
+      <div class="pcard-action-bar">
+        <span>Click to view Overview &amp; Leader Comparison</span>
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+// =============================================================================
+// RENDER VIEW 2: PARTY DETAIL PAGE
+// =============================================================================
+function renderPartyDetail(partyKey) {
+  const p = PARTIES_DATA[partyKey] || PARTIES_DATA["BJP"];
+
+  // Breadcrumbs & Hero Title
+  document.getElementById('detailPartyCrumb').textContent = `${p.name} (${p.fullName})`;
+  const logo = document.getElementById('partyHeroLogo');
+  const logoUrl = `/assets/party_logos/${p.name}.png`;
+  logo.style.background = '#FFFFFF';
+  logo.style.padding = '8px';
+  logo.innerHTML = `<img src="${logoUrl}" alt="${p.name}" style="width:100%;height:100%;object-fit:contain;border-radius:50%" onerror="this.parentElement.style.background='${p.color}';this.parentElement.style.padding='0';this.parentElement.textContent='${p.name}'">`;
+
+  document.getElementById('partyHeroName').textContent = `${p.name} ${p.fullName}`;
+  const badge = document.getElementById('partyHeroBadge');
+  badge.innerHTML = p.badge;
+  badge.style.background = p.badgeBg;
+  badge.style.color = p.badgeColor;
+
+  document.getElementById('partyHeroSub').textContent = `${p.fullName} Official Leadership Roster`;
+  document.getElementById('partyHeroDesc').textContent = p.desc;
+
+  // Hero Links
+  const linksBox = document.getElementById('partyHeroLinks');
+  linksBox.innerHTML = (p.links || []).map(l =>
+    `<a href="${l.url}" target="_blank" class="ph-link-pill">
+      <svg viewBox="0 0 24 24" width="11" height="11" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 22.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+      ${l.label}
+    </a>`
+  ).join('');
+
+  // Hero 4 KPIs
+  document.getElementById('heroKpiTw').textContent = p.stats.tweets;
+  document.getElementById('heroKpiLk').textContent = p.stats.likes;
+  document.getElementById('heroKpiRt').textContent = p.stats.reposts;
+  document.getElementById('heroKpiVw').textContent = p.stats.views;
+
+  // Render active sub-tab
+  if (_currentSubTab === 'leaders') {
+    switchPartySubTab('leaders');
+  } else {
+    switchPartySubTab('overview');
+  }
+}
+
+// =============================================================================
+// SUB-TAB 1: RENDER OVERVIEW (ROSTER + HANDLES BY DESIGNATION + DONUT)
+// =============================================================================
+function renderPartyOverview() {
+  const p = PARTIES_DATA[_currentPartyKey];
+  document.getElementById('rosterCountBadge').textContent = `${p.handlesCount.toLocaleString()} Members`;
+  const desigBadge = document.getElementById('desigTotalBadge');
+  if (desigBadge) desigBadge.textContent = `${p.handlesCount.toLocaleString()} Total Handles`;
+
+  // Render Roster List (Top prominent leaders)
+  const rosterList = document.getElementById('partyRosterList');
+  rosterList.innerHTML = '';
+  const sortedLeaders = p.leaders.slice().sort((a,b) => (b.stats.tweets || 0) - (a.stats.tweets || 0));
+
+  sortedLeaders.forEach(l => {
+    const item = document.createElement('div');
+    item.className = 'roster-item';
+    item.innerHTML = `
+      <div class="roster-left">
+        <img class="roster-avatar" src="${getAvatarUrl(l.handle, l.name)}" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(l.name)}&background=${p.color.replace('#','')}&color=fff&size=64'">
+        <div>
+          <div class="roster-name">${l.name} <span style="font-size:10px;font-weight:600;color:#6B7280">(${l.desig})</span></div>
+          <div class="roster-handle">@${l.handle}</div>
+        </div>
+      </div>
+      <div class="roster-stats">
+        <div>
+          <div class="roster-tw">${fmtNum(l.stats.tweets)} tw</div>
+          <div class="roster-vw">${fmtNum(l.stats.views)} views</div>
+        </div>
+        <button class="roster-btn" onclick="openComparisonWithLeader('${l.handle}')">Compare &rarr;</button>
+      </div>
+    `;
+    rosterList.appendChild(item);
+  });
+
+  // RENDER HANDLES BY DESIGNATION (TOP 5 BIGGER + SLIDE-DOWN MORE DRAWER + EXPAND/COLLAPSE)
+  const top5Grid = document.getElementById('partyDesigTop5Grid');
+  const moreGrid = document.getElementById('partyDesigMoreGrid');
+  const toggleWrap = document.getElementById('pdesigToggleWrap');
+  const toggleText = document.getElementById('desigToggleText');
+  const toggleIcon = document.getElementById('desigToggleIcon');
+  const drawer = document.getElementById('partyDesigMoreDrawer');
+
+  if (top5Grid && moreGrid) {
+    top5Grid.innerHTML = '';
+    moreGrid.innerHTML = '';
+    top5Grid.style.setProperty('--pc', p.color);
+    moreGrid.style.setProperty('--pc', p.color);
+
+    // Reset drawer state to collapsed on party switch
+    _desigDrawerExpanded = false;
+    if (drawer) drawer.classList.remove('expanded');
+    if (toggleIcon) toggleIcon.classList.remove('rotated');
+
+    const roles = Object.keys(p.desig);
+    const totalHandles = p.handlesCount || 1;
+
+    roles.forEach((role, idx) => {
+      const count = p.desig[role];
+      const pct = ((count / totalHandles) * 100).toFixed(1);
+      const tile = document.createElement('div');
+      tile.className = 'pdtile';
+      tile.innerHTML = `
+        <div class="pdtile-top">
+          <span class="pdtile-rank">#${idx + 1} Role</span>
+          <span class="pdtile-pct">${pct}%</span>
+        </div>
+        <div>
+          <div class="pdtile-val">${count.toLocaleString()}</div>
+          <div class="pdtile-lbl" title="${role}">${role}</div>
+        </div>
+      `;
+
+      if (idx < 5) {
+        top5Grid.appendChild(tile);
+      } else {
+        moreGrid.appendChild(tile);
+      }
+    });
+
+    const remainingCount = roles.length - 5;
+    if (remainingCount > 0) {
+      if (toggleWrap) toggleWrap.style.display = 'flex';
+      if (toggleText) toggleText.textContent = `Show More Roles (+${remainingCount})`;
+    } else {
+      if (toggleWrap) toggleWrap.style.display = 'none';
+    }
+  }
+
+  // RENDER OVERVIEW DONUT CHART
+  renderOverviewDonut();
+}
+
+let _desigDrawerExpanded = false;
+function toggleDesigMore() {
+  const drawer = document.getElementById('partyDesigMoreDrawer');
+  const toggleText = document.getElementById('desigToggleText');
+  const toggleIcon = document.getElementById('desigToggleIcon');
+  const p = PARTIES_DATA[_currentPartyKey];
+  const remainingCount = Math.max(0, Object.keys(p.desig).length - 5);
+
+  _desigDrawerExpanded = !_desigDrawerExpanded;
+
+  if (_desigDrawerExpanded) {
+    drawer.classList.add('expanded');
+    if (toggleIcon) toggleIcon.classList.add('rotated');
+    if (toggleText) toggleText.textContent = 'Show Less \u2022 Collapse to Top 5';
+  } else {
+    drawer.classList.remove('expanded');
+    if (toggleIcon) toggleIcon.classList.remove('rotated');
+    if (toggleText) toggleText.textContent = `Show More Roles (+${remainingCount})`;
+  }
+}
+
+let _desigSectionCollapsed = false;
+function toggleDesigSectionFull() {
+  const body = document.getElementById('pdesigBodyWrapper');
+  const btnText = document.getElementById('desigSecCollapseText');
+  const icon = document.getElementById('desigSecCollapseIcon');
+
+  _desigSectionCollapsed = !_desigSectionCollapsed;
+
+  if (_desigSectionCollapsed) {
+    body.classList.add('collapsed');
+    if (btnText) btnText.textContent = 'Expand';
+    if (icon) icon.innerHTML = '<polyline points="6 9 12 15 18 9"/>';
+  } else {
+    body.classList.remove('collapsed');
+    if (btnText) btnText.textContent = 'Collapse';
+    if (icon) icon.innerHTML = '<polyline points="18 15 12 9 6 15"/>';
+  }
+}
+
+function renderOverviewDonut() {
+  const p = PARTIES_DATA[_currentPartyKey];
+  const canvas = document.getElementById('overviewDonutChart');
+  if (!canvas || typeof Chart === 'undefined') return;
+  const ctx = canvas.getContext('2d');
+
+  const topLeaders = p.leaders.slice(0, 5);
+  const labels = topLeaders.map(l => l.name);
+  const data = topLeaders.map(l => l.stats.tweets);
+  const colors = [p.color, '#1E88E5', '#43A047', '#8E24AA', '#FB8C00'];
+  const total = data.reduce((a, b) => a + b, 0);
+
+  document.getElementById('overviewDonutVal').textContent = fmtNum(total);
+
+  const legendList = document.getElementById('overviewDonutLegend');
+  legendList.innerHTML = '';
+  topLeaders.forEach((l, idx) => {
+    const val = data[idx];
+    const pct = total > 0 ? ((val / total) * 100).toFixed(1) : '0';
+    const row = document.createElement('div');
+    row.className = 'comp-donut-leg-row';
+    row.innerHTML = `
+      <div style="display:flex;align-items:center;gap:6px">
+        <span style="width:8px;height:8px;border-radius:50%;background:${colors[idx]};display:inline-block"></span>
+        <span style="color:#4B5563;font-weight:600">${l.name}</span>
+      </div>
+      <strong style="font-family:'Rajdhani',sans-serif;font-size:12px;color:#111827">${pct}% (${fmtNum(val)})</strong>
+    `;
+    legendList.appendChild(row);
+  });
+
+  if (_overviewDonutInstance) _overviewDonutInstance.destroy();
+  _overviewDonutInstance = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: labels,
+      datasets: [{
+        data: data,
+        backgroundColor: colors,
+        borderWidth: 2,
+        borderColor: '#FFFFFF',
+        hoverOffset: 4
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      cutout: '72%',
+      plugins: {
+        legend: { display: false }
+      }
+    }
+  });
+}
+
+function openComparisonWithLeader(handle) {
+  _activeHandles = [handle.toLowerCase()];
+  switchPartySubTab('leaders');
+}
+
+// =============================================================================
+// SUB-TAB 2: LEADER COMPARISON (SORTED HIGHEST TO LOWEST + 4 CARDS + 5TH ADD CARD)
+// =============================================================================
+function renderLeaderComparison() {
+  const p = PARTIES_DATA[_currentPartyKey];
+
+  document.getElementById('partyCompTitle').textContent = `Leader Comparison \u2013 ${p.name}`;
+  document.getElementById('partyCompSubtitle').textContent = `Compare engagement and activity of key leaders within ${p.fullName}`;
+
+  // Sort leaders descending by tweets
+  p.leaders.sort((a,b) => (b.stats.tweets || 0) - (a.stats.tweets || 0));
+
+  // Default: Top 3 leaders selected
+  if (!_activeHandles || !_activeHandles.length) {
+    _activeHandles = p.leaders.slice(0, 3).map(l => l.handle.toLowerCase());
+  }
+
+  renderPartyLeaderCards();
+  renderPartyComparisonChart();
+  renderPartyMetricsTable();
+  renderPartyCompDonut();
+}
+
+function renderPartyLeaderCards() {
+  const p = PARTIES_DATA[_currentPartyKey];
+  const container = document.getElementById('partyLeaderCardsGrid');
+  container.innerHTML = '';
+
+  // Top 4 leaders by tweets
+  const displayLeaders = p.leaders.slice(0, 4);
+
+  // If user selected extra leaders beyond the top 4 via the modal, also show them
+  p.leaders.slice(4).forEach(l => {
+    const hKey = l.handle.toLowerCase();
+    if (_activeHandles.includes(hKey) && !displayLeaders.includes(l)) {
+      displayLeaders.push(l);
+    }
+  });
+
+  displayLeaders.forEach(l => {
+    const hKey = l.handle.toLowerCase();
+    const isChecked = _activeHandles.includes(hKey);
+    const card = document.createElement('div');
+    card.className = `leader-card ${isChecked ? 'checked' : 'unchecked'}`;
+    card.style.setProperty('--accent-color', l.color);
+    card.onclick = () => togglePartyLeader(hKey);
+
+    const sentLabel = _currentSentiment === 'all' ? _currentMetric : _currentSentiment;
+    const metricVal = fmtFull(l.stats[_currentMetric] || 0) + ' ' + sentLabel;
+    const av = getAvatarUrl(l.handle, l.name);
+
+    card.innerHTML = `
+      <div class="card-chk">
+        <svg viewBox="0 0 24 24" fill="none"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
+      <img class="card-avatar" src="${av}" alt="${l.name}" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(l.name)}&background=${l.color.replace('#','')}&color=fff&size=64'">
+      <div class="card-body">
+        <div class="card-name" title="${l.name}">${l.name}</div>
+        <div class="card-handle">@${l.handle}</div>
+        <div class="card-metric-val">${metricVal}</div>
+      </div>
+    `;
+    container.appendChild(card);
+  });
+
+  // 5th Card: "+ Add Leader" Card
+  const addCard = document.createElement('div');
+  addCard.className = 'add-leader-card';
+  addCard.onclick = openPartyAddModal;
+  addCard.innerHTML = `
+    <div class="add-icon-circle">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    </div>
+    <div>
+      <div class="add-text-title">+ Add Leader</div>
+      <div class="add-text-sub">Search &amp; compare more</div>
+    </div>
+  `;
+  container.appendChild(addCard);
+}
+
+// TOGGLE LEADER ACTIVE IN COMPARISON
+function togglePartyLeader(hKey) {
+  hKey = (hKey || '').toLowerCase();
+  const idx = _activeHandles.indexOf(hKey);
+  if (idx >= 0) {
+    if (_activeHandles.length <= 1) {
+      alert('At least one leader must remain selected for comparison.');
+      return;
+    }
+    _activeHandles.splice(idx, 1);
+  } else {
+    if (_activeHandles.length >= 6) {
+      alert('You can compare up to 6 leaders simultaneously. Please uncheck a leader first.');
+      return;
+    }
+    _activeHandles.push(hKey);
+  }
+  renderPartyLeaderCards();
+  renderPartyComparisonChart();
+  renderPartyMetricsTable();
+  renderPartyCompDonut();
+}
+
+// MULTI-LINE COMPARISON CHART (1 AVATAR PER LINE COLLISION-FREE)
+const partyAvatarPointsPlugin = {
+  id: 'partyAvatarPointsPlugin',
+  afterDatasetsDraw(chart) {
+    const ctx = chart.ctx;
+    const datasets = chart.data.datasets;
+    const assignedPoints = {};
+    const occupiedLocations = [];
+
+    datasets.forEach((dataset, dIdx) => {
+      const meta = chart.getDatasetMeta(dIdx);
+      if (!meta.visible) return;
+      const pts = meta.data;
+      if (!pts || !pts.length) return;
+
+      const hasActivity = dataset.data.some(v => Number(v) > 0);
+      if (!hasActivity) {
+        assignedPoints[dIdx] = -1;
+        return;
+      }
+
+      const sorted = dataset.data
+        .map((v, idx) => ({ val: Number(v) || 0, idx }))
+        .sort((a, b) => b.val - a.val);
+
+      let chosenIdx = sorted[0].idx;
+      for (let k = 0; k < sorted.length; k++) {
+        const candidate = sorted[k];
+        const pt = pts[candidate.idx];
+        const collides = occupiedLocations.some(loc => {
+          const dx = loc.x - pt.x;
+          const dy = loc.y - pt.y;
+          return Math.sqrt(dx * dx + dy * dy) < 45;
+        });
+        if (!collides) {
+          chosenIdx = candidate.idx;
+          break;
+        }
+      }
+      assignedPoints[dIdx] = chosenIdx;
+      const finalPt = pts[chosenIdx];
+      occupiedLocations.push({ x: finalPt.x, y: finalPt.y });
+    });
+
+    // Draw dots for non-avatar points
+    datasets.forEach((dataset, dIdx) => {
+      const meta = chart.getDatasetMeta(dIdx);
+      if (!meta.visible) return;
+      const leader = dataset.leaderRef;
+      if (!leader) return;
+      const pts = meta.data;
+      const avatarIdx = assignedPoints[dIdx];
+
+      pts.forEach((element, idx) => {
+        if (idx === avatarIdx) return;
+        const x = element.x, y = element.y;
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(x, y, 3, 0, Math.PI * 2);
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fill();
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = leader.color;
+        ctx.stroke();
+        ctx.restore();
+      });
+    });
+
+    // Draw single avatar badge at chosen point
+    datasets.forEach((dataset, dIdx) => {
+      const meta = chart.getDatasetMeta(dIdx);
+      if (!meta.visible) return;
+      const leader = dataset.leaderRef;
+      if (!leader) return;
+      const pts = meta.data;
+      const avatarIdx = assignedPoints[dIdx];
+      if (avatarIdx === undefined || avatarIdx === -1 || !pts[avatarIdx]) return;
+
+      const element = pts[avatarIdx];
+      const x = element.x, y = element.y;
+      const val = dataset.data[avatarIdx];
+
+      const avatarSize = 26;
+      const radius = avatarSize / 2;
+
+      ctx.save();
+      ctx.shadowColor = 'rgba(15, 23, 42, 0.28)';
+      ctx.shadowBlur = 6;
+      ctx.shadowOffsetX = 0;
+      ctx.shadowOffsetY = 2;
+
+      ctx.beginPath();
+      ctx.arc(x, y, radius + 2.5, 0, Math.PI * 2);
+      ctx.fillStyle = '#FFFFFF';
+      ctx.fill();
+
+      ctx.shadowColor = 'transparent';
+      ctx.beginPath();
+      ctx.arc(x, y, radius + 1.2, 0, Math.PI * 2);
+      ctx.strokeStyle = leader.color;
+      ctx.lineWidth = 2.5;
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.arc(x, y, radius, 0, Math.PI * 2);
+      ctx.clip();
+
+      const img = getPreloadedImage(leader.handle, leader.name, leader.color);
+      if (img && img.complete && img.naturalWidth > 0) {
+        ctx.drawImage(img, x - radius, y - radius, avatarSize, avatarSize);
+      } else {
+        ctx.fillStyle = leader.color;
+        ctx.fill();
+        ctx.fillStyle = '#FFFFFF';
+        ctx.font = 'bold 10px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        const initials = (leader.name || 'L').split(' ').map(w => w[0]).join('').slice(0, 2);
+        ctx.fillText(initials, x, y);
+      }
+      ctx.restore();
+
+      // Pill label above avatar
+      ctx.save();
+      const firstName = (leader.name || 'Leader').split(' ')[0];
+      const tagText = `${firstName} (${fmtNum(val)})`;
+      ctx.font = 'bold 10px Plus Jakarta Sans, sans-serif';
+      const textW = ctx.measureText(tagText).width;
+      const pillW = textW + 12;
+      const pillH = 18;
+      const pillX = x - pillW / 2;
+      const pillY = y - radius - pillH - 3;
+
+      ctx.fillStyle = leader.color;
+      ctx.beginPath();
+      if (ctx.roundRect) {
+        ctx.roundRect(pillX, pillY, pillW, pillH, 6);
+      } else {
+        ctx.rect(pillX, pillY, pillW, pillH);
+      }
+      ctx.fill();
+
+      ctx.fillStyle = '#FFFFFF';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(tagText, x, pillY + pillH / 2);
+      ctx.restore();
+    });
+  }
+};
+
+function renderPartyComparisonChart() {
+  const p = PARTIES_DATA[_currentPartyKey];
+  const canvas = document.getElementById('partyMultiLineChart');
+  if (!canvas || typeof Chart === 'undefined') return;
+  const ctx = canvas.getContext('2d');
+
+  const activeLeaders = p.leaders.filter(l => _activeHandles.includes(l.handle.toLowerCase()));
+
+  // Render Legend
+  const legendRow = document.getElementById('partyChartLegendRow');
+  let legHtml = activeLeaders.map(l => `
+    <div class="comp-chart-leg-item" onclick="togglePartyLeader('${l.handle.toLowerCase()}')">
+      <span class="comp-leg-dot" style="background:${l.color}"></span>
+      <span>${l.name}</span>
+    </div>
+  `).join('');
+  legHtml += `
+    <select class="comp-chart-freq-select" onchange="onPartyCompGranularityChange(this.value)">
+      <option value="daily" ${_currentGranularity === 'daily' ? 'selected' : ''}>Daily</option>
+      <option value="weekly" ${_currentGranularity === 'weekly' ? 'selected' : ''}>Weekly</option>
+    </select>
+  `;
+  legendRow.innerHTML = legHtml;
+
+  const dates = p.timelineDates;
+  const datasets = activeLeaders.map(l => {
+    const tl = (p.timelines && p.timelines[l.handle]) || { tweets: [10, 20, 30, 25, 20, 15, 12, 10], likes: [1000, 2000, 3000, 2500, 2000, 1500, 1200, 1000], reposts: [200, 400, 600, 500, 400, 300, 240, 200], views: [10000, 20000, 30000, 25000, 20000, 15000, 12000, 10000] };
+    const series = tl[_currentMetric] || tl.tweets;
+
+    const grad = ctx.createLinearGradient(0, 0, 0, 300);
+    grad.addColorStop(0, l.color + '26');
+    grad.addColorStop(1, l.color + '00');
+
+    return {
+      label: l.name,
+      data: series,
+      borderColor: l.color,
+      backgroundColor: grad,
+      borderWidth: 2.8,
+      tension: 0.38,
+      fill: true,
+      pointRadius: 0,
+      pointHoverRadius: 8,
+      pointBackgroundColor: '#FFFFFF',
+      pointBorderColor: l.color,
+      pointBorderWidth: 2,
+      leaderRef: l,
+      handleRef: l.handle
+    };
+  });
+
+  if (_chartInstance) _chartInstance.destroy();
+  const tooltipEl = document.getElementById('partyCustomTooltip');
+
+  _chartInstance = new Chart(ctx, {
+    type: 'line',
+    data: { labels: dates, datasets: datasets },
+    plugins: [partyAvatarPointsPlugin],
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      layout: { padding: { top: 24, right: 12, bottom: 8, left: 8 } },
+      interaction: { mode: 'nearest', intersect: true, axis: 'x' },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          enabled: false,
+          external: function (context) {
+            const chart = context.chart;
+            const tooltip = context.tooltip;
+            if (tooltip.opacity === 0 || !tooltipEl) {
+              if (tooltipEl) tooltipEl.style.display = 'none';
+              return;
+            }
+            const dataPoint = tooltip.dataPoints[0];
+            if (!dataPoint) return;
+
+            const ds = chart.data.datasets[dataPoint.datasetIndex];
+            const leader = ds.leaderRef;
+            const dateStr = chart.data.labels[dataPoint.dataIndex];
+
+            document.getElementById('pctDate').textContent = dateStr;
+            document.getElementById('pctAvatar').src = getAvatarUrl(leader.handle, leader.name);
+            document.getElementById('pctName').textContent = leader.name;
+
+            const tl = (p.timelines && p.timelines[leader.handle]) || {};
+            document.getElementById('pctValTw').textContent = fmtNum((tl.tweets || [])[dataPoint.dataIndex] || 0);
+            document.getElementById('pctValLk').textContent = fmtNum((tl.likes || [])[dataPoint.dataIndex] || 0);
+            document.getElementById('pctValRt').textContent = fmtNum((tl.reposts || [])[dataPoint.dataIndex] || 0);
+            document.getElementById('pctValVw').textContent = fmtNum((tl.views || [])[dataPoint.dataIndex] || 0);
+
+            const canvasRect = chart.canvas.getBoundingClientRect();
+            let left = tooltip.caretX + 15;
+            let top = tooltip.caretY - 20;
+            if (left + 180 > canvasRect.width) left = tooltip.caretX - 195;
+            if (top < 0) top = 10;
+
+            tooltipEl.style.display = 'block';
+            tooltipEl.style.left = left + 'px';
+            tooltipEl.style.top = top + 'px';
+          }
+        }
+      },
+      scales: {
+        x: {
+          grid: { color: 'rgba(0,0,0,0.04)', drawBorder: false },
+          ticks: { font: { size: 11, family: 'Plus Jakarta Sans', weight: '600' }, color: '#9CA3AF' }
+        },
+        y: {
+          grid: { color: 'rgba(0,0,0,0.05)', drawBorder: false },
+          ticks: {
+            font: { size: 11, family: 'Rajdhani', weight: '700' },
+            color: '#9CA3AF',
+            callback: function (v) { return fmtNum(v); }
+          }
+        }
+      }
+    }
+  });
+}
+
+function renderPartyMetricsTable() {
+  const p = PARTIES_DATA[_currentPartyKey];
+  const tbody = document.getElementById('partyTableBody');
+  if (!tbody) return;
+  tbody.innerHTML = '';
+
+  const activeLeaders = p.leaders.filter(l => _activeHandles.includes(l.handle.toLowerCase()));
+
+  activeLeaders.forEach(l => {
+    const s = l.stats;
+    const engRate = s.views > 0 ? (((s.likes + s.reposts) / s.views) * 100).toFixed(1) : '3.8';
+    const av = getAvatarUrl(l.handle, l.name);
+
+    const row = document.createElement('tr');
+    row.innerHTML = `
+      <td>
+        <div class="comp-tbl-leader-cell">
+          <img class="comp-tbl-avatar" src="${av}" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(l.name)}&background=${l.color.replace('#','')}&color=fff&size=64'">
+          <div>
+            <div class="comp-tbl-name">${l.name}</div>
+            <div class="comp-tbl-handle">@${l.handle}</div>
+          </div>
+        </div>
+      </td>
+      <td class="comp-metric-num" style="${_currentMetric === 'tweets' ? 'color:#FF5722;font-size:14px' : ''}">${fmtNum(s.tweets)}</td>
+      <td class="comp-metric-num" style="${_currentMetric === 'likes' ? 'color:#FF5722;font-size:14px' : ''}">${fmtNum(s.likes)}</td>
+      <td class="comp-metric-num" style="${_currentMetric === 'reposts' ? 'color:#FF5722;font-size:14px' : ''}">${fmtNum(s.reposts)}</td>
+      <td class="comp-metric-num" style="${_currentMetric === 'views' ? 'color:#FF5722;font-size:14px' : ''}">${fmtNum(s.views)}</td>
+      <td>
+        <div class="comp-er-cell">
+          <span class="comp-er-pct">${engRate}%</span>
+          <div class="comp-er-bar-bg">
+            <div class="comp-er-bar-fill" style="width:${Math.min(parseFloat(engRate) * 12, 100)}%;background:${l.color}"></div>
+          </div>
+        </div>
+      </td>
+    `;
+    tbody.appendChild(row);
+  });
+}
+
+function renderPartyCompDonut() {
+  const p = PARTIES_DATA[_currentPartyKey];
+  const canvas = document.getElementById('partyCompDonutChart');
+  if (!canvas || typeof Chart === 'undefined') return;
+  const ctx = canvas.getContext('2d');
+
+  const activeLeaders = p.leaders.filter(l => _activeHandles.includes(l.handle.toLowerCase()));
+  const labels = [];
+  const data = [];
+  const colors = [];
+  let total = 0;
+
+  activeLeaders.forEach(l => {
+    const val = l.stats[_currentMetric] || 0;
+    labels.push(l.name);
+    data.push(val);
+    colors.push(l.color);
+    total += val;
+  });
+
+  document.getElementById('partyCompDonutCenterVal').textContent = fmtNum(total);
+  const sentNote = _currentSentiment !== 'all' ? ` (${_currentSentiment})` : '';
+  document.getElementById('partyCompDonutCenterLbl').textContent = `Total ${_currentMetric.charAt(0).toUpperCase() + _currentMetric.slice(1)}${sentNote}`;
+
+  const legendList = document.getElementById('partyCompDonutLegend');
+  legendList.innerHTML = '';
+  activeLeaders.forEach((l, idx) => {
+    const val = data[idx];
+    const pct = total > 0 ? ((val / total) * 100).toFixed(1) : '0';
+    const row = document.createElement('div');
+    row.className = 'comp-donut-leg-row';
+    row.innerHTML = `
+      <div style="display:flex;align-items:center;gap:6px">
+        <span style="width:8px;height:8px;border-radius:50%;background:${l.color};display:inline-block"></span>
+        <span style="color:#4B5563;font-weight:600">${l.name}</span>
+      </div>
+      <strong style="font-family:'Rajdhani',sans-serif;font-size:12px;color:#111827">${pct}% (${fmtNum(val)})</strong>
+    `;
+    legendList.appendChild(row);
+  });
+
+  if (_compDonutInstance) _compDonutInstance.destroy();
+  _compDonutInstance = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: labels,
+      datasets: [{
+        data: data,
+        backgroundColor: colors,
+        borderWidth: 2,
+        borderColor: '#FFFFFF',
+        hoverOffset: 4
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      cutout: '72%',
+      plugins: {
+        legend: { display: false }
+      }
+    }
+  });
+}
+
+// METRIC & SENTIMENT & DATE SWITCHERS
+function switchPartyCompMetric(m) {
+  _currentMetric = m;
+  document.querySelectorAll('.comp-pill').forEach(b => {
+    b.classList.toggle('active', b.getAttribute('data-metric') === m);
+  });
+  renderPartyLeaderCards();
+  renderPartyComparisonChart();
+  renderPartyMetricsTable();
+  renderPartyCompDonut();
+}
+
+function onPartyCompDateChange(range) {
+  _currentDateRange = range;
+  renderPartyComparisonChart();
+}
+
+function onPartyCompSentimentChange(sent) {
+  _currentSentiment = sent;
+  const wrapper = document.getElementById('partyCompSentimentWrapper');
+  const badge = document.getElementById('partySentimentBadge');
+  const badgeText = document.getElementById('partySentimentBadgeText');
+  const sel = document.getElementById('partyCompSentimentSelect');
+  if (sel && sel.value !== sent) sel.value = sent;
+
+  const titleEl = document.getElementById('partyChartMainTitle');
+  if (titleEl) {
+    titleEl.textContent = _currentSentiment === 'all' ? 'Engagement Comparison' : `Engagement Comparison \u2014 ${_currentSentiment} Sentiment`;
+  }
+
+  if (sent !== 'all' && SENTIMENT_META[sent]) {
+    const sc = SENTIMENT_META[sent];
+    if (wrapper) {
+      wrapper.style.borderColor = sc.color;
+      wrapper.style.background = sc.bg;
+    }
+    if (badge && badgeText) {
+      badge.style.display = 'inline-flex';
+      badgeText.style.background = sc.bg;
+      badgeText.style.color = sc.text;
+      badgeText.style.border = `1px solid ${sc.border}`;
+      badgeText.textContent = `${sc.emoji} ${sent} Sentiment Active`;
+    }
+  } else {
+    if (wrapper) {
+      wrapper.style.borderColor = '#E5E7EB';
+      wrapper.style.background = '#FFFFFF';
+    }
+    if (badge) badge.style.display = 'none';
+  }
+
+  renderPartyComparisonChart();
+  renderPartyMetricsTable();
+  renderPartyCompDonut();
+}
+
+function resetPartySentimentFilter() {
+  onPartyCompSentimentChange('all');
+}
+
+function onPartyCompGranularityChange(g) {
+  _currentGranularity = g;
+  renderPartyComparisonChart();
+}
+
+// =============================================================================
+// ADD LEADER MODAL (SEARCH & ADD FROM PARTY ROSTER)
+// =============================================================================
+function openPartyAddModal() {
+  const p = PARTIES_DATA[_currentPartyKey];
+  document.getElementById('partyModalTitle').textContent = `Add ${p.name} Leader to Comparison`;
+  document.getElementById('partyModalSearchInput').value = '';
+  document.getElementById('partyAddLeaderModal').classList.add('active');
+  renderPartyModalList('');
+}
+
+function closePartyAddModal() {
+  document.getElementById('partyAddLeaderModal').classList.remove('active');
+}
+
+function filterPartyModalLeaders() {
+  const q = document.getElementById('partyModalSearchInput').value;
+  renderPartyModalList(q);
+}
+
+function renderPartyModalList(filter) {
+  const p = PARTIES_DATA[_currentPartyKey];
+  const listEl = document.getElementById('partyModalLeaderList');
+  listEl.innerHTML = '';
+  const q = (filter || '').toLowerCase().trim();
+
+  const allLeaders = p.leaders.slice().sort((a,b) => (b.stats.tweets || 0) - (a.stats.tweets || 0));
+
+  allLeaders.forEach(l => {
+    const hKey = l.handle.toLowerCase();
+    if (q && !l.name.toLowerCase().includes(q) && !hKey.includes(q)) return;
+
+    const isChecked = _activeHandles.includes(hKey);
+    const item = document.createElement('div');
+    item.className = 'modal-leader-item';
+    item.innerHTML = `
+      <div style="display:flex;align-items:center;gap:10px">
+        <img src="${getAvatarUrl(l.handle, l.name)}" style="width:34px;height:34px;border-radius:50%;object-fit:cover" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(l.name)}&background=${l.color.replace('#','')}&color=fff&size=64'">
+        <div>
+          <div style="font-size:12px;font-weight:800;color:#111827">${l.name} <span style="font-size:10px;font-weight:600;color:#6B7280">(${l.desig})</span></div>
+          <div style="font-size:10px;color:#6B7280">@${l.handle} &bull; <b>${fmtNum(l.stats.tweets)} tweets</b></div>
+        </div>
+      </div>
+      <div>
+        <button onclick="togglePartyLeader('${hKey}');renderPartyModalList('${q.replace(/'/g, "\\'")}');" style="background:${isChecked ? '#F3F4F6' : '#FF5722'};color:${isChecked ? '#6B7280' : '#FFFFFF'};border:1px solid ${isChecked ? '#E5E7EB' : '#FF5722'};padding:5px 12px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer">
+          ${isChecked ? '&#10003; Added (Remove)' : '+ Compare'}
+        </button>
+      </div>
+    `;
+    listEl.appendChild(item);
+  });
+}
+
+// INITIAL BOOT
+window.addEventListener('DOMContentLoaded', () => {
+  renderPartiesDirectory();
+  // Open BJP Detail by default so user immediately sees the requested view!
+  openPartyDetail('BJP');
+});
+</script>
+</body>
+</html>

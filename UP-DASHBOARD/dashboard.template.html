@@ -1523,7 +1523,7 @@ window.sentCardsHTML = function (S, suffix) {
     </div>
     <div class="ov-grid">
       <div class="ov-card ov-s6"><div class="ov-t">Daily Activity — Tweets &amp; Avg Views/Post</div><div class="ov-box"><canvas id="ov_trend"></canvas></div></div>
-      <div class="ov-card ov-s6" style="display:none"><div class="ov-t">Posting-Time Heatmap — Weekday x Hour (IST) <span class="dim">| hour pattern = overall</span></div><div class="ov-box"><div id="ov_heat" style="height:100%;width:100%"></div></div></div>
+      <div class="ov-card ov-s6"><div class="ov-t">Posting-Time Heatmap — Weekday x Hour (IST) <span class="dim">| hour pattern = overall</span></div><div class="ov-box"><div id="ov_heat" style="height:100%;width:100%"></div></div></div>
     </div>
   </div>
 
@@ -1534,9 +1534,9 @@ window.sentCardsHTML = function (S, suffix) {
       Party &amp; Sentiment
     </div>
     <div class="ov-grid">
-      <div class="ov-card ov-s6"><div class="ov-t">Tweet Share by Party</div><div class="ov-box"><canvas id="ov_party"></canvas></div></div>
-      <div class="ov-card ov-s6"><div class="ov-t">Sentiment Mix<span class="dim">| full month</span></div><div class="ov-box"><canvas id="ov_sent"></canvas></div></div>
-      <div class="ov-card ov-s6"><div class="ov-t">Engagement — Likes vs RT</div><div class="ov-box"><canvas id="ov_eng"></canvas></div></div>
+      <div class="ov-card ov-s4"><div class="ov-t">Tweet Share by Party</div><div class="ov-box"><canvas id="ov_party"></canvas></div></div>
+      <div class="ov-card ov-s4"><div class="ov-t">Sentiment Mix<span class="dim">| full month</span></div><div class="ov-box"><canvas id="ov_sent"></canvas></div></div>
+      <div class="ov-card ov-s4"><div class="ov-t">Engagement — Likes vs RT</div><div class="ov-box"><canvas id="ov_eng"></canvas></div></div>
     </div>
   </div>
 
@@ -1552,15 +1552,15 @@ window.sentCardsHTML = function (S, suffix) {
     </div>
   </div>
 
-  <!-- ov-section-4 (F3 17-Oct): Leaders & Regions (hidden on UP) -->
-  <div class="ov-section" style="display:none">
+  <!-- ov-section-4 (F3 17-Oct): Leaders & Regions (UP Districts & Reach Concentration) -->
+  <div class="ov-section">
     <div class="ov-section-label">
       <span class="ov-section-num">4</span>
       Leaders &amp; Regions
     </div>
     <div class="ov-grid">
-      <div class="ov-card ov-s8" style="display:none"><div class="ov-t">Top States by Tweets</div><div class="ov-box"><canvas id="ov_states"></canvas></div></div>
-      <div class="ov-card ov-s4" style="display:none"><div class="ov-t">Reach Concentration<span class="dim">| by views</span></div><div style="text-align:center;margin:0 0 3px"><span id="ov_concStat" style="font-family:Rajdhani,sans-serif;font-size:24px;font-weight:700;color:#E65100">&ndash;</span><span style="font-size:9.5px;color:var(--muted);font-weight:600"> reach from #1</span></div><div class="ov-box" style="height:118px"><canvas id="ov_conc"></canvas></div></div>
+      <div class="ov-card ov-s8"><div class="ov-t">Top Districts by Tweets</div><div class="ov-box"><canvas id="ov_states"></canvas></div></div>
+      <div class="ov-card ov-s4"><div class="ov-t">Reach Concentration<span class="dim">| by views</span></div><div style="text-align:center;margin:0 0 3px"><span id="ov_concStat" style="font-family:Rajdhani,sans-serif;font-size:24px;font-weight:700;color:#E65100">&ndash;</span><span style="font-size:9.5px;color:var(--muted);font-weight:600"> reach from #1</span></div><div class="ov-box" style="height:118px"><canvas id="ov_conc"></canvas></div></div>
     </div>
   </div>
   <div class="sec-title" id="execTitle" style="margin-top:8px">Executive Summary — Apr–Jul 2026</div>
@@ -4026,6 +4026,8 @@ const CMS=(function(){
   var out=[],seen={};
   (window.CM_DATA||[]).forEach(function(c){
     if(c.level!=='Chief Minister')return;
+    /* UP Tab: Sirf UP ke CM aane chahiye, doosre rajyon ke CM nahi */
+    if(c.state && c.state !== 'Uttar Pradesh' && c.handle !== 'myogiadityanath') return;
     var k=String(c.handle||'').toLowerCase();if(!k||seen[k])return;seen[k]=1;
     var u=byH[k];
     out.push(u||{h:c.handle,name:c.name,party:c.party,state:c.state,level:'Chief Minister',
@@ -4037,7 +4039,7 @@ const CMS=(function(){
   var y=byH['myogiadityanath'];
   if(y&&!seen['myogiadityanath']){seen['myogiadityanath']=1;out.push(y);}
   if(!out.length){  /* purana server (CM_DATA window par nahi) -- pehle jaisa */
-    out=UNI.allHandles.filter(function(c){return c.level==='Chief Minister'||c.h==='myogiadityanath';});
+    out=UNI.allHandles.filter(function(c){return (c.level==='Chief Minister'||c.h==='myogiadityanath') && (c.state === 'Uttar Pradesh' || c.h === 'myogiadityanath');});
   }
   return out.sort(function(a,b){return (b.vw||0)-(a.vw||0);});
 })();
@@ -4144,8 +4146,8 @@ window.openProfile=function(h){
   var age=det.born?(2026-parseInt(((det.born.match(/\d{4}/))||[''])[0])):0;
   var ageS=age?String(age):'—';
 
-  var allLeadersList=(window.CM_DATA&&window.CM_DATA.length)?window.CM_DATA:(window.PROF||[]);
-  var NL=allLeadersList.length||(window.PROF?window.PROF.length:32);
+  var allLeadersList=(window.PROF&&window.PROF.length)?window.PROF:(window.CM_DATA||[]);
+  var NL=allLeadersList.length||2;
 
   var byFollowers=allLeadersList.slice().sort(function(a,b){return (+b.followers||0)-(+a.followers||0);});
   var rf=byFollowers.findIndex(function(x){return String(x.handle||x.h||'').toLowerCase()===normH.toLowerCase();})+1;
@@ -4541,7 +4543,7 @@ window.renderDashDate=renderDashDate;
   /* Get current daily array for a metric, filtered by party + date range */
   function _getDailyData(def) {
     var D = window.D;
-    var allDates = (D && D.dayLabels) || window.PHD_DATES || window.AD || (window.AGG && window.AGG.dates) || [];
+    var allDates = (D && D.AD) || window.PHD_DATES || window.AD || (window.AGG && window.AGG.dates) || (D && D.dayLabels) || [];
     if (!D || !D.partyDaily || !allDates.length) return { labels: [], vals: [], total: 0 };
 
     var party  = (document.getElementById('dashParty')  || {value:'all'}).value || 'all';
@@ -4572,9 +4574,10 @@ window.renderDashDate=renderDashDate;
     var labels = [], vals = [];
     var sumT = 0, sumV = 0, sumK = 0, sumR = 0;
     allDates.forEach(function(d, i) {
-      if (fromV && d < fromV) return;
-      if (toV   && d > toV)   return;
-      labels.push(d);
+      var dFull = (d && d.length === 5) ? ('2026-' + d) : d;
+      if (fromV && dFull < fromV) return;
+      if (toV   && dFull > toV)   return;
+      labels.push(dFull);
       sumT += tArr[i];
       sumV += vArr[i];
       sumK += kArr[i];
@@ -5197,8 +5200,19 @@ function ovRefresh(){
    wo cache khaali hone par donut ke arcs gayab ho jaate the. */
 if(chParty){var _pv=allKeys.map(function(k){return sr(D.partyDaily[k]['t'],idx);});var _pds=chParty.data.datasets[0];var _pk=(p&&p!=='all')?allKeys.indexOf(p):-1;if(_pk>=0){chParty.data.labels=[allKeys[_pk]];_pds.data=[_pv[_pk]];_pds.backgroundColor=[pc(allKeys[_pk])];_pds.offset=[0];}else{chParty.data.labels=allKeys.slice();_pds.data=_pv;_pds.backgroundColor=allKeys.map(pc);_pds.offset=allKeys.map(function(){return 0;});}chParty.update();}
   var HF=hFiltered();
-  var byState={};HF.forEach(function(h){var tw=sr(h.t,idx);if(h.s!=='-')byState[h.s]=(byState[h.s]||0)+tw;});
-  var stt=Object.entries(byState).sort(function(a,b){return b[1]-a[1];}).slice(0,7);
+  var _uniLoc = {};
+  if (window.UNI && Array.isArray(window.UNI.allHandles)) {
+    window.UNI.allHandles.forEach(function(u){ if (u && u.h) _uniLoc[String(u.h).toLowerCase()] = u.loc; });
+  }
+  var byDistrict={};
+  HF.forEach(function(h){
+    var tw=sr(h.t,idx);
+    var loc=h.loc || _uniLoc[String(h.h).toLowerCase()] || '';
+    if(loc && loc!=='-' && loc!=='—' && loc!=='Uttar Pradesh') {
+      byDistrict[loc]=(byDistrict[loc]||0)+tw;
+    }
+  });
+  var stt=Object.entries(byDistrict).sort(function(a,b){return b[1]-a[1];}).slice(0,7);
   if(chState){chState.data.labels=stt.map(function(x){return x[0];});chState.data.datasets[0].data=stt.map(function(x){return x[1];});chState.update();}
   /* top-perf : pehle 'kam se kam 10 tweet' ki shart thi. 6 mahine par wo
      theek thi, par "pichhle 3 din" chunne par koi 10 tweet nahi karta --

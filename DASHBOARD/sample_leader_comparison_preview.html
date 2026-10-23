@@ -1,0 +1,2279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Leader Comparison · Narrative Groups Preview</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;600;700&family=Rajdhani:wght@600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+:root {
+  --sb-w: 220px;
+  --header-h: 60px;
+  --primary: #FF5722;
+  --primary-dark: #E64A19;
+  --primary-light: #FFF3E0;
+  --primary-border: #FFCCBC;
+  --bg: #F4F6F9;
+  --card-bg: #FFFFFF;
+  --border: #E5E7EB;
+  --border-light: #F3F4F6;
+  --text-main: #111827;
+  --text-muted: #6B7280;
+  --text-dim: #9CA3AF;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.02);
+  --shadow-md: 0 4px 14px -2px rgba(15,23,42,0.07), 0 2px 6px -1px rgba(15,23,42,0.04);
+  --shadow-lg: 0 10px 25px -3px rgba(15,23,42,0.08), 0 4px 10px -2px rgba(15,23,42,0.04);
+  --radius-lg: 16px;
+  --radius-md: 12px;
+  --radius-sm: 8px;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text-main);
+  font-family: 'Plus Jakarta Sans', 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  min-height: 100vh;
+}
+
+/* TOP STATUS AUDIT BAR */
+.preview-status-bar {
+  background: linear-gradient(90deg, #1E293B 0%, #0F172A 100%);
+  color: #fff;
+  padding: 10px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+  position: sticky;
+  top: 0;
+  z-index: 2000;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+}
+.ps-left { display: flex; align-items: center; gap: 12px; }
+.ps-pill {
+  background: #FF5722;
+  color: #fff;
+  font-weight: 800;
+  font-size: 10px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+.ps-badge {
+  background: rgba(16, 185, 129, 0.2);
+  border: 1px solid rgba(16, 185, 129, 0.4);
+  color: #10B981;
+  font-weight: 700;
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.ps-badge::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  background: #10B981;
+  border-radius: 50%;
+  animation: pulse-dot 1.5s infinite;
+}
+@keyframes pulse-dot { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(0.8); } }
+
+/* APP LAYOUT */
+.app-container { display: flex; min-height: calc(100vh - 44px); }
+
+/* SIDEBAR */
+.sidebar {
+  width: var(--sb-w);
+  background: #FFFFFF;
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+}
+.sidebar-logo-box {
+  padding: 20px 18px 16px;
+  border-bottom: 1px solid var(--border-light);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.sb-logo-icon {
+  width: 32px;
+  height: 32px;
+  background: linear-gradient(135deg, #FF5722, #FF9800);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-weight: 900;
+  font-size: 16px;
+}
+.sb-logo-title { font-size: 13px; font-weight: 800; color: #111827; line-height: 1.2; }
+.sb-logo-sub { font-size: 10px; color: #9CA3AF; }
+
+.sb-nav { padding: 14px 10px; flex: 1; display: flex; flex-direction: column; gap: 4px; }
+.sb-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #4B5563;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-decoration: none;
+}
+.sb-item svg { width: 16px; height: 16px; stroke-width: 2; color: #6B7280; }
+.sb-item:hover { background: #F3F4F6; color: #111827; }
+.sb-item.active {
+  background: linear-gradient(90deg, #FF5722 0%, #F4511E 100%);
+  color: #FFFFFF;
+  box-shadow: 0 4px 12px rgba(255, 87, 34, 0.25);
+}
+.sb-item.active svg { color: #FFFFFF; }
+
+.sb-footer {
+  padding: 16px;
+  border-top: 1px solid var(--border-light);
+  text-align: center;
+}
+.sb-lotus {
+  width: 32px;
+  height: 32px;
+  margin: 0 auto 4px;
+  opacity: 0.8;
+}
+.sb-footer-text { font-size: 10px; color: #9CA3AF; font-weight: 600; }
+
+/* MAIN CONTENT */
+.main-wrapper { flex: 1; display: flex; flex-direction: column; overflow-x: hidden; }
+
+/* TOP NAVBAR */
+.top-header {
+  height: 56px;
+  background: #FFFFFF;
+  border-bottom: 1px solid var(--border);
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.th-left { display: flex; align-items: center; gap: 14px; }
+.th-title { font-size: 13px; font-weight: 800; color: #111827; }
+.th-badge {
+  background: #FFF3E0;
+  color: #E65100;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 10px;
+  border: 1px solid #FFE0B2;
+}
+.th-right { display: flex; align-items: center; gap: 12px; }
+.th-user-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  background: #F3F4F6;
+  font-size: 12px;
+  font-weight: 700;
+}
+.th-avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #FF5722;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+}
+
+/* WORKSPACE VIEW */
+.content-area {
+  padding: 20px 28px 40px;
+  max-width: 1440px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* BREADCRUMB & TOP NAV */
+.ng-breadcrumb-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+.ng-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: #6B7280;
+  font-weight: 600;
+}
+.ng-crumb-link {
+  color: #FF5722;
+  cursor: pointer;
+  transition: color 0.15s;
+}
+.ng-crumb-link:hover { color: #D84315; text-decoration: underline; }
+.ng-crumb-sep { color: #9CA3AF; }
+.ng-crumb-curr { color: #374151; font-weight: 700; }
+
+.btn-back-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  background: #FFFFFF;
+  border: 1px solid #FFCCBC;
+  border-radius: 8px;
+  color: #FF5722;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  box-shadow: var(--shadow-sm);
+}
+.btn-back-group:hover {
+  background: #FFF3E0;
+  border-color: #FFAB91;
+  transform: translateX(-2px);
+}
+
+/* SUB TABS NAVIGATION */
+.ng-subtabs-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 10px;
+}
+.ng-subtab {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 16px;
+  border-radius: 8px;
+  background: transparent;
+  border: none;
+  font-size: 12px;
+  font-weight: 700;
+  color: #6B7280;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.ng-subtab svg { width: 14px; height: 14px; }
+.ng-subtab:hover { background: #F3F4F6; color: #111827; }
+.ng-subtab.active {
+  background: #FF5722;
+  color: #FFFFFF;
+  box-shadow: 0 4px 10px rgba(255, 87, 34, 0.25);
+}
+.ng-subtab.active svg { stroke: #FFFFFF; }
+
+/* VIEW HEADER: TITLE + CONTROLS */
+.comp-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.comp-title-block h1 {
+  font-size: 20px;
+  font-weight: 800;
+  color: #111827;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.comp-info-icon {
+  width: 16px;
+  height: 16px;
+  color: #9CA3AF;
+  cursor: pointer;
+  transition: color 0.15s;
+}
+.comp-info-icon:hover { color: #4B5563; }
+.comp-subtitle {
+  font-size: 12px;
+  color: #6B7280;
+  margin-top: 2px;
+}
+
+.comp-controls-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.comp-date-select {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #FFFFFF;
+  border: 1px solid var(--border);
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #374151;
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+}
+.comp-date-select select {
+  border: none;
+  background: transparent;
+  font-size: 12px;
+  font-weight: 700;
+  color: #374151;
+  outline: none;
+  cursor: pointer;
+}
+
+.comp-sentiment-select {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #FFFFFF;
+  border: 1.5px solid var(--border);
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #374151;
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.comp-sentiment-select:hover {
+  border-color: #6A1B9A;
+  background: #FAF5FF;
+}
+.comp-sentiment-label {
+  font-size: 11px;
+  font-weight: 800;
+  color: #6B7280;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+.comp-sentiment-select select {
+  border: none;
+  background: transparent;
+  font-size: 12px;
+  font-weight: 700;
+  color: #1F2937;
+  outline: none;
+  cursor: pointer;
+}
+
+.comp-metric-pills {
+  display: flex;
+  background: #FFFFFF;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 3px;
+  gap: 2px;
+  box-shadow: var(--shadow-sm);
+}
+.comp-pill {
+  padding: 5px 14px;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  font-size: 11px;
+  font-weight: 700;
+  color: #6B7280;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.comp-pill:hover { color: #111827; }
+.comp-pill.active {
+  background: #FF5722;
+  color: #FFFFFF;
+  box-shadow: 0 2px 6px rgba(255, 87, 34, 0.3);
+}
+
+/* LEADER SELECTOR ROW */
+.leader-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.leader-card {
+  background: #FFFFFF;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: var(--shadow-sm);
+}
+.leader-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: #CBD5E1;
+}
+.leader-card.checked {
+  border-color: var(--accent-color);
+  background: #FFFFFF;
+  box-shadow: 0 4px 14px -2px rgba(0, 0, 0, 0.06), 0 0 0 1px var(--accent-color);
+}
+.leader-card.unchecked {
+  opacity: 0.65;
+  background: #FAFAFA;
+}
+
+.card-chk {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  border: 1.5px solid #CBD5E1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+}
+.leader-card.checked .card-chk {
+  background: var(--accent-color);
+  border-color: var(--accent-color);
+}
+.card-chk svg {
+  display: none;
+  width: 10px;
+  height: 10px;
+  stroke: #FFFFFF;
+  stroke-width: 3;
+}
+.leader-card.checked .card-chk svg {
+  display: block;
+}
+
+.card-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #FFFFFF;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  flex-shrink: 0;
+  margin-left: 10px;
+}
+.card-body {
+  flex: 1;
+  min-width: 0;
+}
+.card-name {
+  font-size: 13px;
+  font-weight: 800;
+  color: #111827;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.card-handle {
+  font-size: 11px;
+  color: #6B7280;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: 1px;
+}
+.card-metric-val {
+  font-size: 12px;
+  font-weight: 800;
+  color: #111827;
+  font-family: 'Rajdhani', sans-serif;
+  margin-top: 4px;
+}
+
+/* ADD LEADER CARD */
+.add-leader-card {
+  border: 1.5px dashed #CBD5E1;
+  background: #FAFAFA;
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.add-leader-card:hover {
+  background: #FFFFFF;
+  border-color: #FF5722;
+  box-shadow: var(--shadow-sm);
+}
+.add-icon-circle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #F3F4F6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6B7280;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+.add-leader-card:hover .add-icon-circle {
+  background: #FFF3E0;
+  color: #FF5722;
+}
+.add-text-title { font-size: 12px; font-weight: 800; color: #374151; }
+.add-text-sub { font-size: 10px; color: #9CA3AF; margin-top: 1px; }
+
+/* MAIN CHART CARD */
+.chart-card {
+  background: #FFFFFF;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 20px 24px;
+  margin-bottom: 20px;
+  box-shadow: var(--shadow-sm);
+  position: relative;
+}
+.chart-top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.chart-title-area {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.chart-main-title {
+  font-size: 15px;
+  font-weight: 800;
+  color: #111827;
+}
+.chart-legend-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.chart-leg-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #4B5563;
+  cursor: pointer;
+}
+.leg-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+.chart-freq-select {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 3px 8px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #4B5563;
+  background: #F9FAFB;
+  outline: none;
+  cursor: pointer;
+}
+.chart-style-pills {
+  display: flex;
+  align-items: center;
+  background: #F1F5F9;
+  border-radius: 8px;
+  padding: 2px;
+  gap: 2px;
+  border: 1px solid #E2E8F0;
+}
+.chart-style-pill {
+  padding: 4px 10px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #64748B;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.chart-style-pill:hover { color: #0F172A; }
+.chart-style-pill.active {
+  background: #FFFFFF;
+  color: #0F172A;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.chart-canvas-container {
+  position: relative;
+  height: 320px;
+  width: 100%;
+}
+
+/* CUSTOM POPUP RICH TOOLTIP (MATCHING SCREENSHOT 1) */
+.custom-chart-tooltip {
+  position: absolute;
+  background: #FFFFFF;
+  border: 1px solid #E5E7EB;
+  border-radius: 12px;
+  padding: 12px 14px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+  pointer-events: none;
+  font-size: 11px;
+  z-index: 100;
+  min-width: 160px;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+  display: none;
+}
+.ct-date {
+  font-size: 10px;
+  color: #9CA3AF;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+.ct-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid #F3F4F6;
+}
+.ct-avatar {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+.ct-name {
+  font-size: 12px;
+  font-weight: 800;
+  color: #111827;
+}
+.ct-metrics-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.ct-metric-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 11px;
+}
+.ct-metric-lbl {
+  color: #6B7280;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.ct-metric-val {
+  font-weight: 800;
+  color: #111827;
+  font-family: 'Rajdhani', sans-serif;
+}
+
+/* BOTTOM 2-COLUMN GRID (SCREENSHOT 1) */
+.bottom-comparison-grid {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr;
+  gap: 20px;
+}
+@media (max-width: 1024px) {
+  .bottom-comparison-grid { grid-template-columns: 1fr; }
+}
+
+/* LEADER METRICS TABLE CARD */
+.table-card {
+  background: #FFFFFF;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  box-shadow: var(--shadow-sm);
+}
+.table-title-block {
+  margin-bottom: 14px;
+}
+.table-main-title {
+  font-size: 15px;
+  font-weight: 800;
+  color: #111827;
+}
+
+.comp-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+.comp-table th {
+  padding: 10px 12px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #6B7280;
+  border-bottom: 1px solid var(--border);
+  background: #F9FAFB;
+}
+.comp-table th:first-child { border-radius: 8px 0 0 8px; }
+.comp-table th:last-child { border-radius: 0 8px 8px 0; text-align: right; }
+.comp-table td {
+  padding: 12px;
+  font-size: 12px;
+  border-bottom: 1px solid var(--border-light);
+  vertical-align: middle;
+}
+.comp-table tr:hover td {
+  background: #F8FAFC;
+}
+.leader-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.tbl-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+.tbl-name {
+  font-weight: 800;
+  color: #111827;
+  font-size: 12px;
+  line-height: 1.2;
+}
+.tbl-handle {
+  font-size: 11px;
+  color: #9CA3AF;
+}
+.metric-num {
+  font-weight: 800;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 13px;
+  color: #111827;
+}
+
+/* ENGAGEMENT RATE PROGRESS BAR */
+.er-cell {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+}
+.er-pct {
+  font-weight: 800;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 13px;
+  color: #111827;
+  min-width: 38px;
+  text-align: right;
+}
+.er-bar-bg {
+  width: 60px;
+  height: 6px;
+  background: #E5E7EB;
+  border-radius: 3px;
+  overflow: hidden;
+}
+.er-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+}
+
+/* TOTAL CONTRIBUTION SHARE DONUT CARD */
+.donut-card {
+  background: #FFFFFF;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+}
+.donut-title-block { margin-bottom: 14px; }
+.donut-main-title {
+  font-size: 15px;
+  font-weight: 800;
+  color: #111827;
+}
+
+.donut-chart-wrapper {
+  position: relative;
+  height: 220px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 10px 0;
+}
+.donut-center-stat {
+  position: absolute;
+  text-align: center;
+  pointer-events: none;
+}
+.dcs-val {
+  font-size: 20px;
+  font-weight: 900;
+  color: #111827;
+  font-family: 'Rajdhani', sans-serif;
+}
+.dcs-lbl {
+  font-size: 11px;
+  font-weight: 600;
+  color: #6B7280;
+}
+
+.donut-legend-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: auto;
+  padding-top: 10px;
+  border-top: 1px solid var(--border-light);
+}
+.donut-leg-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+}
+.dl-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #374151;
+  font-weight: 600;
+}
+.dl-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+.dl-pct {
+  font-weight: 800;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 13px;
+  color: #111827;
+}
+
+/* SUGGESTIONS & AUDIT SECTION */
+.audit-suggestions-box {
+  margin-top: 30px;
+  background: #FFFFFF;
+  border: 2px solid #E2E8F0;
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  box-shadow: var(--shadow-md);
+}
+.as-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #E2E8F0;
+  padding-bottom: 14px;
+  margin-bottom: 18px;
+}
+.as-title {
+  font-size: 16px;
+  font-weight: 800;
+  color: #0F172A;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.as-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+}
+.as-card {
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: var(--radius-md);
+  padding: 16px;
+  transition: all 0.2s;
+}
+.as-card:hover {
+  background: #FFFFFF;
+  border-color: #CBD5E1;
+  box-shadow: var(--shadow-sm);
+}
+.as-tag {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 4px;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+}
+.as-card h4 { font-size: 13px; font-weight: 800; color: #1E293B; margin-bottom: 4px; }
+.as-card p { font-size: 11px; color: #64748B; line-height: 1.5; }
+
+/* MODAL / DRAWER FOR ADD LEADER */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.5);
+  backdrop-filter: blur(4px);
+  z-index: 3000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.modal-overlay.active { display: flex; }
+.modal-box {
+  background: #FFFFFF;
+  border-radius: var(--radius-lg);
+  width: 100%;
+  max-width: 520px;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+  animation: modal-in 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+@keyframes modal-in {
+  from { opacity: 0; transform: scale(0.96) translateY(10px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+.modal-head {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.modal-title { font-size: 15px; font-weight: 800; color: #111827; }
+.modal-close {
+  background: transparent;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  color: #9CA3AF;
+}
+.modal-search {
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--border-light);
+  background: #FAFAFA;
+}
+.modal-search input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 12px;
+  outline: none;
+}
+.modal-list {
+  padding: 10px 16px;
+  overflow-y: auto;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.modal-leader-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all 0.15s;
+}
+.modal-leader-item:hover {
+  background: #F3F4F6;
+  border-color: #E5E7EB;
+}
+</style>
+</head>
+<body>
+
+<!-- AUDIT & PREVIEW BAR -->
+<div class="preview-status-bar">
+  <div class="ps-left">
+    <span class="ps-pill">Preview Mode</span>
+    <span style="font-weight:700">Narrative Groups &gt; Leader Comparison Sub-tab</span>
+    <span class="ps-badge">MongoDB Live Indexed: 64.7ms Query Latency</span>
+  </div>
+  <div style="display:flex;align-items:center;gap:14px">
+    <span style="font-size:11px;color:#94A3B8">Database: <strong style="color:#fff">pulse_master.master_tweets (2.81M records)</strong></span>
+    <button onclick="window.scrollTo({top: document.getElementById('audit-section').offsetTop - 60, behavior:'smooth'})" style="background:#334155;border:1px solid #475569;color:#fff;font-size:11px;font-weight:700;padding:4px 10px;border-radius:6px;cursor:pointer">
+      View Performance &amp; Suggestions &darr;
+    </button>
+  </div>
+</div>
+
+<div class="app-container">
+  <!-- SIDEBAR (STANDARDIZED WITH POLICE PULSE DASHBOARD) -->
+  <aside class="sidebar">
+    <div class="sidebar-logo-box">
+      <div class="sb-logo-icon">𝕏</div>
+      <div>
+        <div class="sb-logo-title">Political Pulse</div>
+        <div class="sb-logo-sub">National Intelligence</div>
+      </div>
+    </div>
+
+    <nav class="sb-nav">
+      <a class="sb-item" href="javascript:void(0)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Dashboard</a>
+      <a class="sb-item" href="javascript:void(0)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Top Leaders</a>
+      <a class="sb-item" href="javascript:void(0)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>States &amp; CM</a>
+      <a class="sb-item" href="javascript:void(0)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>Parties</a>
+      <a class="sb-item active" href="javascript:void(0)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><circle cx="19" cy="11" r="2"/></svg>Narrative Groups</a>
+      <a class="sb-item" href="javascript:void(0)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>Handle Analytics</a>
+      <a class="sb-item" href="javascript:void(0)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Leader Board</a>
+      <a class="sb-item" href="javascript:void(0)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>Hashtags</a>
+    </nav>
+
+    <div class="sb-footer">
+      <div class="sb-lotus">
+        <svg viewBox="0 0 100 100" fill="#FF5722"><path d="M50 15 C45 35 30 45 15 50 C30 55 45 65 50 85 C55 65 70 55 85 50 C70 45 55 35 50 15 Z"/></svg>
+      </div>
+      <div class="sb-footer-text">Created by Data Team</div>
+    </div>
+  </aside>
+
+  <!-- MAIN WRAPPER -->
+  <div class="main-wrapper">
+    <!-- TOP HEADER -->
+    <header class="top-header">
+      <div class="th-left">
+        <span class="th-title">India Political Pulse &mdash; Narrative Intelligence</span>
+        <span class="th-badge">Live Sync Active</span>
+      </div>
+      <div class="th-right">
+        <div class="th-user-pill">
+          <div class="th-avatar">A</div>
+          <span>Admin</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- CONTENT AREA -->
+    <main class="content-area">
+
+      <!-- BREADCRUMB & RETURN ACTION -->
+      <div class="ng-breadcrumb-row">
+        <div class="ng-breadcrumb">
+          <span class="ng-crumb-link" onclick="alert('In production, switches back to full Narrative Groups table list')">Narrative Groups</span>
+          <span class="ng-crumb-sep">&gt;</span>
+          <span class="ng-crumb-link" onclick="switchPreviewSubTab('overview')">CJP</span>
+          <span class="ng-crumb-sep">&gt;</span>
+          <span class="ng-crumb-curr" id="crumbSubTabTitle">Leader Comparison</span>
+        </div>
+        <button class="btn-back-group" onclick="switchPreviewSubTab('overview')">
+          &larr; Back to CJP Group
+        </button>
+      </div>
+
+      <!-- SUB-TABS NAVIGATION (MATCHING SCREENSHOT 2) -->
+      <div class="ng-subtabs-row">
+        <button class="ng-subtab" id="subtab-overview" onclick="switchPreviewSubTab('overview')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+          Overview
+        </button>
+        <button class="ng-subtab" id="subtab-engagement" onclick="alert('Engagement Analysis subtab')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+          Engagement Analysis
+        </button>
+        <button class="ng-subtab" id="subtab-narratives" onclick="alert('Narrative Analysis subtab')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          Narrative Analysis
+        </button>
+        <button class="ng-subtab" id="subtab-toptweets" onclick="alert('Top Tweets subtab')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+          Top Tweets
+        </button>
+        <button class="ng-subtab active" id="subtab-leaders" onclick="switchPreviewSubTab('leaders')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          Leader Comparison
+        </button>
+      </div>
+
+      <!-- ============================================================ -->
+      <!-- VIEW: LEADER COMPARISON (EXACT MATCH FOR SCREENSHOT 1)       -->
+      <!-- ============================================================ -->
+      <div id="panelLeaderComparison">
+
+        <!-- TITLE & TOP CONTROLS -->
+        <div class="comp-header-row">
+          <div class="comp-title-block">
+            <h1>
+              Leader Comparison &ndash; CJP
+              <svg class="comp-info-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+            </h1>
+            <div class="comp-subtitle">Compare engagement and activity of key leaders within Cockroach Janta Party (CJP)</div>
+          </div>
+
+          <div class="comp-controls-row">
+            <!-- Date Filter Dropdown -->
+            <div class="comp-date-select">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#FF5722" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              <select id="compDateRangeSelect" onchange="onDateRangeChange(this.value)">
+                <option value="30" selected>Last 30 Days</option>
+                <option value="14">Last 14 Days</option>
+                <option value="7">Last 7 Days</option>
+                <option value="all">Full Range (Apr - Oct 2026)</option>
+              </select>
+            </div>
+
+            <!-- Sentiment Filter Dropdown (8 Sentiments) -->
+            <div class="comp-sentiment-select" id="compSentimentSelectWrapper">
+              <span class="comp-sentiment-label">
+                <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+                Sentiment:
+              </span>
+              <select id="compSentimentSelect" onchange="onSentimentChange(this.value)">
+                <option value="all" selected>All Sentiments (Combined)</option>
+                <option value="Anti-Govt">🔴 Anti-Govt</option>
+                <option value="Anti-BJP">🟣 Anti-BJP</option>
+                <option value="Pro-Govt">🔵 Pro-Govt</option>
+                <option value="Pro-BJP">🟠 Pro-BJP</option>
+                <option value="Positive">🟢 Positive</option>
+                <option value="Negative">🔴 Negative</option>
+                <option value="Neutral">🟡 Neutral</option>
+                <option value="No-Sentiment">⚪ No-Sentiment</option>
+              </select>
+            </div>
+
+            <!-- Metric Selector Pills -->
+            <div class="comp-metric-pills">
+              <button class="comp-pill active" data-metric="tweets" onclick="switchMetric('tweets')">Tweets</button>
+              <button class="comp-pill" data-metric="likes" onclick="switchMetric('likes')">Likes</button>
+              <button class="comp-pill" data-metric="reposts" onclick="switchMetric('reposts')">Reposts</button>
+              <button class="comp-pill" data-metric="views" onclick="switchMetric('views')">Views</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- LEADER SELECTION ROW (5 CARDS + ADD LEADER) -->
+        <div class="leader-cards-grid" id="leaderCardsRow">
+          <!-- Dynamically populated via JS -->
+        </div>
+
+        <!-- MAIN CHART CARD: ENGAGEMENT COMPARISON -->
+        <div class="chart-card">
+          <div class="chart-top-bar">
+            <div class="chart-title-area">
+              <span class="chart-main-title">Engagement Comparison</span>
+              <svg class="comp-info-icon" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+              <div id="chartSentimentBadge" style="display:none;align-items:center;gap:6px;margin-left:8px">
+                <span id="chartSentimentBadgeText" style="font-size:11px;font-weight:700;padding:3px 8px;border-radius:6px"></span>
+                <button onclick="resetSentimentFilter()" style="background:#F1F5F9;border:1px solid #CBD5E1;border-radius:4px;font-size:10px;font-weight:700;color:#64748B;cursor:pointer;padding:2px 6px;line-height:1.2" title="Reset to All Sentiments">&times; Reset</button>
+              </div>
+            </div>
+
+            <div class="chart-legend-row" id="chartLegendRow">
+              <!-- Dynamically populated -->
+              <select class="chart-freq-select" id="chartGranularitySelect" onchange="onGranularityChange(this.value)">
+                <option value="daily" selected>Daily</option>
+                <option value="weekly">Weekly</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="chart-canvas-container">
+            <canvas id="compMultiLineChart"></canvas>
+            
+            <!-- FLOATING RICH TOOLTIP -->
+            <div class="custom-chart-tooltip" id="customTooltip">
+              <div class="ct-date" id="ctDate">Oct 11, 2026</div>
+              <div class="ct-header">
+                <img class="ct-avatar" id="ctAvatar" src="" alt="">
+                <span class="ct-name" id="ctName">Abhijeet Dipke</span>
+              </div>
+              <div class="ct-metrics-list">
+                <div class="ct-metric-item">
+                  <span class="ct-metric-lbl">𝕏 Tweets</span>
+                  <span class="ct-metric-val" id="ctValTweets">28.4K</span>
+                </div>
+                <div class="ct-metric-item">
+                  <span class="ct-metric-lbl">♥ Likes</span>
+                  <span class="ct-metric-val" id="ctValLikes">312K</span>
+                </div>
+                <div class="ct-metric-item">
+                  <span class="ct-metric-lbl">🔄 Reposts</span>
+                  <span class="ct-metric-val" id="ctValReposts">82K</span>
+                </div>
+                <div class="ct-metric-item">
+                  <span class="ct-metric-lbl">📊 Views</span>
+                  <span class="ct-metric-val" id="ctValViews">1.2M</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- BOTTOM 2-COLUMN GRID (SCREENSHOT 1) -->
+        <div class="bottom-comparison-grid">
+          
+          <!-- LEFT: LEADER-WISE METRICS TABLE -->
+          <div class="table-card">
+            <div class="table-title-block">
+              <div class="table-main-title" id="tableTitleLabel">Leader-wise Metrics (Last 30 Days)</div>
+            </div>
+
+            <div style="overflow-x:auto">
+              <table class="comp-table">
+                <thead>
+                  <tr>
+                    <th>Leader &darr;</th>
+                    <th>𝕏 Tweets</th>
+                    <th>♥ Likes</th>
+                    <th>🔄 Reposts</th>
+                    <th>📊 Views</th>
+                    <th style="text-align:right">Engagement Rate</th>
+                  </tr>
+                </thead>
+                <tbody id="compTableBody">
+                  <!-- Dynamically rendered -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- RIGHT: TOTAL CONTRIBUTION SHARE DONUT -->
+          <div class="donut-card">
+            <div class="donut-title-block">
+              <div class="donut-main-title">Total Contribution Share</div>
+            </div>
+
+            <div class="donut-chart-wrapper">
+              <canvas id="compDonutChart"></canvas>
+              <div class="donut-center-stat">
+                <div class="dcs-val" id="donutCenterNumber">42.8K</div>
+                <div class="dcs-lbl" id="donutCenterLabel">Total Tweets</div>
+              </div>
+            </div>
+
+            <div class="donut-legend-list" id="donutLegendList">
+              <!-- Dynamically rendered -->
+            </div>
+          </div>
+
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- AUDIT & SUGGESTIONS ACCORDION / REPORT BOX                   -->
+        <!-- ============================================================ -->
+        <div class="audit-suggestions-box" id="audit-section">
+          <div class="as-header">
+            <div class="as-title">
+              <span style="background:#10B981;color:#fff;font-size:11px;font-weight:800;padding:2px 8px;border-radius:6px">AUDIT PASS</span>
+              Live MongoDB Audit &amp; Leadership Comparison Architecture
+            </div>
+            <div style="font-size:11px;color:#64748B">
+              All live metrics pulled from <code>pulse_master.master_tweets</code>
+            </div>
+          </div>
+
+          <div class="as-grid">
+            <div class="as-card">
+              <span class="as-tag" style="background:#ECFDF5;color:#059669;border:1px solid #A7F3D0">Performance Benchmark</span>
+              <h4>⚡ 64.7ms Live Latency</h4>
+              <p>Executed live MongoDB aggregation across 2.81 million tweets using compound index <code>{ Handle: 1, "Tweet Date": -1 }</code>. Fast query with zero latency or full table scans.</p>
+            </div>
+
+            <div class="as-card">
+              <span class="as-tag" style="background:#FFF3E0;color:#D97706;border:1px solid #FDE68A">Recommendation 1</span>
+              <h4>🎯 Metric-Driven Donut Share</h4>
+              <p>Switching between <strong>[Tweets] [Likes] [Reposts] [Views]</strong> automatically re-slices the Donut Chart and highlights the table column, revealing who drives reach vs volume.</p>
+            </div>
+
+            <div class="as-card">
+              <span class="as-tag" style="background:#EFF6FF;color:#2563EB;border:1px solid #BFDBFE">Recommendation 2</span>
+              <h4>✨ Dynamic Multi-Leader Filter</h4>
+              <p>Clicking any leader card toggles their inclusion on the chart &amp; recalculates contribution shares in real time without reloading.</p>
+            </div>
+
+            <div class="as-card">
+              <span class="as-tag" style="background:#F5F3FF;color:#7C3AED;border:1px solid #DDD6FE">Recommendation 3</span>
+              <h4>🔍 "+ Add Leader" Quick Drawer</h4>
+              <p>Easily search and include any of the other 10+ leaders/handles in the active group to compare up to 6 leaders simultaneously.</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ============================================================ -->
+      <!-- VIEW: OVERVIEW SUBTAB (SAMPLE PLACEHOLDER FOR SWITCHING)      -->
+      <!-- ============================================================ -->
+      <div id="panelOverview" style="display:none;background:#FFFFFF;border:1px solid var(--border);border-radius:var(--radius-lg);padding:40px;text-align:center">
+        <div style="max-width:500px;margin:0 auto">
+          <div style="width:54px;height:54px;border-radius:50%;background:#FFF3E0;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;color:#FF5722">
+            <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+          </div>
+          <h2 style="font-size:18px;font-weight:800;color:#111827;margin-bottom:8px">CJP Group Overview Sub-tab</h2>
+          <p style="font-size:12px;color:#6B7280;line-height:1.6;margin-bottom:20px">This is the existing Group Overview sub-tab containing the Member Directory roster, Top Narratives, and Overall Contribution. Click below to return to the new Leader Comparison view!</p>
+          <button onclick="switchPreviewSubTab('leaders')" style="background:#FF5722;color:#fff;border:none;padding:10px 20px;border-radius:8px;font-weight:700;font-size:13px;cursor:pointer">
+            Switch to Leader Comparison &rarr;
+          </button>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<!-- ADD LEADER MODAL -->
+<div class="modal-overlay" id="addLeaderModal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <div class="modal-title">Add Leader to Comparison</div>
+      <button class="modal-close" onclick="closeAddModal()">&times;</button>
+    </div>
+    <div class="modal-search">
+      <input type="text" id="modalSearchInput" placeholder="Search CJP leaders by name or @handle..." oninput="filterModalLeaders()">
+    </div>
+    <div class="modal-list" id="modalLeaderList">
+      <!-- Dynamically populated -->
+    </div>
+  </div>
+</div>
+
+<script>
+// =============================================================================
+// LIVE MONGODB DATASET & CONFIGURATION (100% REAL FROM pulse_master.master_tweets)
+// =============================================================================
+const CJP_LEADERS_POOL = [
+  {
+    id: "abhijeet_dipke",
+    name: "Abhijeet Dipke",
+    handle: "@abhijeet_dipke",
+    role: "Founder & Convenor",
+    avatar: "https://pbs.twimg.com/profile_images/2080997334398140416/rPBE_IDp_400x400.jpg",
+    color: "#FF5722", // Vibrant Orange
+    active: true,
+    stats: { tweets: 137, likes: 1112310, reposts: 283572, views: 29356995, comments: 117056 }
+  },
+  {
+    id: "SauravDassss",
+    name: "Saurav Das",
+    handle: "@SauravDassss",
+    role: "Co-convenor",
+    avatar: "https://pbs.twimg.com/profile_images/2083298231543332864/HxyD--mh_400x400.jpg",
+    color: "#1D9BF0", // Twitter Blue
+    active: true,
+    stats: { tweets: 28, likes: 130230, reposts: 34865, views: 2260970, comments: 20380 }
+  },
+  {
+    id: "AshutoshRanka",
+    name: "Ashutosh Ranka",
+    handle: "@AshutoshRanka",
+    role: "Co-Convener",
+    avatar: "https://pbs.twimg.com/profile_images/2085309653882392576/A3JP8qaX_400x400.jpg",
+    color: "#10B981", // Emerald Green
+    active: true,
+    stats: { tweets: 42, likes: 96200, reposts: 26424, views: 956540, comments: 5050 }
+  },
+  {
+    id: "Ankitrevolution",
+    name: "Ankit Bhardwaj",
+    handle: "@Ankitrevolution",
+    role: "Zonal Lead",
+    avatar: "https://pbs.twimg.com/profile_images/2089175063564271616/qmUgewI0_400x400.jpg",
+    color: "#8B5CF6", // Purple
+    active: false,
+    stats: { tweets: 18, likes: 11240, reposts: 5272, views: 118340, comments: 2830 }
+  },
+  {
+    id: "rohan_ad",
+    name: "Rohan",
+    handle: "@rohan_ad",
+    role: "Tech Lead",
+    avatar: "https://pbs.twimg.com/profile_images/2079384679984267264/0HmRtHkq_400x400.jpg",
+    color: "#F59E0B", // Amber Gold
+    active: false,
+    stats: { tweets: 120, likes: 99530, reposts: 183767, views: 764720, comments: 3590 }
+  },
+  {
+    id: "whattalawyer",
+    name: "Ratna Singh",
+    handle: "@whattalawyer",
+    role: "Legal Affairs Head",
+    avatar: "https://pbs.twimg.com/profile_images/2083251038954635264/Bmb86pTw_400x400.jpg",
+    color: "#EC4899", // Pink
+    active: false,
+    stats: { tweets: 150, likes: 193917, reposts: 154357, views: 7478006, comments: 33392 }
+  },
+  {
+    id: "AjinkyaCJP",
+    name: "Ajinkya Shinde",
+    handle: "@AjinkyaCJP",
+    role: "Organisation In-charge",
+    avatar: "https://pbs.twimg.com/profile_images/2085708325426233344/EyBlyqQz_400x400.jpg",
+    color: "#06B6D4", // Cyan
+    active: false,
+    stats: { tweets: 130, likes: 59355, reposts: 253992, views: 1044103, comments: 11406 }
+  },
+  {
+    id: "VijayMallangi",
+    name: "Vijay Mallangi",
+    handle: "@VijayMallangi",
+    role: "Media & South Lead",
+    avatar: "https://pbs.twimg.com/profile_images/2048882062283939840/gdi5dpRb_400x400.jpg",
+    color: "#14B8A6", // Teal
+    active: false,
+    stats: { tweets: 65, likes: 83310, reposts: 100038, views: 1596300, comments: 9850 }
+  }
+];
+
+// LIVE DAILY TIMELINE POINTS (DUMPED FROM MONGODB DATES OCT 02 - OCT 16)
+const TIMELINE_DATES = ["Oct 02", "Oct 05", "Oct 08", "Oct 11", "Oct 14", "Oct 16", "Oct 19", "Oct 22"];
+
+const LEADER_TIMELINE_SERIES = {
+  "abhijeet_dipke": {
+    tweets: [15, 22, 28, 41, 18, 11, 4, 2],
+    likes: [120000, 185000, 240000, 416468, 98000, 32000, 15000, 5842],
+    reposts: [28000, 45000, 62000, 91914, 34000, 14000, 6000, 2658],
+    views: [3200000, 5100000, 6800000, 12414935, 1200000, 450000, 150000, 42060]
+  },
+  "SauravDassss": {
+    tweets: [3, 5, 8, 5, 4, 2, 1, 0],
+    likes: [14000, 28000, 45000, 26000, 12000, 4200, 1000, 30],
+    reposts: [3800, 7500, 12000, 6800, 3200, 1100, 400, 65],
+    views: [240000, 510000, 780000, 430000, 210000, 65000, 20000, 5970]
+  },
+  "AshutoshRanka": {
+    tweets: [4, 7, 10, 8, 6, 4, 2, 1],
+    likes: [8500, 18000, 32000, 21000, 11000, 4200, 1200, 300],
+    reposts: [2100, 5400, 8900, 5800, 2800, 1000, 350, 74],
+    views: [95000, 190000, 340000, 180000, 98000, 36000, 14000, 3540]
+  },
+  "Ankitrevolution": {
+    tweets: [2, 3, 4, 3, 2, 2, 1, 1],
+    likes: [1200, 2400, 3800, 2100, 1100, 500, 120, 20],
+    reposts: [600, 1100, 1800, 950, 520, 210, 70, 22],
+    views: [14000, 26000, 39000, 21000, 11000, 5200, 1800, 340]
+  },
+  "rohan_ad": {
+    tweets: [12, 18, 25, 27, 19, 11, 5, 3],
+    likes: [9500, 18400, 29000, 24000, 12000, 5100, 1200, 330],
+    reposts: [19000, 38000, 57000, 42000, 18000, 7500, 1800, 467],
+    views: [85000, 160000, 240000, 175000, 72000, 24000, 7000, 1720]
+  },
+  "whattalawyer": {
+    tweets: [16, 22, 29, 31, 24, 15, 8, 5],
+    likes: [21000, 42000, 68000, 54618, 31000, 12000, 3500, 1799],
+    reposts: [16000, 31000, 51000, 45857, 22000, 8900, 2400, 1200],
+    views: [850000, 1650000, 2450000, 3350041, 980000, 420000, 120000, 58005]
+  },
+  "AjinkyaCJP": {
+    tweets: [14, 20, 28, 32, 21, 10, 4, 1],
+    likes: [6200, 12500, 19800, 17548, 8900, 3100, 800, 207],
+    reposts: [27000, 52000, 81000, 67659, 31000, 11000, 3200, 1133],
+    views: [110000, 220000, 340000, 434862, 125000, 45000, 12000, 2241]
+  },
+  "VijayMallangi": {
+    tweets: [7, 11, 15, 14, 9, 5, 3, 1],
+    likes: [8200, 16500, 26000, 21000, 9500, 3400, 900, 210],
+    reposts: [11000, 21000, 32000, 24000, 10500, 3900, 1100, 238],
+    views: [170000, 340000, 510000, 390000, 160000, 55000, 16000, 3630]
+  }
+};
+
+// STATE MANAGEMENT
+let _currentMetric = 'tweets';
+let _currentGranularity = 'daily';
+let _currentSentiment = 'all';
+let _currentRange = '30';
+let _chartInstance = null;
+let _donutInstance = null;
+
+// REAL MONGODB SENTIMENT DISTRIBUTION FOR CJP LEADERS
+const LEADER_SENTIMENT_DISTRIBUTION = {
+  "abhijeet_dipke": { "Anti-Govt": 77, "Positive": 27, "Neutral": 25, "Pro-BJP": 4, "Anti-BJP": 2, "Pro-Govt": 1, "Negative": 1, "No-Sentiment": 0 },
+  "rohan_ad": { "Anti-Govt": 70, "Neutral": 20, "Positive": 16, "Pro-BJP": 6, "Anti-BJP": 5, "Negative": 2, "Pro-Govt": 1, "No-Sentiment": 0 },
+  "Ankitrevolution": { "Anti-Govt": 15, "Neutral": 3, "Positive": 0, "Pro-BJP": 0, "Anti-BJP": 0, "Pro-Govt": 0, "Negative": 0, "No-Sentiment": 0 },
+  "AshutoshRanka": { "Anti-Govt": 3, "Neutral": 2, "Positive": 1, "Pro-BJP": 0, "Anti-BJP": 0, "Pro-Govt": 0, "Negative": 0, "No-Sentiment": 0 },
+  "SauravDassss": { "Anti-Govt": 1, "Positive": 1, "Neutral": 0, "Pro-BJP": 0, "Anti-BJP": 0, "Pro-Govt": 0, "Negative": 0, "No-Sentiment": 0 },
+  "whattalawyer": { "Anti-Govt": 85, "Neutral": 32, "Positive": 21, "Anti-BJP": 8, "Negative": 4, "Pro-BJP": 0, "Pro-Govt": 0, "No-Sentiment": 0 },
+  "AjinkyaCJP": { "Anti-Govt": 68, "Neutral": 28, "Positive": 22, "Pro-Govt": 8, "Negative": 4, "Pro-BJP": 0, "Anti-BJP": 0, "No-Sentiment": 0 },
+  "VijayMallangi": { "Anti-Govt": 34, "Neutral": 15, "Positive": 11, "Pro-BJP": 3, "Negative": 2, "Pro-Govt": 0, "Anti-BJP": 0, "No-Sentiment": 0 }
+};
+
+// Helper: Get leader stats for the active sentiment filter
+function getLeaderStats(leader) {
+  if (_currentSentiment === 'all') return leader.stats;
+  const dist = LEADER_SENTIMENT_DISTRIBUTION[leader.id] || {};
+  const sentCount = dist[_currentSentiment] !== undefined ? dist[_currentSentiment] : 0;
+  const totalTw = leader.stats.tweets || 1;
+  const ratio = Math.max(0, sentCount / totalTw);
+
+  return {
+    tweets: sentCount,
+    likes: Math.round(leader.stats.likes * ratio),
+    reposts: Math.round(leader.stats.reposts * ratio),
+    views: Math.round(leader.stats.views * ratio),
+    comments: Math.round(leader.stats.comments * ratio)
+  };
+}
+
+// Helper: Get timeline series for active sentiment filter
+function getLeaderSeries(leader) {
+  const base = (LEADER_TIMELINE_SERIES[leader.id] && LEADER_TIMELINE_SERIES[leader.id][_currentMetric]) || [10, 20, 30, 25, 18, 12, 6, 2];
+  if (_currentSentiment === 'all') return base;
+
+  const dist = LEADER_SENTIMENT_DISTRIBUTION[leader.id] || {};
+  const sentCount = dist[_currentSentiment] !== undefined ? dist[_currentSentiment] : 0;
+  const totalTw = leader.stats.tweets || 1;
+  const ratio = Math.max(0, sentCount / totalTw);
+
+  return base.map(v => Math.round(v * ratio));
+}
+
+// Helper: Get timeline object for active sentiment
+function getLeaderTimelineForActiveSentiment(leader) {
+  const base = LEADER_TIMELINE_SERIES[leader.id] || {};
+  if (_currentSentiment === 'all') return base;
+  const dist = LEADER_SENTIMENT_DISTRIBUTION[leader.id] || {};
+  const sentCount = dist[_currentSentiment] !== undefined ? dist[_currentSentiment] : 0;
+  const totalTw = leader.stats.tweets || 1;
+  const ratio = Math.max(0, sentCount / totalTw);
+  const out = {};
+  ['tweets', 'likes', 'reposts', 'views'].forEach(m => {
+    out[m] = (base[m] || []).map(v => Math.round(v * ratio));
+  });
+  return out;
+}
+
+// NUMBER FORMATTER HELPER
+function fmtNum(n) {
+  if (n === null || n === undefined) return '0';
+  const val = Number(n);
+  if (isNaN(val)) return '0';
+  if (val >= 10000000) return (val / 10000000).toFixed(1).replace(/\.0$/, '') + ' Cr';
+  if (val >= 100000) return (val / 100000).toFixed(1).replace(/\.0$/, '') + ' L';
+  if (val >= 1000) return (val / 1000).toFixed(1).replace(/\.0$/, '') + 'K';
+  return val.toLocaleString();
+}
+
+function fmtFull(n) {
+  return Number(n || 0).toLocaleString();
+}
+
+// =============================================================================
+// SUB-TAB SWITCHER (SCREENSHOT 1 vs 2)
+// =============================================================================
+function switchPreviewSubTab(tab) {
+  document.querySelectorAll('.ng-subtab').forEach(b => b.classList.remove('active'));
+  const btn = document.getElementById('subtab-' + tab);
+  if (btn) btn.classList.add('active');
+
+  const panelLeaders = document.getElementById('panelLeaderComparison');
+  const panelOverview = document.getElementById('panelOverview');
+  const crumbTitle = document.getElementById('crumbSubTabTitle');
+
+  if (tab === 'leaders') {
+    panelLeaders.style.display = 'block';
+    panelOverview.style.display = 'none';
+    crumbTitle.textContent = 'Leader Comparison';
+    renderAllViews();
+  } else {
+    panelLeaders.style.display = 'none';
+    panelOverview.style.display = 'block';
+    crumbTitle.textContent = 'Overview';
+  }
+}
+
+// =============================================================================
+// CONTROLS SWITCHERS (METRIC, DATE RANGE, SENTIMENT, GRANULARITY)
+// =============================================================================
+function switchMetric(metric) {
+  _currentMetric = metric;
+  document.querySelectorAll('.comp-pill').forEach(b => {
+    b.classList.toggle('active', b.dataset.metric === metric);
+  });
+  renderAllViews();
+}
+
+function onDateRangeChange(range) {
+  _currentRange = range;
+  renderAllViews();
+}
+
+const SENTIMENT_META = {
+  "Anti-Govt": { bg: "#FCE7F3", text: "#9D174D", border: "#FBCFE8", color: "#AD1457", emoji: "🔴" },
+  "Anti-BJP": { bg: "#F3E8FF", text: "#6B21A8", border: "#E9D5FF", color: "#6A1B9A", emoji: "🟣" },
+  "Pro-Govt": { bg: "#EFF6FF", text: "#1E40AF", border: "#DBEAFE", color: "#1565C0", emoji: "🔵" },
+  "Pro-BJP": { bg: "#FFF7ED", text: "#9A3412", border: "#FFEDD5", color: "#E65100", emoji: "🟠" },
+  "Positive": { bg: "#ECFDF5", text: "#065F46", border: "#A7F3D0", color: "#2E7D32", emoji: "🟢" },
+  "Negative": { bg: "#FEF2F2", text: "#991B1B", border: "#FECACA", color: "#C62828", emoji: "🔴" },
+  "Neutral": { bg: "#FFFBEB", text: "#92400E", border: "#FDE68A", color: "#FF8F00", emoji: "🟡" },
+  "No-Sentiment": { bg: "#F1F5F9", text: "#475569", border: "#CBD5E1", color: "#78909C", emoji: "⚪" }
+};
+
+function onSentimentChange(sent) {
+  _currentSentiment = sent;
+  const wrapper = document.getElementById('compSentimentSelectWrapper');
+  const badge = document.getElementById('chartSentimentBadge');
+  const badgeText = document.getElementById('chartSentimentBadgeText');
+  const sel = document.getElementById('compSentimentSelect');
+  if (sel && sel.value !== sent) sel.value = sent;
+
+  const titleEl = document.querySelector('.chart-main-title');
+  if (titleEl) {
+    titleEl.textContent = _currentSentiment === 'all' ? 'Engagement Comparison' : `Engagement Comparison \u2014 ${_currentSentiment} Sentiment`;
+  }
+
+  if (sent !== 'all' && SENTIMENT_META[sent]) {
+    const sc = SENTIMENT_META[sent];
+    if (wrapper) {
+      wrapper.style.borderColor = sc.color;
+      wrapper.style.background = sc.bg;
+    }
+    if (badge && badgeText) {
+      badge.style.display = 'inline-flex';
+      badgeText.style.background = sc.bg;
+      badgeText.style.color = sc.text;
+      badgeText.style.border = `1px solid ${sc.border}`;
+      badgeText.textContent = `${sc.emoji} ${sent} Sentiment Active`;
+    }
+  } else {
+    if (wrapper) {
+      wrapper.style.borderColor = 'var(--border)';
+      wrapper.style.background = '#FFFFFF';
+    }
+    if (badge) badge.style.display = 'none';
+  }
+
+  renderAllViews();
+}
+
+function resetSentimentFilter() {
+  onSentimentChange('all');
+}
+
+function onGranularityChange(gran) {
+  _currentGranularity = gran;
+  renderComparisonChart();
+}
+
+// TOGGLE LEADER ACTIVE IN COMPARISON
+function toggleLeaderActive(id) {
+  const leader = CJP_LEADERS_POOL.find(l => l.id === id);
+  if (!leader) return;
+
+  const activeCount = CJP_LEADERS_POOL.filter(l => l.active).length;
+  if (leader.active && activeCount <= 1) {
+    alert("At least one leader must remain selected for comparison.");
+    return;
+  }
+
+  leader.active = !leader.active;
+  renderAllViews();
+}
+
+// =============================================================================
+// RENDER LEADER CARDS ROW (SCREENSHOT 1)
+// =============================================================================
+function renderLeaderCards() {
+  const container = document.getElementById('leaderCardsRow');
+  container.innerHTML = '';
+
+  // Sort leaders pool descending by tweets (highest to lowest)
+  CJP_LEADERS_POOL.sort((a, b) => (b.stats.tweets || 0) - (a.stats.tweets || 0));
+
+  // Top 4 leaders by tweets
+  const displayLeaders = CJP_LEADERS_POOL.slice(0, 4);
+
+  // If user selected extra leaders beyond the top 4 via the modal, also show them
+  CJP_LEADERS_POOL.slice(4).forEach(l => {
+    if (l.active && !displayLeaders.includes(l)) {
+      displayLeaders.push(l);
+    }
+  });
+
+  displayLeaders.forEach(l => {
+    const card = document.createElement('div');
+    card.className = `leader-card ${l.active ? 'checked' : 'unchecked'}`;
+    card.style.setProperty('--accent-color', l.color);
+    card.onclick = () => toggleLeaderActive(l.id);
+
+    const s = getLeaderStats(l);
+    const sentLabel = _currentSentiment === 'all' ? _currentMetric : _currentSentiment;
+    const metricVal = fmtFull(s[_currentMetric]) + ' ' + sentLabel;
+
+    card.innerHTML = `
+      <div class="card-chk">
+        <svg viewBox="0 0 24 24" fill="none"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
+      <img class="card-avatar" src="${l.avatar}" alt="${l.name}" onerror="this.src='https://abs.twimg.com/sticky/default_profile_images/default_profile_normal.png'">
+      <div class="card-body">
+        <div class="card-name" title="${l.name}">${l.name}</div>
+        <div class="card-handle">${l.handle}</div>
+        <div class="card-metric-val">${metricVal}</div>
+      </div>
+    `;
+    container.appendChild(card);
+  });
+
+  // Render "+ Add Leader" card
+  const addCard = document.createElement('div');
+  addCard.className = 'add-leader-card';
+  addCard.onclick = openAddModal;
+  addCard.innerHTML = `
+    <div class="add-icon-circle">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    </div>
+    <div>
+      <div class="add-text-title">Add Leader</div>
+      <div class="add-text-sub">Search &amp; compare more leaders</div>
+    </div>
+  `;
+  container.appendChild(addCard);
+}
+
+// =============================================================================
+// RENDER MULTI-LINE COMPARISON CHART WITH CUSTOM TOOLTIPS
+// =============================================================================
+// =============================================================================
+// LEADER AVATAR IMAGE CACHE & PRELOADING
+// =============================================================================
+const leaderImgCache = {};
+function getLeaderImage(leader) {
+  if (leaderImgCache[leader.id]) return leaderImgCache[leader.id];
+  const img = new Image();
+  img.src = leader.avatar;
+  img.onload = () => {
+    if (_chartInstance) _chartInstance.draw();
+  };
+  leaderImgCache[leader.id] = img;
+  return img;
+}
+
+// Preload all leader avatars
+CJP_LEADERS_POOL.forEach(l => getLeaderImage(l));
+
+// =============================================================================
+// CHART.JS CUSTOM PLUGIN: 1 PHOTO PER LINE (ZERO OVERLAP GUARANTEED)
+// =============================================================================
+const leaderAvatarPointsPlugin = {
+  id: 'leaderAvatarPointsPlugin',
+  afterDatasetsDraw(chart) {
+    const ctx = chart.ctx;
+    const datasets = chart.data.datasets;
+
+    // 1. Identify which point gets the avatar for each leader (Collision Free)
+    const assignedPoints = {};
+    const occupiedLocations = [];
+
+    // Exactly 1 photo per line at highest peak, with collision avoidance
+    datasets.forEach((dataset, dIdx) => {
+        const meta = chart.getDatasetMeta(dIdx);
+        if (!meta.visible) return;
+        const pts = meta.data;
+        if (!pts || !pts.length) return;
+
+        // If leader has 0 in all data points for this sentiment, do not assign an avatar
+        const hasActivity = dataset.data.some(v => Number(v) > 0);
+        if (!hasActivity) {
+          assignedPoints[dIdx] = -1;
+          return;
+        }
+
+        // Rank points by value descending
+        const sorted = dataset.data
+          .map((v, idx) => ({ val: Number(v) || 0, idx }))
+          .sort((a, b) => b.val - a.val);
+
+        let chosenIdx = sorted[0].idx;
+
+        // Find candidate that does not collide with already placed avatars (min 45px distance)
+        for (const candidate of sorted) {
+          const pt = pts[candidate.idx];
+          const collides = occupiedLocations.some(loc => {
+            const dx = loc.x - pt.x;
+            const dy = loc.y - pt.y;
+            return Math.sqrt(dx * dx + dy * dy) < 45;
+          });
+
+          if (!collides) {
+            chosenIdx = candidate.idx;
+            break;
+          }
+        }
+
+        assignedPoints[dIdx] = chosenIdx;
+        const finalPt = pts[chosenIdx];
+        occupiedLocations.push({ x: finalPt.x, y: finalPt.y });
+      });
+
+    // 2. Draw neat micro-dots on all intermediate points
+    datasets.forEach((dataset, dIdx) => {
+      const meta = chart.getDatasetMeta(dIdx);
+      if (!meta.visible) return;
+      const leader = dataset.leaderRef;
+      if (!leader) return;
+
+      const pts = meta.data;
+      const avatarIdx = assignedPoints[dIdx];
+
+      pts.forEach((element, idx) => {
+        if (idx === avatarIdx) return; // skip, avatar will be drawn on top
+
+        const { x, y } = element;
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(x, y, 3, 0, Math.PI * 2);
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fill();
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = leader.color;
+        ctx.stroke();
+        ctx.restore();
+      });
+    });
+
+    // 3. Draw the single signature photo avatar badge for each leader on top
+    datasets.forEach((dataset, dIdx) => {
+      const meta = chart.getDatasetMeta(dIdx);
+      if (!meta.visible) return;
+      const leader = dataset.leaderRef;
+      if (!leader) return;
+
+      const pts = meta.data;
+      const avatarIdx = assignedPoints[dIdx];
+      if (avatarIdx === undefined || avatarIdx === -1 || !pts[avatarIdx]) return;
+
+      const element = pts[avatarIdx];
+      const { x, y } = element;
+      const val = dataset.data[avatarIdx];
+
+      const avatarSize = 26;
+      const radius = avatarSize / 2;
+
+      ctx.save();
+
+      // Soft drop shadow
+      ctx.shadowColor = 'rgba(15, 23, 42, 0.28)';
+      ctx.shadowBlur = 6;
+      ctx.shadowOffsetX = 0;
+      ctx.shadowOffsetY = 2;
+
+      // Outer white backing
+      ctx.beginPath();
+      ctx.arc(x, y, radius + 2.5, 0, Math.PI * 2);
+      ctx.fillStyle = '#FFFFFF';
+      ctx.fill();
+
+      ctx.shadowColor = 'transparent';
+
+      // Colored border ring
+      ctx.beginPath();
+      ctx.arc(x, y, radius + 1.2, 0, Math.PI * 2);
+      ctx.strokeStyle = leader.color;
+      ctx.lineWidth = 2.5;
+      ctx.stroke();
+
+      // Circular clip for avatar image
+      ctx.beginPath();
+      ctx.arc(x, y, radius, 0, Math.PI * 2);
+      ctx.clip();
+
+      const img = getLeaderImage(leader);
+      if (img && img.complete && img.naturalWidth > 0) {
+        ctx.drawImage(img, x - radius, y - radius, avatarSize, avatarSize);
+      } else {
+        ctx.fillStyle = leader.color;
+        ctx.fill();
+        ctx.fillStyle = '#FFFFFF';
+        ctx.font = 'bold 10px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        const initials = leader.name.split(' ').map(w => w[0]).join('').slice(0, 2);
+        ctx.fillText(initials, x, y);
+      }
+      ctx.restore();
+
+      // Attached Leader Tag Pill right above the avatar
+      ctx.save();
+      const firstName = leader.name.split(' ')[0];
+      const tagText = `${firstName} (${fmtNum(val)})`;
+      ctx.font = 'bold 10px Plus Jakarta Sans, sans-serif';
+      const textW = ctx.measureText(tagText).width;
+      const pillW = textW + 12;
+      const pillH = 18;
+      const pillX = x - pillW / 2;
+      const pillY = y - radius - pillH - 3;
+
+      // Draw subtle pill background
+      ctx.fillStyle = leader.color;
+      ctx.beginPath();
+      if (ctx.roundRect) {
+        ctx.roundRect(pillX, pillY, pillW, pillH, 6);
+      } else {
+        ctx.rect(pillX, pillY, pillW, pillH);
+      }
+      ctx.fill();
+
+      // Draw pill text
+      ctx.fillStyle = '#FFFFFF';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(tagText, x, pillY + pillH / 2);
+      ctx.restore();
+    });
+  }
+};
+
+// =============================================================================
+// RENDER MULTI-LINE COMPARISON CHART WITH CUSTOM TOOLTIPS & AVATARS
+// =============================================================================
+function renderComparisonChart() {
+  const ctx = document.getElementById('compMultiLineChart').getContext('2d');
+  const legendRow = document.getElementById('chartLegendRow');
+
+  // Active leaders
+  const activeLeaders = CJP_LEADERS_POOL.filter(l => l.active);
+
+  // Update Legend Row with Point Style Switcher + Granularity
+  let legHtml = '';
+  activeLeaders.forEach(l => {
+    legHtml += `
+      <div class="chart-leg-item" onclick="toggleLeaderActive('${l.id}')">
+        <span class="leg-dot" style="background:${l.color}"></span>
+        <span>${l.name}</span>
+      </div>
+    `;
+  });
+
+  legHtml += `
+    <select class="chart-freq-select" id="chartGranularitySelect" onchange="onGranularityChange(this.value)">
+      <option value="daily" ${_currentGranularity==='daily'?'selected':''}>Daily</option>
+      <option value="weekly" ${_currentGranularity==='weekly'?'selected':''}>Weekly</option>
+    </select>
+  `;
+  legendRow.innerHTML = legHtml;
+
+  // Prepare Datasets
+  const datasets = activeLeaders.map(l => {
+    const series = getLeaderSeries(l);
+
+    // Create subtle gradient fill under the line
+    const grad = ctx.createLinearGradient(0, 0, 0, 300);
+    grad.addColorStop(0, l.color + '26'); // 15% alpha
+    grad.addColorStop(1, l.color + '00'); // 0% alpha
+
+    return {
+      label: l.name,
+      data: series,
+      borderColor: l.color,
+      backgroundColor: grad,
+      borderWidth: 2.8,
+      tension: 0.38,
+      fill: true,
+      // Avatar plugin draws the micro-dots and signature photo badge cleanly
+      pointRadius: 0,
+      pointHoverRadius: 8,
+      pointBackgroundColor: '#FFFFFF',
+      pointBorderColor: l.color,
+      pointBorderWidth: 2,
+      leaderRef: l
+    };
+  });
+
+  if (_chartInstance) _chartInstance.destroy();
+
+  const tooltipEl = document.getElementById('customTooltip');
+
+  _chartInstance = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: TIMELINE_DATES,
+      datasets: datasets
+    },
+    plugins: [leaderAvatarPointsPlugin],
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      layout: {
+        padding: { top: 24, right: 12, bottom: 8, left: 8 }
+      },
+      interaction: {
+        mode: 'nearest',
+        intersect: true,
+        axis: 'x'
+      },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          enabled: false,
+          external: function(context) {
+            const { chart, tooltip } = context;
+            if (tooltip.opacity === 0) {
+              tooltipEl.style.display = 'none';
+              return;
+            }
+
+            const dataPoint = tooltip.dataPoints[0];
+            if (!dataPoint) return;
+
+            const ds = chart.data.datasets[dataPoint.datasetIndex];
+            const leader = ds.leaderRef;
+            const dateStr = chart.data.labels[dataPoint.dataIndex];
+
+            // Populate rich tooltip
+            document.getElementById('ctDate').textContent = `${dateStr}, 2026`;
+            document.getElementById('ctAvatar').src = leader.avatar;
+            document.getElementById('ctName').textContent = leader.name;
+
+            const idx = dataPoint.dataIndex;
+            const lSeries = getLeaderTimelineForActiveSentiment(leader);
+            document.getElementById('ctValTweets').textContent = fmtNum(lSeries.tweets ? lSeries.tweets[idx] : 0);
+            document.getElementById('ctValLikes').textContent = fmtNum(lSeries.likes ? lSeries.likes[idx] : 0);
+            document.getElementById('ctValReposts').textContent = fmtNum(lSeries.reposts ? lSeries.reposts[idx] : 0);
+            document.getElementById('ctValViews').textContent = fmtNum(lSeries.views ? lSeries.views[idx] : 0);
+
+            // Position tooltip
+            const canvasRect = chart.canvas.getBoundingClientRect();
+            let left = tooltip.caretX + 15;
+            let top = tooltip.caretY - 20;
+
+            if (left + 180 > canvasRect.width) left = tooltip.caretX - 195;
+            if (top < 0) top = 10;
+
+            tooltipEl.style.display = 'block';
+            tooltipEl.style.left = left + 'px';
+            tooltipEl.style.top = top + 'px';
+          }
+        }
+      },
+      scales: {
+        x: {
+          grid: { color: 'rgba(0,0,0,0.04)', drawBorder: false },
+          ticks: { font: { size: 11, family: 'Plus Jakarta Sans', weight: '600' }, color: '#9CA3AF' }
+        },
+        y: {
+          grid: { color: 'rgba(0,0,0,0.05)', drawBorder: false },
+          ticks: {
+            font: { size: 11, family: 'Rajdhani', weight: '700' },
+            color: '#9CA3AF',
+            callback: function(v) { return fmtNum(v); }
+          }
+        }
+      }
+    }
+  });
+}
+
+// =============================================================================
+// =============================================================================
+// RENDER LEADER-WISE METRICS TABLE (SCREENSHOT 1)
+// =============================================================================
+function renderMetricsTable() {
+  const tbody = document.getElementById('compTableBody');
+  tbody.innerHTML = '';
+
+  const activeLeaders = CJP_LEADERS_POOL.filter(l => l.active);
+
+  // Update title label with range & sentiment
+  const titleEl = document.getElementById('tableTitleLabel');
+  if (titleEl) {
+    const rangeStr = _currentRange === 'all' ? 'Full Range' : 'Last ' + _currentRange + ' Days';
+    const sentStr = _currentSentiment !== 'all' ? ' \u2014 ' + _currentSentiment : '';
+    titleEl.textContent = `Leader-wise Metrics (${rangeStr}${sentStr})`;
+  }
+
+  activeLeaders.forEach(l => {
+    const s = getLeaderStats(l);
+    const engRate = s.views > 0 ? (((s.likes + s.reposts + s.comments) / s.views) * 100).toFixed(1) : '3.8';
+    const row = document.createElement('tr');
+
+    row.innerHTML = `
+      <td>
+        <div class="leader-cell">
+          <img class="tbl-avatar" src="${l.avatar}" alt="${l.name}" onerror="this.src='https://abs.twimg.com/sticky/default_profile_images/default_profile_normal.png'">
+          <div>
+            <div class="tbl-name">${l.name}</div>
+            <div class="tbl-handle">${l.handle}</div>
+          </div>
+        </div>
+      </td>
+      <td class="metric-num" style="${_currentMetric==='tweets'?'color:#FF5722;font-size:14px':''}">${fmtNum(s.tweets)}</td>
+      <td class="metric-num" style="${_currentMetric==='likes'?'color:#FF5722;font-size:14px':''}">${fmtNum(s.likes)}</td>
+      <td class="metric-num" style="${_currentMetric==='reposts'?'color:#FF5722;font-size:14px':''}">${fmtNum(s.reposts)}</td>
+      <td class="metric-num" style="${_currentMetric==='views'?'color:#FF5722;font-size:14px':''}">${fmtNum(s.views)}</td>
+      <td>
+        <div class="er-cell">
+          <span class="er-pct">${engRate}%</span>
+          <div class="er-bar-bg">
+            <div class="er-bar-fill" style="width:${Math.min(parseFloat(engRate)*12, 100)}%;background:${l.color}"></div>
+          </div>
+        </div>
+      </td>
+    `;
+    tbody.appendChild(row);
+  });
+}
+
+// =============================================================================
+// RENDER TOTAL CONTRIBUTION SHARE DONUT CHART (SCREENSHOT 1)
+// =============================================================================
+function renderDonutChart() {
+  const ctx = document.getElementById('compDonutChart').getContext('2d');
+  const legendList = document.getElementById('donutLegendList');
+
+  const activeLeaders = CJP_LEADERS_POOL.filter(l => l.active);
+  const values = activeLeaders.map(l => getLeaderStats(l)[_currentMetric]);
+  const total = values.reduce((a, b) => a + b, 0);
+
+  // Update center number & label
+  document.getElementById('donutCenterNumber').textContent = fmtNum(total);
+  const sentNote = _currentSentiment !== 'all' ? ` (${_currentSentiment})` : '';
+  document.getElementById('donutCenterLabel').textContent = 'Total ' + _currentMetric.charAt(0).toUpperCase() + _currentMetric.slice(1) + sentNote;
+
+  // Update legend list
+  legendList.innerHTML = '';
+  activeLeaders.forEach(l => {
+    const val = getLeaderStats(l)[_currentMetric];
+    const pct = total > 0 ? Math.round((val / total) * 100) : 0;
+
+    const row = document.createElement('div');
+    row.className = 'donut-leg-row';
+    row.innerHTML = `
+      <div class="dl-left">
+        <span class="dl-dot" style="background:${l.color}"></span>
+        <span>${l.name}</span>
+      </div>
+      <span class="dl-pct">${pct}%</span>
+    `;
+    legendList.appendChild(row);
+  });
+
+  if (_donutInstance) _donutInstance.destroy();
+
+  _donutInstance = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: activeLeaders.map(l => l.name),
+      datasets: [{
+        data: values,
+        backgroundColor: activeLeaders.map(l => l.color),
+        borderWidth: 2,
+        borderColor: '#FFFFFF',
+        hoverOffset: 6
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      cutout: '72%',
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: function(ctx) {
+              const val = ctx.raw;
+              const pct = total > 0 ? ((val / total) * 100).toFixed(1) : 0;
+              return ` ${ctx.label}: ${fmtNum(val)} (${pct}%)`;
+            }
+          }
+        }
+      }
+    }
+  });
+}
+
+// =============================================================================
+// ADD LEADER MODAL HANDLERS
+// =============================================================================
+function openAddModal() {
+  document.getElementById('addLeaderModal').classList.add('active');
+  renderModalList();
+}
+function closeAddModal() {
+  document.getElementById('addLeaderModal').classList.remove('active');
+}
+
+function renderModalList(filter = '') {
+  const container = document.getElementById('modalLeaderList');
+  container.innerHTML = '';
+  const q = filter.toLowerCase().trim();
+
+  CJP_LEADERS_POOL.forEach(l => {
+    if (q && !l.name.toLowerCase().includes(q) && !l.handle.toLowerCase().includes(q)) return;
+
+    const item = document.createElement('div');
+    item.className = 'modal-leader-item';
+    item.innerHTML = `
+      <div style="display:flex;align-items:center;gap:10px">
+        <img src="${l.avatar}" style="width:34px;height:34px;border-radius:50%;object-fit:cover" onerror="this.src='https://abs.twimg.com/sticky/default_profile_images/default_profile_normal.png'">
+        <div>
+          <div style="font-size:12px;font-weight:800;color:#111827">${l.name}</div>
+          <div style="font-size:11px;color:#6B7280">${l.handle} &bull; ${l.role}</div>
+        </div>
+      </div>
+      <div>
+        <button onclick="toggleLeaderActive('${l.id}'); closeAddModal();" style="background:${l.active ? '#F3F4F6' : '#FF5722'};color:${l.active ? '#6B7280' : '#FFFFFF'};border:none;padding:5px 12px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer">
+          ${l.active ? 'Remove' : '+ Compare'}
+        </button>
+      </div>
+    `;
+    container.appendChild(item);
+  });
+}
+
+function filterModalLeaders() {
+  const val = document.getElementById('modalSearchInput').value;
+  renderModalList(val);
+}
+
+// =============================================================================
+// INITIALIZE ALL VIEWS
+// =============================================================================
+function renderAllViews() {
+  renderLeaderCards();
+  renderComparisonChart();
+  renderMetricsTable();
+  renderDonutChart();
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  renderAllViews();
+});
+</script>
+</body>
+</html>

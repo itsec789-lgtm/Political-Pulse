@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Leader Comparison — Executive Presentation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Rajdhani:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background: #0B0F19;
+    color: #F8FAFC;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    overflow-x: hidden;
+  }
+
+  /* TOP PRESENTATION BAR */
+  .ppt-topbar {
+    padding: 18px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    background: rgba(11, 15, 25, 0.8);
+    backdrop-filter: blur(10px);
+  }
+  .ppt-logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .ppt-badge {
+    background: linear-gradient(135deg, #FF5722 0%, #FF8A65 100%);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 800;
+    padding: 4px 10px;
+    border-radius: 6px;
+    letter-spacing: 0.5px;
+  }
+  .ppt-project-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: #94A3B8;
+  }
+  .ppt-counter {
+    font-size: 13px;
+    font-weight: 700;
+    color: #64748B;
+    font-family: 'Rajdhani', sans-serif;
+    letter-spacing: 1px;
+  }
+
+  /* SLIDE CONTAINER */
+  .slide-container {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 60px;
+    position: relative;
+  }
+
+  .slide {
+    display: none;
+    width: 100%;
+    max-width: 1080px;
+    animation: fadeIn 0.3s ease;
+  }
+  .slide.active {
+    display: block;
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* SLIDE TYPOGRAPHY */
+  .slide-tag {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: #FF5722;
+    margin-bottom: 12px;
+  }
+  .slide-title {
+    font-size: 38px;
+    font-weight: 800;
+    color: #FFFFFF;
+    margin-bottom: 14px;
+    line-height: 1.2;
+    letter-spacing: -0.5px;
+  }
+  .slide-subtitle {
+    font-size: 16px;
+    color: #94A3B8;
+    margin-bottom: 36px;
+    line-height: 1.6;
+    max-width: 800px;
+  }
+
+  /* CARDS GRID (LESS CROWDED, POINT TO POINT) */
+  .points-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+  }
+  .point-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    padding: 24px 28px;
+    transition: all 0.25s ease;
+    position: relative;
+    overflow: hidden;
+  }
+  .point-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 3px;
+    height: 100%;
+    background: #FF5722;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .point-card:hover {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 87, 34, 0.4);
+    transform: translateY(-2px);
+  }
+  .point-card:hover::before {
+    opacity: 1;
+  }
+  .card-num {
+    font-size: 12px;
+    font-weight: 800;
+    color: #FF5722;
+    margin-bottom: 10px;
+    font-family: 'Rajdhani', sans-serif;
+  }
+  .card-head {
+    font-size: 18px;
+    font-weight: 800;
+    color: #FFFFFF;
+    margin-bottom: 8px;
+  }
+  .card-desc {
+    font-size: 13px;
+    color: #94A3B8;
+    line-height: 1.6;
+  }
+
+  /* TITLE SLIDE SPECIAL */
+  .title-slide-box {
+    text-align: center;
+    max-width: 840px;
+    margin: 0 auto;
+  }
+  .title-pill {
+    background: rgba(255, 87, 34, 0.15);
+    border: 1px solid rgba(255, 87, 34, 0.4);
+    color: #FF7043;
+    font-size: 12px;
+    font-weight: 800;
+    padding: 6px 16px;
+    border-radius: 20px;
+    display: inline-block;
+    margin-bottom: 24px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .title-hero {
+    font-size: 54px;
+    font-weight: 800;
+    letter-spacing: -1px;
+    line-height: 1.15;
+    background: linear-gradient(135deg, #FFFFFF 40%, #CBD5E1 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 20px;
+  }
+  .title-subtext {
+    font-size: 18px;
+    color: #94A3B8;
+    line-height: 1.6;
+    margin-bottom: 36px;
+  }
+  .title-meta {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    font-size: 13px;
+    color: #64748B;
+  }
+  .title-meta span {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  /* BOTTOM CONTROLS */
+  .ppt-bottombar {
+    padding: 20px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-top: 1px solid rgba(255,255,255,0.08);
+    background: rgba(11, 15, 25, 0.8);
+    backdrop-filter: blur(10px);
+  }
+  .nav-btn {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.12);
+    color: #F8FAFC;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 8px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .nav-btn:hover {
+    background: #FF5722;
+    border-color: #FF5722;
+  }
+  .nav-dots {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .nav-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.2);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .nav-dot.active {
+    width: 24px;
+    border-radius: 10px;
+    background: #FF5722;
+  }
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<header class="ppt-topbar">
+  <div class="ppt-logo">
+    <span class="ppt-badge">FEATURE PRESENTATION</span>
+    <span class="ppt-project-title">India Political Pulse · Narrative Intelligence</span>
+  </div>
+  <div class="ppt-counter" id="slideCounter">SLIDE 1 / 5</div>
+</header>
+
+<!-- SLIDES CONTAINER -->
+<main class="slide-container">
+
+  <!-- SLIDE 1: TITLE SLIDE -->
+  <section class="slide active" id="slide-1">
+    <div class="title-slide-box">
+      <div class="title-pill">New Capability Brief</div>
+      <h1 class="title-hero">Leader Comparison Feature</h1>
+      <p class="title-subtext">
+        Group ke top leaders ki side-by-side performance, reach aur 8-sentiment breakdown ko ek single screen par monitor karne ka automated intelligence tool.
+      </p>
+      <div class="title-meta">
+        <span>📍 <strong>Module:</strong> Narrative Groups</span>
+        <span>⚡ <strong>Source:</strong> Live MongoDB (2.81M Tweets)</span>
+        <span>🛡️ <strong>Impact:</strong> Zero Tab Collision</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 2: THE NEED & CORE PROBLEM -->
+  <section class="slide" id="slide-2">
+    <span class="slide-tag">01 · Why We Built This</span>
+    <h2 class="slide-title">Kyun Zaroorat Padi? (The Core Problem)</h2>
+    <p class="slide-subtitle">Pehle Narrative Groups me sirf group-level total numbers aate the. Individual leaders ka stance dekhna mushkil tha.</p>
+
+    <div class="points-grid">
+      <div class="point-card">
+        <div class="card-num">PROBLEM 01</div>
+        <div class="card-head">No Side-by-Side View</div>
+        <div class="card-desc">Agar dekhna ho ki CJP ya Creators Hub me kaun sa leader lead kar raha hai, to har leader ka page alag-alag kholna padta tha.</div>
+      </div>
+      <div class="point-card">
+        <div class="card-num">PROBLEM 02</div>
+        <div class="card-head">Blind Sentiment Stance</div>
+        <div class="card-desc">Ye pata nahi chalta tha ki Anti-Govt ya Pro-BJP narrative me kis leader ka sabse bada haath hai aur kiski reach zyada hai.</div>
+      </div>
+      <div class="point-card">
+        <div class="card-num">THE SOLUTION</div>
+        <div class="card-head">1-Click Leader Comparison</div>
+        <div class="card-desc">Sub-tab click karte hi group ke sabhi key leaders ki trajectory, volume, views aur sentiment breakdown ek screen par aa jaata hai.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 3: WHAT THE FEATURE DOES -->
+  <section class="slide" id="slide-3">
+    <span class="slide-tag">02 · What It Does</span>
+    <h2 class="slide-title">Feature Kya Karta Hai? (Point to Point)</h2>
+    <p class="slide-subtitle">Screen par aate hi 4 major analytical insights clear ho jaate hain:</p>
+
+    <div class="points-grid">
+      <div class="point-card">
+        <div class="card-num">KEY CAPABILITY 01</div>
+        <div class="card-head">Multi-Line Trajectory Graph</div>
+        <div class="card-desc">Har leader ka timeline curve ek sath chalta hai. Peak point par us leader ka circular photo badge dikhta hai (bina overlap ke).</div>
+      </div>
+      <div class="point-card">
+        <div class="card-num">KEY CAPABILITY 02</div>
+        <div class="card-head">8 Sentiments Filter Dropdown</div>
+        <div class="card-desc">Anti-Govt, Anti-BJP, Pro-Govt, Positive, Neutral jaise 8 sentiments me se jo select karo, poora graph usi sentiment par switch ho jaata hai.</div>
+      </div>
+      <div class="point-card">
+        <div class="card-num">KEY CAPABILITY 03</div>
+        <div class="card-head">Contribution Share (Donut)</div>
+        <div class="card-desc">Group ke total output me kis leader ka kitna % share hai (e.g. Leader A: 38%, Leader B: 31%) wo donut chart se instantly dikhta hai.</div>
+      </div>
+      <div class="point-card">
+        <div class="card-num">KEY CAPABILITY 04</div>
+        <div class="card-head">Detailed Leader Metrics Table</div>
+        <div class="card-desc">Har leader ke exact Tweets, Likes, Reposts, Views aur Engagement Rate (ER %) ka clear comparative tabular record milta hai.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 4: HOW IT WORKS (USER FLOW) -->
+  <section class="slide" id="slide-4">
+    <span class="slide-tag">03 · User Workflow</span>
+    <h2 class="slide-title">Ye Kaise Work Karta Hai? (Simple 4 Steps)</h2>
+    <p class="slide-subtitle">Manager ya analyst ke liye workflow extremely simple aur fast hai:</p>
+
+    <div class="points-grid">
+      <div class="point-card">
+        <div class="card-num">STEP 01</div>
+        <div class="card-head">Select Any Group</div>
+        <div class="card-desc">Narrative Groups me jakar koi bhi group chunein (jaise Cockroach Janta Party, Creators Hub, Media).</div>
+      </div>
+      <div class="point-card">
+        <div class="card-num">STEP 02</div>
+        <div class="card-head">Click "Leader Comparison"</div>
+        <div class="card-desc">Overview ke right side me "Leader Comparison" button dabayein — comparative dashboard instantly load hota hai.</div>
+      </div>
+      <div class="point-card">
+        <div class="card-num">STEP 03</div>
+        <div class="card-head">Apply Sentiment &amp; Metric</div>
+        <div class="card-desc">Dropdown se Sentiment chunein (e.g. Anti-Govt) aur Metric pill dabayein (Tweets / Likes / Reposts / Views).</div>
+      </div>
+      <div class="point-card">
+        <div class="card-num">STEP 04</div>
+        <div class="card-head">Dynamic Graph &amp; Export</div>
+        <div class="card-desc">Graph dynamically recalculate ho jata hai, zero lag ke saath presentation-ready visual report saamne aa jaati hai.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 5: TECHNICAL SAFETY & SPEED -->
+  <section class="slide" id="slide-5">
+    <span class="slide-tag">04 · Technical Assurance</span>
+    <h2 class="slide-title">Speed, Data &amp; Safety (Manager Guarantees)</h2>
+    <p class="slide-subtitle">Management ke technical aur stability concerns ka 100% solution:</p>
+
+    <div class="points-grid">
+      <div class="point-card">
+        <div class="card-num">DATA ACCURACY</div>
+        <div class="card-head">100% Live MongoDB Data</div>
+        <div class="card-desc">Koi static ya hardcoded dummy data nahi hai. <code>pulse_master.master_tweets</code> (2.81M records) se direct aggregate hota hai.</div>
+      </div>
+      <div class="point-card">
+        <div class="card-num">PERFORMANCE</div>
+        <div class="card-head">⚡ 64.7ms Query Speed</div>
+        <div class="card-desc">Compound index <code>{ Handle: 1, "Tweet Date": -1, Sentiment: 1 }</code> ki wajah se instant load hota hai, server par zero load hai.</div>
+      </div>
+      <div class="point-card">
+        <div class="card-num">SAFETY ISOLATION</div>
+        <div class="card-head">Zero Production Impact</div>
+        <div class="card-desc">Ye feature strictly Narrative Groups sub-tab me isolated hai. Top Leaders, CM/DCM ya Sentiment tab ko 1% bhi affect nahi karega.</div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- BOTTOM CONTROLS -->
+<footer class="ppt-bottombar">
+  <button class="nav-btn" id="prevBtn" onclick="prevSlide()">&larr; Previous</button>
+  <div class="nav-dots" id="dotsContainer">
+    <div class="nav-dot active" onclick="goToSlide(0)"></div>
+    <div class="nav-dot" onclick="goToSlide(1)"></div>
+    <div class="nav-dot" onclick="goToSlide(2)"></div>
+    <div class="nav-dot" onclick="goToSlide(3)"></div>
+    <div class="nav-dot" onclick="goToSlide(4)"></div>
+  </div>
+  <button class="nav-btn" id="nextBtn" onclick="nextSlide()">Next &rarr;</button>
+</footer>
+
+<script>
+  let currentSlide = 0;
+  const totalSlides = 5;
+  const slides = document.querySelectorAll('.slide');
+  const dots = document.querySelectorAll('.nav-dot');
+  const counter = document.getElementById('slideCounter');
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+
+  function updateSlide() {
+    slides.forEach((s, idx) => s.classList.toggle('active', idx === currentSlide));
+    dots.forEach((d, idx) => d.classList.toggle('active', idx === currentSlide));
+    counter.textContent = `SLIDE ${currentSlide + 1} / ${totalSlides}`;
+    prevBtn.style.opacity = currentSlide === 0 ? '0.4' : '1';
+    nextBtn.textContent = currentSlide === totalSlides - 1 ? 'Finish' : 'Next →';
+  }
+
+  function nextSlide() {
+    if (currentSlide < totalSlides - 1) {
+      currentSlide++;
+      updateSlide();
+    }
+  }
+
+  function prevSlide() {
+    if (currentSlide > 0) {
+      currentSlide--;
+      updateSlide();
+    }
+  }
+
+  function goToSlide(n) {
+    currentSlide = n;
+    updateSlide();
+  }
+
+  // Keyboard navigation (← and →)
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight' || e.key === ' ') nextSlide();
+    if (e.key === 'ArrowLeft') prevSlide();
+  });
+</script>
+</body>
+</html>

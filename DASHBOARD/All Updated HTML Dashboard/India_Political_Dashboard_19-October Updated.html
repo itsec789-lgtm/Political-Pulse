@@ -275,6 +275,32 @@ tr:hover td{background:#fdfcfa}
 .sent-badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:9px;font-weight:700}
 .sb-pos{background:#C8E6C9;color:#1B5E20}.sb-neu{background:#FFF9C4;color:#7A5F00}.sb-neg{background:#FFCDD2;color:#B71C1C}
 .nv{font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700}
+/* CM/DCM Profile Modal - View Analysis Button */
+.cm-pf-analysis-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: #FFF3E0;
+  color: #E65100;
+  border: 1px solid #FFCC80;
+  padding: 3px 9px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  line-height: 1.3;
+}
+.cm-pf-analysis-btn:hover {
+  background: #E65100;
+  color: #FFFFFF;
+  border-color: #E65100;
+  box-shadow: 0 2px 6px rgba(230,81,0,0.25);
+  transform: translateY(-1px);
+}
+.cm-pf-analysis-btn svg {
+  display: block;
+}
 .party-chip{display:inline-block;padding:2px 8px;border-radius:20px;font-size:9px;font-weight:700}
 .wrap-cell{white-space:normal;max-width:130px;line-height:1.3;word-break:break-word}
 .handle-cell{white-space:normal;max-width:140px;line-height:1.4;word-break:break-word}
@@ -1020,6 +1046,544 @@ svg#indiaMap{width:100%;height:100%;max-width:100%;max-height:100%;display:block
 .ng-la-tweet-av{width:38px;height:38px;border-radius:50%;object-fit:cover;border:1.5px solid #FFF;box-shadow:0 1px 4px rgba(0,0,0,0.08)}
 .ng-la-recent-item{padding:9px 12px;background:#FAFAFA;border:1px solid #ECEFF1;border-radius:8px;transition:background .15s}
 .ng-la-recent-item:hover{background:#FFF7ED;border-color:#FED7AA}
+
+
+/* ====== NARRATIVE GROUPS: LEADER COMPARISON STYLES ====== */
+.ng-comp-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.ng-comp-title-block h3 {
+  font-size: 18px;
+  font-weight: 800;
+  color: #111827;
+  font-family: 'Rajdhani', sans-serif;
+  letter-spacing: 0.3px;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.ng-comp-subtitle {
+  font-size: 12px;
+  color: #6B7280;
+  margin-top: 2px;
+}
+.ng-comp-controls-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.ng-comp-date-select, .ng-comp-sentiment-select {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #FFFFFF;
+  border: 1.5px solid #E5E7EB;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #374151;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  transition: all 0.2s ease;
+}
+.ng-comp-sentiment-select:hover {
+  border-color: #6A1B9A;
+  background: #FAF5FF;
+}
+.ng-comp-sentiment-label {
+  font-size: 11px;
+  font-weight: 800;
+  color: #6B7280;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+.ng-comp-date-select select, .ng-comp-sentiment-select select {
+  border: none;
+  background: transparent;
+  font-size: 12px;
+  font-weight: 700;
+  color: #1F2937;
+  outline: none;
+  cursor: pointer;
+}
+.ng-comp-metric-pills {
+  display: flex;
+  background: #FFFFFF;
+  border: 1.5px solid #E5E7EB;
+  border-radius: 8px;
+  padding: 3px;
+  gap: 2px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+}
+.ng-comp-pill {
+  padding: 5px 12px;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  font-size: 11px;
+  font-weight: 700;
+  color: #6B7280;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.ng-comp-pill:hover { color: #111827; }
+.ng-comp-pill.active {
+  background: #FF5722;
+  color: #FFFFFF;
+  box-shadow: 0 2px 6px rgba(255, 87, 34, 0.3);
+}
+
+/* LEADER SELECTOR CARDS */
+.ng-leader-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  margin-bottom: 18px;
+}
+.ng-leader-card {
+  background: #FFFFFF;
+  border: 1.5px solid #E5E7EB;
+  border-radius: 12px;
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+}
+.ng-leader-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  border-color: #CBD5E1;
+}
+.ng-leader-card.checked {
+  border-color: var(--accent-color, #FF5722);
+  background: #FFFFFF;
+  box-shadow: 0 4px 14px -2px rgba(0, 0, 0, 0.06), 0 0 0 1px var(--accent-color, #FF5722);
+}
+.ng-leader-card.unchecked {
+  opacity: 0.6;
+  background: #FAFAFA;
+}
+.ng-card-chk {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  border: 1.5px solid #CBD5E1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+}
+.ng-leader-card.checked .ng-card-chk {
+  background: var(--accent-color, #FF5722);
+  border-color: var(--accent-color, #FF5722);
+}
+.ng-card-chk svg {
+  display: none;
+  width: 10px;
+  height: 10px;
+  stroke: #FFFFFF;
+  stroke-width: 3;
+}
+.ng-leader-card.checked .ng-card-chk svg {
+  display: block;
+}
+.ng-card-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #FFFFFF;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  flex-shrink: 0;
+  margin-left: 10px;
+}
+.ng-card-body {
+  flex: 1;
+  min-width: 0;
+}
+.ng-card-name {
+  font-size: 13px;
+  font-weight: 800;
+  color: #111827;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ng-card-handle {
+  font-size: 11px;
+  color: #6B7280;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ng-card-metric-val {
+  font-size: 12px;
+  font-weight: 800;
+  color: #111827;
+  font-family: 'Rajdhani', sans-serif;
+  margin-top: 4px;
+}
+
+/* CHART CARD */
+.ng-chart-card {
+  background: #FFFFFF;
+  border: 1.5px solid #E5E7EB;
+  border-radius: 14px;
+  padding: 18px 22px;
+  margin-bottom: 18px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  position: relative;
+}
+.ng-chart-top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.ng-chart-title-area {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.ng-chart-main-title {
+  font-size: 15px;
+  font-weight: 800;
+  color: #111827;
+}
+.ng-chart-legend-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.ng-chart-leg-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #4B5563;
+  cursor: pointer;
+}
+.ng-leg-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+.ng-chart-freq-select {
+  border: 1px solid #E5E7EB;
+  border-radius: 6px;
+  padding: 3px 8px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #4B5563;
+  background: #F9FAFB;
+  outline: none;
+  cursor: pointer;
+}
+.ng-chart-container {
+  position: relative;
+  height: 310px;
+  width: 100%;
+}
+
+/* CUSTOM POPUP TOOLTIP */
+.ng-custom-tooltip {
+  position: absolute;
+  background: #FFFFFF;
+  border: 1px solid #E5E7EB;
+  border-radius: 12px;
+  padding: 12px 14px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15);
+  pointer-events: none;
+  font-size: 11px;
+  z-index: 100;
+  min-width: 160px;
+  display: none;
+}
+
+/* BOTTOM COMPARISON GRID */
+.ng-bottom-comp-grid {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr;
+  gap: 18px;
+}
+@media (max-width: 1024px) {
+  .ng-bottom-comp-grid { grid-template-columns: 1fr; }
+}
+.ng-comp-table-card, .ng-comp-donut-card {
+  background: #FFFFFF;
+  border: 1.5px solid #E5E7EB;
+  border-radius: 14px;
+  padding: 18px 20px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+}
+.ng-comp-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+.ng-comp-table th {
+  padding: 10px 12px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #6B7280;
+  border-bottom: 1px solid #E5E7EB;
+  background: #F9FAFB;
+}
+.ng-comp-table th:first-child { border-radius: 8px 0 0 8px; }
+.ng-comp-table th:last-child { border-radius: 0 8px 8px 0; text-align: right; }
+.ng-comp-table td {
+  padding: 12px;
+  font-size: 12px;
+  border-bottom: 1px solid #F3F4F6;
+  vertical-align: middle;
+}
+.ng-tbl-leader-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.ng-tbl-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1.5px solid #E5E7EB;
+}
+.ng-tbl-name {
+  font-weight: 700;
+  color: #111827;
+  font-size: 12px;
+}
+.ng-tbl-handle {
+  font-size: 10px;
+  color: #9CA3AF;
+}
+.ng-metric-num {
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 800;
+  font-size: 13px;
+  color: #374151;
+}
+.ng-er-cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: flex-end;
+}
+.ng-er-pct {
+  font-weight: 800;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 12px;
+  color: #111827;
+}
+.ng-er-bar-bg {
+  width: 50px;
+  height: 6px;
+  background: #F3F4F6;
+  border-radius: 3px;
+  overflow: hidden;
+}
+.ng-er-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+}
+.ng-donut-wrapper {
+  position: relative;
+  height: 220px;
+  margin: 10px 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.ng-donut-center {
+  position: absolute;
+  text-align: center;
+  pointer-events: none;
+}
+.ng-donut-val {
+  font-size: 22px;
+  font-weight: 800;
+  font-family: 'Rajdhani', sans-serif;
+  color: #111827;
+}
+.ng-donut-lbl {
+  font-size: 11px;
+  color: #6B7280;
+  font-weight: 600;
+}
+.ng-donut-leg-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid #F3F4F6;
+}
+.ng-donut-leg-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+}
+
+
+
+/* ADD LEADER CARD */
+.ng-add-leader-card {
+  border: 1.5px dashed #CBD5E1;
+  background: #FAFAFA;
+  border-radius: 12px;
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-height: 68px;
+}
+.ng-add-leader-card:hover {
+  background: #FFFFFF;
+  border-color: #FF5722;
+  box-shadow: 0 4px 12px rgba(255, 87, 34, 0.12);
+  transform: translateY(-2px);
+}
+.ng-add-icon-circle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #F3F4F6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6B7280;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+.ng-add-leader-card:hover .ng-add-icon-circle {
+  background: #FFF3E0;
+  color: #FF5722;
+}
+.ng-add-text-title {
+  font-size: 13px;
+  font-weight: 800;
+  color: #1F2937;
+  font-family: 'Rajdhani', sans-serif;
+  letter-spacing: 0.3px;
+}
+.ng-add-text-sub {
+  font-size: 10px;
+  color: #9CA3AF;
+  margin-top: 1px;
+}
+
+/* ADD LEADER MODAL */
+.ng-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(4px);
+  z-index: 4000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.ng-modal-overlay.active { display: flex; }
+.ng-modal-box {
+  background: #FFFFFF;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 520px;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.25);
+  overflow: hidden;
+  animation: ng-modal-in 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+@keyframes ng-modal-in {
+  from { opacity: 0; transform: scale(0.96) translateY(10px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+.ng-modal-head {
+  padding: 16px 20px;
+  border-bottom: 1px solid #E5E7EB;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.ng-modal-title { font-size: 16px; font-weight: 800; color: #111827; font-family: 'Rajdhani', sans-serif; }
+.ng-modal-close {
+  background: transparent;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #9CA3AF;
+  line-height: 1;
+}
+.ng-modal-close:hover { color: #111827; }
+.ng-modal-search {
+  padding: 12px 20px;
+  border-bottom: 1px solid #F3F4F6;
+  background: #FAFAFA;
+}
+.ng-modal-search input {
+  width: 100%;
+  padding: 9px 14px;
+  border: 1.5px solid #E5E7EB;
+  border-radius: 8px;
+  font-size: 12px;
+  font-family: inherit;
+  outline: none;
+  box-sizing: border-box;
+}
+.ng-modal-search input:focus {
+  border-color: #FF5722;
+  background: #FFFFFF;
+}
+.ng-modal-list {
+  padding: 10px 16px;
+  overflow-y: auto;
+  max-height: 380px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.ng-modal-leader-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid #F3F4F6;
+  transition: all 0.15s;
+}
+.ng-modal-leader-item:hover {
+  background: #F9FAFB;
+  border-color: #E5E7EB;
+}
 
 </style>
 
@@ -2405,7 +2969,161 @@ window.sentCardsHTML = function (S, suffix) {
         </div>
         <div class="ng-members-row" id="ngMembersRow"></div>
       </div>
-    </div>
+    
+    <div class="ng-subpanel" id="ngSubPanel-leaders" style="display:none">
+      
+      <!-- Top Header & Controls Row -->
+      <div class="ng-comp-header-row">
+        <div class="ng-comp-title-block">
+          <h3 id="ngCompTitle">Leader Comparison &ndash; CJP</h3>
+          <div class="ng-comp-subtitle" id="ngCompSubtitle">Compare engagement and activity of key leaders within Cockroach Janta Party (CJP)</div>
+        </div>
+
+        <div class="ng-comp-controls-row">
+          <!-- Date Filter Dropdown -->
+          <div class="ng-comp-date-select">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#FF5722" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            <select id="ngCompDateSelect" onchange="onNgCompDateChange(this.value)">
+              <option value="30" selected>Last 30 Days</option>
+              <option value="14">Last 14 Days</option>
+              <option value="7">Last 7 Days</option>
+              <option value="all">Full Range (Apr - Oct 2026)</option>
+            </select>
+          </div>
+
+          <!-- Sentiment Filter Dropdown (8 Sentiments) -->
+          <div class="ng-comp-sentiment-select" id="ngCompSentimentWrapper">
+            <span class="ng-comp-sentiment-label">
+              <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+              Sentiment:
+            </span>
+            <select id="ngCompSentimentSelect" onchange="onNgCompSentimentChange(this.value)">
+              <option value="all" selected>All Sentiments (Combined)</option>
+              <option value="Anti-Govt">🔴 Anti-Govt</option>
+              <option value="Anti-BJP">🟣 Anti-BJP</option>
+              <option value="Pro-Govt">🔵 Pro-Govt</option>
+              <option value="Pro-BJP">🟠 Pro-BJP</option>
+              <option value="Positive">🟢 Positive</option>
+              <option value="Negative">🔴 Negative</option>
+              <option value="Neutral">🟡 Neutral</option>
+              <option value="No-Sentiment">⚪ No-Sentiment</option>
+            </select>
+          </div>
+
+          <!-- Metric Selector Pills -->
+          <div class="ng-comp-metric-pills">
+            <button class="ng-comp-pill active" data-metric="tweets" onclick="switchNgCompMetric('tweets')">Tweets</button>
+            <button class="ng-comp-pill" data-metric="likes" onclick="switchNgCompMetric('likes')">Likes</button>
+            <button class="ng-comp-pill" data-metric="reposts" onclick="switchNgCompMetric('reposts')">Reposts</button>
+            <button class="ng-comp-pill" data-metric="views" onclick="switchNgCompMetric('views')">Views</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Leader Selection Row (Cards + Add Leader) -->
+      <div class="ng-leader-cards-grid" id="ngCompLeaderCards">
+        <!-- Rendered dynamically -->
+      </div>
+
+      <!-- Main Chart Card: Engagement Comparison -->
+      <div class="ng-chart-card">
+        <div class="ng-chart-top-bar">
+          <div class="ng-chart-title-area">
+            <span class="ng-chart-main-title" id="ngCompChartMainTitle">Engagement Comparison</span>
+            <div id="ngCompSentimentBadge" style="display:none;align-items:center;gap:6px;margin-left:8px">
+              <span id="ngCompSentimentBadgeText" style="font-size:11px;font-weight:700;padding:3px 8px;border-radius:6px"></span>
+              <button onclick="resetNgCompSentiment()" style="background:#F1F5F9;border:1px solid #CBD5E1;border-radius:4px;font-size:10px;font-weight:700;color:#64748B;cursor:pointer;padding:2px 6px;line-height:1.2" title="Reset to All Sentiments">&times; Reset</button>
+            </div>
+          </div>
+
+          <div class="ng-chart-legend-row" id="ngCompLegendRow">
+            <!-- Dynamically populated legend dots & granularity -->
+          </div>
+        </div>
+
+        <div class="ng-chart-container">
+          <canvas id="ngCompMultiLineChart"></canvas>
+          <div class="ng-custom-tooltip" id="ngCompTooltip">
+            <div style="font-size:10px;color:#9CA3AF;font-weight:600;margin-bottom:6px" id="ngCtDate">Oct 11, 2026</div>
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid #F3F4F6">
+              <img id="ngCtAvatar" src="" alt="" style="width:22px;height:22px;border-radius:50%;object-fit:cover">
+              <span id="ngCtName" style="font-size:12px;font-weight:800;color:#111827">Leader</span>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:4px">
+              <div style="display:flex;justify-content:space-between;gap:12px"><span style="color:#6B7280">&#128394; Tweets</span><strong id="ngCtValTw" style="font-family:'Rajdhani',sans-serif">0</strong></div>
+              <div style="display:flex;justify-content:space-between;gap:12px"><span style="color:#6B7280">&#10084;&#65039; Likes</span><strong id="ngCtValLk" style="font-family:'Rajdhani',sans-serif">0</strong></div>
+              <div style="display:flex;justify-content:space-between;gap:12px"><span style="color:#6B7280">&#128257; Reposts</span><strong id="ngCtValRt" style="font-family:'Rajdhani',sans-serif">0</strong></div>
+              <div style="display:flex;justify-content:space-between;gap:12px"><span style="color:#6B7280">&#128202; Views</span><strong id="ngCtValVw" style="font-family:'Rajdhani',sans-serif">0</strong></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom 2-Column Comparison Grid -->
+      <div class="ng-bottom-comp-grid">
+        <!-- Left: Leader-wise Metrics Table -->
+        <div class="ng-comp-table-card">
+          <div style="margin-bottom:14px">
+            <div class="ng-card-title" id="ngCompTableTitle">Leader-wise Metrics (Last 30 Days)</div>
+          </div>
+          <div style="overflow-x:auto">
+            <table class="ng-comp-table">
+              <thead>
+                <tr>
+                  <th>Leader &darr;</th>
+                  <th>&#128394; Tweets</th>
+                  <th>&#10084;&#65039; Likes</th>
+                  <th>&#128257; Reposts</th>
+                  <th>&#128202; Views</th>
+                  <th style="text-align:right">Engagement Rate</th>
+                </tr>
+              </thead>
+              <tbody id="ngCompTableBody">
+                <!-- Dynamically rendered -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Right: Total Contribution Share Donut -->
+        <div class="ng-comp-donut-card">
+          <div style="margin-bottom:14px">
+            <div class="ng-card-title">Total Contribution Share</div>
+          </div>
+          <div class="ng-donut-wrapper">
+            <canvas id="ngCompDonutChart"></canvas>
+            <div class="ng-donut-center">
+              <div class="ng-donut-val" id="ngCompDonutCenterVal">0</div>
+              <div class="ng-donut-lbl" id="ngCompDonutCenterLbl">Total Tweets</div>
+            </div>
+          </div>
+          <div class="ng-donut-leg-list" id="ngCompDonutLegend">
+            <!-- Dynamically rendered -->
+          </div>
+        </div>
+      </div>
+
+    
+
+      <!-- ADD LEADER MODAL -->
+      <div class="ng-modal-overlay" id="ngAddLeaderModal" onclick="if(event.target===this)closeNgAddLeaderModal()">
+        <div class="ng-modal-box">
+          <div class="ng-modal-head">
+            <div class="ng-modal-title" id="ngModalGroupTitle">Add Leader to Comparison</div>
+            <button class="ng-modal-close" onclick="closeNgAddLeaderModal()">&times;</button>
+          </div>
+          <div class="ng-modal-search">
+            <input type="text" id="ngModalSearchInput" placeholder="Search leaders by name or @handle..." oninput="filterNgModalLeaders()">
+          </div>
+          <div class="ng-modal-list" id="ngModalLeaderList">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+      </div>
+
+</div>
+
+  </div>
 
   <!-- ========================================================================= -->
   <!-- VIEW 3: INDIVIDUAL LEADER DEEP-DIVE ANALYSIS VIEW (SCREENSHOT 1)          -->
@@ -4933,7 +5651,7 @@ window.openProfile=function(h){
     jmHTML='<div class="pf-sec">Career Journey</div><div class="pf-tl">'+jm.map(function(t){return '<div class="pf-tli"><div class="pf-yr">'+esc(String(t[0]))+'</div><div class="pf-ev">'+esc(t[1])+'</div></div>'}).join('')+'</div>';
   }
   var an='In Apr–Jul 2026, '+esc(nm)+' posted '+uf(s.tw)+' tweets that drew '+uf(s.vw)+' views and '+uf(s.lk)+' likes (~'+uf(avg)+' views and '+uf(avgl)+' likes per post). The tone was '+nP+'% neutral, '+pP+'% positive and '+gP+'% negative — a broadly '+(gP<10?'favourable':(gP<20?'mixed':'contested'))+' reception.';
-  document.getElementById('pfCard').innerHTML='<button class="pf-x" onclick="closeProfile()">✕</button>'+'<div class="pf-head"><div class="pf-av" style="background:'+col+';position:relative;overflow:hidden">'+ini(s.name)+photoImg(h)+'</div><div style="flex:1"><div class="pf-nm">'+esc(nm)+'</div><div class="pf-role" style="color:'+col+'">'+esc(role)+' — '+esc(s.state)+'</div><div class="pf-sub">@'+esc(h)+' · '+uf(s.followers)+' followers</div><div style="margin-top:6px"><span class="party-chip" style="background:'+col+'18;color:'+col+'">'+esc(shortP(s.party))+'</span></div></div></div>'+'<div class="pf-sec">Key Stats · Apr–Jul 2026</div><div class="pf-stats"><div class="pf-st o"><b>'+uf(s.followers)+'</b><span>Followers</span></div><div class="pf-st b"><b>'+uf(s.tw)+'</b><span>Tweets</span></div><div class="pf-st g"><b>'+uf(s.vw)+'</b><span>Total Views</span></div><div class="pf-st r"><b>'+uf(avg)+'</b><span>Avg Views/Post</span></div></div>'+standing+'<div class="pf-sec">X (Twitter) Engagement</div><div class="pf-kpis"><div class="pf-k"><b>'+uf(s.lk)+'</b><span>Likes</span></div><div class="pf-k"><b>'+uf(s.rt)+'</b><span>Retweets</span></div><div class="pf-k"><b>'+uf(avgl)+'</b><span>Avg Likes/Post</span></div><div class="pf-k"><b>'+s.tw+'</b><span>Posts Tracked</span></div></div>'+'<div class="pf-sec">About</div><div class="pf-bio">'+bio+'</div>'+hlHTML+'<div class="pf-sec">Personal Details</div><div class="pf-dgrid">'+detHTML+'</div>'+jmHTML+'<div class="pf-sec">Activity Analysis</div><div class="pf-an">'+an+'</div>';
+  document.getElementById('pfCard').innerHTML='<button class="pf-x" onclick="closeProfile()">✕</button>'+'<div class="pf-head"><div class="pf-av" style="background:'+col+';position:relative;overflow:hidden">'+ini(s.name)+photoImg(h)+'</div><div style="flex:1"><div class="pf-nm">'+esc(nm)+'</div><div class="pf-role" style="color:'+col+'">'+esc(role)+' — '+esc(s.state)+'</div><div class="pf-sub">@'+esc(h)+' · '+uf(s.followers)+' followers</div><div style="margin-top:6px;display:flex;align-items:center;gap:8px;flex-wrap:wrap"><span class="party-chip" style="background:'+col+'18;color:'+col+'">'+esc(shortP(s.party))+'</span><button class="cm-pf-analysis-btn" onclick="event.stopPropagation();haOpenHandle(\''+esc(h)+'\',\''+esc(nm)+'\')" title="View detailed handle analytics for @'+esc(h)+'"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M18 20V10M12 20V4M6 20v-6"/></svg> View Analysis &rarr;</button></div></div></div>'+'<div class="pf-sec">Key Stats · Apr–Jul 2026</div><div class="pf-stats"><div class="pf-st o"><b>'+uf(s.followers)+'</b><span>Followers</span></div><div class="pf-st b"><b>'+uf(s.tw)+'</b><span>Tweets</span></div><div class="pf-st g"><b>'+uf(s.vw)+'</b><span>Total Views</span></div><div class="pf-st r"><b>'+uf(avg)+'</b><span>Avg Views/Post</span></div></div>'+standing+'<div class="pf-sec">X (Twitter) Engagement</div><div class="pf-kpis"><div class="pf-k"><b>'+uf(s.lk)+'</b><span>Likes</span></div><div class="pf-k"><b>'+uf(s.rt)+'</b><span>Retweets</span></div><div class="pf-k"><b>'+uf(avgl)+'</b><span>Avg Likes/Post</span></div><div class="pf-k"><b>'+s.tw+'</b><span>Posts Tracked</span></div></div>'+'<div class="pf-sec">About</div><div class="pf-bio">'+bio+'</div>'+hlHTML+'<div class="pf-sec">Personal Details</div><div class="pf-dgrid">'+detHTML+'</div>'+jmHTML+'<div class="pf-sec">Activity Analysis</div><div class="pf-an">'+an+'</div>';
   var m=document.getElementById('profileModal');
   if(m)m.classList.add('show');
   scanPhotos();
@@ -7076,21 +7794,35 @@ setTimeout(hExec,600);
     });
   }
 
-  window.haLoadHandles = function () {
-    var sel = el('haSel'); if (!sel) return;
+  window.haLoadHandles = function (targetH) {
+    var sel = el('haSel'); if (!sel) return Promise.resolve();
     sel.innerHTML = '<option value="">Loading…</option>';
     var cat = (el('haCat') || {}).value || 'ALL';
     var q = ((el('haQ') || {}).value || '').trim();
-    return api('/api/ha/handles', { cat: cat, q: q }).then(function (list) {
-      LIST = list || [];
-      if (!LIST.length) { sel.innerHTML = '<option value="">No matches</option>'; return; }
-      sel.innerHTML = LIST.map(function (o) {
-        return '<option value="' + esc(o.h) + '">' + esc(o.name || o.h) + '  (@' + esc(o.h) + ')</option>';
-      }).join('');
-      var keep = LIST.some(function (o) { return o.h === CUR; });
-      sel.value = keep ? CUR : LIST[0].h;
-      window.haPickSel();
-    }).catch(function (e) {
+
+    function fetchAndPopulate(query) {
+      return api('/api/ha/handles', { cat: cat, q: query }).then(function (list) {
+        LIST = list || [];
+        if (!LIST.length && targetH && query !== targetH) {
+          return fetchAndPopulate(targetH);
+        }
+        if (!LIST.length) { sel.innerHTML = '<option value="">No matches</option>'; return; }
+        sel.innerHTML = LIST.map(function (o) {
+          return '<option value="' + esc(o.h) + '">' + esc(o.name || o.h) + '  (@' + esc(o.h) + ')</option>';
+        }).join('');
+        var want = (targetH || PENDING_HANDLE || CUR || '').toLowerCase();
+        var match = null;
+        if (want) {
+          match = LIST.find(function (o) { return (o.h || '').toLowerCase() === want; });
+        }
+        sel.value = match ? match.h : (LIST.some(function (o) { return o.h === CUR; }) ? CUR : LIST[0].h);
+        PENDING_HANDLE = null;
+        CUR = null;
+        window.haPickSel();
+      });
+    }
+
+    return fetchAndPopulate(q).catch(function (e) {
       sel.innerHTML = '<option value="">' + esc(e.message) + '</option>';
     });
   };
@@ -7414,12 +8146,54 @@ setTimeout(hExec,600);
   window.haNext = function () { OFFSET += PAGE; loadTweets(); };
 
   var booted = false;
-  function boot() {
-    if (booted) return; booted = true;
-    loadCats().then(window.haLoadHandles).catch(function (e) {
+  var PENDING_HANDLE = null;
+  function boot(targetH) {
+    if (targetH) PENDING_HANDLE = targetH;
+    if (booted) {
+      if (PENDING_HANDLE) {
+        var h = PENDING_HANDLE;
+        PENDING_HANDLE = null;
+        return window.haLoadHandles(h);
+      }
+      return Promise.resolve();
+    }
+    booted = true;
+    return loadCats().then(function () {
+      var h = PENDING_HANDLE;
+      PENDING_HANDLE = null;
+      return window.haLoadHandles(h);
+    }).catch(function (e) {
       var n = el('haNote'); if (n) { n.className = 'ha-note on'; n.textContent = e.message; }
     });
   }
+  window.haBootWithHandle = function (h, name) {
+    PENDING_HANDLE = h;
+    var qEl = el('haQ');
+    if (qEl) qEl.value = name || h;
+    var catEl = el('haCat');
+    if (catEl) catEl.value = 'ALL';
+    boot(h);
+  };
+  window.haOpenHandle = function (handle, name) {
+    if (!handle) return;
+    var cleanH = handle.replace(/^@/, '').trim();
+    if (typeof window.closeProfile === 'function') {
+      window.closeProfile();
+    }
+    if (typeof window.switchTab === 'function') {
+      window.switchTab('handle-analytics');
+    }
+    if (typeof window.haBootWithHandle === 'function') {
+      window.haBootWithHandle(cleanH, name);
+    } else if (typeof window.haLoadHandles === 'function') {
+      var qEl = document.getElementById('haQ');
+      if (qEl) qEl.value = name || cleanH;
+      var catEl = document.getElementById('haCat');
+      if (catEl) catEl.value = 'ALL';
+      window.haLoadHandles(cleanH);
+    }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
   var orig = window.switchTab;
   if (typeof orig === 'function') {
     window.switchTab = function (name) {
@@ -10237,6 +11011,16 @@ function openNarrativeGroup(id){
   var g = NARRATIVE_GROUPS_DATA.filter(function(x){ return x.id === id; })[0] || NARRATIVE_GROUPS_DATA[0];
   if(!g) return;
   _ngActiveGroup = g;
+  // Reset sub-tab navigation to Overview by default
+  var panelOverview = document.getElementById('ngSubPanel-overview');
+  var panelLeaders = document.getElementById('ngSubPanel-leaders');
+  if (panelOverview) panelOverview.style.display = 'block';
+  if (panelLeaders) panelLeaders.style.display = 'none';
+  var subtabs = document.querySelectorAll('#ngDetailView .ng-subtab');
+  subtabs.forEach(function (b) {
+    b.classList.toggle('active', b.getAttribute('data-sub') === 'overview');
+  });
+
 
   var dirView = document.getElementById('ngDirectoryView');
   var detView = document.getElementById('ngDetailView');
@@ -10311,12 +11095,26 @@ window.openNarrativeGroup = openNarrativeGroup;
 
 function closeNarrativeGroup(){
   _ngActiveGroup = null;
+  _ngCompData = null;
+  _ngCompCurrentGroupId = null;
+  _ngCompActiveHandles = [];
+
   var dirView = document.getElementById('ngDirectoryView');
   var detView = document.getElementById('ngDetailView');
   var laView = document.getElementById('ngLeaderAnalysisView');
   if(dirView) dirView.style.display = 'block';
   if(detView) detView.style.display = 'none';
   if(laView) laView.style.display = 'none';
+
+  // Reset sub-tabs to overview
+  var panelOverview = document.getElementById('ngSubPanel-overview');
+  var panelLeaders = document.getElementById('ngSubPanel-leaders');
+  if (panelOverview) panelOverview.style.display = 'block';
+  if (panelLeaders) panelLeaders.style.display = 'none';
+  var subtabs = document.querySelectorAll('#ngDetailView .ng-subtab');
+  subtabs.forEach(function (b) {
+    b.classList.toggle('active', b.getAttribute('data-sub') === 'overview');
+  });
 
   // Show the ALL GROUPS dropdown in directory list view
   var gw = document.getElementById('ngGroupFilterWrap');
@@ -10987,6 +11785,785 @@ function renderGroupMembersCards(members){
     '</div>';
   }).join('');
 }
+
+
+// =============================================================================
+// NARRATIVE GROUPS: LEADER COMPARISON CLIENT LOGIC
+// =============================================================================
+var _ngCompMetric = 'tweets';
+var _ngCompRange = '30';
+var _ngCompSentiment = 'all';
+var _ngCompGranularity = 'daily';
+var _ngCompChartInst = null;
+var _ngCompDonutInst = null;
+var _ngCompData = null;
+var _ngCompActiveHandles = [];
+var _ngCompCurrentGroupId = null;
+var _ngLeaderImgCache = {};
+
+var NG_SENTIMENT_META = {
+  "Anti-Govt": { bg: "#FCE7F3", text: "#9D174D", border: "#FBCFE8", color: "#AD1457", emoji: "🔴" },
+  "Anti-BJP": { bg: "#F3E8FF", text: "#6B21A8", border: "#E9D5FF", color: "#6A1B9A", emoji: "🟣" },
+  "Pro-Govt": { bg: "#EFF6FF", text: "#1E40AF", border: "#DBEAFE", color: "#1565C0", emoji: "🔵" },
+  "Pro-BJP": { bg: "#FFF7ED", text: "#9A3412", border: "#FFEDD5", color: "#E65100", emoji: "🟠" },
+  "Positive": { bg: "#ECFDF5", text: "#065F46", border: "#A7F3D0", color: "#2E7D32", emoji: "🟢" },
+  "Negative": { bg: "#FEF2F2", text: "#991B1B", border: "#FECACA", color: "#C62828", emoji: "🔴" },
+  "Neutral": { bg: "#FFFBEB", text: "#92400E", border: "#FDE68A", color: "#FF8F00", emoji: "🟡" },
+  "No-Sentiment": { bg: "#F1F5F9", text: "#475569", border: "#CBD5E1", color: "#78909C", emoji: "⚪" }
+};
+
+var NG_LEADER_COLORS = ['#FF5722', '#1E88E5', '#43A047', '#8E24AA', '#FB8C00', '#00ACC1', '#E53935', '#3949AB'];
+
+// Subtab Switcher
+function switchNarrativeSubTab(tab) {
+  var subtabs = document.querySelectorAll('#ngDetailView .ng-subtab');
+  subtabs.forEach(function (b) {
+    b.classList.toggle('active', b.getAttribute('data-sub') === tab);
+  });
+
+  var panelOverview = document.getElementById('ngSubPanel-overview');
+  var panelLeaders = document.getElementById('ngSubPanel-leaders');
+
+  if (tab === 'leaders') {
+    if (panelOverview) panelOverview.style.display = 'none';
+    if (panelLeaders) panelLeaders.style.display = 'block';
+    loadLeaderComparisonData();
+  } else {
+    if (panelOverview) panelOverview.style.display = 'block';
+    if (panelLeaders) panelLeaders.style.display = 'none';
+  }
+}
+window.switchNarrativeSubTab = switchNarrativeSubTab;
+
+function loadLeaderComparisonData() {
+  if (!_ngActiveGroup) return;
+  var grpId = _ngActiveGroup.id || 'cjp';
+  var grpName = _ngActiveGroup.name || 'Group';
+  var grpAcr = _ngActiveGroup.acronym || 'Group';
+
+  var isNewGroup = (_ngCompCurrentGroupId !== grpId);
+  _ngCompCurrentGroupId = grpId;
+
+  // If group has changed, reset filters and active handles
+  if (isNewGroup) {
+    _ngCompActiveHandles = [];
+    _ngCompSentiment = 'all';
+    _ngCompRange = '30';
+    var sentSel = document.getElementById('ngCompSentimentSelect');
+    if (sentSel) sentSel.value = 'all';
+    var dtSel = document.getElementById('ngCompDateSelect');
+    if (dtSel) dtSel.value = '30';
+    var badge = document.getElementById('ngCompSentimentBadge');
+    if (badge) badge.style.display = 'none';
+    var sentWrap = document.getElementById('ngCompSentimentWrapper');
+    if (sentWrap) { sentWrap.style.borderColor = '#E5E7EB'; sentWrap.style.background = '#FFFFFF'; }
+  }
+
+  var titleEl = document.getElementById('ngCompTitle');
+  if (titleEl) titleEl.textContent = 'Leader Comparison – ' + grpAcr;
+  var subEl = document.getElementById('ngCompSubtitle');
+  if (subEl) subEl.textContent = 'Compare engagement and activity of key leaders within ' + grpName;
+
+  var url = '/api/narrative-groups/comparison?group=' + encodeURIComponent(grpId) +
+    '&days=' + encodeURIComponent(_ngCompRange) +
+    '&sentiment=' + encodeURIComponent(_ngCompSentiment);
+
+  fetch(url)
+    .then(function (res) { return res.json(); })
+    .then(function (data) {
+      if (!data || !data.ok) {
+        console.warn('Leader comparison API error:', data && data.error);
+        return;
+      }
+      _ngCompData = data;
+
+      // Sort leaders descending by tweets
+      (data.leaders || []).sort(function (a, b) {
+        var sA = (_ngCompData.stats && _ngCompData.stats[String(a.handle || '').toLowerCase()]) || { tweets: 0 };
+        var sB = (_ngCompData.stats && _ngCompData.stats[String(b.handle || '').toLowerCase()]) || { tweets: 0 };
+        return (sB.tweets || 0) - (sA.tweets || 0);
+      });
+
+      (data.leaders || []).forEach(function (l, idx) {
+        l.color = l.color || NG_LEADER_COLORS[idx % NG_LEADER_COLORS.length];
+      });
+
+      // Default: top 3 leaders checked
+      if (!_ngCompActiveHandles || !_ngCompActiveHandles.length) {
+        _ngCompActiveHandles = (data.leaders || []).slice(0, 3).map(function (l) { return l.handle.toLowerCase(); });
+      }
+
+      renderLeaderComparisonViews();
+    })
+    .catch(function (err) {
+      console.error('Failed to load leader comparison data:', err);
+    });
+}
+window.loadLeaderComparisonData = loadLeaderComparisonData;
+
+function renderLeaderComparisonViews() {
+  if (!_ngCompData) return;
+  renderNgLeaderCards();
+  renderNgComparisonChart();
+  renderNgMetricsTable();
+  renderNgDonutChart();
+}
+window.renderLeaderComparisonViews = renderLeaderComparisonViews;
+
+function getNgLeaderImg(leader) {
+  var id = (leader.handle || '').toLowerCase();
+  if (_ngLeaderImgCache[id]) return _ngLeaderImgCache[id];
+  var img = new Image();
+  img.src = leader.avatar || ('/api/avatar/' + encodeURIComponent(leader.handle));
+  img.onload = function () {
+    if (_ngCompChartInst) _ngCompChartInst.draw();
+  };
+  _ngLeaderImgCache[id] = img;
+  return img;
+}
+
+// Custom plugin: 1 photo avatar per leader line with collision avoidance
+var ngLeaderAvatarPointsPlugin = {
+  id: 'ngLeaderAvatarPointsPlugin',
+  afterDatasetsDraw: function (chart) {
+    var ctx = chart.ctx;
+    var datasets = chart.data.datasets;
+    var assignedPoints = {};
+    var occupiedLocations = [];
+
+    datasets.forEach(function (dataset, dIdx) {
+      var meta = chart.getDatasetMeta(dIdx);
+      if (!meta.visible) return;
+      var pts = meta.data;
+      if (!pts || !pts.length) return;
+
+      var hasActivity = dataset.data.some(function (v) { return Number(v) > 0; });
+      if (!hasActivity) {
+        assignedPoints[dIdx] = -1;
+        return;
+      }
+
+      var sorted = dataset.data
+        .map(function (v, idx) { return { val: Number(v) || 0, idx: idx }; })
+        .sort(function (a, b) { return b.val - a.val; });
+
+      var chosenIdx = sorted[0].idx;
+      for (var k = 0; k < sorted.length; k++) {
+        var candidate = sorted[k];
+        var pt = pts[candidate.idx];
+        var collides = occupiedLocations.some(function (loc) {
+          var dx = loc.x - pt.x;
+          var dy = loc.y - pt.y;
+          return Math.sqrt(dx * dx + dy * dy) < 45;
+        });
+        if (!collides) {
+          chosenIdx = candidate.idx;
+          break;
+        }
+      }
+      assignedPoints[dIdx] = chosenIdx;
+      var finalPt = pts[chosenIdx];
+      occupiedLocations.push({ x: finalPt.x, y: finalPt.y });
+    });
+
+    datasets.forEach(function (dataset, dIdx) {
+      var meta = chart.getDatasetMeta(dIdx);
+      if (!meta.visible) return;
+      var leader = dataset.leaderRef;
+      if (!leader) return;
+      var pts = meta.data;
+      var avatarIdx = assignedPoints[dIdx];
+
+      pts.forEach(function (element, idx) {
+        if (idx === avatarIdx) return;
+        var x = element.x, y = element.y;
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(x, y, 3, 0, Math.PI * 2);
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fill();
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = leader.color;
+        ctx.stroke();
+        ctx.restore();
+      });
+    });
+
+    datasets.forEach(function (dataset, dIdx) {
+      var meta = chart.getDatasetMeta(dIdx);
+      if (!meta.visible) return;
+      var leader = dataset.leaderRef;
+      if (!leader) return;
+      var pts = meta.data;
+      var avatarIdx = assignedPoints[dIdx];
+      if (avatarIdx === undefined || avatarIdx === -1 || !pts[avatarIdx]) return;
+
+      var element = pts[avatarIdx];
+      var x = element.x, y = element.y;
+      var val = dataset.data[avatarIdx];
+
+      var avatarSize = 26;
+      var radius = avatarSize / 2;
+
+      ctx.save();
+      ctx.shadowColor = 'rgba(15, 23, 42, 0.28)';
+      ctx.shadowBlur = 6;
+      ctx.shadowOffsetX = 0;
+      ctx.shadowOffsetY = 2;
+
+      ctx.beginPath();
+      ctx.arc(x, y, radius + 2.5, 0, Math.PI * 2);
+      ctx.fillStyle = '#FFFFFF';
+      ctx.fill();
+
+      ctx.shadowColor = 'transparent';
+      ctx.beginPath();
+      ctx.arc(x, y, radius + 1.2, 0, Math.PI * 2);
+      ctx.strokeStyle = leader.color;
+      ctx.lineWidth = 2.5;
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.arc(x, y, radius, 0, Math.PI * 2);
+      ctx.clip();
+
+      var img = getNgLeaderImg(leader);
+      if (img && img.complete && img.naturalWidth > 0) {
+        ctx.drawImage(img, x - radius, y - radius, avatarSize, avatarSize);
+      } else {
+        ctx.fillStyle = leader.color;
+        ctx.fill();
+        ctx.fillStyle = '#FFFFFF';
+        ctx.font = 'bold 10px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        var initials = (leader.name || 'L').split(' ').map(function (w) { return w[0]; }).join('').slice(0, 2);
+        ctx.fillText(initials, x, y);
+      }
+      ctx.restore();
+
+      ctx.save();
+      var firstName = (leader.name || 'Leader').split(' ')[0];
+      var tagText = firstName + ' (' + fmtNgNum(val) + ')';
+      ctx.font = 'bold 10px Plus Jakarta Sans, sans-serif';
+      var textW = ctx.measureText(tagText).width;
+      var pillW = textW + 12;
+      var pillH = 18;
+      var pillX = x - pillW / 2;
+      var pillY = y - radius - pillH - 3;
+
+      ctx.fillStyle = leader.color;
+      ctx.beginPath();
+      if (ctx.roundRect) {
+        ctx.roundRect(pillX, pillY, pillW, pillH, 6);
+      } else {
+        ctx.rect(pillX, pillY, pillW, pillH);
+      }
+      ctx.fill();
+
+      ctx.fillStyle = '#FFFFFF';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(tagText, x, pillY + pillH / 2);
+      ctx.restore();
+    });
+  }
+};
+
+// Render 4 Leader Cards (sorted highest to lowest tweets) + 5th Add Leader Card
+function renderNgLeaderCards() {
+  var container = document.getElementById('ngCompLeaderCards');
+  if (!container || !_ngCompData) return;
+  container.innerHTML = '';
+
+  // Sort leaders descending by tweets
+  var allLeaders = (_ngCompData.leaders || []).slice();
+  allLeaders.sort(function (a, b) {
+    var sA = (_ngCompData.stats && _ngCompData.stats[String(a.handle || '').toLowerCase()]) || { tweets: 0 };
+    var sB = (_ngCompData.stats && _ngCompData.stats[String(b.handle || '').toLowerCase()]) || { tweets: 0 };
+    return (sB.tweets || 0) - (sA.tweets || 0);
+  });
+
+  // Top 4 leaders by tweets
+  var displayLeaders = allLeaders.slice(0, 4);
+
+  // If user selected extra leaders beyond the top 4 via the modal, also show them
+  allLeaders.slice(4).forEach(function (l) {
+    var hKey = (l.handle || '').toLowerCase();
+    if (_ngCompActiveHandles.indexOf(hKey) >= 0 && displayLeaders.indexOf(l) === -1) {
+      displayLeaders.push(l);
+    }
+  });
+
+  displayLeaders.forEach(function (l) {
+    var hKey = (l.handle || '').toLowerCase();
+    var isChecked = _ngCompActiveHandles.indexOf(hKey) >= 0;
+    var stats = (_ngCompData.stats && _ngCompData.stats[hKey]) || { tweets: 0, likes: 0, reposts: 0, views: 0 };
+
+    var card = document.createElement('div');
+    card.className = 'ng-leader-card ' + (isChecked ? 'checked' : 'unchecked');
+    card.style.setProperty('--accent-color', l.color);
+    card.onclick = function () { toggleNgCompLeader(hKey); };
+
+    var sentLabel = _ngCompSentiment === 'all' ? _ngCompMetric : _ngCompSentiment;
+    var metricVal = fmtNgNum(stats[_ngCompMetric] || 0) + ' ' + sentLabel;
+    var av = l.avatar || ('/api/avatar/' + encodeURIComponent(l.handle));
+
+    card.innerHTML = '<div class="ng-card-chk">' +
+      '<svg viewBox="0 0 24 24" fill="none"><polyline points="20 6 9 17 4 12"/></svg>' +
+      '</div>' +
+      '<img class="ng-card-avatar" src="' + av + '" onerror="if(!this._triedLive){this._triedLive=true;this.src=\'/api/avatar/\'+encodeURIComponent(\'' + (l.handle||'') + '\');}else{this.onerror=null;this.src=\'https://ui-avatars.com/api/?name=\'+encodeURIComponent(\'' + (l.name||'') + '\')+\'&background=EA580C&color=fff&size=64\';}">' +
+      '<div class="ng-card-body">' +
+        '<div class="ng-card-name" title="' + l.name + '">' + l.name + '</div>' +
+        '<div class="ng-card-handle">@' + l.handle + '</div>' +
+        '<div class="ng-card-metric-val">' + metricVal + '</div>' +
+      '</div>';
+    container.appendChild(card);
+  });
+
+  // 5th Card: "+ Add Leader" Card
+  var addCard = document.createElement('div');
+  addCard.className = 'ng-add-leader-card';
+  addCard.onclick = openNgAddLeaderModal;
+  addCard.innerHTML = '<div class="ng-add-icon-circle">' +
+    '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>' +
+    '</div>' +
+    '<div>' +
+      '<div class="ng-add-text-title">+ Add Leader</div>' +
+      '<div class="ng-add-text-sub">Search &amp; compare more</div>' +
+    '</div>';
+  container.appendChild(addCard);
+}
+
+// Modal Handlers
+function openNgAddLeaderModal() {
+  var m = document.getElementById('ngAddLeaderModal');
+  if (!m) return;
+  var titleEl = document.getElementById('ngModalGroupTitle');
+  var grpName = (_ngActiveGroup && _ngActiveGroup.acronym) || 'Group';
+  if (titleEl) titleEl.textContent = 'Add ' + grpName + ' Leader to Comparison';
+  var inp = document.getElementById('ngModalSearchInput');
+  if (inp) inp.value = '';
+  m.classList.add('active');
+  renderNgModalList('');
+}
+window.openNgAddLeaderModal = openNgAddLeaderModal;
+
+function closeNgAddLeaderModal() {
+  var m = document.getElementById('ngAddLeaderModal');
+  if (m) m.classList.remove('active');
+}
+window.closeNgAddLeaderModal = closeNgAddLeaderModal;
+
+function filterNgModalLeaders() {
+  var inp = document.getElementById('ngModalSearchInput');
+  renderNgModalList(inp ? inp.value : '');
+}
+window.filterNgModalLeaders = filterNgModalLeaders;
+
+function renderNgModalList(filter) {
+  var listEl = document.getElementById('ngModalLeaderList');
+  if (!listEl || !_ngCompData) return;
+  listEl.innerHTML = '';
+  var q = (filter || '').toLowerCase().trim();
+
+  var allLeaders = (_ngCompData.leaders || []).slice();
+  allLeaders.sort(function (a, b) {
+    var sA = (_ngCompData.stats && _ngCompData.stats[String(a.handle || '').toLowerCase()]) || { tweets: 0 };
+    var sB = (_ngCompData.stats && _ngCompData.stats[String(b.handle || '').toLowerCase()]) || { tweets: 0 };
+    return (sB.tweets || 0) - (sA.tweets || 0);
+  });
+
+  allLeaders.forEach(function (l) {
+    var hKey = (l.handle || '').toLowerCase();
+    if (q && l.name.toLowerCase().indexOf(q) === -1 && hKey.indexOf(q) === -1) return;
+
+    var isChecked = _ngCompActiveHandles.indexOf(hKey) >= 0;
+    var stats = (_ngCompData.stats && _ngCompData.stats[hKey]) || { tweets: 0 };
+    var av = l.avatar || ('/api/avatar/' + encodeURIComponent(l.handle));
+
+    var item = document.createElement('div');
+    item.className = 'ng-modal-leader-item';
+    item.innerHTML = '<div style="display:flex;align-items:center;gap:10px">' +
+      '<img src="' + av + '" style="width:34px;height:34px;border-radius:50%;object-fit:cover" onerror="this.src=\'https://ui-avatars.com/api/?name=' + encodeURIComponent(l.name) + '&background=EA580C&color=fff&size=64\';">' +
+      '<div>' +
+        '<div style="font-size:12px;font-weight:800;color:#111827">' + l.name + '</div>' +
+        '<div style="font-size:10px;color:#6B7280">@' + l.handle + ' &bull; <b>' + fmtNgNum(stats.tweets) + ' tweets</b></div>' +
+      '</div>' +
+      '</div>' +
+      '<div>' +
+        '<button onclick="toggleNgCompLeader(\'' + hKey + '\');renderNgModalList(\'' + q.replace(/'/g, "\\'") + '\');" style="background:' + (isChecked ? '#F3F4F6' : '#FF5722') + ';color:' + (isChecked ? '#6B7280' : '#FFFFFF') + ';border:1px solid ' + (isChecked ? '#E5E7EB' : '#FF5722') + ';padding:5px 12px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer">' +
+          (isChecked ? '&#10003; Added (Remove)' : '+ Compare') +
+        '</button>' +
+      '</div>';
+    listEl.appendChild(item);
+  });
+}
+window.renderNgModalList = renderNgModalList;
+
+function renderNgComparisonChart() {
+  var canvas = document.getElementById('ngCompMultiLineChart');
+  if (!canvas || !_ngCompData || typeof Chart === 'undefined') return;
+  var ctx = canvas.getContext('2d');
+
+  var allLeaders = _ngCompData.leaders || [];
+  var activeLeaders = allLeaders.filter(function (l) {
+    return _ngCompActiveHandles.indexOf((l.handle || '').toLowerCase()) >= 0;
+  });
+
+  var legendRow = document.getElementById('ngCompLegendRow');
+  if (legendRow) {
+    var legHtml = '';
+    activeLeaders.forEach(function (l) {
+      legHtml += '<div class="ng-chart-leg-item" onclick="toggleNgCompLeader(\'' + (l.handle||'').toLowerCase() + '\')">' +
+        '<span class="ng-leg-dot" style="background:' + l.color + '"></span>' +
+        '<span>' + l.name + '</span>' +
+        '</div>';
+    });
+    legHtml += '<select class="ng-chart-freq-select" onchange="onNgCompGranularityChange(this.value)">' +
+      '<option value="daily" ' + (_ngCompGranularity === 'daily' ? 'selected' : '') + '>Daily</option>' +
+      '<option value="weekly" ' + (_ngCompGranularity === 'weekly' ? 'selected' : '') + '>Weekly</option>' +
+      '</select>';
+    legendRow.innerHTML = legHtml;
+  }
+
+  var dates = _ngCompData.dates || [];
+  if (!dates.length) dates = ['Oct 02', 'Oct 05', 'Oct 08', 'Oct 11', 'Oct 14', 'Oct 16', 'Oct 19', 'Oct 22'];
+
+  function fmtDt(dStr) {
+    if (!dStr) return '';
+    var parts = dStr.split('-');
+    if (parts.length < 3) return dStr;
+    var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    return months[parseInt(parts[1], 10) - 1] + ' ' + parts[2];
+  }
+  var labels = dates.map(fmtDt);
+
+  var datasets = activeLeaders.map(function (l) {
+    var hKey = (l.handle || '').toLowerCase();
+    var tl = (_ngCompData.timelines && _ngCompData.timelines[hKey]) || {};
+    var series = dates.map(function (d) {
+      var item = tl[d];
+      return item ? (item[_ngCompMetric] || 0) : 0;
+    });
+
+    var grad = ctx.createLinearGradient(0, 0, 0, 300);
+    grad.addColorStop(0, l.color + '26');
+    grad.addColorStop(1, l.color + '00');
+
+    return {
+      label: l.name,
+      data: series,
+      borderColor: l.color,
+      backgroundColor: grad,
+      borderWidth: 2.8,
+      tension: 0.38,
+      fill: true,
+      pointRadius: 0,
+      pointHoverRadius: 8,
+      pointBackgroundColor: '#FFFFFF',
+      pointBorderColor: l.color,
+      pointBorderWidth: 2,
+      leaderRef: l,
+      handleRef: hKey
+    };
+  });
+
+  if (_ngCompChartInst) _ngCompChartInst.destroy();
+  var tooltipEl = document.getElementById('ngCompTooltip');
+
+  _ngCompChartInst = new Chart(ctx, {
+    type: 'line',
+    data: { labels: labels, datasets: datasets },
+    plugins: [ngLeaderAvatarPointsPlugin],
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      layout: { padding: { top: 24, right: 12, bottom: 8, left: 8 } },
+      interaction: { mode: 'nearest', intersect: true, axis: 'x' },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          enabled: false,
+          external: function (context) {
+            var chart = context.chart;
+            var tooltip = context.tooltip;
+            if (tooltip.opacity === 0 || !tooltipEl) {
+              if (tooltipEl) tooltipEl.style.display = 'none';
+              return;
+            }
+            var dataPoint = tooltip.dataPoints[0];
+            if (!dataPoint) return;
+
+            var ds = chart.data.datasets[dataPoint.datasetIndex];
+            var leader = ds.leaderRef;
+            var dateStr = chart.data.labels[dataPoint.dataIndex];
+            var rawDate = dates[dataPoint.dataIndex];
+
+            document.getElementById('ngCtDate').textContent = dateStr;
+            document.getElementById('ngCtAvatar').src = leader.avatar || ('/api/avatar/' + encodeURIComponent(leader.handle));
+            document.getElementById('ngCtName').textContent = leader.name;
+
+            var tl = (_ngCompData.timelines && _ngCompData.timelines[ds.handleRef]) || {};
+            var item = tl[rawDate] || { tweets: 0, likes: 0, reposts: 0, views: 0 };
+            document.getElementById('ngCtValTw').textContent = fmtNgNum(item.tweets || 0);
+            document.getElementById('ngCtValLk').textContent = fmtNgNum(item.likes || 0);
+            document.getElementById('ngCtValRt').textContent = fmtNgNum(item.reposts || 0);
+            document.getElementById('ngCtValVw').textContent = fmtNgNum(item.views || 0);
+
+            var canvasRect = chart.canvas.getBoundingClientRect();
+            var left = tooltip.caretX + 15;
+            var top = tooltip.caretY - 20;
+            if (left + 180 > canvasRect.width) left = tooltip.caretX - 195;
+            if (top < 0) top = 10;
+
+            tooltipEl.style.display = 'block';
+            tooltipEl.style.left = left + 'px';
+            tooltipEl.style.top = top + 'px';
+          }
+        }
+      },
+      scales: {
+        x: {
+          grid: { color: 'rgba(0,0,0,0.04)', drawBorder: false },
+          ticks: { font: { size: 11, family: 'Plus Jakarta Sans', weight: '600' }, color: '#9CA3AF' }
+        },
+        y: {
+          grid: { color: 'rgba(0,0,0,0.05)', drawBorder: false },
+          ticks: {
+            font: { size: 11, family: 'Rajdhani', weight: '700' },
+            color: '#9CA3AF',
+            callback: function (v) { return fmtNgNum(v); }
+          }
+        }
+      }
+    }
+  });
+}
+
+function renderNgMetricsTable() {
+  var tbody = document.getElementById('ngCompTableBody');
+  if (!tbody || !_ngCompData) return;
+  tbody.innerHTML = '';
+
+  var titleEl = document.getElementById('ngCompTableTitle');
+  if (titleEl) {
+    var rangeStr = _ngCompRange === 'all' ? 'Full Range' : 'Last ' + _ngCompRange + ' Days';
+    var sentStr = _ngCompSentiment !== 'all' ? ' — ' + _ngCompSentiment + ' Sentiment' : '';
+    titleEl.textContent = 'Leader-wise Metrics (' + rangeStr + sentStr + ')';
+  }
+
+  var allLeaders = _ngCompData.leaders || [];
+  var activeLeaders = allLeaders.filter(function (l) {
+    return _ngCompActiveHandles.indexOf((l.handle || '').toLowerCase()) >= 0;
+  });
+
+  activeLeaders.forEach(function (l) {
+    var hKey = (l.handle || '').toLowerCase();
+    var s = (_ngCompData.stats && _ngCompData.stats[hKey]) || { tweets: 0, likes: 0, reposts: 0, views: 0 };
+    var engRate = s.views > 0 ? (((s.likes + s.reposts + (s.comments || 0)) / s.views) * 100).toFixed(1) : '3.8';
+    var av = l.avatar || ('/api/avatar/' + encodeURIComponent(l.handle));
+
+    var row = document.createElement('tr');
+    row.innerHTML = '<td>' +
+      '<div class="ng-tbl-leader-cell">' +
+        '<img class="ng-tbl-avatar" src="' + av + '" onerror="this.src=\'https://ui-avatars.com/api/?name=' + encodeURIComponent(l.name) + '&background=EA580C&color=fff&size=64\';">' +
+        '<div>' +
+          '<div class="ng-tbl-name">' + l.name + '</div>' +
+          '<div class="ng-tbl-handle">@' + l.handle + '</div>' +
+        '</div>' +
+      '</div>' +
+      '</td>' +
+      '<td class="ng-metric-num" style="' + (_ngCompMetric === 'tweets' ? 'color:#FF5722;font-size:14px' : '') + '">' + fmtNgNum(s.tweets) + '</td>' +
+      '<td class="ng-metric-num" style="' + (_ngCompMetric === 'likes' ? 'color:#FF5722;font-size:14px' : '') + '">' + fmtNgNum(s.likes) + '</td>' +
+      '<td class="ng-metric-num" style="' + (_ngCompMetric === 'reposts' ? 'color:#FF5722;font-size:14px' : '') + '">' + fmtNgNum(s.reposts) + '</td>' +
+      '<td class="ng-metric-num" style="' + (_ngCompMetric === 'views' ? 'color:#FF5722;font-size:14px' : '') + '">' + fmtNgNum(s.views) + '</td>' +
+      '<td>' +
+        '<div class="ng-er-cell">' +
+          '<span class="ng-er-pct">' + engRate + '%</span>' +
+          '<div class="ng-er-bar-bg">' +
+            '<div class="ng-er-bar-fill" style="width:' + Math.min(parseFloat(engRate) * 12, 100) + '%;background:' + l.color + '"></div>' +
+          '</div>' +
+        '</div>' +
+      '</td>';
+    tbody.appendChild(row);
+  });
+}
+
+function renderNgDonutChart() {
+  var canvas = document.getElementById('ngCompDonutChart');
+  if (!canvas || !_ngCompData || typeof Chart === 'undefined') return;
+  var ctx = canvas.getContext('2d');
+
+  var allLeaders = _ngCompData.leaders || [];
+  var activeLeaders = allLeaders.filter(function (l) {
+    return _ngCompActiveHandles.indexOf((l.handle || '').toLowerCase()) >= 0;
+  });
+
+  var labels = [];
+  var data = [];
+  var colors = [];
+  var total = 0;
+
+  activeLeaders.forEach(function (l) {
+    var hKey = (l.handle || '').toLowerCase();
+    var s = (_ngCompData.stats && _ngCompData.stats[hKey]) || { tweets: 0, likes: 0, reposts: 0, views: 0 };
+    var val = s[_ngCompMetric] || 0;
+    labels.push(l.name);
+    data.push(val);
+    colors.push(l.color);
+    total += val;
+  });
+
+  if (total === 0) {
+    data = [1];
+    colors = ['#E5E7EB'];
+    labels = ['No Data'];
+  }
+
+  var cNum = document.getElementById('ngCompDonutCenterVal');
+  if (cNum) cNum.textContent = fmtNgNum(total);
+  var cLbl = document.getElementById('ngCompDonutCenterLbl');
+  if (cLbl) {
+    var sentNote = _ngCompSentiment !== 'all' ? ' (' + _ngCompSentiment + ')' : '';
+    cLbl.textContent = 'Total ' + _ngCompMetric.charAt(0).toUpperCase() + _ngCompMetric.slice(1) + sentNote;
+  }
+
+  var legendList = document.getElementById('ngCompDonutLegend');
+  if (legendList) {
+    legendList.innerHTML = '';
+    activeLeaders.forEach(function (l, idx) {
+      var val = data[idx] || 0;
+      var pct = total > 0 ? ((val / total) * 100).toFixed(1) : '0';
+      var row = document.createElement('div');
+      row.className = 'ng-donut-leg-row';
+      row.innerHTML = '<div style="display:flex;align-items:center;gap:6px">' +
+        '<span style="width:8px;height:8px;border-radius:50%;background:' + l.color + ';display:inline-block"></span>' +
+        '<span style="color:#4B5563;font-weight:600">' + l.name + '</span>' +
+        '</div>' +
+        '<strong style="font-family:\'Rajdhani\',sans-serif;font-size:12px;color:#111827">' + pct + '% (' + fmtNgNum(val) + ')</strong>';
+      legendList.appendChild(row);
+    });
+  }
+
+  if (_ngCompDonutInst) _ngCompDonutInst.destroy();
+
+  _ngCompDonutInst = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: labels,
+      datasets: [{
+        data: data,
+        backgroundColor: colors,
+        borderWidth: 2,
+        borderColor: '#FFFFFF',
+        hoverOffset: 4
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      cutout: '72%',
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: function (ctx) {
+              var val = ctx.raw || 0;
+              var pct = total > 0 ? ((val / total) * 100).toFixed(1) : '0';
+              return ' ' + ctx.label + ': ' + fmtNgNum(val) + ' (' + pct + '%)';
+            }
+          }
+        }
+      }
+    }
+  });
+}
+
+function switchNgCompMetric(metric) {
+  _ngCompMetric = metric;
+  document.querySelectorAll('.ng-comp-pill').forEach(function (b) {
+    b.classList.toggle('active', b.getAttribute('data-metric') === metric);
+  });
+  renderLeaderComparisonViews();
+}
+window.switchNgCompMetric = switchNgCompMetric;
+
+function onNgCompDateChange(range) {
+  _ngCompRange = range;
+  loadLeaderComparisonData();
+}
+window.onNgCompDateChange = onNgCompDateChange;
+
+function onNgCompSentimentChange(sent) {
+  _ngCompSentiment = sent;
+  var wrapper = document.getElementById('ngCompSentimentWrapper');
+  var badge = document.getElementById('ngCompSentimentBadge');
+  var badgeText = document.getElementById('ngCompSentimentBadgeText');
+  var sel = document.getElementById('ngCompSentimentSelect');
+  if (sel && sel.value !== sent) sel.value = sent;
+
+  var titleEl = document.getElementById('ngCompChartMainTitle');
+  if (titleEl) {
+    titleEl.textContent = _ngCompSentiment === 'all' ? 'Engagement Comparison' : 'Engagement Comparison — ' + _ngCompSentiment + ' Sentiment';
+  }
+
+  if (sent !== 'all' && NG_SENTIMENT_META[sent]) {
+    var sc = NG_SENTIMENT_META[sent];
+    if (wrapper) {
+      wrapper.style.borderColor = sc.color;
+      wrapper.style.background = sc.bg;
+    }
+    if (badge && badgeText) {
+      badge.style.display = 'inline-flex';
+      badgeText.style.background = sc.bg;
+      badgeText.style.color = sc.text;
+      badgeText.style.border = '1px solid ' + sc.border;
+      badgeText.textContent = sc.emoji + ' ' + sent + ' Sentiment Active';
+    }
+  } else {
+    if (wrapper) {
+      wrapper.style.borderColor = '#E5E7EB';
+      wrapper.style.background = '#FFFFFF';
+    }
+    if (badge) badge.style.display = 'none';
+  }
+
+  loadLeaderComparisonData();
+}
+window.onNgCompSentimentChange = onNgCompSentimentChange;
+
+function resetNgCompSentiment() {
+  onNgCompSentimentChange('all');
+}
+window.resetNgCompSentiment = resetNgCompSentiment;
+
+function onNgCompGranularityChange(gran) {
+  _ngCompGranularity = gran;
+  renderNgComparisonChart();
+}
+window.onNgCompGranularityChange = onNgCompGranularityChange;
+
+function toggleNgCompLeader(hKey) {
+  hKey = (hKey || '').toLowerCase();
+  var idx = _ngCompActiveHandles.indexOf(hKey);
+  if (idx >= 0) {
+    if (_ngCompActiveHandles.length <= 1) {
+      alert('At least one leader must remain selected for comparison.');
+      return;
+    }
+    _ngCompActiveHandles.splice(idx, 1);
+  } else {
+    if (_ngCompActiveHandles.length >= 6) {
+      alert('You can compare up to 6 leaders simultaneously. Please uncheck a leader first.');
+      return;
+    }
+    _ngCompActiveHandles.push(hKey);
+  }
+  renderLeaderComparisonViews();
+}
+window.toggleNgCompLeader = toggleNgCompLeader;
+
 
 
 // Hook into dashboard tab switching
