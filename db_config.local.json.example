@@ -1,0 +1,13 @@
+{
+  "_1_kya_hai": "HOT store (MongoDB Atlas) ki settings. Asli file ka naam db_config.local.json hai -- wo git me NAHI jaati (.gitignore). Ye .example file sirf namuna hai.",
+  "_2_kaise": "Is file ko copy karke db_config.local.json banao (isi folder me), phir 'url' me Atlas ka mongodb+srv://... connection string daalo. Password kabhi chat/git me mat daalna.",
+  "_3_band": "enabled=false (ya url khaali) = system bilkul pehle jaisa chalta hai.",
+  "_4_jaanch": "cd DASHBOARD  phir  python hot_conf.py  -- password chhupa kar dikhata hai aur connection test karta hai.",
+  "hot": {
+    "enabled": false,
+    "url": "",
+    "db": "pulse_hot_test",
+    "days": 7,
+    "max_mb": 400
+  }
+}

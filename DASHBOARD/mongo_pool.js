@@ -105,6 +105,79 @@ async function shutdown() {
   _raw = null; _ready = null;
 }
 
+/* ---- HOT store (Atlas, last N days) -- hot/cold plan, Phase 1 ----------
+   Alag pool, chhote timeout: Atlas door hai, wo atke to dashboard na atke.
+   HOT band ho (ya URL na ho) to hotClient() = null aur hotHealthy() = false,
+   yaani har route COLD (local) par chalta hai -- bilkul aaj jaisa.        */
+const HC = require('./hot_conf.js');
+const HOT_OPT = {
+  serverSelectionTimeoutMS: 4000,
+  connectTimeoutMS: 4000,
+  socketTimeoutMS: 60000,
+  waitQueueTimeoutMS: 6000,
+  maxPoolSize: 10,
+  minPoolSize: 0,
+  maxIdleTimeMS: 60000,
+  retryReads: true,
+  retryWrites: true
+};
+let _hotRaw = null, _hotReady = null;
+let _hotState = { ok: false, at: 0, ms: 0, error: HC.HOT.enabled ? 'not checked yet' : 'disabled' };
+const HOT_RECHECK_MS = 30000;
+
+function hotRaw() {
+  if (!_hotRaw) _hotRaw = new MongoClient(HC.HOT.url, HOT_OPT);
+  return _hotRaw;
+}
+function hotEnsure() {
+  if (_hotReady) return _hotReady;
+  _hotReady = hotRaw().connect().catch(function (e) { _hotReady = null; throw e; });
+  return _hotReady;
+}
+/* null = HOT band. Warna client() jaisa hi handle. */
+function hotClient() {
+  if (!HC.HOT.enabled) return null;
+  return {
+    connect: hotEnsure,
+    db: function (n) { return hotRaw().db(n || HC.HOT.db); },
+    close: async function () { }
+  };
+}
+/* Cached health: har 30 s me ek ping. Request kabhi ping par nahi rukti
+   (purana jawab turant milta hai, naya ping peeche chalta hai). */
+let _hotPinging = false;
+async function _hotPing() {
+  if (_hotPinging) return;
+  _hotPinging = true;
+  const t0 = Date.now();
+  try {
+    await hotEnsure();
+    await hotRaw().db('admin').command({ ping: 1 }, { maxTimeMS: 3000 });
+    _hotState = { ok: true, at: Date.now(), ms: Date.now() - t0, error: '' };
+  } catch (e) {
+    _hotState = { ok: false, at: Date.now(), ms: Date.now() - t0,
+                  error: String(e && e.message || e).slice(0, 120) };
+  } finally { _hotPinging = false; }
+}
+function hotHealthy() {
+  if (!HC.HOT.enabled) return false;
+  if (Date.now() - _hotState.at > HOT_RECHECK_MS) _hotPing();
+  return _hotState.ok;
+}
+/* admin status ke liye (password kabhi nahi) */
+function hotStatus() {
+  return { enabled: HC.HOT.enabled, healthy: _hotState.ok, db: HC.HOT.db, days: HC.HOT.days,
+           windowStart: HC.windowCutoff(), url: HC.masked(), lastCheck: _hotState.at,
+           pingMs: _hotState.ms, error: _hotState.error };
+}
+async function hotShutdown() {
+  try { if (_hotRaw) await _hotRaw.close(); } catch (e) { }
+  _hotRaw = null; _hotReady = null;
+}
+if (HC.HOT.enabled) _hotPing();          // server start par pehla ping
+
 module.exports = { client: client, ping: ping, shutdown: shutdown,
                    OPT: OPT, MONGO_URL: MONGO_URL,
-                   lastError: function () { return _fail; } };
+                   lastError: function () { return _fail; },
+                   hotClient: hotClient, hotHealthy: hotHealthy, hotStatus: hotStatus,
+                   hotShutdown: hotShutdown, HOT: HC.HOT, windowCutoff: HC.windowCutoff };
