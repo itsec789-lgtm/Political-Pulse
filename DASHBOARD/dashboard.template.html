@@ -15179,5 +15179,37 @@ function toggleModalLeader(handle) {
 }
 </script>
 
+<script>
+/* hot/cold plan, Phase 5.4: purani date range local archive se aaye to chhota note.
+   Sirf response padhta hai (clone) -- page ka koi data ya fetch nahi badalta. */
+(function () {
+  if (!window.fetch || window.__archiveNote) return; window.__archiveNote = 1;
+  var RX = /\/api\/(tw\/list|narrative-groups\/|parties\/comparison)/, tm = null;
+  function show() {
+    var el = document.getElementById('archiveNote');
+    if (!el) {
+      el = document.createElement('div'); el.id = 'archiveNote';
+      el.style.cssText = 'position:fixed;right:16px;bottom:16px;z-index:99999;max-width:320px;padding:8px 12px;'
+        + 'border-radius:8px;background:#3A2418;color:#fff;font:12px/1.4 Segoe UI,system-ui,sans-serif;'
+        + 'box-shadow:0 4px 14px rgba(0,0,0,.25);opacity:.95;pointer-events:none';
+      el.textContent = 'Older date range — loaded from the archive (local database).';
+      document.body.appendChild(el);
+    }
+    el.style.display = 'block'; clearTimeout(tm);
+    tm = setTimeout(function () { el.style.display = 'none'; }, 4000);
+  }
+  var f0 = window.fetch;
+  window.fetch = function (u) {
+    var p = f0.apply(this, arguments);
+    try {
+      var url = typeof u === 'string' ? u : (u && u.url) || '';
+      if (RX.test(url)) p.then(function (r) {
+        try { r.clone().json().then(function (j) { if (j && j.source === 'archive') show(); }, function () {}); } catch (e) {}
+      }, function () {});
+    } catch (e) {}
+    return p;
+  };
+})();
+</script>
 </body>
 </html>

@@ -20,7 +20,10 @@ const MP = require('./mongo_pool.js');
 const TRK = require('./x_scraper.js');
 const TRKUI = require('./tracker_section.js');
 const COLLECTION = 'dashboard_data';
-const PORT       = 3000;
+const PORT       = parseInt(process.env.PULSE_PORT, 10) || 3000;
+/* PULSE_TEST_NO_JOBS=1 : sirf test ke liye doosra server (alag port) -- mapping
+   sync, Mapping.xlsx watcher aur Tracker NAHI chalte, taaki test kuch likhe nahi. */
+const NO_JOBS    = process.env.PULSE_TEST_NO_JOBS === '1';
 // har scope apna template: All-India = yahi, UP = UP-DASHBOARD ka
 const TEMPLATE_ALL = path.join(__dirname, 'dashboard.template.html');
 const TEMPLATE_UP  = path.join(__dirname, '..', 'UP-DASHBOARD', 'dashboard.template.html');
@@ -1358,15 +1361,17 @@ function runMappingSync(why) {
    4. panel ke "Sync mapping now" button se
    Pipeline (auto_update) bhi apni taraf se chalati hai -- do sync ek saath
    na chalein, iska dhyaan _msyncRunning rakhta hai. */
+if (!NO_JOBS) {
 setTimeout(function () { runMappingSync('server chalu -- Mapping jaanchi ja rahi hai'); }, 8000);
 setInterval(function () { runMappingSync('har ghante ki jaanch'); }, 60 * 60 * 1000);
+}
 
 /* Mapping.xlsx haath se badli ja sakti hai -- uski tareekh par nazar.
    Badalte hi sync chala dete hain, ghante bhar ka intezaar nahi. */
 var XLSX_FILE = path.join(__dirname, '..', 'Mapping', 'Mapping.xlsx');
 var _xlsxAt = 0;
 try { _xlsxAt = fs.statSync(XLSX_FILE).mtimeMs; } catch (e) {}
-setInterval(function () {
+if (!NO_JOBS) setInterval(function () {
   try {
     var mt = fs.statSync(XLSX_FILE).mtimeMs;
     if (_xlsxAt && mt !== _xlsxAt) {
@@ -3579,8 +3584,12 @@ app.get('/api/live', newsGuard, async function (req, res) {
       try {
         await cli.connect();
         var c = cli.db(MASTER_DB).collection(MASTER_COLL);
-        var d = await c.find(q, { projection: { 'Tweet Date': 1 } })
-                       .sort({ 'Tweet Date': -1 }).limit(1).maxTimeMS(20000).toArray();
+        /* hot/cold Phase 5: sabse naya tweet Atlas (pichhle N din) se; wahan is
+           scope ka koi tweet na ho to local se -- result wahi rehta hai. */
+        var d = await onTweets(MP.windowCutoff(), function (cc) {
+          return cc.find(q, { projection: { 'Tweet Date': 1 } })
+                   .sort({ 'Tweet Date': -1 }).limit(1).maxTimeMS(20000).toArray();
+        }, function (r) { return r && r.length > 0; });
         /* All India par countDocuments 18 lakh docs ginta hai -- mehnga hai,
            isliye wahan estimate. UP/Punjab chhote aur indexed hain. */
         var n = scope === 'all'
@@ -3592,13 +3601,11 @@ app.get('/api/live', newsGuard, async function (req, res) {
     }
     var fresh = 0;
     if (since && base.newest && since < base.newest) {
-      var cli2 = MP.client();
-      try {
-        await cli2.connect();
-        var q2 = Object.assign({}, q, { 'Tweet Date': { $gt: since } });
-        fresh = await cli2.db(MASTER_DB).collection(MASTER_COLL)
-                          .countDocuments(q2, { maxTimeMS: 20000 });
-      } finally { try { await cli2.close(); } catch (e) {} }
+      var q2 = Object.assign({}, q, { 'Tweet Date': { $gt: since } });
+      /* 'since' window ke andar ho to ginti Atlas par (hot/cold Phase 5) */
+      fresh = await onTweets(since.slice(0, 10), function (cc) {
+        return cc.countDocuments(q2, { maxTimeMS: 20000 });
+      });
     }
     res.json({ scope: scope, total: base.total, newest: base.newest || null,
                fresh: fresh, now: new Date().toISOString() });
@@ -3853,9 +3860,7 @@ app.get('/api/narrative-groups/stats', async function (req, res) {
       if (dTo)   matchCond['Tweet Date'].$lte = dTo + ' 23:59:59';
     }
 
-    var client = MP.client();
-    await client.connect();
-    var coll = client.db(MASTER_DB).collection(MASTER_COLL);
+    var _src = 'cold';   /* hot | cold | archive -- kis store se aaya */
     var pipeline = [
       { $match: matchCond },
       {
@@ -3868,8 +3873,10 @@ app.get('/api/narrative-groups/stats', async function (req, res) {
         }
       }
     ];
-    var results = await coll.aggregate(pipeline).toArray();
-    await client.close();
+    /* hot/cold Phase 5: range window ke andar -> Atlas, warna local (archive) */
+    var results = await onTweets(dFrom, async function (coll, store) {
+      _src = store; return coll.aggregate(pipeline).toArray();
+    });
 
     var handleMap = {};
     results.forEach(function (r) {
@@ -3885,7 +3892,7 @@ app.get('/api/narrative-groups/stats', async function (req, res) {
       }
     });
 
-    res.json({ ok: true, stats: handleMap, from: dFrom, to: dTo, timestamp: new Date().toISOString() });
+    res.json({ ok: true, source: _src, stats: handleMap, from: dFrom, to: dTo, timestamp: new Date().toISOString() });
   } catch (e) {
     res.json({ ok: false, error: e.message });
   }
@@ -3898,9 +3905,7 @@ app.get('/api/narrative-groups/leader-analysis/:handle', async function (req, re
     var rawHandle = String(req.params.handle || '').trim().replace(/^@/, '');
     if (!rawHandle) return res.json({ ok: false, error: 'Handle required' });
 
-    var client = MP.client();
-    await client.connect();
-    var coll = client.db('pulse_master').collection('master_tweets');
+    var _src = 'cold';   /* hot | cold | archive -- kis store se aaya */
 
     // Fast indexed match (avoids full table scan on 2.8 million tweets)
     var handleVariations = Array.from(new Set([
@@ -3971,13 +3976,15 @@ app.get('/api/narrative-groups/leader-analysis/:handle', async function (req, re
       }
     ];
 
-    var [aggResults, topTweets, recentTweets] = await Promise.all([
-      coll.aggregate(pipeline).toArray(),
-      coll.find(filter).sort({ 'Total Views': -1 }).limit(1).toArray(),
-      coll.find(filter).sort({ 'Tweet Date': -1 }).limit(5).toArray()
-    ]);
-
-    await client.close();
+    /* hot/cold Phase 5: range window ke andar -> Atlas, warna local (archive) */
+    var [aggResults, topTweets, recentTweets] = await onTweets(dFrom, async function (coll, store) {
+      _src = store;
+      return Promise.all([
+        coll.aggregate(pipeline).toArray(),
+        coll.find(filter).sort({ 'Total Views': -1 }).limit(1).toArray(),
+        coll.find(filter).sort({ 'Tweet Date': -1 }).limit(5).toArray()
+      ]);
+    });
 
     var facet = (aggResults && aggResults.length) ? aggResults[0] : {};
     var kpiList = facet.kpis || [];
@@ -3987,6 +3994,7 @@ app.get('/api/narrative-groups/leader-analysis/:handle', async function (req, re
 
     res.json({
       ok: true,
+      source: _src,
       handle: rawHandle,
       from: dFrom,
       to: dTo,
@@ -4049,9 +4057,7 @@ app.get('/api/narrative-groups/comparison', async function (req, res) {
       matchCond['Sentiment'] = sentFilter;
     }
 
-    var client = MP.client();
-    await client.connect();
-    var coll = client.db('pulse_master').collection('master_tweets');
+    var _src = 'cold';   /* hot | cold | archive -- kis store se aaya */
 
     var pipeline = [
       { $match: matchCond },
@@ -4099,8 +4105,10 @@ app.get('/api/narrative-groups/comparison', async function (req, res) {
       }
     ];
 
-    var results = await coll.aggregate(pipeline).toArray();
-    await client.close();
+    /* hot/cold Phase 5: range window ke andar -> Atlas, warna local (archive) */
+    var results = await onTweets(dFrom, async function (coll, store) {
+      _src = store; return coll.aggregate(pipeline).toArray();
+    });
 
     var facet = (results && results.length) ? results[0] : {};
     var rawStats = facet.leaderStats || [];
@@ -4155,6 +4163,7 @@ app.get('/api/narrative-groups/comparison', async function (req, res) {
 
     res.json({
       ok: true,
+      source: _src,
       group: { id: group.id, name: group.name, acronym: group.acronym, color: group.color },
       leaders: leaders,
       dates: sortedDates,
@@ -4287,9 +4296,7 @@ app.get('/api/parties/comparison', async function (req, res) {
       matchCond['Sentiment'] = sentFilter;
     }
 
-    var client = MP.client();
-    await client.connect();
-    var coll = client.db('pulse_master').collection('master_tweets');
+    var _src = 'cold';   /* hot | cold | archive -- kis store se aaya */
 
     var pipeline = [
       { $match: matchCond },
@@ -4337,8 +4344,10 @@ app.get('/api/parties/comparison', async function (req, res) {
       }
     ];
 
-    var results = await coll.aggregate(pipeline).toArray();
-    await client.close();
+    /* hot/cold Phase 5: range window ke andar -> Atlas, warna local (archive) */
+    var results = await onTweets(dFrom, async function (coll, store) {
+      _src = store; return coll.aggregate(pipeline).toArray();
+    });
 
     var facet = (results && results.length) ? results[0] : {};
     var rawStats = facet.leaderStats || [];
@@ -4433,6 +4442,7 @@ app.get('/api/parties/comparison', async function (req, res) {
 
     res.json({
       ok: true,
+      source: _src,
       party: party,
       dates: sortedDates,
       leaders: leadersList,
@@ -6039,7 +6049,7 @@ server.keepAliveTimeout = 61000;
 /* ---- tracker-tab : Tracker background me chaalu ---------------------
    x_config.json me cookie na ho to khud hi chup-chaap ruk jaata hai.
    Pehla scrape turant nahi -- server ko saans lene dete hain. */
-setTimeout(function () {
+if (!NO_JOBS) setTimeout(function () {
   TRK.getCfg(MP.client().db(TRK.DB)).then(function (c) {
     if (c.autoStart === false) { console.log('  [TRACKER] autoStart band hai'); return; }
     TRK.start(trkDb, false);

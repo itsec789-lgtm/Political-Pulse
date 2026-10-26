@@ -26,7 +26,14 @@ for Phase 5 sorts: `Tweet Date`, `Total Views/Likes/Retweets/Comments` (desc).
 | `/api/tw/top`, `/api/tw/list` | HOT when `from` ≥ window start; else cold (`source: archive` on list) |
 | news feed (`newsWindow`, `/api/news*`) | HOT first; cold if HOT has fewer than 4,000 media tweets |
 | `/api/report` | HOT when `from` ≥ window start; older ranges cold with an "archive" note |
-| `/api/live`, `/api/ha/*`, narrative groups, parties comparison, admin downloads | cold (all-time or long ranges) |
+| `/api/live` (Nazar/live badge) | newest tweet + "fresh" count from HOT (cold if HOT has none for that scope); all-time `total` stays an indexed count on cold |
+| `/api/narrative-groups/stats`, `/leader-analysis/:h`, `/comparison`, `/api/parties/comparison` | HOT when `from` ≥ window start; else cold with `source: "archive"` |
+| `/api/ha/*` (Handle Analytics) | cold: its smallest range is 7 days counted from the handle's newest tweet, always wider than the 3-day window |
+| admin count/download/hashtags exports | cold (by plan) |
+Pages show a small "loaded from the archive" note when a tweet list / narrative / parties answer comes back with `source: "archive"`
+(fetch hook at the end of both `dashboard.template.html`).
+Test: `tools/test_routes_hot.js` starts this checkout's server on port 3001 (`PULSE_PORT`, `PULSE_TEST_NO_JOBS=1` = no mapping
+sync/tracker) with HOT on, HOT off and a wrong Atlas URL; every answer must be identical. 26 Oct 2026: 12/12 PASS.
 Every HOT read falls back to cold on any error (`onTweets`). `/admin/hot-status` shows on/off, healthy,
 window start, size, last resync, read counters, guard state.
 
