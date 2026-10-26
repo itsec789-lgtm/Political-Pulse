@@ -129,6 +129,25 @@ def main():
             print("summary: saare din dobara banenge (summary_dirty = ALL)")
         except Exception as _e:
             print("  (summary_dirty mark skip: %s)" % _e)
+    if ops:
+        # hot/cold plan: Atlas me pichhle N din ke tweets ki copy hai -- unke label bhi wahi
+        # badlo, warna 3 din tak purana Party/State/Category dikhta. Fail ho to agla
+        # pipeline run poori window dobara copy karega (.hot_resync).
+        try:
+            import master_to_mongo as _M2
+            hc = _M2.hot_coll()
+            if hc is not None:
+                hdone = 0
+                for i in range(0, len(ops), 200):
+                    hdone += hc.bulk_write(ops[i:i + 200], ordered=False).modified_count
+                print("HOT (Atlas) rows relabel hue: %s" % f"{hdone:,}")
+        except Exception as _e:
+            print("  HOT SYNC FAIL (relabel): %s -- agle run me poori window dobara copy hogi" % str(_e)[:150])
+            try:
+                import datetime as _dt
+                open(os.path.join(HERE, '.hot_resync'), 'w').write(_dt.datetime.now().isoformat())
+            except Exception:
+                pass
     cli.close()
 
     print("\nAb chalao:")

@@ -623,6 +623,10 @@ def main():
 
     if added == 0 and not pending and '--force-push' not in sys.argv:
         log("Naya data nahi -> push skip.")
+        # hot/cold plan: khaali run me bhi HOT ki rozana resync (ya .hot_resync flag) aur
+        # size guard -- warna jis din nayi file na aaye us din Atlas ki jaanch hi nahi hoti.
+        hot_step("pre")
+        hot_step("post")
         # punjab-catchup (10-Oct): All India/UP push ho chuke the par Punjab
         # fail hua tha -> Punjab yahin akela pakad liya jaata hai, warna wo
         # tab tak peeche rehta jab tak koi nayi file na aa jaaye.
