@@ -33,3 +33,12 @@ scratch/
 .DS_Store
 Thumbs.db
 desktop.ini
+
+# secrets -- NEVER commit (real files stay on each machine; copy *.sample.json to start)
+DASHBOARD/auth_secret.json
+DASHBOARD/mail_config.json
+DASHBOARD/ai_config.json
+DASHBOARD/x_config.json
+PunjabLens/ai_config.json
+*.local.txt
+db_config.local.json

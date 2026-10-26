@@ -1,0 +1,9 @@
+{
+  "_note": "Copy to mail_config.json (git ignores it) and fill in. Gmail: use an App Password.",
+  "host": "smtp.gmail.com",
+  "port": 465,
+  "user": "you@example.com",
+  "pass": "APP_PASSWORD",
+  "from": "Political Pulse <you@example.com>",
+  "url": "https://your-ngrok-domain"
+}

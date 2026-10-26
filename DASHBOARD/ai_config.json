@@ -1,6 +1,0 @@
-{
-  "_note": "Groq ki free API key. YE FILE KISI KO MAT BHEJNA aur folder share karte waqt hata dena. Key badalni ho to console.groq.com -> API Keys.",
-  "provider": "groq",
-  "key": "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",
-  "model": "llama-3.3-70b-versatile"
-}

@@ -34,7 +34,7 @@ REM purana tunnel/server band karo warna "already online" error aata hai
 taskkill /F /IM ngrok.exe >nul 2>&1
 timeout /t 2 /nobreak >nul
 if exist "%NGROK%" (
-  "%NGROK%" config add-authtoken 3HOwYJbdyIKfkpBijs3GVKLPTKr_212qBETQfAFxouvA3Vsf6 >nul 2>&1
+  if exist "%~dp0ngrok_token.local.txt" for /f "usebackq delims=" %%t in ("%~dp0ngrok_token.local.txt") do "%NGROK%" config add-authtoken %%t >nul 2>&1
   if "%NGROK_DOMAIN%"=="" (
     start "Public URL - ngrok" cmd /k ""%NGROK%" http 3000"
   ) else (
