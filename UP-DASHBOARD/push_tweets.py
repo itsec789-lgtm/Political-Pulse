@@ -47,42 +47,41 @@ def main():
         sys.exit("master nahi mila: " + master)
     from pymongo import MongoClient
     print("Reading master  (scope: %s)...  (%s)" % (SCOPE_STATE or "ALL INDIA + media/journalist", master))
-    docs = []
-    for ch in _SRC.chunks(master, NEED):
-        ch = ch.rename(columns=lambda c: c.strip()).fillna('')
-        if SCOPE_STATE:
-            # UP ke tweets + MEDIA HOUSE/JOURNALIST bhi (ye kisi state ke nahi hote,
-            # par reports me inhe dikhana hai)
-            st = ch[C['state']].astype(str).str.strip() == SCOPE_STATE
-            cat = ch['Category'].astype(str).str.strip().str.lower() if 'Category' in ch.columns else None
-            ch = ch[st | (cat.isin(['media house', 'journalist']) if cat is not None else False)]
-        if len(ch) == 0: continue
-        for r in ch.itertuples(index=False):
-            d = dict(zip(ch.columns, r))
-            docs.append({
-                'h': str(d.get(C['handle'], '')).strip(), 'name': d.get(C['name'], ''),
-                'text': d.get(C['text'], ''), 'party': str(d.get(C['party'], '')).strip(),
-                'level': level_of(d.get(C['desig'], '')), 'sent': d.get(C['sent'], ''),
-                'date': str(d.get(C['date'], ''))[:10], 'lk': num(d.get(C['likes'])),
-                'rt': num(d.get(C['rts'])), 'vw': num(d.get(C['views'])),
-                'followers': num(d.get(C['followers'])), 'url': d.get(C['url'], ''),
-                'cat': str(d.get('Category', '')).strip()})   # Media House / Journalist / MLA ...
-    _up = sum(1 for d in docs if str(d.get('cat', '')).strip().lower() not in ('media house', 'journalist'))
-    _md = len(docs) - _up
-    print("  Reports pool: %d  (politicians: %d + media/journalist: %d)" % (len(docs), _up, _md))
+    cnt = {'up': 0, 'md': 0}
 
-    # mongo_swap (audit A1)
-    # Pehle delete_many() se 'tweets' khaali hoti thi aur phir bharti thi --
-    # beech me Report tab khaali/adhoora data dikhata tha, aur crash hone par
-    # poori collection gayab. Ab naye naam me bhar kar rename se swap hota hai.
-    # Index bhi swap se PEHLE lag jaate hain, isliye pehli report bhi tez.
-    from mongo_swap import swap_collection
+    # phase0 (hot/cold plan): docs ab GENERATOR se aate hain aur 5,000 ke
+    # batch me seedhe Mongo jaate hain -- pehle saare ~29 lakh dict ek list
+    # me bante the (RAM khatam -> UP stage me process chupchap mar jaata tha).
+    def gen_docs():
+        for ch in _SRC.chunks(master, NEED):
+            ch = ch.rename(columns=lambda c: c.strip()).fillna('')
+            if SCOPE_STATE:
+                st = ch[C['state']].astype(str).str.strip() == SCOPE_STATE
+                cat = ch['Category'].astype(str).str.strip().str.lower() if 'Category' in ch.columns else None
+                ch = ch[st | (cat.isin(['media house', 'journalist']) if cat is not None else False)]
+            if len(ch) == 0: continue
+            for r in ch.itertuples(index=False):
+                d = dict(zip(ch.columns, r))
+                doc = {
+                    'h': str(d.get(C['handle'], '')).strip(), 'name': d.get(C['name'], ''),
+                    'text': d.get(C['text'], ''), 'party': str(d.get(C['party'], '')).strip(),
+                    'level': level_of(d.get(C['desig'], '')), 'sent': d.get(C['sent'], ''),
+                    'date': str(d.get(C['date'], ''))[:10], 'lk': num(d.get(C['likes'])),
+                    'rt': num(d.get(C['rts'])), 'vw': num(d.get(C['views'])),
+                    'followers': num(d.get(C['followers'])), 'url': d.get(C['url'], ''),
+                    'cat': str(d.get('Category', '')).strip()}   # Media House / Journalist / MLA ...
+                if doc['cat'].lower() in ('media house', 'journalist'): cnt['md'] += 1
+                else: cnt['up'] += 1
+                yield doc
+
+    from mongo_swap import swap_collection_iter
     cli = MongoClient(MONGO_URL); db = cli[DB_NAME]
     try:
-        swap_collection(db, 'tweets', docs,
-                        indexes=['party', 'date', 'cat', 'h'])
+        swap_collection_iter(db, 'tweets', gen_docs(),
+                             indexes=['party', 'date', 'cat', 'h'])
     finally:
         cli.close()
+    print("  Reports pool: %d  (politicians: %d + media/journalist: %d)" % (cnt['up'] + cnt['md'], cnt['up'], cnt['md']))
     print("DONE. Ab server restart karo (npm start) -- Report tab kaam karega.")
 
 

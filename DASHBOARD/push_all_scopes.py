@@ -108,8 +108,16 @@ def push_all(master_csv, log=print):
     log("=== UP -> up_pulse (UP-DASHBOARD pipeline, same master, UP filter) ===")
     subprocess.run([PY, os.path.join(UP_DIR, "update_dashboard.py"), master, "--push"],
                    cwd=UP_DIR, check=True)
-    subprocess.run([PY, os.path.join(UP_DIR, "push_tweets.py"), master],
-                   cwd=UP_DIR, check=True)
+    # phase0-report-src (hot/cold plan, Phase 0.4 option b):
+    # Report tab ab seedha pulse_master.master_tweets padhta hai (server.js
+    # REPORT_SRC), isliye up_pulse.tweets ki poori copy (2.9M docs RAM me,
+    # ~15 min) har run me banane ki zaroorat nahi. Purana raasta chahiye to
+    # env PULSE_REPORT_SRC=pool -- tab push_tweets.py pehle jaisa chalta hai.
+    if os.environ.get("PULSE_REPORT_SRC", "master").strip().lower() == "pool":
+        subprocess.run([PY, os.path.join(UP_DIR, "push_tweets.py"), master],
+                       cwd=UP_DIR, check=True)
+    else:
+        log("  Report pool: up_pulse.tweets rebuild skip (Report tab reads pulse_master.master_tweets)")
 
     # dono ban gaye -> ab dono ka stamp, ek hi waqt ka
     now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")

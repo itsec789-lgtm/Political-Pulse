@@ -118,6 +118,69 @@ def swap_collection(db, coll, docs, log=print, indexes=None, batch=BATCH):
     return got
 
 
+def swap_collection_iter(db, coll, docs_iter, log=print, indexes=None, batch=BATCH):
+    """swap_collection jaisa hi, par docs ek ITERATOR se aate hain aur
+    `batch` ke tukdon me seedhe `<coll>__new` me jaate hain -- poori list
+    kabhi RAM me nahi banti (8 GB laptop par 29 lakh docs ki list hi
+    process ko maar deti thi). Ginti-check aur rename-swap wahi hain.
+    """
+    new = coll + NEW_SUF
+    old = coll + OLD_SUF
+    _drop_quiet(db, new)
+    sent = 0
+    buf = []
+    try:
+        for d in docs_iter:
+            buf.append(d)
+            if len(buf) >= batch:
+                db[new].insert_many(buf, ordered=False); sent += len(buf); buf = []
+        if buf:
+            db[new].insert_many(buf, ordered=False); sent += len(buf); buf = []
+    except Exception:
+        _drop_quiet(db, new)
+        raise
+    if not sent:
+        _drop_quiet(db, new)
+        raise ValueError("swap_collection_iter('%s'): 0 docs bheje gaye -- "
+                         "purana data waise hi rakha hai (kuch nahi badla)" % coll)
+    try:
+        got = db[new].count_documents({})
+    except Exception:
+        _drop_quiet(db, new)
+        raise
+    if got != sent:
+        _drop_quiet(db, new)
+        raise ValueError("swap_collection_iter('%s'): %d bheje par %d pahunche -- "
+                         "swap nahi kiya, purana data safe hai" % (coll, sent, got))
+    for ix in (indexes or []):
+        try:
+            db[new].create_index(ix)
+        except Exception as e:
+            log("    (index %s skip: %s)" % (ix, e))
+    names = set()
+    try:
+        names = set(db.list_collection_names())
+    except Exception:
+        pass
+    _drop_quiet(db, old)
+    try:
+        if coll in names:
+            db[coll].rename(old)
+        db[new].rename(coll)
+    except Exception:
+        try:
+            if coll not in set(db.list_collection_names()) and old in set(db.list_collection_names()):
+                db[old].rename(coll)
+                log("    (swap fail -- purana '%s' wapas laga diya)" % coll)
+        except Exception:
+            pass
+        _drop_quiet(db, new)
+        raise
+    _drop_quiet(db, old)
+    log("  MongoDB %s: %d docs" % (coll, got))
+    return got
+
+
 def swap_many(db, pairs, log=print, indexes=None):
     """Ek saath kai collection. pairs = [(name, docs), ...]
 

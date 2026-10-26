@@ -4436,23 +4436,43 @@ function _rx(term){                     // keyword -> safe regex (word-ish match
   return String(term).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
+/* phase0-report-src (hot/cold plan, Phase 0.4 option b):
+   Report pool ab seedha pulse_master.master_tweets se padha jaata hai --
+   up_pulse.tweets (poore master ki 2.8 GB copy, har run me RAM me bana kar
+   swap) ki zaroorat nahi. Rows wahi short shape me banti hain jo
+   push_tweets.py banata tha, isliye report_lib.js bilkul nahi badla.
+   Wapas purane pool par: env PULSE_REPORT_SRC=pool  (server restart). */
+const REPORT_SRC = String(process.env.PULSE_REPORT_SRC || 'master').toLowerCase() === 'pool' ? 'pool' : 'master';
+const RS = require('./report_src.js');
+
 // pool ka date-range + size (10 min cache) - report header me dikhta hai
 async function reportPoolInfo(force){
   if (_poolInfo && !force && (Date.now() - _poolInfo.at) < 6e5) return _poolInfo;
   var client = MP.client(); await client.connect();
   try {
-    var db = client.db(REPORT_DB);
-    var cols = (await db.listCollections().toArray()).map(function(c){return c.name;});
-    if (!cols.includes('tweets')) throw new Error(REPORT_DB + " me 'tweets' nahi mili. Pehle push_tweets.py chalao.");
-    var col = db.collection('tweets');
-    var n  = await col.estimatedDocumentCount();
-    var lo = await col.find({date:{$ne:''}},{projection:{date:1,_id:0}}).sort({date:1}).limit(1).toArray();
-    var hi = await col.find({date:{$ne:''}},{projection:{date:1,_id:0}}).sort({date:-1}).limit(1).toArray();
-    var mn = lo.length ? lo[0].date : '', mx = hi.length ? hi[0].date : '';
+    var n, mn, mx, mj;
+    if (REPORT_SRC === 'master') {
+      var col = client.db(MASTER_DB).collection(MASTER_COLL);
+      n = await col.estimatedDocumentCount();
+      var lo = await col.find({'Tweet Date':{$gt:''}},{projection:{'Tweet Date':1,_id:0}}).sort({'Tweet Date':1}).limit(1).toArray();
+      var hi = await col.find({'Tweet Date':{$gt:''}},{projection:{'Tweet Date':1,_id:0}}).sort({'Tweet Date':-1}).limit(1).toArray();
+      mn = lo.length ? String(lo[0]['Tweet Date']).slice(0, 10) : '';
+      mx = hi.length ? String(hi[0]['Tweet Date']).slice(0, 10) : '';
+      mj = await col.countDocuments({ Category: { $in: ['Media House','Journalist'] } });
+    } else {
+      var db = client.db(REPORT_DB);
+      var cols = (await db.listCollections().toArray()).map(function(c){return c.name;});
+      if (!cols.includes('tweets')) throw new Error(REPORT_DB + " me 'tweets' nahi mili. Pehle push_tweets.py chalao.");
+      var col = db.collection('tweets');
+      n  = await col.estimatedDocumentCount();
+      var lo = await col.find({date:{$ne:''}},{projection:{date:1,_id:0}}).sort({date:1}).limit(1).toArray();
+      var hi = await col.find({date:{$ne:''}},{projection:{date:1,_id:0}}).sort({date:-1}).limit(1).toArray();
+      mn = lo.length ? lo[0].date : ''; mx = hi.length ? hi[0].date : '';
+      mj = await col.countDocuments({ cat: { $in: ['Media House','Journalist'] } });
+    }
     _upRange = _fmtDate(mn) + ' – ' + _fmtDate(mx);
-    var mj = await col.countDocuments({ cat: { $in: ['Media House','Journalist'] } });
     _poolInfo = { at: Date.now(), n: n, mj: mj, pol: n - mj, range: _upRange };
-    console.log('  Report pool: ' + n + ' tweets (All India ' + (n-mj) + ' + media/journalist ' + mj + ')  ' + _upRange);
+    console.log('  Report pool [' + REPORT_SRC + ']: ' + n + ' tweets (All India ' + (n-mj) + ' + media/journalist ' + mj + ')  ' + _upRange);
     return _poolInfo;
   } finally { await client.close(); }
 }
@@ -4461,20 +4481,18 @@ async function reportPoolInfo(force){
 async function queryTweets(terms, dFrom, dTo){
   var client = MP.client(); await client.connect();
   try {
-    var col = client.db(REPORT_DB).collection('tweets');
-    var q = {};
-    var ors = (terms || []).filter(Boolean).map(function(t){
-      return { text: { $regex: _rx(t), $options: 'i' } };
-    });
-    if (ors.length) q.$or = ors;
-    if (dFrom || dTo) {
-      q.date = {};
-      if (dFrom) q.date.$gte = dFrom;
-      if (dTo)   q.date.$lte = dTo;
+    var q, out, t0 = Date.now();
+    if (REPORT_SRC === 'master') {
+      var col = client.db(MASTER_DB).collection(MASTER_COLL);
+      q = RS.masterQuery(terms, dFrom, dTo);
+      var docs = await col.find(q, { projection: RS.PROJ }).limit(REPORT_CAP).batchSize(5000).toArray();
+      out = docs.map(RS.toRow);
+    } else {
+      var col = client.db(REPORT_DB).collection('tweets');
+      q = RS.poolQuery(terms, dFrom, dTo);
+      out = await col.find(q, { projection: { _id: 0 } }).limit(REPORT_CAP).toArray();
     }
-    var t0 = Date.now();
-    var out = await col.find(q, { projection: { _id: 0 } }).limit(REPORT_CAP).toArray();
-    console.log('  Mongo query: ' + out.length + ' tweets (' + (Date.now()-t0) + ' ms) terms=' + JSON.stringify(terms));
+    console.log('  Mongo query [' + REPORT_SRC + ']: ' + out.length + ' tweets (' + (Date.now()-t0) + ' ms) terms=' + JSON.stringify(terms));
     return out;
   } finally { await client.close(); }
 }
