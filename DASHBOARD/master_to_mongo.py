@@ -73,6 +73,71 @@ def mark_dirty(c, days=(), all_days=False):
         return 0
 
 
+# ---- HOT store write-through (hot/cold plan, Phase 3) ----------------------
+# Cold write pehle; phir SIRF hot window (pichhle N din) wale rows ki wahi
+# UpdateOne ops Atlas (pulse_hot.tweets) par, 'ts' (UTC datetime, TTL ke liye)
+# ke saath. HOT kabhi COLD ko nahi todta: koi bhi error -> 'HOT SYNC FAIL'
+# log + DASHBOARD/.hot_resync flag (agla run poori window dobara copy karta hai).
+HOT_STATS = {'written': 0, 'failed': 0, 'last_error': ''}
+HOT_FLAG = os.path.join(HERE, '.hot_resync')
+_HOT_COLL = None
+
+
+def ist_to_utc(s):
+    """'YYYY-MM-DD HH:MM:SS IST' (ya sirf date) -> UTC datetime, warna None."""
+    s = str(s or '').strip()
+    try:
+        if len(s) >= 19:
+            t = datetime.datetime.strptime(s[:19], '%Y-%m-%d %H:%M:%S')
+        else:
+            t = datetime.datetime.strptime(s[:10], '%Y-%m-%d')
+    except ValueError:
+        return None
+    return (t - datetime.timedelta(hours=5, minutes=30)).replace(tzinfo=datetime.timezone.utc)
+
+
+def hot_coll():
+    global _HOT_COLL
+    if _HOT_COLL is None:
+        import hot_conf as HC
+        if not HC.HOT['enabled']:
+            return None
+        _HOT_COLL = HC.hot_client()[HC.HOT['db']]['tweets']
+    return _HOT_COLL
+
+
+def hot_write(items, log=print):
+    """items = [(tid, upd, tweet_date)] already written to cold."""
+    if not items:
+        return 0
+    try:
+        hc = hot_coll()
+        if hc is None:
+            return 0
+        from pymongo import UpdateOne
+        ops = []
+        for tid, upd, date in items:
+            ts = ist_to_utc(date)
+            if ts is None:
+                continue
+            u = {k: dict(v) for k, v in upd.items()}
+            u.setdefault('$set', {})['ts'] = ts
+            ops.append(UpdateOne({'_id': tid}, u, upsert=True))
+        for i in range(0, len(ops), 1000):
+            hc.bulk_write(ops[i:i + 1000], ordered=False)
+        HOT_STATS['written'] += len(ops)
+        return len(ops)
+    except Exception as e:
+        HOT_STATS['failed'] += len(items)
+        HOT_STATS['last_error'] = str(e)[:200]
+        log("  HOT SYNC FAIL: %s  (cold theek hai; agla run window dobara copy karega)" % str(e)[:200])
+        try:
+            open(HOT_FLAG, 'w').write(datetime.datetime.now().isoformat())
+        except Exception:
+            pass
+        return 0
+
+
 def upsert_frame(df, c, log=print):
     """DataFrame -> mongo (merge upsert). Return (inserted+updated) count."""
     from pymongo import UpdateOne
@@ -80,6 +145,14 @@ def upsert_frame(df, c, log=print):
     _rid = _re.compile(r'/status(?:es)?/(\d+)')
     ops = []
     _days = set()
+    _hot = []
+    _cut = None
+    try:
+        import hot_conf as _HC
+        if _HC.HOT['enabled']:
+            _cut = _HC.window_cutoff()
+    except Exception:
+        _cut = None
     for r in df.itertuples(index=False):
         d = dict(zip(df.columns, r))
         # _id HAMESHA URL me se Tweet ID (yahi asli unique key hai).
@@ -128,10 +201,14 @@ def upsert_frame(df, c, log=print):
         if not upd: continue
         ops.append(UpdateOne({'_id': tid}, upd, upsert=True))
         _days.add(str(d.get('Tweet Date', '') or '')[:10])
+        if _cut and str(d.get('Tweet Date', '') or '')[:10] >= _cut:
+            _hot.append((tid, upd, d.get('Tweet Date', '')))
         if len(ops) >= 5000:
             c.bulk_write(ops, ordered=False); ops = []
     if ops: c.bulk_write(ops, ordered=False)
     mark_dirty(c, _days)                    # hot/cold: these days need a fresh summary
+    if c.name == COLL:
+        hot_write(_hot, log)                # hot/cold: same changes to Atlas (window only)
     # handle kab pehli baar mila (naye handles ginne ke liye)
     try:
         hs = set(str(x).strip() for x in df.get('Handle', []) if str(x).strip())

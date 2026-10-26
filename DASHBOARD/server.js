@@ -1488,17 +1488,49 @@ function dashCacheStats() {
 }
 
 /* BHAARI hissa -- sab users ke liye ek jaisa. Iska natija cache hota hai. */
+var DASH_HOT = { used: 0, local: 0, lastReason: '' };
+async function dashFromHot(scope, client) {
+  if (!MP.hotHealthy()) { DASH_HOT.local++; DASH_HOT.lastReason = MP.HOT.enabled ? 'hot unhealthy' : 'hot off'; return null; }
+  const dbn = SCOPE_DB[scope];
+  try {
+    const loc = await client.db(dbn).collection('meta').findOne({ key: 'lastUpdate' });
+    const h = MP.hotClient(); await h.connect();
+    const hdb = h.db();
+    const cur = await hdb.collection(dbn + '__meta').findOne({ _id: 'current' });
+    if (!cur || !cur.lastUpdate || !loc || String(loc.value) !== String(cur.lastUpdate)) {
+      DASH_HOT.local++; DASH_HOT.lastReason = 'Atlas copy is not the latest build'; return null;
+    }
+    const docs = await hdb.collection(dbn + '__' + COLLECTION + '__' + cur.slot).find({}).toArray();
+    const phdDocs = await hdb.collection(dbn + '__phd__' + cur.slot).find({}).toArray();
+    if (!docs.length || !phdDocs.length) { DASH_HOT.local++; DASH_HOT.lastReason = 'Atlas copy empty'; return null; }
+    DASH_HOT.used++; DASH_HOT.lastReason = '';
+    return { docs: docs, phdDocs: phdDocs, name: dbn + ' slot ' + cur.slot };
+  } catch (e) {
+    DASH_HOT.local++; DASH_HOT.lastReason = String(e.message || e).slice(0, 120);
+    console.log('  [hot dashboard] ' + DASH_HOT.lastReason + ' -> local');
+    return null;
+  }
+}
+
 async function buildDashBase(scope) {
   scope = (scope === 'up') ? 'up' : 'all';
   const client = MP.client();
   await client.connect();
 
-  const db = await findDataDb(client, SCOPE_DB[scope]);
-  if (!db) { await client.close(); throw new Error("Kisi bhi database me '" + COLLECTION + "' collection nahi mili."); }
-  console.log("  Data mila database me: '" + db.databaseName + "'  (scope=" + scope + ")");
-
-  const docs = await db.collection(COLLECTION).find({}).toArray();
-  const phdDocs = await db.collection('phd').find({}).toArray();
+  /* hot/cold plan, Phase 5: Atlas copy tabhi jab uska lastUpdate local se
+     bilkul mile (yaani isi build ka data hai). Warna / error par local. */
+  let docs = null, phdDocs = null;
+  const _hot = await dashFromHot(scope, client);
+  if (_hot) {
+    docs = _hot.docs; phdDocs = _hot.phdDocs;
+    console.log("  Data mila Atlas (HOT) se: " + _hot.name + "  (scope=" + scope + ")");
+  } else {
+    const db = await findDataDb(client, SCOPE_DB[scope]);
+    if (!db) { await client.close(); throw new Error("Kisi bhi database me '" + COLLECTION + "' collection nahi mili."); }
+    console.log("  Data mila database me: '" + db.databaseName + "'  (scope=" + scope + ")");
+    docs = await db.collection(COLLECTION).find({}).toArray();
+    phdDocs = await db.collection('phd').find({}).toArray();
+  }
   await client.close();
 
   if (!docs.length) throw new Error("'" + COLLECTION + "' collection khaali hai.");
@@ -3373,6 +3405,37 @@ const TW_SORT = {
   retweets: 'Total Retweets', comments: 'Total Comments'
 };
 
+/* ---- hot/cold plan, Phase 5: kis store se padhein --------------------------
+   HOT (Atlas, pichhle N din) tabhi jab: HOT on + healthy + range ka pehla din
+   window ke andar. Warna COLD (local master_tweets) -- bilkul aaj jaisa.
+   HOT par koi bhi error -> wahi kaam COLD par dobara (user ko error nahi). */
+function twFrom(req) {
+  var f = String((req && req.query && req.query.from) || '').slice(0, 10);
+  return /^\d{4}-\d{2}-\d{2}$/.test(f) ? f : '';
+}
+function hotAllowed(fromDate) {
+  return !!fromDate && MP.hotHealthy() && String(fromDate).slice(0, 10) >= MP.windowCutoff();
+}
+var HOT_STATS = { hot: 0, cold: 0, fallback: 0, lastError: '' };
+async function onTweets(fromDate, work, okFn) {
+  if (hotAllowed(fromDate)) {
+    try {
+      var h = MP.hotClient(); await h.connect();
+      var r = await work(h.db().collection('tweets'), 'hot');
+      if (!okFn || okFn(r)) { HOT_STATS.hot++; return r; }
+    } catch (e) {
+      HOT_STATS.fallback++; HOT_STATS.lastError = String(e.message || e).slice(0, 150);
+      console.log('  [hot] ' + HOT_STATS.lastError + ' -> cold');
+    }
+  }
+  var cli = MP.client();
+  try {
+    await cli.connect();
+    HOT_STATS.cold++;
+    return await work(cli.db(MASTER_DB).collection(MASTER_COLL), (fromDate && MP.HOT.enabled) ? 'archive' : 'cold');
+  } finally { try { await cli.close(); } catch (e) {} }
+}
+
 function twFilter(req) {
   var q = {};
   if (req.query.scope === 'up') q.State = 'Uttar Pradesh';
@@ -3471,19 +3534,18 @@ function newsGuard(req, res, next) {
 var _newsRaw = null;
 async function newsWindow() {
   if (_newsRaw && Date.now() - _newsRaw.at < 60000) return _newsRaw.v;
-  var cli = MP.client();
-  try {
-    await cli.connect();
-    var c = cli.db(MASTER_DB).collection(MASTER_COLL);
-    var docs = await c.find({ Category: { $in: NEWS.MEDIA_CATS } },
-                            { projection: NEWS_PROJ })
-                      .sort({ 'Tweet Date': -1 }).limit(NEWS_WINDOW)
-                      .maxTimeMS(60000).toArray();
-    var items = NEWS.toItems(docs);
-    NEWS.score(items);
-    _newsRaw = { at: Date.now(), v: items };
-    return items;
-  } finally { try { await cli.close(); } catch (e) {} }
+  /* hot/cold Phase 5: pehle HOT (pichhle N din); agar wahan NEWS_WINDOW poore
+     na milein (window chhota pad gaya) to COLD -- result hamesha wahi rehta hai. */
+  var docs = await onTweets(MP.windowCutoff(), async function (c) {
+    return await c.find({ Category: { $in: NEWS.MEDIA_CATS } },
+                        { projection: NEWS_PROJ })
+                  .sort({ 'Tweet Date': -1 }).limit(NEWS_WINDOW)
+                  .maxTimeMS(60000).toArray();
+  }, function (r) { return r && r.length >= NEWS_WINDOW; });
+  var items = NEWS.toItems(docs);
+  NEWS.score(items);
+  _newsRaw = { at: Date.now(), v: items };
+  return items;
 }
 
 /* ==================================================================
@@ -3632,10 +3694,7 @@ app.get('/api/tw/top', dashGuard, async function (req, res) {
   var key = 'top|' + metric + '|' + limit + '|' + JSON.stringify(q);
   try {
     var rows = await twCached(key, 60000, async function () {
-      var cli = MP.client();
-      try {
-        await cli.connect();
-        var c = cli.db(MASTER_DB).collection(MASTER_COLL);
+      return onTweets(twFrom(req), async function (c) {
         var out;
         if (metric === 'engagement') {
           /* Engagement = Likes + Retweets + Comments.
@@ -3666,7 +3725,7 @@ app.get('/api/tw/top', dashGuard, async function (req, res) {
                        .maxTimeMS(60000).toArray();
         }
         return out.map(twRow);
-      } finally { try { await cli.close(); } catch (e) {} }
+      });
     });
     res.json({ n: rows.length, metric: metric, rows: rows });
   } catch (e) {
@@ -3685,10 +3744,7 @@ app.get('/api/tw/list', dashGuard, async function (req, res) {
   var key = 'list|' + sort + '|' + limit + '|' + skip + '|' + JSON.stringify(q);
   try {
     var out = await twCached(key, 60000, async function () {
-      var cli = MP.client();
-      try {
-        await cli.connect();
-        var c = cli.db(MASTER_DB).collection(MASTER_COLL);
+      return onTweets(twFrom(req), async function (c, store) {
         var s = {};
         if (sort === 'date') s['Tweet Date'] = -1;
         else if (sort === 'eng') s['Total Likes'] = -1;      // engagement ka proxy
@@ -3700,8 +3756,8 @@ app.get('/api/tw/list', dashGuard, async function (req, res) {
            usse aage "2,00,000+" dikha dete hain. */
         var n = await c.countDocuments(q, { limit: 200000, maxTimeMS: 20000 })
                        .catch(function () { return -1; });
-        return { n: n, capped: n >= 200000, rows: rows.map(twRow) };
-      } finally { try { await cli.close(); } catch (e) {} }
+        return { n: n, capped: n >= 200000, rows: rows.map(twRow), source: store };
+      });
     });
     res.json(out);
   } catch (e) {
@@ -4444,6 +4500,7 @@ function _rx(term){                     // keyword -> safe regex (word-ish match
    Wapas purane pool par: env PULSE_REPORT_SRC=pool  (server restart). */
 const REPORT_SRC = String(process.env.PULSE_REPORT_SRC || 'master').toLowerCase() === 'pool' ? 'pool' : 'master';
 const RS = require('./report_src.js');
+var _lastReportStore = 'cold';
 
 // pool ka date-range + size (10 min cache) - report header me dikhta hai
 async function reportPoolInfo(force){
@@ -4483,9 +4540,11 @@ async function queryTweets(terms, dFrom, dTo){
   try {
     var q, out, t0 = Date.now();
     if (REPORT_SRC === 'master') {
-      var col = client.db(MASTER_DB).collection(MASTER_COLL);
       q = RS.masterQuery(terms, dFrom, dTo);
-      var docs = await col.find(q, { projection: RS.PROJ }).limit(REPORT_CAP).batchSize(5000).toArray();
+      var docs = await onTweets(dFrom, async function (col, store) {
+        _lastReportStore = store;
+        return await col.find(q, { projection: RS.PROJ }).limit(REPORT_CAP).batchSize(5000).toArray();
+      });
       out = docs.map(RS.toRow);
     } else {
       var col = client.db(REPORT_DB).collection('tweets');
@@ -4707,6 +4766,8 @@ app.get('/api/report', async function (req, res) {
     if (applied.length) rep.insights.unshift('AND filter applied: ' + applied.concat(['Keywords (' + kws.join(', ') + ')']).join(' + ') + ' — a tweet must match every condition.');
     if (skipped.length) rep.insights.unshift('Note: ' + skipped.join(' and ') + ' produced no COMBINED match, so that condition was dropped for this report.');
     if (dateNote) rep.insights.unshift(dateNote);
+    rep.source = (REPORT_SRC === 'master') ? _lastReportStore : 'pool';
+    if (rep.source === 'archive') rep.insights.unshift('Older date range -- loaded from the archive (local database).');
     rep.insights.unshift('Data source: ALL INDIA dataset + Media House + Journalist — '
       + info.n.toLocaleString('en-IN') + ' tweets ('
       + info.pol.toLocaleString('en-IN') + ' political + ' + info.mj.toLocaleString('en-IN')
@@ -5862,6 +5923,28 @@ app.post('/admin/tracker/stop', adminGuard, function (req, res) {
    nahi hota. Ab ek line me sab pata:
        http://localhost:3000/healthz
    Login nahi maangta (sirf haalat batata hai, data nahi). */
+/* hot/cold plan, Phase 5.5: HOT ka haal (admin). Password kabhi nahi dikhta. */
+app.get('/admin/hot-status', adminGuard, async function (req, res) {
+  res.set('Cache-Control', 'no-store');
+  var out = MP.hotStatus();
+  out.reads = HOT_STATS; out.dashboards = DASH_HOT;
+  try {
+    var st = JSON.parse(fs.readFileSync(path.join(__dirname, '.hot_state.json'), 'utf8'));
+    out.guard = st;
+  } catch (e) { }
+  out.resyncPending = fs.existsSync(path.join(__dirname, '.hot_resync'));
+  try { out.lastResync = fs.readFileSync(path.join(__dirname, '.hot_resync_done'), 'utf8').trim(); } catch (e) { }
+  if (MP.HOT.enabled && out.healthy) {
+    try {
+      var h = MP.hotClient(); await h.connect();
+      var s = await h.db().command({ dbStats: 1 });
+      out.sizeMB = Math.round(((s.dataSize || 0) + (s.indexSize || 0)) / 1e5) / 10;
+      out.maxMB = MP.HOT.max_mb;
+    } catch (e) { out.sizeError = String(e.message).slice(0, 120); }
+  }
+  res.json(out);
+});
+
 app.get('/healthz', async function (req, res) {
   res.set('Cache-Control', 'no-store');
   var out = { ok: true, uptimeSec: Math.round(process.uptime()), checks: {} };
@@ -5897,6 +5980,13 @@ app.get('/healthz', async function (req, res) {
     if (!n) out.ok = false;
   } catch (e) { out.ok = false; }
 
+  /* hot/cold plan: HOT ka haal (sirf on/off/healthy + ginti -- koi data/password nahi).
+     HOT down hone se ok=false NAHI hota: site cold par poori chalti hai. */
+  try {
+    var hs = MP.hotStatus();
+    out.checks.hot = { enabled: hs.enabled, healthy: hs.healthy, windowStart: hs.windowStart,
+                       reads: HOT_STATS, dashboards: DASH_HOT };
+  } catch (e) { }
   res.status(out.ok ? 200 : 503).json(out);
 });
 

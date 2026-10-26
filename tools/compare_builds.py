@@ -80,8 +80,44 @@ def summarize(scope, A, B):
         strict = key in STRICT
         if out and strict: bad_strict += 1
         flag = 'OK' if not out else ('MISMATCH (STRICT)' if strict else 'differs')
-        print('  %-22s %-18s %s' % (name, flag, ('%d paths, e.g. %s' % (len(out), out[:2])) if out else '')[:260])
+        if out and not strict:
+            nx, ny = norm(key, x), norm(key, y)
+            o2 = []; diff(nx, ny, name, o2)
+            if not o2:
+                flag, out = 'OK (order of equal items only)', []
+            else:
+                out = o2
+        print('  %-22s %-30s %s' % (name, flag, ('%d paths, e.g. %s' % (len(out), out[:2])) if out else '')[:260])
     return bad_strict
+
+
+def _tieset(lst, k):
+    """list sorted by key k -> [(k value, sorted entries)] so equal-k items compare as a set;
+    the last tie group can be cut at the list end, so keep only its key."""
+    groups, cur = [], None
+    for it in lst or []:
+        if cur is None or it.get(k) != cur[0]:
+            cur = (it.get(k), []); groups.append(cur)
+        cur[1].append(json.dumps(it, sort_keys=True))
+    out = [[g[0], sorted(g[1])] for g in groups]
+    if out: out[-1] = [out[-1][0], 'tail-tie']
+    return out
+
+
+def norm(key, v):
+    """Remove differences that are only the order of items with equal sort keys."""
+    if v is None: return v
+    if key == 'mapping':
+        return {i: {k: sorted(l) for k, l in m['map'].items()} for i, m in v.items()}
+    if key == 'D':
+        v = dict(v); v['handles'] = sorted(v['handles'], key=lambda h: h['h']); return v
+    if key == 'HASHTAGS':
+        return _tieset(v, 'vw')
+    if key == 'HTFULL':
+        return {p: _tieset(l, 'vw') for p, l in v.items()}
+    if key == 'WORDCLOUD':
+        return {'words': _tieset(v['words'], 'c'), 'tags': _tieset(v['tags'], 'c'), 'total_words': v['total_words']}
+    return v
 
 
 A1 = run(os.path.join(ROOT, 'DASHBOARD'), 'MONGO', 'all_MONGO')

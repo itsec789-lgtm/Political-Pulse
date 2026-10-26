@@ -62,8 +62,17 @@ function todayIST(now) {
   return new Date(t).toISOString().slice(0, 10);
 }
 /* HOT window ka pehla din (IST). days=7 -> aaj + pichhle 6 din. */
+/* hot.days, ya Phase 7 guard ne size ki wajah se ghataya ho to wo (DASHBOARD/.hot_state.json) */
+function effectiveDays() {
+  const cands = [path.join(__dirname, '.hot_state.json'), path.join(__dirname, '..', 'DASHBOARD', '.hot_state.json')];
+  for (const p of cands) {
+    try { const v = parseInt((JSON.parse(fs.readFileSync(p, 'utf8')) || {}).days, 10); if (v > 0) return Math.min(v, HOT.days); }
+    catch (e) { }
+  }
+  return HOT.days;
+}
 function windowCutoff(days, now) {
-  const d = parseInt(days || HOT.days, 10);
+  const d = parseInt(days || effectiveDays(), 10);
   const t = Date.parse(todayIST(now) + 'T00:00:00Z') - (d - 1) * 86400000;
   return new Date(t).toISOString().slice(0, 10);
 }
@@ -75,4 +84,4 @@ function masked(url) {
   return u.slice(0, i + 2) + user + ':****' + u.slice(j);
 }
 
-module.exports = { HOT: HOT, windowCutoff: windowCutoff, todayIST: todayIST, masked: masked };
+module.exports = { HOT: HOT, windowCutoff: windowCutoff, effectiveDays: effectiveDays, todayIST: todayIST, masked: masked };

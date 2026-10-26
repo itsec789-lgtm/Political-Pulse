@@ -38,3 +38,6 @@ desktop.ini
 db_config.local.json
 tools/_cmp/
 .summary_verify
+.hot_resync
+.hot_resync_done
+.hot_state.json

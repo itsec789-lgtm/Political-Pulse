@@ -40,7 +40,7 @@ from mongo_conf import MONGO_URL
 DB, SRC = "pulse_master", "master_tweets"
 SCOPES = ("all", "up")               # word-cloud scopes
 UP_STATE = "Uttar Pradesh"
-WORDS_PER_DAY = 2000
+WORDS_PER_DAY = 0          # 0 = keep every word of the day (exact Word Cloud counts; top-N truncation was off by up to 0.5%)
 TAG_RE = re.compile(r'#[\wऀ-ॣ०-ॿ]+')   # exactly as read_csv_agg
 NEED = sorted(set(U.C.values()))
 PROJ = dict({k: 1 for k in NEED}, _id=0)
@@ -140,7 +140,7 @@ def summarize_day(coll, day):
         g['built'] = datetime.datetime.now(datetime.timezone.utc)
         docs.append(g)
     wdocs = [{'_id': '%s|%s' % (sc, day), 'scope': sc, 'd': day,
-              'w': dict(words[sc].most_common(WORDS_PER_DAY)), 'distinct': len(words[sc]),
+              'w': dict(words[sc].most_common(WORDS_PER_DAY) if WORDS_PER_DAY else words[sc]), 'distinct': len(words[sc]),
               'built': datetime.datetime.now(datetime.timezone.utc)} for sc in SCOPES]
     return docs, wdocs, n
 

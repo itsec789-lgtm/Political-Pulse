@@ -88,10 +88,23 @@ def today_ist(now=None):
     return now.astimezone(IST).date()
 
 
+def effective_days():
+    """hot.days, ya Phase 7 guard ne size ki wajah se ghataya ho to wo (DASHBOARD/.hot_state.json)."""
+    here = os.path.dirname(os.path.abspath(__file__))
+    for p in (os.path.join(here, ".hot_state.json"), os.path.join(here, "..", "DASHBOARD", ".hot_state.json")):
+        try:
+            v = int((json.load(open(p)) or {}).get("days") or 0)
+            if v > 0:
+                return min(v, HOT["days"])
+        except Exception:
+            pass
+    return HOT["days"]
+
+
 def window_cutoff(days=None, now=None):
     """HOT window ka PEHLA din (IST), 'YYYY-MM-DD'.
     days=7 -> aaj + pichhle 6 din. Har jagah yahi use karo, cutoff inline mat banao."""
-    d = int(days or HOT["days"])
+    d = int(days or effective_days())
     return (today_ist(now) - datetime.timedelta(days=d - 1)).isoformat()
 
 

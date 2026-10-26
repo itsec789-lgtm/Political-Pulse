@@ -28,3 +28,16 @@ any summary error → this run uses MONGO.
 1. Merge the branch commits to `main` (hooks start marking days; build still MONGO).
 2. `build_daily_summary.py --all --live` once (≈4.5 min, pipeline idle).
 3. Set `"build": {"source": "SPLIT"}` in `C:\Main Twitter Project\db_config.local.json`. Rollback = set it back to `MONGO`.
+
+## Results (26 Oct 2026, same data, `tools/compare_builds.py`, test summary)
+
+| Build | MONGO (today) | SPLIT |
+|---|---|---|
+| All-India | 242 s | **44 s** |
+| UP | 221 s | **25 s** |
+
+Every dashboard key and collection is **identical** (UNI, PARTY_DATA, STATE_DATA, DAILY_DATA, phd, handles, AGG,
+CM_DATA, SENT_DAILY, HASHTAGS, …). `mapping`, `D.handles`, `HTFULL`, `WORDCLOUD` differ **only in the order of
+items that have equal values** (ties). Word Cloud counts are exact after storing full per-day word lists
+(`daily_words` ≈ 102 MB data / 51 MB on disk). `--verify` on the full test summary: 0 days differ (73 s).
+Dirty-hook test (`tools/test_dirty_hook.py`): PASS.

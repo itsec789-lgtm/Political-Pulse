@@ -103,6 +103,7 @@ def push_all(master_csv, log=print):
     #   par hi, ek hi timestamp se, dono ka stamp lagta hai. Beech me kuch
     #   toota to koi stamp nahi lagta -- dono purana data dikhayenge, jo
     #   "aadha naya aadha purana" se hamesha behtar hai.
+    _hot_since = datetime.datetime.now(datetime.timezone.utc)      # hot/cold: Atlas push of THIS run
     log("=== All-India -> india_Pulse (DASHBOARD pipeline) ===")
     subprocess.run([PY, os.path.join(HERE, "update_dashboard.py"), master, "--push"],
                    cwd=HERE, check=True)
@@ -127,6 +128,14 @@ def push_all(master_csv, log=print):
     ok2 = _stamp("up_pulse", log, now)
     if ok1 and ok2:
         log("  Dono dashboard stamp ho gaye: %s" % now)
+        try:
+            import hot_push
+            if hot_push._db() is not None:
+                h1 = hot_push.stamp("india_Pulse", now, _hot_since, log)
+                h2 = hot_push.stamp("up_pulse", now, _hot_since, log)
+                log("  HOT stamp: india=%s up=%s" % (h1, h2))
+        except Exception as e:
+            log("  HOT SYNC FAIL (stamp): %s" % e)
 
     log("DONE: dono view push (All-India + UP).")
 

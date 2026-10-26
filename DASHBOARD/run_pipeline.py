@@ -317,6 +317,32 @@ def backup_csv(coll, log=log):
     log("  backup done (%s parts, %s rows)" % (len(counts), f"{sum(counts.values()):,}"))
 
 
+def hot_step(which):
+    """hot/cold plan, Phase 3/7. HOT band ho to kuch nahi. Kabhi pipeline nahi todta.
+    which='pre'  : ingest ke baad -- write-through ginti log, aur zaroorat ho to window resync
+    which='post' : push ke baad -- hot vs cold ginti + Atlas size guard"""
+    try:
+        import hot_conf as HC; importlib.reload(HC)
+        if not HC.HOT["enabled"]:
+            return
+        script = os.path.join(HERE, "hot_sync.py")
+        if which == "pre":
+            st = getattr(M2, "HOT_STATS", {})
+            if st.get("written") or st.get("failed"):
+                log("  HOT write-through: %d tweets%s" % (st.get("written", 0),
+                    ("  (FAIL %d: %s)" % (st["failed"], st.get("last_error", ""))) if st.get("failed") else ""))
+            args = ["--resync"]
+        else:
+            args = ["--check"]
+        r = subprocess.run([sys.executable, script] + args, cwd=HERE, capture_output=True, text=True,
+                           encoding="utf-8", errors="replace", timeout=1800)
+        lines = [l for l in (r.stdout or "").splitlines() if l.startswith(("resync", "check", "HOT"))]
+        msg = " | ".join(lines)[:220] or ("rc=%d %s" % (r.returncode, (r.stderr or "").strip()[-160:]))
+        log("  HOT %s: %s" % (which, msg))
+    except Exception as e:
+        log("  HOT SYNC FAIL (%s): %s -- baaki pipeline normal" % (which, e))
+
+
 def build_source():
     """hot/cold plan, Phase 4. "MONGO" (default) = today's full read of master_tweets.
     "SPLIT" (db_config.local.json build.source / env PULSE_BUILD_SRC) = refresh the dirty
@@ -607,8 +633,10 @@ def main():
     else:
         _pending_set()
         log("Build + push (SEEDHA MONGO SE) -> india_Pulse + up_pulse ...")
+        hot_step("pre")
         import push_all_scopes as PA; importlib.reload(PA)
         PA.push_all(build_source(), log=log)
+        hot_step("post")
         if not push_punjab():
             log("   (All India/UP ho gaye, Punjab nahi -- agle run me Punjab dobara chalega)")
         # Yahan tak pahunche matlab DONO dashboard ban gaye -- ab hi state

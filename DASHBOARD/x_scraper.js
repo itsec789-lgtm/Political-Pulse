@@ -446,6 +446,7 @@ async function saveTweets(db, docs, stats) {
     await c.bulkWrite(ops.slice(i, i + 500), { ordered: false });
   }
   await markDirtyDays(db, docs.map(function (d) { return d['Tweet Date']; }));
+  await hotMirror(docs);
   docs.forEach(function (d) {
     if (have[d['Tweet ID']]) stats.updatedCount++; else stats.newCount++;
   });
@@ -470,6 +471,51 @@ async function markDirtyDays(db, days) {
     }), { ordered: false });
     return ds.length;
   } catch (e) { try { log('summary_dirty mark skip: ' + e.message, 'warn'); } catch (e2) {} return 0; }
+}
+/* hot/cold plan, Phase 3: Atlas HOT copy (pichhle N din) ko bhi wahi badlaav.
+   HOT band ho to kuch nahi. Fail ho to cold theek rehta hai; flag file se
+   agla pipeline run poori window dobara copy kar deta hai. */
+function _istToUtc(s) {
+  const m = String(s || '').match(/^(\d{4})-(\d{2})-(\d{2})(?: (\d{2}):(\d{2}):(\d{2}))?/);
+  if (!m) return null;
+  return new Date(Date.UTC(+m[1], +m[2] - 1, +m[3], +(m[4] || 0), +(m[5] || 0), +(m[6] || 0)) - 330 * 60000);
+}
+function _hotFail(e) {
+  try { log('HOT SYNC FAIL: ' + String(e && e.message || e).slice(0, 150), 'warn'); } catch (e2) {}
+  try { require('fs').writeFileSync(require('path').join(__dirname, '.hot_resync'), new Date().toISOString()); } catch (e3) {}
+}
+async function hotMirror(docs) {
+  try {
+    const MP = require('./mongo_pool.js');
+    const hc = MP.hotClient();
+    if (!hc) return 0;
+    const cut = MP.windowCutoff();
+    const ops = [];
+    (docs || []).forEach(function (d) {
+      const day = String(d['Tweet Date'] || '').slice(0, 10);
+      const ts = _istToUtc(d['Tweet Date']);
+      if (!ts || day < cut) return;
+      const op = buildOp(d);
+      const u = JSON.parse(JSON.stringify(op.updateOne.update));
+      u.$set = u.$set || {}; u.$set.ts = ts;
+      ops.push({ updateOne: { filter: op.updateOne.filter, update: u, upsert: true } });
+    });
+    if (!ops.length) return 0;
+    await hc.connect();
+    const col = hc.db().collection('tweets');
+    for (let i = 0; i < ops.length; i += 500) await col.bulkWrite(ops.slice(i, i + 500), { ordered: false });
+    return ops.length;
+  } catch (e) { _hotFail(e); return 0; }
+}
+async function hotRelabel(rx, cols) {
+  try {
+    const MP = require('./mongo_pool.js');
+    const hc = MP.hotClient();
+    if (!hc) return 0;
+    await hc.connect();
+    const r = await hc.db().collection('tweets').updateMany({ Handle: rx }, { $set: cols });
+    return r.modifiedCount || 0;
+  } catch (e) { _hotFail(e); return 0; }
 }
 async function markDirtyHandle(db, rx) {
   try {
@@ -502,6 +548,7 @@ async function releaseHandle(db, handle) {
     patched = r.modifiedCount || 0;
     if (patched) log('  @' + h + ' -- mapping applied to ' + patched + ' row(s) already in the database');
     if (patched) await markDirtyHandle(db, rx);
+    if (patched) await hotRelabel(rx, cols);
     _clearLegacy();
   } catch (e) {
     log('Could not apply the mapping to existing rows: ' + e.message, 'warn');
@@ -529,6 +576,7 @@ async function releaseHandle(db, handle) {
     await c.bulkWrite(ops.slice(i, i + 500), { ordered: false });
   }
   await markDirtyDays(db, docs.map(function (d) { return d['Tweet Date']; }));
+  await hotMirror(docs);
   docs.forEach(function (d) { if (have[d['Tweet ID']]) stats.updatedCount++; else stats.newCount++; });
 
   /* master_tweets me jaane ke BAAD hi pending se hatate hain -- ulta karte

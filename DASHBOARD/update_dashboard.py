@@ -754,6 +754,12 @@ def push_mongo(handles, phd_docs, mapping, dd_docs):
                        ("mapping", mapping), ("dashboard_data", dd_docs)])
     finally:
         cli.close()
+    # hot/cold plan, Phase 4.2: same dashboards to Atlas (only if HOT is on; never breaks local)
+    try:
+        import hot_push
+        hot_push.push(DB_NAME, {'dashboard_data': dd_docs, 'phd': phd_docs, 'handles': handles})
+    except Exception as _e:
+        print("  HOT SYNC FAIL (dashboards): %s" % _e)
 
 
 if __name__ == "__main__":
