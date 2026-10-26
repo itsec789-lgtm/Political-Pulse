@@ -183,7 +183,16 @@ def load_template():
     return {b['key']: b['value'] for b in blobs}
 
 
-def read_csv_agg(csv_path):
+def read_csv_agg(csv_path, query=None):
+    # hot/cold plan, Phase 4: "SPLIT" = per-day summary for old days + raw tweets for the
+    # last N days (summary_agg.py). Same 11 return values, so build() is unchanged.
+    if str(csv_path).strip().upper() == 'SPLIT':
+        try:
+            import summary_agg
+            return summary_agg.split_agg(sys.modules[__name__])
+        except Exception as _e:
+            print("  !! SPLIT nahi chala (%s) -- poora MONGO read kar rahe hain" % _e)
+            csv_path = 'MONGO'
     acc = {}
     meta = {}
     daily = collections.defaultdict(lambda: [0, 0, 0, 0])   # (handle,date)->[t,v,k,r]
@@ -196,7 +205,7 @@ def read_csv_agg(csv_path):
     words = collections.Counter()                                                       # Word Cloud
     hourly = [0]*24
     need = list(set(C.values()))
-    for ch in _SRC.chunks(csv_path, need):
+    for ch in _SRC.chunks(csv_path, need, query):
         ch = ch.rename(columns=lambda c: c.strip()).fillna('')
         if SCOPE_STATE:
             ch = ch[ch[C['state']].astype(str).str.strip() == SCOPE_STATE]

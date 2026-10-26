@@ -317,6 +317,43 @@ def backup_csv(coll, log=log):
     log("  backup done (%s parts, %s rows)" % (len(counts), f"{sum(counts.values()):,}"))
 
 
+def build_source():
+    """hot/cold plan, Phase 4. "MONGO" (default) = today's full read of master_tweets.
+    "SPLIT" (db_config.local.json build.source / env PULSE_BUILD_SRC) = refresh the dirty
+    days of pulse_master.daily_summary, then build from summary + last N days raw.
+    Any problem with the summary -> falls back to "MONGO" for this run (logged)."""
+    try:
+        import summary_agg as SA; importlib.reload(SA)
+        src = SA.build_conf()["source"]
+    except Exception as e:
+        log("  (build source: %s -- MONGO use kar rahe hain)" % e)
+        return "MONGO"
+    if src != "SPLIT":
+        return "MONGO"
+    t = time.time()
+    # roz ek baar (din ka pehla run): poore summary ki jaanch -- jo din cold se na mile wo dirty
+    mark = os.path.join(HERE, ".summary_verify")
+    today = datetime.date.today().isoformat()
+    try: last_v = open(mark).read().strip()
+    except Exception: last_v = ""
+    if last_v != today:
+        rv = subprocess.run([sys.executable, os.path.join(HERE, "build_daily_summary.py"), "--verify", "--live"],
+                            cwd=HERE, capture_output=True, text=True, encoding="utf-8", errors="replace")
+        vt = [l for l in (rv.stdout or "").splitlines() if l.startswith("verify")]
+        log("  summary verify (roz ek baar): %s" % (" | ".join(vt)[:200] or ("FAIL " + (rv.stderr or "")[-160:])))
+        if rv.returncode == 0:
+            try: open(mark, "w").write(today)
+            except Exception: pass
+    r = subprocess.run([sys.executable, os.path.join(HERE, "build_daily_summary.py"), "--dirty", "--live"],
+                       cwd=HERE, capture_output=True, text=True, encoding="utf-8", errors="replace")
+    tail = (r.stdout or "").strip().splitlines()[-1:] or [""]
+    if r.returncode != 0:
+        log("  !! SUMMARY refresh fail (%s) -- is run me MONGO (poora) build" % ((r.stderr or "").strip().splitlines()[-1:] or ["?"])[0][:160])
+        return "MONGO"
+    log("  summary refresh: %s (%.0fs)" % (tail[0][:120], time.time() - t))
+    return "SPLIT"
+
+
 def push_punjab():
     """Punjab dashboard ka data (political_lens) bhi taaza kar do.
 
@@ -571,7 +608,7 @@ def main():
         _pending_set()
         log("Build + push (SEEDHA MONGO SE) -> india_Pulse + up_pulse ...")
         import push_all_scopes as PA; importlib.reload(PA)
-        PA.push_all("MONGO", log=log)
+        PA.push_all(build_source(), log=log)
         if not push_punjab():
             log("   (All India/UP ho gaye, Punjab nahi -- agle run me Punjab dobara chalega)")
         # Yahan tak pahunche matlab DONO dashboard ban gaye -- ab hi state

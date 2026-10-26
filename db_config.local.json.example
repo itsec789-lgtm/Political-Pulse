@@ -9,5 +9,10 @@
     "db": "pulse_hot_test",
     "days": 7,
     "max_mb": 400
+  },
+  "_5_build": "build.source: MONGO (default, full read every run) ya SPLIT (summary + last 7 days raw; pehle build_daily_summary.py --all --live chalana zaroori). Env: PULSE_BUILD_SRC, PULSE_SUMMARY_COLL.",
+  "build": {
+    "source": "MONGO",
+    "summary": "daily_summary"
   }
 }

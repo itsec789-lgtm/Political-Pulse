@@ -121,6 +121,14 @@ def main():
         done += c.bulk_write(ops[i:i + 200], ordered=False).modified_count
         print("   %s / %s handles" % (f"{min(i+200, len(ops)):,}", f"{len(ops):,}"), end='\r')
     print("\nrows update hue: %s" % f"{done:,}")
+    if done:
+        # hot/cold plan: labels changed on old tweets -> every summary day must be rebuilt
+        try:
+            import master_to_mongo as _M2
+            _M2.mark_dirty(c, all_days=True)
+            print("summary: saare din dobara banenge (summary_dirty = ALL)")
+        except Exception as _e:
+            print("  (summary_dirty mark skip: %s)" % _e)
     cli.close()
 
     print("\nAb chalao:")

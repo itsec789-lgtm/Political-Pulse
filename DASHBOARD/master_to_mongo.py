@@ -45,12 +45,41 @@ def _num(v):
         return None
 
 
+_DAY_RE = None
+
+
+def mark_dirty(c, days=(), all_days=False):
+    """hot/cold plan, Phase 2: tell the daily summary which days changed.
+    Writes {_id: 'YYYY-MM-DD', at: now} into pulse_master.summary_dirty (or
+    <coll>_summary_dirty for a test collection). Never raises -- ingest must not
+    fail because of the summary."""
+    global _DAY_RE
+    try:
+        import re as _re
+        from pymongo import UpdateOne
+        if _DAY_RE is None:
+            _DAY_RE = _re.compile(r'^\d{4}-\d{2}-\d{2}$')
+        dc = c.database['summary_dirty' if c.name == COLL else c.name + '_summary_dirty']
+        now = datetime.datetime.now(datetime.timezone.utc)
+        if all_days:
+            dc.update_one({'_id': 'ALL'}, {'$set': {'at': now}}, upsert=True)
+            return 1
+        ds = sorted({d for d in days if d and _DAY_RE.match(d)})
+        if ds:
+            dc.bulk_write([UpdateOne({'_id': d}, {'$set': {'at': now}}, upsert=True) for d in ds], ordered=False)
+        return len(ds)
+    except Exception as e:
+        print("  (summary_dirty mark skip: %s)" % e)
+        return 0
+
+
 def upsert_frame(df, c, log=print):
     """DataFrame -> mongo (merge upsert). Return (inserted+updated) count."""
     from pymongo import UpdateOne
     import re as _re
     _rid = _re.compile(r'/status(?:es)?/(\d+)')
     ops = []
+    _days = set()
     for r in df.itertuples(index=False):
         d = dict(zip(df.columns, r))
         # _id HAMESHA URL me se Tweet ID (yahi asli unique key hai).
@@ -98,9 +127,11 @@ def upsert_frame(df, c, log=print):
         upd['$setOnInsert'] = {'_first': _TODAY}
         if not upd: continue
         ops.append(UpdateOne({'_id': tid}, upd, upsert=True))
+        _days.add(str(d.get('Tweet Date', '') or '')[:10])
         if len(ops) >= 5000:
             c.bulk_write(ops, ordered=False); ops = []
     if ops: c.bulk_write(ops, ordered=False)
+    mark_dirty(c, _days)                    # hot/cold: these days need a fresh summary
     # handle kab pehli baar mila (naye handles ginne ke liye)
     try:
         hs = set(str(x).strip() for x in df.get('Handle', []) if str(x).strip())

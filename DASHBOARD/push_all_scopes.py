@@ -78,8 +78,10 @@ def dedupe_report(master, log=print):
 
 def push_all(master_csv, log=print):
     # "MONGO" -> seedha pulse_master.master_tweets se build (koi CSV nahi)
-    if str(master_csv).strip().upper() == "MONGO":
-        master = "MONGO"
+    if str(master_csv).strip().upper() in ("MONGO", "SPLIT"):
+        # SPLIT (hot/cold plan, Phase 4): old days from pulse_master.daily_summary,
+        # last N days raw from master -- see summary_agg.py
+        master = str(master_csv).strip().upper()
         try:
             import src_chunks as SC
             log("Source: MongoDB pulse_master.master_tweets (%s docs)" % f"{SC.mongo_coll().estimated_document_count():,}")
@@ -114,7 +116,7 @@ def push_all(master_csv, log=print):
     # ~15 min) har run me banane ki zaroorat nahi. Purana raasta chahiye to
     # env PULSE_REPORT_SRC=pool -- tab push_tweets.py pehle jaisa chalta hai.
     if os.environ.get("PULSE_REPORT_SRC", "master").strip().lower() == "pool":
-        subprocess.run([PY, os.path.join(UP_DIR, "push_tweets.py"), master],
+        subprocess.run([PY, os.path.join(UP_DIR, "push_tweets.py"), "MONGO" if master == "SPLIT" else master],
                        cwd=UP_DIR, check=True)
     else:
         log("  Report pool: up_pulse.tweets rebuild skip (Report tab reads pulse_master.master_tweets)")

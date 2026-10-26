@@ -445,6 +445,7 @@ async function saveTweets(db, docs, stats) {
   for (let i = 0; i < ops.length; i += 500) {
     await c.bulkWrite(ops.slice(i, i + 500), { ordered: false });
   }
+  await markDirtyDays(db, docs.map(function (d) { return d['Tweet Date']; }));
   docs.forEach(function (d) {
     if (have[d['Tweet ID']]) stats.updatedCount++; else stats.newCount++;
   });
@@ -453,6 +454,30 @@ async function saveTweets(db, docs, stats) {
   STATE.newCount = stats.newCount;
   STATE.updatedCount = stats.updatedCount;
   STATE.tweets = stats.newCount + stats.updatedCount;
+}
+
+/* hot/cold plan, Phase 2: daily summary ko batao ki kaunse din badle.
+   pulse_master.summary_dirty me {_id: 'YYYY-MM-DD'} -- agla pipeline run
+   sirf wahi din dobara banata hai. Kabhi throw nahi karta. */
+async function markDirtyDays(db, days) {
+  try {
+    const ds = Array.from(new Set((days || []).map(function (d) { return String(d || '').slice(0, 10); })))
+      .filter(function (d) { return /^\d{4}-\d{2}-\d{2}$/.test(d); });
+    if (!ds.length) return 0;
+    const now = new Date();
+    await db.collection('summary_dirty').bulkWrite(ds.map(function (d) {
+      return { updateOne: { filter: { _id: d }, update: { $set: { at: now } }, upsert: true } };
+    }), { ordered: false });
+    return ds.length;
+  } catch (e) { try { log('summary_dirty mark skip: ' + e.message, 'warn'); } catch (e2) {} return 0; }
+}
+async function markDirtyHandle(db, rx) {
+  try {
+    const rows = await db.collection(COLL_TWEETS).aggregate([
+      { $match: { Handle: rx } },
+      { $group: { _id: { $substrBytes: [{ $ifNull: ['$Tweet Date', ''] }, 0, 10] } } }]).toArray();
+    return await markDirtyDays(db, rows.map(function (r) { return r._id; }));
+  } catch (e) { try { log('summary_dirty mark skip: ' + e.message, 'warn'); } catch (e2) {} return 0; }
 }
 
 /* map-gate : mapping bhar jaane ke baad roke hue tweet chhodo.
@@ -476,6 +501,7 @@ async function releaseHandle(db, handle) {
     const r = await db.collection(COLL_TWEETS).updateMany({ Handle: rx }, { $set: cols });
     patched = r.modifiedCount || 0;
     if (patched) log('  @' + h + ' -- mapping applied to ' + patched + ' row(s) already in the database');
+    if (patched) await markDirtyHandle(db, rx);
     _clearLegacy();
   } catch (e) {
     log('Could not apply the mapping to existing rows: ' + e.message, 'warn');
@@ -502,6 +528,7 @@ async function releaseHandle(db, handle) {
   for (let i = 0; i < ops.length; i += 500) {
     await c.bulkWrite(ops.slice(i, i + 500), { ordered: false });
   }
+  await markDirtyDays(db, docs.map(function (d) { return d['Tweet Date']; }));
   docs.forEach(function (d) { if (have[d['Tweet ID']]) stats.updatedCount++; else stats.newCount++; });
 
   /* master_tweets me jaane ke BAAD hi pending se hatate hain -- ulta karte

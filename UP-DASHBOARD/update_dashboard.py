@@ -179,7 +179,16 @@ def load_template():
     return {b['key']: b['value'] for b in blobs}
 
 
-def read_csv_agg(csv_path):
+def read_csv_agg(csv_path, query=None):
+    # hot/cold plan, Phase 4: "SPLIT" = per-day summary for old days + raw tweets for the
+    # last N days (summary_agg.py). Same 11 return values, so build() is unchanged.
+    if str(csv_path).strip().upper() == 'SPLIT':
+        try:
+            import summary_agg
+            return summary_agg.split_agg(sys.modules[__name__])
+        except Exception as _e:
+            print("  !! SPLIT nahi chala (%s) -- poora MONGO read kar rahe hain" % _e)
+            csv_path = 'MONGO'
     acc = {}
     meta = {}
     daily = collections.defaultdict(lambda: [0, 0, 0, 0])   # (handle,date)->[t,v,k,r]
@@ -192,7 +201,7 @@ def read_csv_agg(csv_path):
     words = collections.Counter()                                                       # Word Cloud
     hourly = [0]*24
     need = list(set(C.values()))
-    for ch in _SRC.chunks(csv_path, need):
+    for ch in _SRC.chunks(csv_path, need, query):
         ch = ch.rename(columns=lambda c: c.strip()).fillna('')
         if SCOPE_STATE:
             ch = ch[ch[C['state']].astype(str).str.strip() == SCOPE_STATE]
@@ -304,8 +313,45 @@ def read_csv_agg(csv_path):
     return acc, meta, daily, sorted(dates), htag, htag_party, hourly, htag_daily, htag_party_daily, words, sdaily
 
 
+def _top_viral_index(n=400):
+    from pymongo import MongoClient
+    URL = 'Tweet URL'
+    cols = [URL, C['handle'], C['name'], C['party'], C['text'], C['sent'],
+            C['state'], C['pc'], C['ac'], C['date'], C['views'], C['likes'], C['rts']]
+    proj = dict({k: 1 for k in cols}, _id=0)
+    col = MongoClient(MONGO_URL)['pulse_master']['master_tweets']
+    base = {C['state']: SCOPE_STATE} if SCOPE_STATE else {}
+    rows = list(col.find(dict(base, **{C['views']: {'$type': 'number'}}), proj).sort(C['views'], -1).limit(n * 4))
+    rows += list(col.find(dict(base, **{C['views']: {'$exists': True, '$not': {'$type': 'number'}}}), proj))
+    if not rows: return []
+    df = pd.DataFrame(rows)
+    for k in cols:
+        if k not in df.columns: df[k] = ''
+    ch = df[cols].fillna('').astype(str)
+    ch = ch[ch[C['state']].str.strip() == SCOPE_STATE] if SCOPE_STATE else ch
+    ch['_vw'] = pd.to_numeric(ch[C['views']].str.replace(',', '', regex=False), errors='coerce').fillna(0)
+    allv = ch.drop_duplicates(subset=URL).nlargest(n, '_vw')
+    def _num(x):
+        try: return int(float(str(x).replace(',', '')))
+        except: return 0
+    out = []
+    for r in allv.itertuples(index=False):
+        d = dict(zip(allv.columns, r))
+        out.append({'vw': _num(d.get(C['views'])), 'lk': _num(d.get(C['likes'])), 'rt': _num(d.get(C['rts'])),
+                    'h': str(d.get(C['handle'], '')).strip(), 'name': d.get(C['name'], ''), 'party': d.get(C['party'], ''),
+                    'text': d.get(C['text'], ''), 'sent': d.get(C['sent'], ''), 'state': d.get(C['state'], '') or DASH,
+                    'loc': (d.get(C['pc']) or d.get(C['ac']) or ''), 'date': str(d.get(C['date'], ''))[:10],
+                    'url': d.get(URL, '')})
+    return out
+
+
 def top_viral(csv_path, n=400):
     """Master se top UP tweets (views ke hisaab se) - Tweet URL ke saath (clickable post link)."""
+    # hot/cold plan, Phase 4: SPLIT -> no full scan; the 'Total Views' index gives the top rows.
+    # Numeric views come sorted from the index; the (rare) non-numeric ones are fetched too and
+    # everything goes through the same parsing / dedupe / nlargest below.
+    if str(csv_path).strip().upper() == 'SPLIT':
+        return _top_viral_index(n)
     URL = 'Tweet URL'
     cols = set([URL, C['handle'], C['name'], C['party'], C['text'], C['sent'],
                 C['state'], C['pc'], C['ac'], C['date'], C['views'], C['likes'], C['rts']])

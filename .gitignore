@@ -36,3 +36,5 @@ desktop.ini
 
 # hot/cold plan: Atlas connection string + hot settings (NEVER commit)
 db_config.local.json
+tools/_cmp/
+.summary_verify

@@ -13,13 +13,28 @@ so memory stays small (one day at a time). Writes ONLY the summary collections.
     python build_daily_summary.py --all                          (every day, one by one)
     python build_daily_summary.py --dirty                        (days in pulse_master.summary_dirty)
     python build_daily_summary.py --check [--days ...]           (compare summary vs cold, no writes)
+    python build_daily_summary.py --verify                       (nightly: full compare, marks differing days dirty)
 
 Default target: daily_summary_test / daily_words_test (plan safety rule 3).
 Live names (daily_summary / daily_words) only with --live.
 """
 import os, sys, re, json, time, hashlib, datetime, collections
 from pymongo import MongoClient, InsertOne
-import update_dashboard as U          # same sent_code / regexes / stopwords as the dashboard build
+import importlib.util as _ilu
+
+
+def _load_ud():
+    """The All-India update_dashboard.py next to this file (by path, so it is the right one
+    even when called from the UP-DASHBOARD process)."""
+    here = os.path.dirname(os.path.abspath(__file__))
+    if here not in sys.path:
+        sys.path.insert(0, here)
+    spec = _ilu.spec_from_file_location('ud_all_for_summary', os.path.join(here, 'update_dashboard.py'))
+    m = _ilu.module_from_spec(spec); spec.loader.exec_module(m)
+    return m
+
+
+U = _load_ud()                         # same sent_code / regexes / stopwords as the dashboard build
 from mongo_conf import MONGO_URL
 
 DB, SRC = "pulse_master", "master_tweets"
@@ -178,6 +193,33 @@ def check_days(db, coll_name, days):
     return bad
 
 
+def verify(db, coll_name):
+    """Nightly safety net: group the whole cold collection by the summary key and compare
+    tw / likes / views / RTs with the summary. Returns the days that differ. No writes here."""
+    t = time.time()
+    tostr = lambda f: {'$trim': {'input': {'$ifNull': [{'$convert': {'input': '$' + f, 'to': 'string', 'onError': '', 'onNull': ''}}, '']}}}
+    dbl = lambda f: {'$convert': {'input': '$' + f, 'to': 'double', 'onError': 0, 'onNull': 0}}
+    pipe = [{'$group': {'_id': {'h': tostr(C['handle']), 'st': tostr(C['state']), 'pt': tostr(C['party']),
+                                'cat': tostr(C['cat']),
+                                'd': {'$substrBytes': [{'$ifNull': [{'$convert': {'input': '$' + C['date'], 'to': 'string', 'onError': '', 'onNull': ''}}, '']}, 0, 10]}},
+                        'tw': {'$sum': 1}, 'lk': {'$sum': dbl(C['likes'])}, 'vw': {'$sum': dbl(C['views'])},
+                        'rt': {'$sum': dbl(C['rts'])}}}]
+    cold = {}
+    for g in db[SRC].aggregate(pipe, allowDiskUse=True):
+        k = g['_id']
+        cold[doc_id(k['h'], k['d'], k['st'], k['pt'], k['cat'])] = (k['d'], g['tw'], int(g['lk']), int(g['vw']), int(g['rt']))
+    summ = {g['_id']: (g['d'], g['tw'], g['lk'], g['vw'], g['rt'])
+            for g in db[coll_name].find({}, {'d': 1, 'tw': 1, 'lk': 1, 'vw': 1, 'rt': 1})}
+    bad = set()
+    for k in set(cold) | set(summ):
+        a, b = cold.get(k), summ.get(k)
+        if a != b:
+            bad.add((a or b)[0])
+    bad = sorted(d for d in bad if re.match(r'^\d{4}-\d{2}-\d{2}$', d))
+    print('verify: %d cold groups, %d summary docs, %d day(s) differ  (%.0f s)' % (len(cold), len(summ), len(bad), time.time() - t))
+    return bad
+
+
 def main():
     a = sys.argv[1:]
     live = '--live' in a
@@ -185,6 +227,8 @@ def main():
     words_name = 'daily_words' if live else 'daily_words_test'
     if '--coll' in a:
         coll_name = a[a.index('--coll') + 1]
+    dirty_name = 'summary_dirty' if coll_name == 'daily_summary' else coll_name + '_dirty'
+    words_name = 'daily_words' if coll_name == 'daily_summary' else coll_name.replace('daily_summary', 'daily_words')
     cli = MongoClient(MONGO_URL, serverSelectionTimeoutMS=6000)
     db = cli[DB]
     src = db[SRC]
@@ -193,13 +237,25 @@ def main():
     elif '--all' in a:
         days = all_days(src)
     elif '--dirty' in a:
-        days = sorted(d['_id'] for d in db['summary_dirty' if live else 'summary_dirty_test'].find({}, {'_id': 1}))
-    elif '--check' in a:
+        t_start = datetime.datetime.now(datetime.timezone.utc)
+        ids = sorted(d['_id'] for d in db[dirty_name].find({}, {'_id': 1}))
+        days = all_days(src) if 'ALL' in ids else [d for d in ids if re.match(r'^\d{4}-\d{2}-\d{2}$', d)]
+        if not days:
+            print('summary: nothing dirty'); return 0
+    elif '--check' in a or '--verify' in a:
         days = all_days(src)
     else:
         print(__doc__); return 2
     if '--check' in a:
         return 1 if check_days(db, coll_name, days) else 0
+    if '--verify' in a:
+        bad = verify(db, coll_name)
+        if bad:
+            now = datetime.datetime.now(datetime.timezone.utc)
+            for d in bad:
+                db[dirty_name].update_one({'_id': d}, {'$set': {'at': now, 'by': 'verify'}}, upsert=True)
+            print('verify: marked %d day(s) dirty: %s' % (len(bad), ', '.join(bad[:10])))
+        return 0
     print('target: %s.%s / %s   days: %d' % (DB, coll_name, words_name, len(days)))
     db[coll_name].create_index('d'); db[coll_name].create_index('h')
     t0 = time.time(); total = 0
@@ -211,8 +267,8 @@ def main():
         if len(days) <= 15 or i % 10 == 0 or i == len(days):
             print('  [%d/%d] %s  tweets=%d  summary docs=%d  %.1fs' % (i, len(days), day, n, len(docs), time.time() - t))
     if '--dirty' in a:
-        dc = db['summary_dirty' if live else 'summary_dirty_test']
-        dc.delete_many({'_id': {'$in': days}})
+        # only clear marks that existed before we started (a tweet changed meanwhile stays dirty)
+        db[dirty_name].delete_many({'_id': {'$in': ids}, 'at': {'$lte': t_start}})
     print('DONE: %d tweets in %.1f s' % (total, time.time() - t0))
     return 0
 
