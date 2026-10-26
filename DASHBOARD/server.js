@@ -3919,6 +3919,8 @@ app.get('/api/narrative-groups/leader-analysis/:handle', async function (req, re
     // Date range support (explicit from/to or days preset)
     var dFrom = String(req.query.from || '').trim().slice(0, 10);
     var dTo   = String(req.query.to   || '').trim().slice(0, 10);
+    /* default-today (26-Oct): days=today -> sirf aaj (IST) */
+    if (!dFrom && !dTo && req.query.days === 'today') { dFrom = dTo = require('./hot_conf.js').todayIST(); }
     if (!dFrom && !dTo && req.query.days && req.query.days !== 'all') {
       var numDays = parseInt(req.query.days, 10);
       if (!isNaN(numDays) && numDays > 0) {
@@ -4035,6 +4037,8 @@ app.get('/api/narrative-groups/comparison', async function (req, res) {
     // Date range
     var dFrom = String(req.query.from || '').trim().slice(0, 10);
     var dTo   = String(req.query.to   || '').trim().slice(0, 10);
+    /* default-today (26-Oct): days=today -> sirf aaj (IST) */
+    if (!dFrom && !dTo && req.query.days === 'today') { dFrom = dTo = require('./hot_conf.js').todayIST(); }
     if (!dFrom && !dTo && req.query.days && req.query.days !== 'all') {
       var numDays = parseInt(req.query.days, 10);
       if (!isNaN(numDays) && numDays > 0) {
@@ -4274,6 +4278,8 @@ app.get('/api/parties/comparison', async function (req, res) {
     // Date range
     var dFrom = String(req.query.from || '').trim().slice(0, 10);
     var dTo   = String(req.query.to   || '').trim().slice(0, 10);
+    /* default-today (26-Oct): days=today -> sirf aaj (IST) */
+    if (!dFrom && !dTo && req.query.days === 'today') { dFrom = dTo = require('./hot_conf.js').todayIST(); }
     if (!dFrom && !dTo && req.query.days && req.query.days !== 'all') {
       var numDays = parseInt(req.query.days, 10);
       if (!isNaN(numDays) && numDays > 0) {

@@ -2034,7 +2034,7 @@ window.sentCardsHTML = function (S, suffix) {
     <span style="display:flex;align-items:center;gap:6px;text-transform:none;letter-spacing:0">
       <span style="font-size:10px;color:var(--muted);font-weight:600">📅 Date:</span>
       <select class="filter-select" id="upDateSel" onchange="upDate(this.value)" style="min-width:150px;font-family:'DM Sans'">
-        <option value="ALL">All days</option><option value="3">Last 3 days</option><option value="7">Last 7 days</option><option value="15">Last 15 days</option><option value="custom">Custom date…</option>
+        <option value="ALL">All days</option><option value="today">Today</option><option value="3">Last 3 days</option><option value="7">Last 7 days</option><option value="15">Last 15 days</option><option value="custom">Custom date…</option>
       </select>
       <input type="date" id="upDateCustom" min="2026-04-01" max="2026-07-01" onchange="upDateCustom(this.value)" style="display:none;border:1.5px solid var(--border);border-radius:8px;padding:5px 8px;font-family:'DM Sans';font-size:12px">
     </span>
@@ -3971,6 +3971,7 @@ function renderUpViral(arr){arr=(arr||[]).slice(0,8);const b=document.getElement
  b.innerHTML=arr.map((t,i)=>'<tr><td><span class="rank">'+(i+1)+'</span></td><td><a href="https://x.com/'+esc(t.h)+'" target="_blank" rel="noopener" title="@'+esc(t.h)+' profile" style="font-weight:700;font-size:12px;color:#1d9bf0;text-decoration:none">@'+esc(t.h)+'</a></td><td><span class="party-chip" style="background:'+upc(t.party)+'18;color:'+upc(t.party)+'">'+esc(t.party)+'</span></td><td>'+(t.url?('<a href="'+esc(t.url)+'" target="_blank" rel="noopener" title="View post on X" style="display:inline-block;padding:3px 9px;border-radius:6px;background:#FF9933;color:#fff;font-size:9px;font-weight:700;text-decoration:none;white-space:nowrap">View ↗</a>'):'—')+'</td><td style="max-width:230px;font-size:11px;line-height:1.5">'+esc((t.text||'').slice(0,110))+'…</td><td style="font-size:10px;color:#666">'+esc(t.date)+'</td><td>'+sbadge(t.sent)+'</td><td><span class="nv" style="color:#B71C1C">'+uf(t.lk)+'</span></td><td><span class="nv" style="color:#1B5E20">'+uf(t.rt)+'</span></td><td><span class="nv" style="color:#4A148C">'+uf(t.vw)+'</span></td></tr>').join('')}
 function daysFilter(n){const max=new Date(UP_MAX+'T00:00:00');const lo=new Date(max);lo.setDate(lo.getDate()-(n-1));return UNI.viral_up.filter(t=>{const d=new Date(t.date+'T00:00:00');return d>=lo&&d<=max})}
 window.upDate=function(v){const ci=document.getElementById('upDateCustom');
+ if(v==='today'){if(ci)ci.style.display='none';var _DD=window.PHD_DATES||[];var _ld=_DD.length?_DD[_DD.length-1]:'';renderUpViral(UNI.viral_up.filter(t=>t.date===_ld));return}
  if(v==='custom'){if(ci)ci.style.display='';renderUpViral(ci&&ci.value?UNI.viral_up.filter(t=>t.date===ci.value):[]);return}
  if(ci)ci.style.display='none';
  renderUpViral(v==='ALL'?UNI.viral_up:daysFilter(parseInt(v,10)))}
@@ -9305,6 +9306,70 @@ W.__pfByParty = byParty; W.__pfMetrics = metrics; W.__pfCATS = CATS; W.__pfDAYS 
     } catch (e) {}
     return p;
   };
+})();
+</script>
+<script>
+/* ===== default-today (26-Oct) =====
+   Dashboard tab: Full Range (jaisa tha). Baaki har tab jahan date range hai:
+   pehli baar khulte hi "Today". Sirf tab ke PEHLI baar khulne par, aur sirf tab
+   jab dropdown abhi bhi "Full Range" par ho -- user ka apna chunav kabhi nahi
+   badalta. Kaam wahi purane handler karte hain (change event), koi nayi logic nahi. */
+(function () {
+  if (window.__defaultToday) return; window.__defaultToday = 1;
+  var SKIP = { 'sec-dashboard': 1, 'sec-handle-analytics': 1, 'sec-reports': 1 };
+  var EXTRA = { pfDate: 1, ngFilterRange: 1, ngLaDateRange: 1 };
+  var done = {};
+  function lastDay() {
+    var D = window.PHD_DATES || window.AD || [];
+    return D.length ? D[D.length - 1] : '';
+  }
+  function fire(el) {
+    try { el.dispatchEvent(new Event('change', { bubbles: true })); } catch (e) {}
+  }
+  function apply(sec) {
+    /* range selects: ...Preset, pfDate, ngFilterRange */
+    var sels = sec.querySelectorAll('select');
+    for (var i = 0; i < sels.length; i++) {
+      var s = sels[i], id = s.id || '';
+      if (!(/Preset$/.test(id) || EXTRA[id])) continue;
+      if (s.value !== 'all') continue;
+      if (!s.querySelector('option[value="today"]')) continue;
+      s.value = 'today'; fire(s);
+    }
+    /* Growth: sirf From/To hain */
+    if (sec.id === 'sec-growth') {
+      var f = document.getElementById('gFrom'), t = document.getElementById('gTo'), d = lastDay();
+      if (f && t && d) { f.value = d; t.value = d; fire(t); }
+    }
+    /* UP: Top Viral Tweets */
+    var u = sec.querySelector('#upDateSel');
+    if (u && u.value === 'ALL' && u.querySelector('option[value="today"]') && window.upDate) {
+      u.value = 'today'; try { window.upDate('today'); } catch (e) {}
+    }
+  }
+  function wait(sec, n) {
+    /* data (PHD_DATES) aane tak ruko, warna "Today" ka matlab hi nahi banta */
+    if (!lastDay() && n < 60) { setTimeout(function () { wait(sec, n + 1); }, 250); return; }
+    try { apply(sec); } catch (e) { console.warn('default-today', e); }
+  }
+  function seen(sec) {
+    if (!sec || done[sec.id] || SKIP[sec.id]) return;
+    if (!sec.classList.contains('active')) return;
+    done[sec.id] = 1;
+    /* tab ka apna pehla render (setTimeout 30-50 ms, parties ka boot) pehle ho jaaye */
+    setTimeout(function () { wait(sec, 0); }, 450);
+  }
+  function boot() {
+    var secs = document.querySelectorAll('.page-section');
+    var mo = window.MutationObserver ? new MutationObserver(function (list) {
+      list.forEach(function (m) { seen(m.target); });
+    }) : null;
+    for (var i = 0; i < secs.length; i++) {
+      if (mo) mo.observe(secs[i], { attributes: true, attributeFilter: ['class'] });
+      seen(secs[i]);
+    }
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();
 })();
 </script>
 </body>
