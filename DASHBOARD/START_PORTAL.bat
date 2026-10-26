@@ -20,7 +20,7 @@ start "Data Portal Server" cmd /k "cd /d %~dp0 && node portal.js"
 REM ---- ngrok public URL ----
 set NGROK=C:\ngrok\ngrok.exe
 if exist "%NGROK%" (
-  "%NGROK%" config add-authtoken 3HOwYJbdyIKfkpBijs3GVKLPTKr_212qBETQfAFxouvA3Vsf6 >nul 2>&1
+  if exist "%~dp0ngrok_token.local.txt" for /f "usebackq delims=" %%t in ("%~dp0ngrok_token.local.txt") do "%NGROK%" config add-authtoken %%t >nul 2>&1
   start "Public URL - Data Portal" cmd /k ""%NGROK%" http 4000"
   echo.
   echo Public URL ngrok window me dikhega: https://....ngrok-free.app

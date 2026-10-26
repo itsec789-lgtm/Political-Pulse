@@ -41,3 +41,20 @@ tools/_cmp/
 .hot_resync
 .hot_resync_done
 .hot_state.json
+# Dependencies
+
+# Python cache & environments
+
+# Large database & tweet dumps (>100MB exceeds GitHub limits)
+
+# Logs & scratch
+
+# OS files
+
+# secrets -- NEVER commit (real files stay on each machine; copy *.sample.json to start)
+DASHBOARD/auth_secret.json
+DASHBOARD/mail_config.json
+DASHBOARD/ai_config.json
+DASHBOARD/x_config.json
+PunjabLens/ai_config.json
+*.local.txt
