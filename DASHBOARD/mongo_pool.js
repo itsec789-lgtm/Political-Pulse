@@ -111,6 +111,7 @@ async function shutdown() {
    yaani har route COLD (local) par chalta hai -- bilkul aaj jaisa.        */
 const HC = require('./hot_conf.js');
 const HOT_OPT = {
+  compressors: ['zlib'],          // Atlas M0: 10 GB/week transfer -- wire compression
   serverSelectionTimeoutMS: 4000,
   connectTimeoutMS: 4000,
   socketTimeoutMS: 60000,

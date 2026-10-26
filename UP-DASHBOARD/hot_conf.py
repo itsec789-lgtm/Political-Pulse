@@ -124,7 +124,8 @@ def hot_client(timeout_ms=4000):
         return None
     from pymongo import MongoClient
     return MongoClient(HOT["url"], serverSelectionTimeoutMS=timeout_ms,
-                       connectTimeoutMS=timeout_ms, socketTimeoutMS=120000)
+                       connectTimeoutMS=timeout_ms, socketTimeoutMS=120000,
+                       compressors="zlib")   # Atlas M0: 10 GB/week transfer -- wire compression
 
 
 if __name__ == "__main__":

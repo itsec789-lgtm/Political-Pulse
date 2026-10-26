@@ -45,3 +45,6 @@ window 5 days (TTL + cutoff, `HOT WINDOW REDUCED`); under 300 MB → back to 7 a
 0.5 GB storage, 10 GB in + 10 GB out per rolling 7 days, 100 ops/s, 500 connections, in-memory sort 32 MB,
 `allowDiskUse` ignored. Our traffic: write-through ~70–100 MB/day, dashboards ~50 MB per pipeline run,
 daily resync ~150 MB → roughly 4–8 GB/week in. Watch `/admin/hot-status`.
+Measured 26 Oct: one dashboard push = ~55 MB of BSON (india_Pulse 46 MB + up_pulse 9 MB). Hourly pushes with new data
+would be ~9 GB/week on their own, so every HOT client (pymongo `hot_client`, Node `HOT_OPT`) uses **zlib wire
+compression**; JSON-like dashboard docs shrink several times on the wire.
