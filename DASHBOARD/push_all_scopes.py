@@ -84,7 +84,11 @@ def push_all(master_csv, log=print):
         master = str(master_csv).strip().upper()
         try:
             import src_chunks as SC
-            log("Source: MongoDB pulse_master.master_tweets (%s docs)" % f"{SC.mongo_coll().estimated_document_count():,}")
+            n = f"{SC.mongo_coll().estimated_document_count():,}"
+            if master == "SPLIT":
+                log("Source: SPLIT -- purane din pulse_master.daily_summary se + pichhle 7 din seedhe master se (%s docs)" % n)
+            else:
+                log("Source: MongoDB pulse_master.master_tweets (%s docs)" % n)
         except Exception as e:
             log("  (mongo count skip: %s)" % e)
     else:

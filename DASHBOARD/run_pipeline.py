@@ -632,7 +632,7 @@ def main():
         save_state(state)
     else:
         _pending_set()
-        log("Build + push (SEEDHA MONGO SE) -> india_Pulse + up_pulse ...")
+        log("Build + push -> india_Pulse + up_pulse ...")
         hot_step("pre")
         import push_all_scopes as PA; importlib.reload(PA)
         PA.push_all(build_source(), log=log)
