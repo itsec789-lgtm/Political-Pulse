@@ -28,3 +28,18 @@ without the CSV backup; the once-a-day CSV backup (~23 min) is unchanged.
 ## 5. Needs Harshit's OK
 - Merge Phase 0 commit to `main` (deploy).
 - Later, separately: drop the old `up_pulse.tweets` copy (frees ~1.4 GB) once the new Report path is proven.
+
+## 6. Deployed 26 Oct 13:23 — first run after deploy (13:24–13:58)
+
+| Stage | Before (23 Oct 17:53) | After (26 Oct 13:24) |
+|---|---|---|
+| Ingest | 5.6 | 4.6 |
+| India | 8.4 | 6.5 |
+| **UP** | **21.5** | **4.6** |
+| Punjab | 3.5 | 1.2 |
+| CSV backup (first run of day) | 23.3 | 15.6 |
+| **Daily report** | **7.8** | **1.4** |
+| **Total** | **70.1 min** | **33.9 min** (≈ 17 min without the daily backup) |
+
+Dashboards stamped 13:40:15 — first successful update since 23 Oct. `/api/report` verified on the live server
+(Yogi 10–15 Oct: 138 report tweets, same as the pre-merge test).
