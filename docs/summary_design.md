@@ -66,7 +66,7 @@ change re-labels history without touching the summary.
 | `D.wd`, `D.dayLabels`, `D.AD` | `DATES` | set of days present | yes |
 | `CM_DATA` | `acc` + `meta` | same | yes |
 | `HASHTAGS`, `HTFULL`, `WORDCLOUD.tags` | `htag*` | sum `ht` per day (+ row party) | yes |
-| `WORDCLOUD.words` | `words` (top 150) | sum per-day top-2,000 | near-exact (top 150 of the sum of per-day top 2,000; `total_words` becomes approximate) |
+| `WORDCLOUD.words` | `words` (top 150) | sum per-day top-2,000 | counts exact (tested); order among words with the **same** count can differ; `total_words` becomes approximate |
 | `SENT_DAILY` | `sdaily` (row State × day × sentiment) | `s` grouped by `st`, `d` | yes |
 | `UNI.viral_up`, `UNI.viral` (UP) | top 400 UP tweets by views (full scan) | direct query on cold: `{State:"Uttar Pradesh"}` sorted by the existing `Total Views` index, limit 800, dedupe by URL | yes |
 | `UNI.updist` (UP) | carried over from previous build | unchanged | — |
@@ -115,3 +115,14 @@ tweets got new likes), so the dashboard build reads ~7 days raw + 331k small row
 `DASHBOARD/build_daily_summary.py --all | --days d1,d2 | --dirty | --check`, streaming with a cursor
 (projection of needed fields, batch 5,000), writing first to `daily_summary_test`. Acceptance before any use:
 per-day totals == cold aggregate; summed totals == `india_Pulse.dashboard_data` `UNI.tot`.
+
+## 8. Results (26 Oct 2026, test collections only)
+
+| Test | Result |
+|---|---|
+| `tools/test_summary_equivalence.py` — real `read_csv_agg` (All-India and UP) vs rebuilt from summary, days 2026-10-13, 2026-10-25 | **all accumulators EXACT**: acc, daily, dates, htag, htag_party, hourly, htag_daily, htag_party_daily, sdaily; word counts exact (tie order only) |
+| `build_daily_summary.py --all` into `daily_summary_test` | 209 days, 2,913,410 tweets, **270 s**, 331,934 docs, 330 MB data / 119 MB on disk + 34 MB indexes; words 418 docs, 18 MB |
+| `--check` (per-day tweet count, summary vs cold) | 209 days, **0 mismatches** |
+| `tools/reconcile_summary.py` — totals after the dashboard's own `case_merge` + `map_gate` vs live `UNI.tot` (dashboards built 14:43:50) | **All-India: 3,669 handles, tw/vw/lk/rt identical. UP: 652 handles, tw/vw/lk/rt identical.** |
+
+Nothing live reads the summary yet. Next: dirty-day hooks (§4), then Phase 4 `SPLIT` build.
