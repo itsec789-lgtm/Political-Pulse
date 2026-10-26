@@ -38,8 +38,8 @@ s = db.command('dbStats')
 print('5. size %.2f MB' % ((s['dataSize'] + s['indexSize']) / 1e6))
 cli.drop_database('pulse_hot_test')
 print('6. pulse_hot_test dropped')
-bad = MongoClient('mongodb+srv://nobody:x@doesnotexist.invalid/?retryWrites=true', serverSelectionTimeoutMS=3000)
 try:
+    bad = MongoClient('mongodb+srv://nobody:x@doesnotexist.invalid/?retryWrites=true', serverSelectionTimeoutMS=3000)
     bad.admin.command('ping'); print('7. ??? bad URL answered')
 except Exception as e:
     print('7. wrong URL fails fast as expected (%s)' % type(e).__name__)
