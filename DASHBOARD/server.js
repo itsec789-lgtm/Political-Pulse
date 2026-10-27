@@ -1347,7 +1347,11 @@ function runMappingSync(why) {
     /* map-cache (10-Oct): sirf MAPL ka cache saaf karna kaafi nahi tha --
        bana-banaya page bhi phenkna padta hai, warna naya designation
        agle rebuild tak dikhta hi nahi. */
-    try { dashCacheClear('mapping badli -- page dobara banega'); } catch (e) {}
+    /* fast-login (27-Oct): pehle yahan poora page-cache phenka jaata tha, chahe
+       mapping same ho. Ab cache key me mapping ka content hai -- badli to
+       naya page apne aap (peeche) banega, nahi badli to kuch nahi. */
+    _dashVer = {};
+    try { dashWarm(); } catch (e) {}
   });
   cp.on('error', function (e) {
     _msyncRunning = false;
@@ -1437,11 +1441,31 @@ async function dashVersionKey(scope) {
      cache ko iski khabar nahi thi -- isliye Mapping.xlsx badalne ke baad
      bhi purana page milta rehta tha (jab tak pipeline ya template na
      badle). Ab mapping badli = nayi key = naya page. */
-  var mp = 0;
-  try { mp = fs.statSync(MAPL.MAP_FILE).mtimeMs; } catch (e) {}
+  /* fast-login (27-Oct): mapping sync har baar handle_master.json dobara likh
+     deta hai, chahe kuch na badla ho -- file ki tareekh badalne se page ka
+     cache phenka jaata tha aur agla login 15-35 s atakta tha. Ab key me
+     mapping ka MATLAB (content hash) hai, tareekh nahi. */
+  var mp = mapContentKey();
   var key = scope + '|' + v + '|' + mt + '|' + mp;
   _dashVer[scope] = { key: key, at: Date.now() };
   return key;
+}
+
+var _mapKey = { mt: -1, h: '0' };
+function _canon(x) {
+  if (Array.isArray(x)) return '[' + x.map(_canon).join(',') + ']';
+  if (x && typeof x === 'object') return '{' + Object.keys(x).sort().map(function (k) { return JSON.stringify(k) + ':' + _canon(x[k]); }).join(',') + '}';
+  return JSON.stringify(x === undefined ? null : x);
+}
+function mapContentKey() {
+  var mt = 0;
+  try { mt = fs.statSync(MAPL.MAP_FILE).mtimeMs; } catch (e) { return '0'; }
+  if (mt === _mapKey.mt) return _mapKey.h;
+  try {
+    var j = JSON.parse(fs.readFileSync(MAPL.MAP_FILE, 'utf8'));
+    _mapKey = { mt: mt, h: crypto.createHash('md5').update(_canon(j)).digest('hex').slice(0, 12) };
+  } catch (e) { _mapKey = { mt: mt, h: String(mt) }; }      // aadhi likhi file -> purana tareeka
+  return _mapKey.h;
 }
 
 async function dashBase(scope) {
@@ -1449,20 +1473,41 @@ async function dashBase(scope) {
   var key = await dashVersionKey(scope);
   var c = _dashBase[scope];
   if (c && c.key === key) { _dashStat.baseHits++; return c; }
-  if (_dashBaseWait[scope]) return _dashBaseWait[scope];       // koi aur pehle se bana raha hai
-  _dashBaseWait[scope] = (async function () {
-    var t0 = Date.now();
-    var r = await buildDashBase(scope);
-    r.key = key; r.ms = Date.now() - t0;
-    _dashBase[scope] = r;
-    _dashStat.builds++;
-    console.log('  [dash-cache] ' + scope + ' ka naya page bana -- ' + r.ms + ' ms, '
-      + (r.html.length / 1048576).toFixed(2) + ' MB');
-    return r;
-  })();
-  try { return await _dashBaseWait[scope]; }
-  finally { delete _dashBaseWait[scope]; }
+  if (!_dashBaseWait[scope]) {
+    _dashBaseWait[scope] = (async function () {
+      try {
+        var t0 = Date.now();
+        var r = await buildDashBase(scope);
+        r.key = key; r.ms = Date.now() - t0;
+        _dashBase[scope] = r;
+        _dashStat.builds++;
+        console.log('  [dash-cache] ' + scope + ' ka naya page bana -- ' + r.ms + ' ms, '
+          + (r.html.length / 1048576).toFixed(2) + ' MB');
+        return r;
+      } finally { delete _dashBaseWait[scope]; }
+    })();
+    _dashBaseWait[scope].catch(function (e) { console.log('  [dash-cache] ' + scope + ' build fail: ' + e.message); });
+  }
+  /* fast-login (27-Oct): naya page peeche ban raha ho aur purana pada ho to
+     user ko intezaar mat karao -- purana turant do (kuch second purana data),
+     naya bante hi agli request se naya. Pehli baar (koi page hi nahi) tab hi rukna. */
+  if (c) { _dashStat.stale = (_dashStat.stale || 0) + 1; return c; }
+  return await _dashBaseWait[scope];
 }
+
+/* fast-login (27-Oct): naya data / mapping aate hi page khud peeche bana lo,
+   taaki login karne wale ko kabhi build ka intezaar na karna pade. */
+async function dashWarm() {
+  for (const sc of ['all', 'up']) {
+    try {
+      if (_dashBaseWait[sc]) continue;
+      var k = await dashVersionKey(sc), c = _dashBase[sc];
+      if (!c || c.key !== k) { dashBase(sc).catch(function () {}); }
+    } catch (e) {}
+  }
+}
+setTimeout(dashWarm, 10000).unref();
+setInterval(dashWarm, 30000).unref();
 
 function dashCacheClear(why) {
   _dashBase = {}; _dashVer = {};
@@ -1484,7 +1529,7 @@ function _gzPut(k, buf) {
   }
 }
 function dashCacheStats() {
-  return { builds: _dashStat.builds, baseHits: _dashStat.baseHits,
+  return { builds: _dashStat.builds, baseHits: _dashStat.baseHits, staleServed: _dashStat.stale || 0,
            gzHits: _dashStat.gzHits, gzMiss: _dashStat.gzMiss,
            gzEntries: _gzCache.size,
            gzMB: +(_gzBytes / 1048576).toFixed(1),
@@ -1524,19 +1569,27 @@ async function buildDashBase(scope) {
 
   /* hot/cold plan, Phase 5: Atlas copy tabhi jab uska lastUpdate local se
      bilkul mile (yaani isi build ka data hai). Warna / error par local. */
+  /* fast-login (27-Oct): server aur local Mongo isi laptop par hain -- local se
+     page ~14 s me banta hai, Atlas (internet) se ~35 s. Isliye PEHLE local;
+     Atlas copy sirf tab jab local me data na mile ya local fail ho. */
   let docs = null, phdDocs = null;
-  const _hot = await dashFromHot(scope, client);
-  if (_hot) {
-    docs = _hot.docs; phdDocs = _hot.phdDocs;
-    console.log("  Data mila Atlas (HOT) se: " + _hot.name + "  (scope=" + scope + ")");
-  } else {
+  try {
     const db = await findDataDb(client, SCOPE_DB[scope]);
-    if (!db) { await client.close(); throw new Error("Kisi bhi database me '" + COLLECTION + "' collection nahi mili."); }
-    console.log("  Data mila database me: '" + db.databaseName + "'  (scope=" + scope + ")");
-    docs = await db.collection(COLLECTION).find({}).toArray();
-    phdDocs = await db.collection('phd').find({}).toArray();
+    if (db) {
+      docs = await db.collection(COLLECTION).find({}).toArray();
+      phdDocs = await db.collection('phd').find({}).toArray();
+      console.log("  Data mila database me: '" + db.databaseName + "'  (scope=" + scope + ")");
+    }
+  } catch (e) { console.log('  [dash] local read fail: ' + e.message + ' -> Atlas'); docs = phdDocs = null; }
+  if (!docs || !docs.length || !phdDocs || !phdDocs.length) {
+    const _hot = await dashFromHot(scope, client);
+    if (_hot) {
+      docs = _hot.docs; phdDocs = _hot.phdDocs;
+      console.log("  Data mila Atlas (HOT) se: " + _hot.name + "  (scope=" + scope + ")");
+    }
   }
   await client.close();
+  if (!docs) throw new Error("Kisi bhi database me '" + COLLECTION + "' collection nahi mili.");
 
   if (!docs.length) throw new Error("'" + COLLECTION + "' collection khaali hai.");
   if (!phdDocs.length) throw new Error("'phd' collection khaali hai.");
@@ -2116,7 +2169,8 @@ async function serveDash(scope, res, role, who, req) {
     zlib.gzip(Buffer.from(html, 'utf8'), { level: 6 }, function (err, gz) {
       if (err || res.headersSent) { try { res.send(html); } catch (e1) {} return; }
       try {
-        _gzPut(variant, gz);
+        /* purana (stale) page naye key par mat rakho */
+        if (_dashBase[scope] && _dashBase[scope].key === vkey) _gzPut(variant, gz);
         res.setHeader('Content-Encoding', 'gzip');
         res.setHeader('Vary', 'Accept-Encoding');
         res.setHeader('Content-Length', gz.length);

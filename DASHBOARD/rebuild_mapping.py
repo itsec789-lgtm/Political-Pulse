@@ -612,6 +612,16 @@ def main():
         if not os.path.isdir(os.path.dirname(tgt)):
             continue
         if os.path.exists(tgt):
+            # fast-login (27-Oct): mapping bilkul wahi hai to file mat chhuo --
+            # dobara likhne se dashboard ka page-cache bekaar me toot-ta tha
+            # (aur har ghante ek naya .bak bhi banta tha).
+            try:
+                with open(tgt, encoding='utf-8') as _f:
+                    if json.load(_f) == new:
+                        print("  same  : %s  (koi badlaav nahi -- nahi likha)" % tgt)
+                        continue
+            except Exception:
+                pass
             bak = tgt + '.bak_' + datetime.now().strftime('%Y%m%d_%H%M%S')
             shutil.copy2(tgt, bak)
             print("  backup: %s" % os.path.basename(bak))
