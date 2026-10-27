@@ -343,6 +343,18 @@ def hot_step(which):
         log("  HOT SYNC FAIL (%s): %s -- baaki pipeline normal" % (which, e))
 
 
+def nazar_step():
+    """Nazar feed (nazar_push.py): badle hue summary din + handles + window Atlas par.
+    db_config.local.json -> "nazar": {"enabled": true}. Kabhi pipeline nahi todta."""
+    try:
+        import nazar_push as NP; importlib.reload(NP)
+        if not NP.nazar_enabled():
+            return
+        NP.push(log=log)
+    except Exception as e:
+        log("  NAZAR SYNC FAIL: %s -- baaki pipeline normal" % str(e)[:200])
+
+
 def build_source():
     """hot/cold plan, Phase 4. "MONGO" (default) = today's full read of master_tweets.
     "SPLIT" (db_config.local.json build.source / env PULSE_BUILD_SRC) = refresh the dirty
@@ -627,6 +639,7 @@ def main():
         # size guard -- warna jis din nayi file na aaye us din Atlas ki jaanch hi nahi hoti.
         hot_step("pre")
         hot_step("post")
+        nazar_step()
         # punjab-catchup (10-Oct): All India/UP push ho chuke the par Punjab
         # fail hua tha -> Punjab yahin akela pakad liya jaata hai, warna wo
         # tab tak peeche rehta jab tak koi nayi file na aa jaaye.
@@ -641,6 +654,7 @@ def main():
         import push_all_scopes as PA; importlib.reload(PA)
         PA.push_all(build_source(), log=log)
         hot_step("post")
+        nazar_step()
         if not push_punjab():
             log("   (All India/UP ho gaye, Punjab nahi -- agle run me Punjab dobara chalega)")
         # Yahan tak pahunche matlab DONO dashboard ban gaye -- ab hi state
