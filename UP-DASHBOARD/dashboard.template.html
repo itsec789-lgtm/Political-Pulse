@@ -1381,7 +1381,52 @@ window.sentCardsHTML = function (S, suffix) {
   <div class="mnav-tab" data-tab="handle-req" onclick="switchTab('handle-req')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
     Handles To Be Added
   </div>
-</nav><div class="sb-lotus"><div class="ln"></div><svg class="lo" viewBox="0 0 200 150"><defs><linearGradient id="sblpg" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#C2410C"/><stop offset=".5" stop-color="#F59320"/><stop offset="1" stop-color="#FFE3A8"/></linearGradient><linearGradient id="sblpgd" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#7A2600"/><stop offset="1" stop-color="#DB7A12"/></linearGradient><radialGradient id="sblglow" cx="50%" cy="72%" r="62%"><stop offset="0" stop-color="#FFCF80" stop-opacity=".5"/><stop offset="1" stop-color="#FFCF80" stop-opacity="0"/></radialGradient></defs><ellipse cx="100" cy="118" rx="94" ry="40" fill="url(#sblglow)"/><g transform="translate(100,124)"><g fill="url(#sblpgd)"><path d="M0,0 C-15,-42 -9,-82 0,-100 C9,-82 15,-42 0,0Z" transform="rotate(-72) scale(.8)"/><path d="M0,0 C-15,-42 -9,-82 0,-100 C9,-82 15,-42 0,0Z" transform="rotate(72) scale(.8)"/><path d="M0,0 C-15,-42 -9,-82 0,-100 C9,-82 15,-42 0,0Z" transform="rotate(-47) scale(.92)"/><path d="M0,0 C-15,-42 -9,-82 0,-100 C9,-82 15,-42 0,0Z" transform="rotate(47) scale(.92)"/></g><g fill="url(#sblpg)" stroke="#FFF1D6" stroke-width=".5" stroke-opacity=".45"><path d="M0,0 C-15,-42 -9,-82 0,-100 C9,-82 15,-42 0,0Z" transform="rotate(-24) scale(.97)"/><path d="M0,0 C-15,-42 -9,-82 0,-100 C9,-82 15,-42 0,0Z" transform="rotate(24) scale(.97)"/><path d="M0,0 C-15,-42 -9,-82 0,-100 C9,-82 15,-42 0,0Z" transform="rotate(0) scale(1.06)"/></g></g></svg><div class="bh">Created by Data Team</div></div></aside>
+</nav><div class="pe-wrap" id="pulseEyeWrap"><style>
+/* ===== Pulse Eye (27-Oct) : sidebar ke neeche Nazar Live ka button -- design "Midnight Gold" ===== */
+#pulseEyeWrap{flex:0 0 auto;padding:8px 12px 2px;position:relative;z-index:3}
+#pulseEyeWrap + .sb-lotus{margin-top:0}
+@property --pe-a{syntax:'<angle>';inherits:false;initial-value:0deg}
+a.pe-btn{position:relative;display:flex;align-items:center;gap:10px;width:100%;padding:9px 10px;border-radius:14px;text-decoration:none;cursor:pointer;
+  isolation:isolate;overflow:hidden;color:#FDE68A;box-shadow:0 8px 20px -8px #1C1917,inset 0 1px 0 rgba(255,255,255,.18);transition:transform .2s ease,box-shadow .2s ease}
+a.pe-btn:hover{transform:translateY(-2px);box-shadow:0 12px 26px -8px rgba(28,25,23,.95)}
+a.pe-btn:active{transform:scale(.98)}
+a.pe-btn:focus-visible{outline:2px solid #F59E0B;outline-offset:2px}
+a.pe-btn:before{content:"";position:absolute;inset:-2px;z-index:-1;border-radius:16px;
+  background:conic-gradient(from var(--pe-a),#FDE68A,#B45309,#FFFBEB,#F59E0B,#FDE68A);animation:peSpin 4s linear infinite}
+a.pe-btn .pe-bg{position:absolute;inset:1.5px;border-radius:12.5px;z-index:0;background:linear-gradient(135deg,#1C1917,#000)}
+a.pe-btn:after{content:"";position:absolute;inset:0;z-index:1;background:linear-gradient(105deg,transparent 35%,rgba(255,255,255,.22) 50%,transparent 65%);
+  transform:translateX(-120%);animation:peSweep 5s ease-in-out infinite}
+.pe-eye{position:relative;flex:0 0 auto;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;z-index:2;color:#FBBF24;
+  background:radial-gradient(circle at 35% 30%,#fff 0%,#f6f6f6 60%,#e9e9e9 100%);box-shadow:0 0 0 2px rgba(255,255,255,.3),0 4px 10px -2px rgba(0,0,0,.6)}
+.pe-eye svg{width:24px;height:24px;overflow:visible}
+.pe-eye .pe-ball{transform-origin:12px 12px;animation:peBlink 4.2s infinite}
+.pe-eye .pe-iris{animation:peLook 6.5s ease-in-out infinite}
+.pe-ring{position:absolute;inset:-3px;border-radius:50%;border:1.5px solid currentColor;opacity:0;animation:peRadar 2.4s ease-out infinite}
+.pe-ring.pe-r2{animation-delay:1.2s}
+.pe-txt{display:flex;flex-direction:column;line-height:1.05;min-width:0;z-index:2}
+.pe-t1{font-weight:800;font-size:16px;letter-spacing:.3px;white-space:nowrap;color:#FDE68A}
+.pe-t2{display:flex;align-items:center;gap:5px;margin-top:5px;font-size:9.5px;font-weight:800;letter-spacing:1.4px;text-transform:uppercase;color:#FBBF24;white-space:nowrap}
+.pe-bars{display:inline-flex;align-items:flex-end;gap:2px;height:8px}
+.pe-bars i{display:block;width:2px;border-radius:1px;background:currentColor;transform-origin:bottom;animation:peEq 1s ease-in-out infinite}
+.pe-bars i:nth-child(1){height:4px;animation-delay:-.2s}.pe-bars i:nth-child(2){height:8px;animation-delay:-.5s}
+.pe-bars i:nth-child(3){height:5px;animation-delay:-.1s}.pe-bars i:nth-child(4){height:7px;animation-delay:-.7s}
+.pe-dot{flex:0 0 auto;width:7px;height:7px;border-radius:50%;background:#EF4444;animation:pePing 1.4s infinite}
+@keyframes peSpin{to{--pe-a:360deg}}
+@keyframes peSweep{0%,70%{transform:translateX(-120%)}100%{transform:translateX(120%)}}
+@keyframes peBlink{0%,44%,50%,92%,100%{transform:scaleY(1)}46.5%,95%{transform:scaleY(.06)}}
+@keyframes peLook{0%,18%{transform:translate(0,0)}24%,40%{transform:translate(-2.2px,0)}48%,62%{transform:translate(2.2px,.4px)}70%,100%{transform:translate(0,0)}}
+@keyframes peRadar{0%{transform:scale(.8);opacity:.75}100%{transform:scale(1.45);opacity:0}}
+@keyframes peEq{0%,100%{transform:scaleY(.35)}50%{transform:scaleY(1)}}
+@keyframes pePing{0%{box-shadow:0 0 0 0 rgba(239,68,68,.8)}70%{box-shadow:0 0 0 6px rgba(239,68,68,0)}100%{box-shadow:0 0 0 0 rgba(239,68,68,0)}}
+@media (prefers-reduced-motion:reduce){a.pe-btn,a.pe-btn *,a.pe-btn:before,a.pe-btn:after{animation:none!important}}
+</style><a class="pe-btn" id="pulseEyeBtn" href="https://nazarindianpoliticspulse.onrender.com/live?mode=all" target="_blank" rel="noopener noreferrer"
+  title="Pulse Eye &#8211; Nazar Live TV (naye tab me khulega)" aria-label="Pulse Eye - Live TV, opens in a new tab">
+  <span class="pe-bg"></span>
+  <span class="pe-eye" aria-hidden="true"><span class="pe-ring"></span><span class="pe-ring pe-r2"></span><svg viewBox="0 0 24 24"><g class="pe-ball">
+    <path d="M1.5 12C4 7.5 7.6 5.2 12 5.2S20 7.5 22.5 12C20 16.5 16.4 18.8 12 18.8S4 16.5 1.5 12Z" fill="#FFFBEB" stroke="#000" stroke-width="1.6"/>
+    <g class="pe-iris"><circle cx="12" cy="12" r="4.3" fill="#D97706"/><circle cx="12" cy="12" r="2" fill="#1C1917"/><circle cx="13.4" cy="10.6" r=".9" fill="#fff"/></g></g></svg></span>
+  <span class="pe-txt"><span class="pe-t1">Pulse Eye</span><span class="pe-t2"><span class="pe-dot" aria-hidden="true"></span>Live TV<span class="pe-bars" aria-hidden="true"><i></i><i></i><i></i><i></i></span></span></span>
+</a></div><div class="sb-lotus"><div class="ln"></div><svg class="lo" viewBox="0 0 200 150"><defs><linearGradient id="sblpg" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#C2410C"/><stop offset=".5" stop-color="#F59320"/><stop offset="1" stop-color="#FFE3A8"/></linearGradient><linearGradient id="sblpgd" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#7A2600"/><stop offset="1" stop-color="#DB7A12"/></linearGradient><radialGradient id="sblglow" cx="50%" cy="72%" r="62%"><stop offset="0" stop-color="#FFCF80" stop-opacity=".5"/><stop offset="1" stop-color="#FFCF80" stop-opacity="0"/></radialGradient></defs><ellipse cx="100" cy="118" rx="94" ry="40" fill="url(#sblglow)"/><g transform="translate(100,124)"><g fill="url(#sblpgd)"><path d="M0,0 C-15,-42 -9,-82 0,-100 C9,-82 15,-42 0,0Z" transform="rotate(-72) scale(.8)"/><path d="M0,0 C-15,-42 -9,-82 0,-100 C9,-82 15,-42 0,0Z" transform="rotate(72) scale(.8)"/><path d="M0,0 C-15,-42 -9,-82 0,-100 C9,-82 15,-42 0,0Z" transform="rotate(-47) scale(.92)"/><path d="M0,0 C-15,-42 -9,-82 0,-100 C9,-82 15,-42 0,0Z" transform="rotate(47) scale(.92)"/></g><g fill="url(#sblpg)" stroke="#FFF1D6" stroke-width=".5" stroke-opacity=".45"><path d="M0,0 C-15,-42 -9,-82 0,-100 C9,-82 15,-42 0,0Z" transform="rotate(-24) scale(.97)"/><path d="M0,0 C-15,-42 -9,-82 0,-100 C9,-82 15,-42 0,0Z" transform="rotate(24) scale(.97)"/><path d="M0,0 C-15,-42 -9,-82 0,-100 C9,-82 15,-42 0,0Z" transform="rotate(0) scale(1.06)"/></g></g></svg><div class="bh">Created by Data Team</div></div></aside>
 <!-- 1. DASHBOARD -->
 <div class="page-section active" id="sec-dashboard">
 <div id="pdfCapture">
