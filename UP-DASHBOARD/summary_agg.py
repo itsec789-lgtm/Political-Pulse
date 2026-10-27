@@ -107,13 +107,18 @@ def split_agg(M, log=print):
             a = acc.get(h)
             if a is None:
                 a = acc[h] = dict({'tw': 0, 'lk': 0, 'rt': 0, 'vw': 0}, **M.sent_blank())
-            a['tw'] += g['tw']; a['lk'] += g['lk']; a['rt'] += g['rt']; a['vw'] += g['vw']
+            # rt-split (27-Oct): summary tw/lk/rt/vw = all rows; own posts = minus the "RT @" part
+            _rc, _rl, _rv, _rr = g.get('rc', 0), g.get('rl', 0), g.get('rv', 0), g.get('rr', 0)
+            a['tw'] += g['tw'] - _rc; a['lk'] += g['lk'] - _rl; a['rt'] += g['rt'] - _rr; a['vw'] += g['vw'] - _rv
+            a['rc'] = a.get('rc', 0) + _rc
             for c in CODES:
                 a[c] += g['s'][c]
             if len(d) == 10:
                 dates.add(d)
                 e = daily[(h, d)]
-                e[0] += g['tw']; e[1] += g['vw']; e[2] += g['lk']; e[3] += g['rt']
+                e[0] += g['tw'] - _rc; e[1] += g['vw'] - _rv; e[2] += g['lk'] - _rl; e[3] += g['rt'] - _rr
+                if _rc and hasattr(M, 'RC_DAILY'):
+                    M.RC_DAILY[(h, d)] += _rc
             if g.get('last'):
                 cand.append((g['last']['dt'], h, g['last']))
         for tag, e in (g.get('ht') or {}).items():

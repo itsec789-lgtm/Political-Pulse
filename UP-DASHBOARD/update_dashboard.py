@@ -179,7 +179,16 @@ def load_template():
     return {b['key']: b['value'] for b in blobs}
 
 
+# rt-split (27-Oct): "RT @..." rows are reposts of someone else's post, and X sends the ORIGINAL
+# post's likes/views/retweets with them. They used to be counted as the handle's own tweets and
+# their retweet numbers inflated "Retweets" ~30x. Now tw/lk/vw/rt = the handle's OWN posts only;
+# reposts are counted separately as 'rc' (acc) and RC_DAILY[(handle, day)] (-> phd 'c').
+# Sentiment, hashtags, word cloud and hourly activity still see every row (unchanged).
+RC_DAILY = collections.defaultdict(int)
+
+
 def read_csv_agg(csv_path, query=None):
+    RC_DAILY.clear()
     # hot/cold plan, Phase 4: "SPLIT" = per-day summary for old days + raw tweets for the
     # last N days (summary_agg.py). Same 11 return values, so build() is unchanged.
     if str(csv_path).strip().upper() == 'SPLIT':
@@ -216,8 +225,14 @@ def read_csv_agg(csv_path, query=None):
         ch['_d'] = ch[C['date']].str[:10]
         ch['_h'] = pd.to_numeric(ch[C['date']].str[11:13], errors='coerce').fillna(-1).astype(int)
         # per-handle
-        _agg = dict(tw=(C['handle'], 'size'), lk=(C['likes'], 'sum'), rt=(C['rts'], 'sum'),
-                    vw=(C['views'], 'sum'))
+        _rtm = ch[C['text']].astype(str).str.startswith('RT @')          # rt-split
+        ch['_o'] = (~_rtm).astype(int)
+        ch['_rc'] = _rtm.astype(int)
+        ch['_olk'] = ch[C['likes']] * ch['_o']
+        ch['_ort'] = ch[C['rts']] * ch['_o']
+        ch['_ovw'] = ch[C['views']] * ch['_o']
+        _agg = dict(tw=('_o', 'sum'), lk=('_olk', 'sum'), rt=('_ort', 'sum'),
+                    vw=('_ovw', 'sum'), rc=('_rc', 'sum'))
         for _c in SENT_CODES:
             _agg[_c] = ('_' + _c, 'sum')
         g = ch.groupby(C['handle']).agg(**_agg)
@@ -226,13 +241,15 @@ def read_csv_agg(csv_path, query=None):
             if not h: continue
             a = acc.setdefault(h, dict({'tw':0,'lk':0,'rt':0,'vw':0}, **sent_blank()))
             a['tw']+=int(r['tw']); a['lk']+=int(r['lk']); a['rt']+=int(r['rt']); a['vw']+=int(r['vw'])
+            a['rc'] = a.get('rc', 0) + int(r['rc'])
             for _c in SENT_CODES: a[_c] += int(r[_c])
         # daily
-        gd = ch.groupby([C['handle'], '_d']).agg(t=(C['handle'], 'size'), k=(C['likes'], 'sum'), r=(C['rts'], 'sum'), v=(C['views'], 'sum'))
+        gd = ch.groupby([C['handle'], '_d']).agg(t=('_o', 'sum'), k=('_olk', 'sum'), r=('_ort', 'sum'), v=('_ovw', 'sum'), c=('_rc', 'sum'))
         for (h, d), r in gd.iterrows():
             h = h.strip()
             if not h or len(d) != 10: continue
             dates.add(d); e = daily[(h, d)]; e[0]+=int(r['t']); e[1]+=int(r['v']); e[2]+=int(r['k']); e[3]+=int(r['r'])
+            if int(r['c']): RC_DAILY[(h, d)] += int(r['c'])
         # meta -- har handle ka SABSE NAYA row (followers/followings latest chahiye)
         ch['_dt'] = ch[C['date']].astype(str).str[:19]
         try:
@@ -496,6 +513,10 @@ def case_merge(acc, meta, daily):
             daily2[(k, d)] = [x + y for x, y in zip(daily2[(k, d)], v)]
         else:
             daily2[(k, d)] = list(v)
+    rc2 = collections.defaultdict(int)          # rt-split: reposts follow the same spelling merge
+    for (h, d), n in list(RC_DAILY.items()):
+        rc2[(keep.get(h.strip().lower(), h), d)] += n
+    RC_DAILY.clear(); RC_DAILY.update(rc2)
 
     print("  case-merge: %d handle do-do spelling me the -- jod diye" % len(dups))
     for low, hs in list(dups.items())[:6]:
@@ -544,8 +565,9 @@ def build(csv_path):
     ND = len(DATES)
     phd = {}
     for (h, d), e in daily.items():
-        o = phd.setdefault(h, {"t":[0]*ND, "v":[0]*ND, "k":[0]*ND, "r":[0]*ND})
+        o = phd.setdefault(h, {"t":[0]*ND, "v":[0]*ND, "k":[0]*ND, "r":[0]*ND, "c":[0]*ND})
         i = di[d]; o['t'][i]=e[0]; o['v'][i]=e[1]; o['k'][i]=e[2]; o['r'][i]=e[3]
+        o['c'][i] = RC_DAILY.get((h, d), 0)          # rt-split: reposts that day
     phd_docs = [{"h": h, **v} for h, v in phd.items()]
 
     # ---------- mapping ----------
@@ -567,6 +589,7 @@ def build(csv_path):
     dd['UNI']['tot']['vw'] = sum(a['vw'] for a in acc.values())
     dd['UNI']['tot']['lk'] = sum(a['lk'] for a in acc.values())
     dd['UNI']['tot']['rt'] = sum(a['rt'] for a in acc.values())
+    dd['UNI']['tot']['rc'] = sum(a.get('rc', 0) for a in acc.values())     # rt-split: reposts
     dd['UNI']['handles'] = len(acc)
     lv = collections.Counter(); sent = sent_blank()
     party_agg = {}; state_agg = {}

@@ -94,10 +94,15 @@ def summarize_day(coll, day):
         if g is None:
             g = groups[key] = {'_id': doc_id(*key), 'h': h, 'd': d, 'st': st, 'pt': pt, 'cat': cat,
                                'tw': 0, 'lk': 0.0, 'rt': 0.0, 'vw': 0.0,
+                               'rc': 0, 'rl': 0.0, 'rv': 0.0, 'rr': 0.0,
                                's': {c: 0 for c in CODES}, 'hr': [0] * 24, 'ht': {}, 'last': None}
         lk, rt, vw = num(r.get(C['likes'])), num(r.get(C['rts'])), num(r.get(C['views']))
         sc = U.sent_code(S(r.get(C['sent'])))
         g['tw'] += 1; g['lk'] += lk; g['rt'] += rt; g['vw'] += vw
+        # rt-split (27-Oct): tw/lk/rt/vw stay = ALL rows (Nazar reads tw that way). The "RT @"
+        # reposts are counted again in rc/rl/rv/rr so builds can use own-posts = tw - rc etc.
+        if S(r.get(C['text'])).startswith('RT @'):
+            g['rc'] += 1; g['rl'] += lk; g['rv'] += vw; g['rr'] += rt
         g['s'][sc] += 1
         try:
             hr = int(date[11:13])
@@ -133,6 +138,7 @@ def summarize_day(coll, day):
     docs = []
     for g in groups.values():
         g['lk'], g['rt'], g['vw'] = int(g['lk']), int(g['rt']), int(g['vw'])
+        g['rl'], g['rv'], g['rr'] = int(g['rl']), int(g['rv']), int(g['rr'])
         if not any(g['hr']):
             del g['hr']
         if not g['ht']:

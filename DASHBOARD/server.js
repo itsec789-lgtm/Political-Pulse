@@ -725,7 +725,9 @@ async function catRangePerHandle(scope, f, t, CR) {
       await cli.connect();
       var rows = await cli.db(MASTER_DB).collection('daily_summary').aggregate([
         { $match: { d: { $gte: f, $lte: sEnd } } },
-        { $group: { _id: { h: '$h', st: '$st', c: '$cat' }, tw: { $sum: '$tw' }, vw: { $sum: '$vw' } } }
+        { $group: { _id: { h: '$h', st: '$st', c: '$cat' },
+            tw: { $sum: { $subtract: ['$tw', { $ifNull: ['$rc', 0] }] } },
+            vw: { $sum: { $subtract: ['$vw', { $ifNull: ['$rv', 0] }] } } } }
       ], { maxTimeMS: 20000, allowDiskUse: true }).toArray();
       rows.forEach(function (r) { add(r._id.h, r._id.st, r._id.c, r.tw, r.vw); });
       src.push('summary');
@@ -736,7 +738,7 @@ async function catRangePerHandle(scope, f, t, CR) {
     var raw = await onTweets(rf, async function (col, store) {
       src.push(store);
       return col.aggregate([
-        { $match: { 'Tweet Date': { $gte: rf, $lte: t + '~' } } },
+        { $match: { 'Tweet Date': { $gte: rf, $lte: t + '~' }, 'Tweet Text': NOT_RT } },
         { $group: { _id: { h: '$Handle', st: '$State', c: '$Category' }, tw: { $sum: 1 },
             vw: { $sum: { $convert: { input: '$Total Views', to: 'double', onError: 0, onNull: 0 } } } } }
       ], { maxTimeMS: 20000 }).toArray();
@@ -746,6 +748,10 @@ async function catRangePerHandle(scope, f, t, CR) {
   return { per: per, src: src };
 }
 
+/* rt-split (27-Oct): "RT @..." rows are reposts of another account's post and carry THAT post's
+   likes/views/retweets. Tweet counts and engagement use only a handle's own posts. */
+const NOT_RT = { $not: /^RT @/ };
+
 var _mjaCache = { t: 0, v: null };
 async function mjAgg() {
   if (_mjaCache.v && Date.now() - _mjaCache.t < 600000) return _mjaCache.v;
@@ -753,7 +759,7 @@ async function mjAgg() {
   try {
     var cl = MP.client(); await cl.connect();
     var rows = await cl.db('pulse_master').collection('master_tweets').aggregate([
-      { $match: { Category: { $in: ['Media House', 'Journalist'] } } },
+      { $match: { Category: { $in: ['Media House', 'Journalist'] }, 'Tweet Text': NOT_RT } },
       { $group: {
           _id: '$Handle',
           tw: { $sum: 1 },
@@ -782,7 +788,7 @@ async function mediaCount() {
   try {
     var cl = MP.client(); await cl.connect();
     var n = await cl.db('pulse_master').collection('master_tweets')
-      .countDocuments({ Category: { $in: ['Media House', 'Journalist'] } });
+      .countDocuments({ Category: { $in: ['Media House', 'Journalist'] }, 'Tweet Text': NOT_RT });
     await cl.close();
     _mjCache = { t: Date.now(), n: n };
     return n;
@@ -1669,7 +1675,7 @@ async function buildDashBase(scope) {
   for (const d of docs) map[d.key] = d.value;
 
   const PHD = {};
-  for (const p of phdDocs) PHD[p.h] = { t: p.t, v: p.v, k: p.k, r: p.r };
+  for (const p of phdDocs) PHD[p.h] = { t: p.t, v: p.v, k: p.k, r: p.r, c: p.c || [] };
   map['PHD'] = PHD;
   /* mj-agg (13-Oct): mapGate ise padhta hai (neeche catStats me) */
   try { map['MJAGG'] = await mjAgg(); } catch (e) { map['MJAGG'] = {}; }
@@ -1713,11 +1719,13 @@ async function buildDashBase(scope) {
   // ---- KPI note: politicians + media/journalist = grand total ----
   var _mj = await mediaCount();
   var _pol = (((map.UNI || {}).tot || {}).tw) || 0;
+  var _rcN = (((map.UNI || {}).tot || {}).rc) || 0;     // rt-split: reposts, shown apart
   var _IN2 = function (x) { return (Math.round((+x) || 0)).toLocaleString('en-IN'); };
   // note SIRF All-India par (UP me media/journalist ka jod matlab nahi rakhta)
   var noteTxt = (scope === 'all' && _mj)
     ? (_IN2(_pol) + ' politicians &nbsp;+&nbsp; ' + _IN2(_mj) + ' media house / journalist &nbsp;=&nbsp; <b>'
-       + _IN2(_pol + _mj) + '</b> total in database')
+       + _IN2(_pol + _mj) + '</b> own tweets in database'
+       + (_rcN ? ' &nbsp;\u00b7&nbsp; retweets (reposts) not included: ' + _IN2(_rcN) + ' by politicians' : ''))
     : '';
 
   return { html: html, noteTxt: noteTxt };
@@ -3580,6 +3588,7 @@ function twFilter(req) {
   }
   var party = String(req.query.party || '').trim();
   if (party && party !== 'all') q.Party = party;
+  q['Tweet Text'] = NOT_RT;                       // rt-split: own posts only
 
   var term = String(req.query.q || '').trim();
   if (term) {
@@ -3668,7 +3677,7 @@ async function newsWindow() {
   /* hot/cold Phase 5: pehle HOT (pichhle N din); agar wahan NEWS_WINDOW poore
      na milein (window chhota pad gaya) to COLD -- result hamesha wahi rehta hai. */
   var docs = await onTweets(MP.windowCutoff(), async function (c) {
-    return await c.find({ Category: { $in: NEWS.MEDIA_CATS } },
+    return await c.find({ Category: { $in: NEWS.MEDIA_CATS }, 'Tweet Text': NOT_RT },
                         { projection: NEWS_PROJ })
                   .sort({ 'Tweet Date': -1 }).limit(NEWS_WINDOW)
                   .maxTimeMS(60000).toArray();
@@ -4012,7 +4021,7 @@ app.get('/api/narrative-groups/stats', async function (req, res) {
     });
 
     // Date range support
-    var matchCond = { Handle: { $in: allHandles } };
+    var matchCond = { Handle: { $in: allHandles }, 'Tweet Text': NOT_RT };
     var dFrom = String(req.query.from || '').trim().slice(0, 10);
     var dTo   = String(req.query.to   || '').trim().slice(0, 10);
     if (dFrom || dTo) {
@@ -4075,7 +4084,7 @@ app.get('/api/narrative-groups/leader-analysis/:handle', async function (req, re
       rawHandle.toUpperCase(),
       rawHandle.charAt(0).toUpperCase() + rawHandle.slice(1)
     ]));
-    var filter = { Handle: { $in: handleVariations } };
+    var filter = { Handle: { $in: handleVariations }, 'Tweet Text': NOT_RT };
 
     // Date range support (explicit from/to or days preset)
     var dFrom = String(req.query.from || '').trim().slice(0, 10);
@@ -4193,7 +4202,7 @@ app.get('/api/narrative-groups/comparison', async function (req, res) {
       allHandleVars.push(h, h.toLowerCase(), h.toUpperCase());
     });
 
-    var matchCond = { Handle: { $in: Array.from(new Set(allHandleVars)) } };
+    var matchCond = { Handle: { $in: Array.from(new Set(allHandleVars)) }, 'Tweet Text': NOT_RT };
 
     // Date range
     var dFrom = String(req.query.from || '').trim().slice(0, 10);
@@ -4434,7 +4443,7 @@ app.get('/api/parties/comparison', async function (req, res) {
       allHandleVars.push(h, h.toLowerCase(), h.toUpperCase());
     });
 
-    var matchCond = { Handle: { $in: Array.from(new Set(allHandleVars)) } };
+    var matchCond = { Handle: { $in: Array.from(new Set(allHandleVars)) }, 'Tweet Text': NOT_RT };
 
     // Date range
     var dFrom = String(req.query.from || '').trim().slice(0, 10);
@@ -4718,6 +4727,7 @@ async function queryTweets(terms, dFrom, dTo){
     var q, out, t0 = Date.now();
     if (REPORT_SRC === 'master') {
       q = RS.masterQuery(terms, dFrom, dTo);
+      q['Tweet Text'] = NOT_RT;                   // rt-split: a repost is not a new tweet on the topic
       var docs = await onTweets(dFrom, async function (col, store) {
         _lastReportStore = store;
         return await col.find(q, { projection: RS.PROJ }).limit(REPORT_CAP).batchSize(5000).toArray();
@@ -5051,7 +5061,7 @@ async function haRows(handle) {
     }
 
     var rows = await c.find(
-      { Handle: handle },
+      { Handle: handle, 'Tweet Text': NOT_RT },
       { projection: {
           _id: 0, 'Handle': 1, 'Tweet ID': 1, 'Tweet URL': 1, 'Tweet Text': 1,
           'Tweet Date': 1, 'Followers': 1, 'Followings': 1, 'Total Posts': 1,

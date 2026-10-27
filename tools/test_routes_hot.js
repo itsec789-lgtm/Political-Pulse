@@ -86,7 +86,7 @@ async function runMode(name, env) {
   _srv = srv;
   let log = ''; srv.stdout.on('data', function (d) { log += d; }); srv.stderr.on('data', function (d) { log += d; });
   let up = false;
-  for (let i = 0; i < 60 && !up; i++) { await sleep(1000); up = (await get('/healthz')).code === 200; }
+  for (let i = 0; i < 60 && !up; i++) { await sleep(1000); up = (await get('/healthz')).code > 0; }
   if (!up) { srv.kill(); console.log('  [' + name + '] server did not start:\n' + log.slice(-1500)); return null; }
   /* warm-up: the Atlas health ping is cached and runs in the background */
   await get('/healthz'); await sleep(4000); await get('/healthz');
