@@ -9417,5 +9417,64 @@ W.__pfByParty = byParty; W.__pfMetrics = metrics; W.__pfCATS = CATS; W.__pfDAYS 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();
 })();
 </script>
+<script>
+/* ===== others-date (27-Oct): "Others" wale cards (NOB, Media Houses, Journalist,
+   Official Page ...) bhi Dashboard ki date / party filter maante hain.
+   Full Range par kuch nahi badalta (page ke saath aaye number). Baaki range par
+   server (/api/cat-range) se gin kar aate hain. Kuch bhi fail ho to card par
+   purane (full range) number hi rehte hain -- page kabhi nahi tootta. */
+(function () {
+  if (window.__othersDate) return; window.__othersDate = 1;
+  var seq = 0, tm = null;
+  function N(x) { return (+x || 0).toLocaleString('en-IN'); }
+  function full() {
+    var AD = window.AD || window.PHD_DATES || [];
+    var f = (document.getElementById('dashFrom') || {}).value || '', t = (document.getElementById('dashTo') || {}).value || '';
+    var p = (document.getElementById('dashParty') || {}).value || 'all';
+    return { f: f, t: t, p: p, isFull: !AD.length || (f === AD[0] && t === AD[AD.length - 1] && p === 'all') || !f || !t };
+  }
+  function cards() { return Array.prototype.slice.call(document.querySelectorAll('#lvOtherStrip .lv-card[data-cat]')); }
+  function paint(stats, note) {
+    var cs = (window.UNI && window.UNI.catStats) || {};
+    cards().forEach(function (c) {
+      var k = c.getAttribute('data-cat'), base = cs[k] || {}, o = stats ? (stats[k] || { tw: 0, live: 0 }) : base;
+      var v = c.querySelector('.lv-val'), s = c.querySelector('.lv-sub');
+      if (v) v.textContent = N(o.tw);
+      if (s) s.textContent = N(base.map) + ' handles' + ((+o.live || 0) !== (+base.map || 0) ? ' · ' + N(o.live) + ' par data' : '');
+      c.title = note || '';
+    });
+  }
+  function run() {
+    var r = full(), my = ++seq;
+    if (!cards().length) return;
+    if (r.isFull) { paint(null, ''); return; }
+    var q = '/api/cat-range?scope=' + (window.DASH_SCOPE === 'up' ? 'up' : 'all') + '&from=' + encodeURIComponent(r.f)
+          + '&to=' + encodeURIComponent(r.t) + '&party=' + encodeURIComponent(r.p);
+    cards().forEach(function (c) { c.style.opacity = '.55'; });
+    fetch(q, { cache: 'no-store', credentials: 'same-origin' }).then(function (x) { return x.json(); }).then(function (j) {
+      if (my !== seq) return;
+      if (j && j.ok && j.cats) paint(j.cats, ''); else paint(null, 'Is range ki ginti abhi nahi mili -- poori range ke number dikh rahe hain');
+    }).catch(function () {
+      if (my === seq) paint(null, 'Is range ki ginti abhi nahi mili -- poori range ke number dikh rahe hain');
+    }).then(function () { if (my === seq) cards().forEach(function (c) { c.style.opacity = ''; }); });
+  }
+  function later() { clearTimeout(tm); tm = setTimeout(run, 250); }
+  function hook() {
+    var u = window.updateLevelStrip;
+    if (typeof u === 'function' && !u.__od) {
+      var w = function () { var x = u.apply(this, arguments); later(); return x; };
+      w.__od = 1; window.updateLevelStrip = w;
+    }
+    var rc = window.renderCatStrip;
+    if (typeof rc === 'function' && !rc.__od) {
+      var w2 = function () { var x = rc.apply(this, arguments); later(); return x; };
+      w2.__od = 1; window.renderCatStrip = w2;
+    }
+  }
+  function boot() { hook(); setTimeout(hook, 1500); setTimeout(later, 1600); }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();
+  window.othersDateRefresh = run;
+})();
+</script>
 </body>
 </html>

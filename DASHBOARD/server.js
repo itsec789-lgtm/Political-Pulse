@@ -688,6 +688,64 @@ function fillKPIs(html, map) {
    unke tweet Mongo me hain par roster me nahi aate, isliye card par 0
    dikhta tha. Yahan se SIRF card ke liye ginti laate hain; roster,
    chart aur grand total ko haath nahi lagta. */
+/* ===== others-date (27-Oct): "Others" cards (NOB, Media Houses, Journalist,
+   Official Page ...) ab date filter maante hain.
+   Card ki ginti = mapping me us Category ke har handle ke tweets, chuni hui
+   tareekhon me. Bilkul wahi niyam jo page banate waqt (catStats) lagta hai:
+     - roster wale handle: All-India me row-Category Media House/Journalist
+       wale tweet nahi gine jaate, UP me sirf State = Uttar Pradesh
+     - roster ke bahar: sirf row-Category Media House / Journalist wale tweet (mj-agg jaisa)
+   Purane din pulse_master.daily_summary se (d index, 0.1 s), HOT window ke
+   din (summary me abhi nahi) Atlas se, warna local se. Sirf padhta hai. */
+var _CATRANGE = {};
+var _crCache = new Map();
+var _CR_EXC = { 'media house': 1, 'journalist': 1 };
+function _prevDay(d) { return new Date(Date.parse(d + 'T00:00:00Z') - 86400000).toISOString().slice(0, 10); }
+async function catRangePerHandle(scope, f, t, CR) {
+  var per = Object.create(null);
+  function add(h, st, cat, tw, vw) {
+    var low = String(h == null ? '' : h).trim().replace(/^@/, '').toLowerCase();
+    if (!low || !CR.ct[low]) return;
+    var isMJ = !!_CR_EXC[String(cat || '').trim().toLowerCase()];
+    if (CR.roster[low]) {
+      if (scope === 'up' && String(st || '') !== 'Uttar Pradesh') return;
+      if (scope !== 'up' && isMJ) return;
+    } else if (!isMJ) {
+      return;      /* roster ke bahar sirf Media House / Journalist ke tweet (mj-agg jaisa) */
+    }
+    var o = per[low] || (per[low] = { tw: 0, vw: 0 });
+    o.tw += (+tw) || 0; o.vw += (+vw) || 0;
+  }
+  var cut = MP.windowCutoff();
+  var sEnd = t < cut ? t : _prevDay(cut);
+  var src = [];
+  if (f <= sEnd) {
+    var cli = MP.client();
+    try {
+      await cli.connect();
+      var rows = await cli.db(MASTER_DB).collection('daily_summary').aggregate([
+        { $match: { d: { $gte: f, $lte: sEnd } } },
+        { $group: { _id: { h: '$h', st: '$st', c: '$cat' }, tw: { $sum: '$tw' }, vw: { $sum: '$vw' } } }
+      ], { maxTimeMS: 20000, allowDiskUse: true }).toArray();
+      rows.forEach(function (r) { add(r._id.h, r._id.st, r._id.c, r.tw, r.vw); });
+      src.push('summary');
+    } finally { try { await cli.close(); } catch (e) {} }
+  }
+  if (t >= cut) {
+    var rf = f > cut ? f : cut;
+    var raw = await onTweets(rf, async function (col, store) {
+      src.push(store);
+      return col.aggregate([
+        { $match: { 'Tweet Date': { $gte: rf, $lte: t + '~' } } },
+        { $group: { _id: { h: '$Handle', st: '$State', c: '$Category' }, tw: { $sum: 1 },
+            vw: { $sum: { $convert: { input: '$Total Views', to: 'double', onError: 0, onNull: 0 } } } } }
+      ], { maxTimeMS: 20000 }).toArray();
+    });
+    (raw || []).forEach(function (r) { add(r._id.h, r._id.st, r._id.c, r.tw, r.vw); });
+  }
+  return { per: per, src: src };
+}
+
 var _mjaCache = { t: 0, v: null };
 async function mjAgg() {
   if (_mjaCache.v && Date.now() - _mjaCache.t < 600000) return _mjaCache.v;
@@ -1165,6 +1223,19 @@ function mapGate(map) {
       });
       if (_mjN) console.log('  mj-agg: ' + _mjN + ' handle ki ginti card par jud gayi');
       map.UNI.catStats = _cs;
+      /* others-date (27-Oct): /api/cat-range ko wahi handle->Category aur
+         roster chahiye jo in cards ko banate hain. JSON me nahi jaata
+         (non-enumerable), sirf server ke paas rehta hai. */
+      try {
+        var _pm = Object.create(null);
+        Object.keys(_me).forEach(function (l) { if (_me[l] && _me[l].party) _pm[l] = _me[l].party; });
+        map.UNI.allHandles.forEach(function (r) {
+          var l = String((r && r.h) || '').toLowerCase();
+          if (l && r.party) _pm[l] = r.party;          /* card wala party filter roster ki party dekhta hai */
+        });
+        Object.defineProperty(map, '__catRange', { value: { ct: _ct, roster: _seenH, party: _pm },
+          enumerable: false, configurable: true, writable: true });
+      } catch (e) { console.log('  (cat-range prep skip: ' + e.message + ')'); }
 
       /* CM / Dy CM Category nahi hain -- Admin Designation se aate hain.
          Unka hisaab alag, par dhaancha wahi. */
@@ -1605,6 +1676,7 @@ async function buildDashBase(scope) {
 
   /* map-gate : Mapping.xlsx se hataye gaye handle yahan nikal jaate hain */
   var _gate = mapGate(map);
+  if (map.__catRange) { _CATRANGE[scope] = map.__catRange; _CATRANGE[scope].ver = Date.now(); }
   if (_gate.on && _gate.dropped) {
     console.log('  map-gate: ' + _gate.dropped + ' handle mapping me nahi hain -- '
       + 'dashboard se hata diye (' + _gate.names.slice(0, 8).join(', ')
@@ -3747,6 +3819,41 @@ app.get('/api/news/meta', newsGuard, async function (req, res) {
 });
 
 // ---- Trending & Viral: kisi ek metric par top tweets ----
+app.get('/api/cat-range', dashGuard, async function (req, res) {
+  res.set('Cache-Control', 'no-store');
+  var scope = req.query.scope === 'up' ? 'up' : 'all';
+  var f = String(req.query.from || '').slice(0, 10), t = String(req.query.to || '').slice(0, 10);
+  var party = String(req.query.party || 'all');
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(f) || !/^\d{4}-\d{2}-\d{2}$/.test(t) || f > t) {
+    return res.status(400).json({ ok: false, error: 'bad date range' });
+  }
+  try {
+    var CR = _CATRANGE[scope];
+    if (!CR) { try { await dashBase(scope); } catch (e) {} CR = _CATRANGE[scope]; }
+    if (!CR) return res.json({ ok: false, error: 'not ready' });
+    var key = scope + '|' + f + '|' + t + '|' + party + '|' + CR.ver;
+    var hit = _crCache.get(key);
+    if (hit && Date.now() - hit.at < 120000) return res.json(hit.v);
+    var r = await catRangePerHandle(scope, f, t, CR);
+    var cats = {};
+    Object.keys(CR.ct).forEach(function (low) {
+      if (party !== 'all' && (CR.party[low] || '') !== party) return;
+      var a = r.per[low];
+      CR.ct[low].forEach(function (c) {
+        var o = cats[c] || (cats[c] = { tw: 0, vw: 0, live: 0 });
+        if (a && (a.tw || a.vw)) { o.tw += a.tw; o.vw += a.vw; o.live++; }
+      });
+    });
+    var v = { ok: true, scope: scope, from: f, to: t, party: party, cats: cats, source: r.src.join('+') };
+    _crCache.set(key, { at: Date.now(), v: v });
+    if (_crCache.size > 200) _crCache.delete(_crCache.keys().next().value);
+    res.json(v);
+  } catch (e) {
+    console.log('  [/api/cat-range] ' + e.message);
+    res.json({ ok: false, error: String(e.message || e).slice(0, 200) });
+  }
+});
+
 app.get('/api/tw/top', dashGuard, async function (req, res) {
   res.set('Cache-Control', 'no-store');
   var metric = String(req.query.metric || 'views');
