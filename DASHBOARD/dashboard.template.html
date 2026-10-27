@@ -15440,21 +15440,20 @@ function toggleModalLeader(handle) {
     var s=series(),C=sum(s.c),L=sum(s.l),W=sum(s.w),ok=hasLW(),na='—',lk=likesKnown(),noLk=ok&&!lk;
     function lkTxt(v){return !ok?na:(lk?fmt(v):'N/A');}
     g.innerHTML=card('rcount',fmt(C),'Total Retweets','Posts reposted (RT) by leaders','#1B5E20')
-      +card('rlikes',lkTxt(L),'Total Likes',noLk?'Not in X data for reposts':'On the reposted posts','#B71C1C')
       +card('rviews',ok?fmt(W):na,'Total Views','On the reposted posts','#4A148C')
-      +card('ravgv',ok?fmt(C?W/C:0):na,'Avg Views/Retweet','Views per reposted post','#E65100')
-      +card('ravgl',lkTxt(C?L/C:0),'Avg Likes/Retweet',noLk?'Not in X data for reposts':'Likes per reposted post','#00838F');
+      +card('ravgv',ok?fmt(C?W/C:0):na,'Avg Views/Retweet','Views per reposted post','#E65100');
     var pp=$('kpiDetailPanel');   /* keep the open card highlighted after a re-render */
     if(pp&&pp.classList.contains('kpi-dp-open')&&pp.previousElementSibling===g){
       var lb=($('kpiDpLabel')||{}).textContent||'';
       g.querySelectorAll('.kpi').forEach(function(k){if(k.dataset.kpi===window._trOpen){k.classList.add('kpi-open');var t=k.querySelector('.kpi-action-txt');if(t)t.textContent='Viewing Analysis';}});
     }
     if(typeof Chart==='undefined')return;
-    var ser=[s.c,s.l,s.w,per(s.c,s.w),per(s.c,s.l)],col=['#1B5E20','#B71C1C','#4A148C','#E65100','#00838F'];
+    /* likes cards removed 27-Oct: scraper stores 0 likes on repost rows */
+    var ser=[s.c,s.w,per(s.c,s.w)],col=['#1B5E20','#4A148C','#E65100'];
     var cv=g.querySelectorAll('canvas.kspark');
     for(var i=0;i<cv.length&&i<ser.length;i++){
       if(SP[i]){try{SP[i].destroy();}catch(e){}SP[i]=null;}
-      if(i>0&&!ok)continue;if((i===1||i===4)&&!lk)continue;
+      if(i>0&&!ok)continue;
       SP[i]=new Chart(cv[i],{type:'line',data:{labels:ser[i].map(function(_,j){return j;}),datasets:[{data:ser[i],borderColor:col[i],backgroundColor:col[i]+'22',fill:true,tension:0.4,pointRadius:0,borderWidth:1.8}]},options:{maintainAspectRatio:false,animation:false,plugins:{legend:{display:false},datalabels:{display:false},tooltip:{enabled:false}},scales:{x:{display:false},y:{display:false}}}});
     }
   }
@@ -15478,13 +15477,13 @@ function toggleModalLeader(handle) {
   function setup(){
     var kk=$('dashKpis');if(!kk)return false;if($('dashRtKpis'))return true;
     var st=document.createElement('style');
-    st.textContent='#dashRtKpis{grid-template-columns:repeat(5,1fr)}.tr-sec-bar{margin:6px 0 10px}'
+    st.textContent='#dashRtKpis{grid-template-columns:repeat(3,1fr)}.tr-sec-bar{margin:6px 0 10px}'
       +'@media(max-width:1200px){#dashRtKpis{grid-template-columns:repeat(3,1fr)}}@media(max-width:600px){#dashRtKpis{grid-template-columns:repeat(2,1fr)}}';
     document.head.appendChild(st);
     var b1=bar('barTwSum','Tweet Summary','Own posts');
     kk.parentNode.insertBefore(b1,kk);
     var pp=$('kpiDetailPanel'),after=(pp&&pp.previousElementSibling===kk)?pp:kk;
-    var b2=bar('barRtSum','Retweet Summary','Reposts by leaders · likes/views are of the original post');
+    var b2=bar('barRtSum','Retweet Summary','Reposts by leaders · views are of the original post');
     var g=document.createElement('div');g.className='kpi-row';g.id='dashRtKpis';
     after.parentNode.insertBefore(b2,after.nextSibling);b2.parentNode.insertBefore(g,b2.nextSibling);
     [[b1,kk],[b2,g]].forEach(function(x){

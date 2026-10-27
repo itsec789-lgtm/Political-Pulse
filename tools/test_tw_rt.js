@@ -86,7 +86,7 @@ process.on('exit', function () { try { srv && srv.kill(); } catch (e) {} try { c
     await sleep(2000);
     const notes = await ev("[].map.call(document.querySelectorAll('._mjnote'),function(n){return n.closest('.kpi').dataset.kpi;}).join(',')");
     check(L.order, 'layout: Tweet bar > Tweet cards > Retweet bar > Retweet cards');
-    check(L.tw === 6 && L.rt === 5, 'cards: tweet ' + L.tw + ' [' + L.twKeys + '], retweet ' + L.rt + ' [' + L.rtKeys + ']');
+    check(L.tw === 6 && L.rt === 3, 'cards: tweet ' + L.tw + ' [' + L.twKeys + '], retweet ' + L.rt + ' [' + L.rtKeys + ']');
     check(scope === '/up' ? notes === '' : notes === 'tweets', 'media note only on Total Tweets: [' + notes + ']');
 
     const AD = await ev('window.PHD_DATES');
@@ -107,8 +107,8 @@ process.on('exit', function () { try { srv && srv.kill(); } catch (e) {} try { c
         const lkTxt = function (v) { return R.lk ? fmt(v) : (RAW_LK === 0 ? 'N/A' : 'BAD'); };
         const cardOk = R.tw.tweets === fmt(e[0]) && R.tw.likes === fmt(e[1]) && R.tw.views === fmt(e[2]) && R.tw.rts === fmt(e[3])
           && R.tw.avgvpt === fmt(e[0] ? e[2] / e[0] : 0) && R.tw.avglpt === fmt(e[0] ? e[1] / e[0] : 0)
-          && R.rt.rcount === fmt(e[4]) && (!hasLW || (R.rt.rlikes === lkTxt(e[5]) && R.rt.rviews === fmt(e[6])
-          && R.rt.ravgv === fmt(e[4] ? e[6] / e[4] : 0) && R.rt.ravgl === lkTxt(e[4] ? e[5] / e[4] : 0)));
+          && R.rt.rcount === fmt(e[4]) && (!hasLW || (R.rt.rviews === fmt(e[6]) && R.rt.ravgv === fmt(e[4] ? e[6] / e[4] : 0)))
+          && R.rt.rlikes === undefined && R.rt.ravgl === undefined;
         check(ownOk && repOk && cardOk, (pty + ' / ' + lab).padEnd(22) + f + '..' + t + '  own t/k/v/r page ' + own.join('/') + ' raw ' + e.slice(0, 4).join('/')
           + ' | reposts c/l/w page ' + rep.join('/') + ' raw ' + e.slice(4).join('/') + ' | cards ' + JSON.stringify(R.rt));
       }
