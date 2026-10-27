@@ -119,6 +119,8 @@ def split_agg(M, log=print):
                 e[0] += g['tw'] - _rc; e[1] += g['vw'] - _rv; e[2] += g['lk'] - _rl; e[3] += g['rt'] - _rr
                 if _rc and hasattr(M, 'RC_DAILY'):
                     M.RC_DAILY[(h, d)] += _rc
+                if _rc and hasattr(M, 'RL_DAILY'):          # tw-rt-split
+                    M.RL_DAILY[(h, d)] += int(_rl); M.RV_DAILY[(h, d)] += int(_rv)
             if g.get('last'):
                 cand.append((g['last']['dt'], h, g['last']))
         for tag, e in (g.get('ht') or {}).items():

@@ -1675,7 +1675,11 @@ async function buildDashBase(scope) {
   for (const d of docs) map[d.key] = d.value;
 
   const PHD = {};
-  for (const p of phdDocs) PHD[p.h] = { t: p.t, v: p.v, k: p.k, r: p.r, c: p.c || [] };
+  for (const p of phdDocs) {
+    const o = PHD[p.h] = { t: p.t, v: p.v, k: p.k, r: p.r, c: p.c || [] };
+    // tw-rt-split: likes/views of reposted posts -- only for handles that reposted (keeps page small)
+    if (Array.isArray(p.l) && Array.isArray(p.c) && p.c.some(Boolean)) { o.l = p.l; o.w = p.w || []; }
+  }
   map['PHD'] = PHD;
   /* mj-agg (13-Oct): mapGate ise padhta hai (neeche catStats me) */
   try { map['MJAGG'] = await mjAgg(); } catch (e) { map['MJAGG'] = {}; }
@@ -1724,8 +1728,7 @@ async function buildDashBase(scope) {
   // note SIRF All-India par (UP me media/journalist ka jod matlab nahi rakhta)
   var noteTxt = (scope === 'all' && _mj)
     ? (_IN2(_pol) + ' politicians &nbsp;+&nbsp; ' + _IN2(_mj) + ' media house / journalist &nbsp;=&nbsp; <b>'
-       + _IN2(_pol + _mj) + '</b> own tweets in database'
-       + (_rcN ? ' &nbsp;\u00b7&nbsp; retweets (reposts) not included: ' + _IN2(_rcN) + ' by politicians' : ''))
+       + _IN2(_pol + _mj) + '</b> own tweets in database')
     : '';
 
   return { html: html, noteTxt: noteTxt };
@@ -2201,7 +2204,7 @@ async function buildHtml(scope, role, who) {
     // KPI ke neeche note: politicians + media/journalist = grand total
     // (KPI cards filter par dobara bante hain, isliye baar-baar check karte rehte hain)
     + "var NT=" + JSON.stringify(noteTxt) + ";"
-    + "function _addNote(){if(!NT)return;try{var ns=document.querySelectorAll('.kpi-sub');"
+    + "function _addNote(){if(!NT)return;try{var ns=document.querySelectorAll('.kpi[data-kpi=tweets] .kpi-sub');"
     + "for(var i=0;i<ns.length;i++){var e=ns[i];"
     + "if(/tweets|Full Range/i.test(e.textContent)&&e.innerHTML.indexOf('_mjnote')<0){"
     + "e.insertAdjacentHTML('beforeend','<div class=\"_mjnote\" style=\"font-size:9.5px;color:#9aa3af;"

@@ -4510,7 +4510,7 @@ const GROWTH="__MONGO_GROWTH__";try{window.GROWTH=GROWTH;}catch(e){}
           + '</div>';
    }
    var kk=document.getElementById('dashKpis');
-   if(kk)kk.innerHTML=kc(tot.t,'Total Tweets',rlab,'#1a1a1a','tweets')+kc(tot.k,'Total Likes','Engagement','#B71C1C','likes')+kc(tot.r,'Retweets','Amplification','#1B5E20','rts')+kc(tot.v,'Total Views','Impressions','#4A148C','views')+kc(avg,'Avg Views/Tweet','Content efficiency','#E65100','avgvpt')+kc(tot.t?Math.round(tot.k/tot.t):0,'Avg Likes/Tweet','Engagement per tweet','#00838F','avglpt');
+   if(kk)kk.innerHTML=kc(tot.t,'Total Tweets',rlab,'#1a1a1a','tweets')+kc(tot.k,'Total Likes','Engagement','#B71C1C','likes')+kc(tot.r,'Retweets Received','On own tweets','#1B5E20','rts')+kc(tot.v,'Total Views','Impressions','#4A148C','views')+kc(avg,'Avg Views/Tweet','Content efficiency','#E65100','avgvpt')+kc(tot.t?Math.round(tot.k/tot.t):0,'Avg Likes/Tweet','Engagement per tweet','#00838F','avglpt');
    try{window.updateLevelStrip&&window.updateLevelStrip();}catch(e){}
    if(kk&&typeof Chart!=='undefined'){var _davg=dser_t.map(function(x,i){return x?Math.round(dser_v[i]/x):0;});var _davl=dser_t.map(function(x,i){return x?Math.round(dser_k[i]/x):0;});var _sser=[dser_t,dser_k,dser_r,dser_v,_davg,_davl];var _scol=['#1a1a1a','#B71C1C','#1B5E20','#4A148C','#E65100','#00838F'];var _cvs=kk.querySelectorAll('canvas.kspark');window._ksp=window._ksp||[];for(var _ci=0;_ci<_cvs.length&&_ci<_sser.length;_ci++){if(window._ksp[_ci]){try{window._ksp[_ci].destroy();}catch(e){}}window._ksp[_ci]=new Chart(_cvs[_ci],{type:'line',data:{labels:_sser[_ci].map(function(_,j){return j;}),datasets:[{data:_sser[_ci],borderColor:_scol[_ci],backgroundColor:_scol[_ci]+'22',fill:true,tension:0.4,pointRadius:0,borderWidth:1.8}]},options:{maintainAspectRatio:false,animation:false,plugins:{legend:{display:false},datalabels:{display:false},tooltip:{enabled:false}},scales:{x:{display:false},y:{display:false}}}});}}
    var top=Object.keys(per).map(function(h){return {h:h,v:per[h].v,t:per[h].t,k:per[h].k};}).sort(function(a,b){return b.v-a.v;}).slice(0,8);
@@ -4578,16 +4578,23 @@ window.renderDashDate=renderDashDate;
   var KPI_DEFS = {
     tweets:  { label: 'Total Tweets',      field: 't', color: '#1a1a1a', isAvg: false },
     likes:   { label: 'Total Likes',       field: 'k', color: '#B71C1C', isAvg: false },
-    rts:     { label: 'Retweets',          field: 'r', color: '#1B5E20', isAvg: false },
+    rts:     { label: 'Retweets Received', field: 'r', color: '#1B5E20', isAvg: false },
     views:   { label: 'Total Views',       field: 'v', color: '#4A148C', isAvg: false },
     avgvpt:  { label: 'Avg Views / Tweet', field: null, color: '#E65100', isAvg: true,
                compute: function(t,v,k,r){ return t > 0 ? Math.round(v/t) : 0; } },
     avglpt:  { label: 'Avg Likes / Tweet', field: null, color: '#00838F', isAvg: true,
-               compute: function(t,v,k,r){ return t > 0 ? Math.round(k/t) : 0; } }
+               compute: function(t,v,k,r){ return t > 0 ? Math.round(k/t) : 0; } },
+    /* tw-rt-split: Retweet Summary cards -- data from window._rtDaily (PHD c / l / w) */
+    rcount:  { label: 'Total Retweets (reposts)',  rt: 'c',    color: '#1B5E20', isAvg: false },
+    rlikes:  { label: 'Likes on reposted posts',   rt: 'l',    color: '#B71C1C', isAvg: false },
+    rviews:  { label: 'Views on reposted posts',   rt: 'w',    color: '#4A148C', isAvg: false },
+    ravgv:   { label: 'Avg Views / Retweet',       rt: 'avgv', color: '#E65100', isAvg: true },
+    ravgl:   { label: 'Avg Likes / Retweet',       rt: 'avgl', color: '#00838F', isAvg: true }
   };
 
   /* Get current daily array for a metric, filtered by party + date range */
   function _getDailyData(def) {
+    if (def.rt && window._rtDaily) return window._rtDaily(def);   // tw-rt-split
     var D = window.D;
     var allDates = (D && D.AD) || window.PHD_DATES || window.AD || (window.AGG && window.AGG.dates) || (D && D.dayLabels) || [];
     if (!D || !D.partyDaily || !allDates.length) return { labels: [], vals: [], total: 0 };
@@ -4670,7 +4677,7 @@ window.renderDashDate=renderDashDate;
     _kpiKey = key;
 
     /* highlight selected card */
-    document.querySelectorAll('#dashKpis .kpi').forEach(function(c) {
+    document.querySelectorAll('#dashKpis .kpi,#dashRtKpis .kpi').forEach(function(c) {
       var isOpen = c.dataset.kpi === key;
       c.classList.toggle('kpi-open', isOpen);
       var txt = c.querySelector('.kpi-action-txt');
@@ -4773,7 +4780,7 @@ window.renderDashDate=renderDashDate;
 
   window.kpiCloseDetail = function() {
     _kpiKey = null;
-    document.querySelectorAll('#dashKpis .kpi').forEach(function(c){
+    document.querySelectorAll('#dashKpis .kpi,#dashRtKpis .kpi').forEach(function(c){
       c.classList.remove('kpi-open');
       var txt = c.querySelector('.kpi-action-txt');
       if (txt) txt.textContent = 'Tap for Analysis';
@@ -4808,7 +4815,8 @@ window.renderDashDate=renderDashDate;
         act.innerHTML = '<span class="kpi-action-txt">Tap for Analysis</span><span class="kpi-action-arrow">&#x25BE;</span>';
         if (sp) card.insertBefore(act, sp); else card.appendChild(act);
       }
-      card.onclick = function() { window.kpiOpenDetail(key); };
+      /* stopPropagation: warna #dashKpis ka click listener dobara chalta tha aur card par dobara click se panel band nahi hota tha */
+      card.onclick = function(e) { if (e) e.stopPropagation(); window.kpiOpenDetail(key); };
     });
     var _dashKpisBox = document.getElementById('dashKpis');
     if (_dashKpisBox && !_dashKpisBox._kpiBound) {
@@ -9474,6 +9482,129 @@ W.__pfByParty = byParty; W.__pfMetrics = metrics; W.__pfCATS = CATS; W.__pfDAYS 
   function boot() { hook(); setTimeout(hook, 1500); setTimeout(later, 1600); }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();
   window.othersDateRefresh = run;
+})();
+</script>
+<script>
+/* tw-rt-split (27-Oct): Dashboard KPIs in two collapsible sections.
+   TWEET SUMMARY   = the existing #dashKpis cards (own posts; "RT @" rows are not in them).
+   RETWEET SUMMARY = #dashRtKpis, built here from PHD:  c = reposts ("RT @" rows) per handle-day,
+                     l / w = likes / views of the reposted ORIGINAL posts (X gives no separate
+                     numbers for a repost). Same date + party filter as renderDashDate. */
+(function(){
+  function $(id){return document.getElementById(id);}
+  function fmt(n){n=Math.round(n||0);if(n>=1e7)return(n/1e7).toFixed(2)+'Cr';if(n>=1e5)return(n/1e5).toFixed(2)+'L';if(n>=1e3)return(n/1e3).toFixed(1)+'K';return ''+n;}
+  function sum(a){var s=0;for(var i=0;i<a.length;i++)s+=a[i];return s;}
+  var HAS=null;   /* does this build carry l/w at all? (older build -> show "—" instead of a fake 0) */
+  function hasLW(){if(HAS===null){HAS=false;var P=window.PHD||{};for(var h in P){if(P[h]&&P[h].l){HAS=true;break;}}}return HAS;}
+  /* the scraper stores 0 likes on every "RT @" row -> likes on reposted posts are unknown, show N/A (not a fake 0) */
+  var LK=null;function likesKnown(){if(LK===null){LK=false;var P=window.PHD||{};for(var h in P){var a=P[h]&&P[h].l;if(a){for(var i=0;i<a.length;i++){if(a[i]>0){LK=true;break;}}}if(LK)break;}}return LK;}
+
+  function idxSel(){var AD=window.PHD_DATES||[];var f=($('dashFrom')||{}).value||AD[0];var t=($('dashTo')||{}).value||AD[AD.length-1];
+    var idx=[];AD.forEach(function(d,i){if(d>=f&&d<=t)idx.push(i);});if(!idx.length)idx=AD.map(function(_,i){return i;});return idx;}
+  function series(){
+    var P=window.PHD||{},AD=window.PHD_DATES||[],idx=idxSel(),dp=($('dashParty')||{}).value||'all';
+    var G=(window.GROWTH&&window.GROWTH.H)||{};
+    var c=idx.map(function(){return 0;}),l=c.slice(),w=c.slice();
+    Object.keys(P).forEach(function(h){
+      if(dp!=='all'&&(G[h]||{}).p!==dp)return;
+      var o=P[h]||{},oc=o.c||[],ol=o.l||[],ow=o.w||[];
+      for(var j=0;j<idx.length;j++){var i=idx[j];c[j]+=(+oc[i])||0;l[j]+=(+ol[i])||0;w[j]+=(+ow[i])||0;}
+    });
+    return {dates:idx.map(function(i){return AD[i];}),c:c,l:l,w:w};
+  }
+  function per(a,b){return a.map(function(x,i){return x?Math.round(b[i]/x):0;});}
+
+  /* used by the KPI detail panel (_getDailyData -> def.rt) */
+  window._rtDaily=function(def){
+    var s=series(),C=sum(s.c),L=sum(s.l),W=sum(s.w),vals,total;
+    if(def.rt==='avgv'){vals=per(s.c,s.w);total=C?Math.round(W/C):0;}
+    else if(def.rt==='avgl'){vals=per(s.c,s.l);total=C?Math.round(L/C):0;}
+    else{vals=s[def.rt]||[];total=sum(vals);}
+    return {labels:s.dates,vals:vals,total:total};
+  };
+
+  function card(key,val,lbl,sub,col){
+    return '<div class="kpi" data-kpi="'+key+'" onclick="window.kpiOpenDetail&&window.kpiOpenDetail(\''+key+'\')" style="--ka:'+col+';cursor:pointer">'
+      +'<div class="kpi-val">'+val+'</div><div class="kpi-lbl">'+lbl+'</div><div class="kpi-sub">'+sub+'</div>'
+      +'<div class="kpi-action"><span class="kpi-action-txt">Tap for Analysis</span><span class="kpi-action-arrow">&#x25BE;</span></div>'
+      +'<div class="kpi-spark"><canvas class="kspark"></canvas></div></div>';
+  }
+  var SP=[];
+  function render(){
+    var g=$('dashRtKpis');if(!g)return;
+    var s=series(),C=sum(s.c),L=sum(s.l),W=sum(s.w),ok=hasLW(),na='—',lk=likesKnown(),noLk=ok&&!lk;
+    function lkTxt(v){return !ok?na:(lk?fmt(v):'N/A');}
+    g.innerHTML=card('rcount',fmt(C),'Total Retweets','Posts reposted (RT) by leaders','#1B5E20')
+      +card('rlikes',lkTxt(L),'Total Likes',noLk?'Not in X data for reposts':'On the reposted posts','#B71C1C')
+      +card('rviews',ok?fmt(W):na,'Total Views','On the reposted posts','#4A148C')
+      +card('ravgv',ok?fmt(C?W/C:0):na,'Avg Views/Retweet','Views per reposted post','#E65100')
+      +card('ravgl',lkTxt(C?L/C:0),'Avg Likes/Retweet',noLk?'Not in X data for reposts':'Likes per reposted post','#00838F');
+    var pp=$('kpiDetailPanel');   /* keep the open card highlighted after a re-render */
+    if(pp&&pp.classList.contains('kpi-dp-open')&&pp.previousElementSibling===g){
+      var lb=($('kpiDpLabel')||{}).textContent||'';
+      g.querySelectorAll('.kpi').forEach(function(k){if(k.dataset.kpi===window._trOpen){k.classList.add('kpi-open');var t=k.querySelector('.kpi-action-txt');if(t)t.textContent='Viewing Analysis';}});
+    }
+    if(typeof Chart==='undefined')return;
+    var ser=[s.c,s.l,s.w,per(s.c,s.w),per(s.c,s.l)],col=['#1B5E20','#B71C1C','#4A148C','#E65100','#00838F'];
+    var cv=g.querySelectorAll('canvas.kspark');
+    for(var i=0;i<cv.length&&i<ser.length;i++){
+      if(SP[i]){try{SP[i].destroy();}catch(e){}SP[i]=null;}
+      if(i>0&&!ok)continue;if((i===1||i===4)&&!lk)continue;
+      SP[i]=new Chart(cv[i],{type:'line',data:{labels:ser[i].map(function(_,j){return j;}),datasets:[{data:ser[i],borderColor:col[i],backgroundColor:col[i]+'22',fill:true,tension:0.4,pointRadius:0,borderWidth:1.8}]},options:{maintainAspectRatio:false,animation:false,plugins:{legend:{display:false},datalabels:{display:false},tooltip:{enabled:false}},scales:{x:{display:false},y:{display:false}}}});
+    }
+  }
+  var _q=0;function later(){if(_q)return;_q=setTimeout(function(){_q=0;try{render();}catch(e){console.warn('[tw-rt-split]',e);}},0);}
+
+  function bar(id,title,badge){
+    var d=document.createElement('div');d.className='cat-sec-bar tr-sec-bar';d.id=id;
+    d.setAttribute('role','button');d.setAttribute('tabindex','0');d.setAttribute('aria-expanded','true');
+    d.innerHTML='<div class="cat-sec-bar-title"><span>'+title+'</span><span class="cat-sec-bar-badge">'+badge+'</span></div>'
+      +'<div class="cat-sec-bar-chevron"><span class="cat-sec-toggle-txt">Collapse</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></div>';
+    return d;
+  }
+  function toggle(b,grid){
+    var hide=grid.style.display!=='none';
+    grid.style.display=hide?'none':'';
+    b.classList.toggle('cat-sec-collapsed',hide);b.setAttribute('aria-expanded',hide?'false':'true');
+    var t=b.querySelector('.cat-sec-toggle-txt');if(t)t.textContent=hide?'Expand':'Collapse';
+    var pp=$('kpiDetailPanel');
+    if(hide&&pp&&pp.classList.contains('kpi-dp-open')&&pp.previousElementSibling===grid){try{window.kpiCloseDetail();}catch(e){}}
+  }
+  function setup(){
+    var kk=$('dashKpis');if(!kk)return false;if($('dashRtKpis'))return true;
+    var st=document.createElement('style');
+    st.textContent='#dashRtKpis{grid-template-columns:repeat(5,1fr)}.tr-sec-bar{margin:6px 0 10px}'
+      +'@media(max-width:1200px){#dashRtKpis{grid-template-columns:repeat(3,1fr)}}@media(max-width:600px){#dashRtKpis{grid-template-columns:repeat(2,1fr)}}';
+    document.head.appendChild(st);
+    var b1=bar('barTwSum','Tweet Summary','Own posts');
+    kk.parentNode.insertBefore(b1,kk);
+    var pp=$('kpiDetailPanel'),after=(pp&&pp.previousElementSibling===kk)?pp:kk;
+    var b2=bar('barRtSum','Retweet Summary','Reposts by leaders · likes/views are of the original post');
+    var g=document.createElement('div');g.className='kpi-row';g.id='dashRtKpis';
+    after.parentNode.insertBefore(b2,after.nextSibling);b2.parentNode.insertBefore(g,b2.nextSibling);
+    [[b1,kk],[b2,g]].forEach(function(x){
+      x[0].addEventListener('click',function(){toggle(x[0],x[1]);});
+      x[0].addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();toggle(x[0],x[1]);}});
+    });
+    /* detail panel opens under the section whose card was clicked */
+    var oo=window.kpiOpenDetail;
+    if(typeof oo==='function'&&!oo._tr){
+      window.kpiOpenDetail=function(k){
+        var c=document.querySelector('#dashKpis [data-kpi="'+k+'"],#dashRtKpis [data-kpi="'+k+'"]'),p=$('kpiDetailPanel');
+        if(c&&p){var gr=c.parentElement;if(gr.nextElementSibling!==p){try{window.kpiCloseDetail();}catch(e){}gr.parentNode.insertBefore(p,gr.nextSibling);}}
+        window._trOpen=(window._trOpen===k&&p&&p.classList.contains('kpi-dp-open'))?null:k;
+        return oo.apply(this,arguments);
+      };
+      window.kpiOpenDetail._tr=1;
+    }
+    if(window.MutationObserver)new MutationObserver(later).observe(kk,{childList:true});
+    var ps=$('dashParty');if(ps)ps.addEventListener('change',later);
+    ['dashFrom','dashTo','dashPreset'].forEach(function(id){var e=$(id);if(e)e.addEventListener('change',later);});
+    render();
+    return true;
+  }
+  function boot(n){try{if(setup())return;}catch(e){console.warn('[tw-rt-split]',e);return;}if(n<40)setTimeout(function(){boot(n+1);},250);}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){boot(0);});else boot(0);
 })();
 </script>
 </body>

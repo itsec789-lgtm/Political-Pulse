@@ -185,10 +185,13 @@ def load_template():
 # reposts are counted separately as 'rc' (acc) and RC_DAILY[(handle, day)] (-> phd 'c').
 # Sentiment, hashtags, word cloud and hourly activity still see every row (unchanged).
 RC_DAILY = collections.defaultdict(int)
+# tw-rt-split (27-Oct): likes / views of the reposted ORIGINAL posts, per (handle, day) -> phd 'l' / 'w'
+RL_DAILY = collections.defaultdict(int)
+RV_DAILY = collections.defaultdict(int)
 
 
 def read_csv_agg(csv_path, query=None):
-    RC_DAILY.clear()
+    RC_DAILY.clear(); RL_DAILY.clear(); RV_DAILY.clear()
     # hot/cold plan, Phase 4: "SPLIT" = per-day summary for old days + raw tweets for the
     # last N days (summary_agg.py). Same 11 return values, so build() is unchanged.
     if str(csv_path).strip().upper() == 'SPLIT':
@@ -231,6 +234,8 @@ def read_csv_agg(csv_path, query=None):
         ch['_olk'] = ch[C['likes']] * ch['_o']
         ch['_ort'] = ch[C['rts']] * ch['_o']
         ch['_ovw'] = ch[C['views']] * ch['_o']
+        ch['_rlk'] = ch[C['likes']] * ch['_rc']
+        ch['_rvw'] = ch[C['views']] * ch['_rc']
         _agg = dict(tw=('_o', 'sum'), lk=('_olk', 'sum'), rt=('_ort', 'sum'),
                     vw=('_ovw', 'sum'), rc=('_rc', 'sum'))
         for _c in SENT_CODES:
@@ -244,12 +249,13 @@ def read_csv_agg(csv_path, query=None):
             a['rc'] = a.get('rc', 0) + int(r['rc'])
             for _c in SENT_CODES: a[_c] += int(r[_c])
         # daily
-        gd = ch.groupby([C['handle'], '_d']).agg(t=('_o', 'sum'), k=('_olk', 'sum'), r=('_ort', 'sum'), v=('_ovw', 'sum'), c=('_rc', 'sum'))
+        gd = ch.groupby([C['handle'], '_d']).agg(t=('_o', 'sum'), k=('_olk', 'sum'), r=('_ort', 'sum'), v=('_ovw', 'sum'), c=('_rc', 'sum'), l=('_rlk', 'sum'), w=('_rvw', 'sum'))
         for (h, d), r in gd.iterrows():
             h = h.strip()
             if not h or len(d) != 10: continue
             dates.add(d); e = daily[(h, d)]; e[0]+=int(r['t']); e[1]+=int(r['v']); e[2]+=int(r['k']); e[3]+=int(r['r'])
-            if int(r['c']): RC_DAILY[(h, d)] += int(r['c'])
+            if int(r['c']):
+                RC_DAILY[(h, d)] += int(r['c']); RL_DAILY[(h, d)] += int(r['l']); RV_DAILY[(h, d)] += int(r['w'])
         # meta -- har handle ka SABSE NAYA row (followers/followings latest chahiye)
         ch['_dt'] = ch[C['date']].astype(str).str[:19]
         try:
@@ -517,6 +523,11 @@ def case_merge(acc, meta, daily):
     for (h, d), n in list(RC_DAILY.items()):
         rc2[(keep.get(h.strip().lower(), h), d)] += n
     RC_DAILY.clear(); RC_DAILY.update(rc2)
+    for _X in (RL_DAILY, RV_DAILY):
+        _m = collections.defaultdict(int)
+        for (h, d), n in list(_X.items()):
+            _m[(keep.get(h.strip().lower(), h), d)] += n
+        _X.clear(); _X.update(_m)
 
     print("  case-merge: %d handle do-do spelling me the -- jod diye" % len(dups))
     for low, hs in list(dups.items())[:6]:
@@ -565,9 +576,10 @@ def build(csv_path):
     ND = len(DATES)
     phd = {}
     for (h, d), e in daily.items():
-        o = phd.setdefault(h, {"t":[0]*ND, "v":[0]*ND, "k":[0]*ND, "r":[0]*ND, "c":[0]*ND})
+        o = phd.setdefault(h, {"t":[0]*ND, "v":[0]*ND, "k":[0]*ND, "r":[0]*ND, "c":[0]*ND, "l":[0]*ND, "w":[0]*ND})
         i = di[d]; o['t'][i]=e[0]; o['v'][i]=e[1]; o['k'][i]=e[2]; o['r'][i]=e[3]
         o['c'][i] = RC_DAILY.get((h, d), 0)          # rt-split: reposts that day
+        o['l'][i] = RL_DAILY.get((h, d), 0); o['w'][i] = RV_DAILY.get((h, d), 0)
     phd_docs = [{"h": h, **v} for h, v in phd.items()]
 
     # ---------- mapping ----------
