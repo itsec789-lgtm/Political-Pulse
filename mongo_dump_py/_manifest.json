@@ -1,0 +1,45 @@
+{
+ "ts": "2026-10-27 20:13:20",
+ "counts": {
+  "pulse_master": {
+   "access_requests": 11,
+   "daily_summary": 333811,
+   "daily_words": 420,
+   "handle_requests": 1,
+   "handles_seen": 3928,
+   "login_log": 248,
+   "master_tweets": 2924841,
+   "party_logos": 16,
+   "pending_handles": 0,
+   "pending_tweets": 0,
+   "portal_users": 4,
+   "summary_dirty": 0,
+   "tracked_handles": 0,
+   "tracker_cfg": 1,
+   "x_profiles": 324
+  },
+  "india_Pulse": {
+   "dashboard_data": 17,
+   "handles": 3669,
+   "mapping": 3,
+   "meta": 1,
+   "party_logos": 16,
+   "phd": 3669,
+   "x_profiles": 286
+  },
+  "up_pulse": {
+   "dashboard_data": 17,
+   "handles": 652,
+   "mapping": 3,
+   "meta": 1,
+   "phd": 652,
+   "tweets": 2866457,
+   "tweets__new": 1600000
+  },
+  "political_lens": {
+   "aggregates": 16,
+   "meta": 1,
+   "tweets": 45727
+  }
+ }
+}

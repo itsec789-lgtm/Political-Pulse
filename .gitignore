@@ -21,6 +21,7 @@ mongo_dump_py/**/*.gz
 
 # Logs & scratch
 *.log
+*.log.*
 *.bak_*
 mj_daily.json
 scratch/

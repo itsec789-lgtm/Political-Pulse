@@ -5,6 +5,7 @@ REM  --------------------------------------------------------------
 REM  Is PC ki MongoDB saaf karta hai, purane PC ke dump se saara data
 REM  dobara banata hai, aur dashboard live kar deta hai.
 REM
+REM  replica-kit 27-Oct: ID/password + login rakhe jaate hain, Atlas HOT is PC par band
 REM  Pehle ye teen install hone chahiye: Python 3.10+, Node.js 18+, MongoDB
 REM  Aur 'mongo_dump_py' folder isi jagah hona chahiye.
 REM
@@ -67,10 +68,35 @@ if errorlevel 1 (
 
 echo.
 echo  ================================================================
-echo   HATNE WALI DATABASE  (SIRF ye chaar, isi PC par):
-echo        pulse_master     india_Pulse     up_pulse     political_lens
+echo   Is PC ki MongoDB kitni saaf karni hai?
 echo.
-echo   Is PC ki koi aur database nahi chhui jaayegi.
+echo     Enter          = sirf Pulse ki database (baaki projects ki nahi)
+echo     ALL  likho     = POORI MongoDB saaf (saari user database)
+echo                      -- sirf admin/config/local aur ID-password bachenge
+echo  ================================================================
+set WIPE=
+set WA=
+set /p WA=  Kya karna hai (Enter ya ALL):
+if /i "%WA%"=="ALL" (
+  set WIPE=--wipe-all
+  echo.
+  echo   Poori MongoDB saaf hogi. Ye list dekho -- jo "HATEGI" likha hai wo sab jaayega:
+  echo.
+  "%PY%" -u REPLICA_SETUP.py --check --wipe-all
+)
+
+echo.
+echo  ================================================================
+echo   HATNE WALI DATABASE  (isi PC par):
+echo        pulse_master   india_Pulse   up_pulse   political_lens
+echo        (aur pulse_hot / pulse_hot_test agar yahan hon)
+echo.
+if defined WIPE (
+  echo   !! ALL chuna hai: is PC ki SAARI user database hategi ^(admin/config/local ke alawa^).
+) else (
+  echo   Is PC ki baaki database nahi chhui jaayegi.
+)
+echo   MongoDB ka ID/password aur is PC ke dashboard login RAKHE jaayenge.
 echo   PURANE PC par kuch bhi nahi hoga.
 echo   Ye wapas nahi aayega.
 echo  ================================================================
@@ -93,7 +119,7 @@ echo   Ye window band MAT karna. Ab kuch poochha nahi jayega.
 echo  ================================================================
 echo.
 
-powershell -NoProfile -Command "& '%PY%' -u REPLICA_SETUP.py --yes 2>&1 | Tee-Object -FilePath replica_setup.log"
+powershell -NoProfile -Command "& '%PY%' -u REPLICA_SETUP.py --yes %WIPE% 2>&1 | Tee-Object -FilePath replica_setup.log"
 set RC=%ERRORLEVEL%
 
 echo.

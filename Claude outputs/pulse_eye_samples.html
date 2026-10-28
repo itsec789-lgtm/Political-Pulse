@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pulse Eye – Button Samples</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#FBF6F1;--card:#fff;--text:#3A2418;--muted:#8a8176;--line:#eadfd4}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;padding:28px 16px}
+  h1{font-size:20px;margin:0 0 4px}
+  .sub{color:var(--muted);font-size:13px;margin:0 0 22px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:18px;max-width:1150px}
+  .opt{background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+  .opt h2{font-size:14px;margin:0;padding:12px 16px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between}
+  .opt h2 span{color:var(--muted);font-weight:500;font-size:12px}
+  /* mini sidebar mock, same look as the dashboard */
+  .side{background:#FFF8F2;padding:14px 12px 0;height:330px;display:flex;flex-direction:column}
+  .nav{font-size:13px;font-weight:600;color:#3A2418;display:flex;flex-direction:column;gap:2px}
+  .nav div{padding:9px 10px;border-radius:9px;opacity:.85}
+  .nav .on{background:linear-gradient(90deg,#F97316,#EA580C);color:#fff;opacity:1}
+  .spacer{flex:1}
+  .slot{padding:10px 0 12px}
+  .foot{border-top:1px dashed #ead7c6;text-align:center;font-size:10.5px;font-weight:700;color:#9A3412;padding:10px 0 12px}
+  .note{font-size:12px;color:var(--muted);padding:10px 16px 14px;line-height:1.45}
+  a.pe{text-decoration:none;display:flex;align-items:center;gap:10px;width:100%;cursor:pointer;position:relative;overflow:hidden;transition:transform .18s ease,box-shadow .18s ease}
+  a.pe:hover{transform:translateY(-2px)}
+  .eye{flex:0 0 auto;width:34px;height:34px;border-radius:50%;display:grid;place-items:center}
+  .txt{display:flex;flex-direction:column;line-height:1.1;min-width:0}
+  .t1{font-weight:800;font-size:15px;letter-spacing:.2px}
+  .t2{font-size:10.5px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;opacity:.85;margin-top:3px}
+  .live{margin-left:auto;display:flex;align-items:center;gap:5px;font-size:9.5px;font-weight:800;letter-spacing:1px;padding:4px 7px;border-radius:20px}
+  .dot{width:7px;height:7px;border-radius:50%;background:#EF4444;box-shadow:0 0 0 0 rgba(239,68,68,.7);animation:ping 1.6s infinite}
+  @keyframes ping{0%{box-shadow:0 0 0 0 rgba(239,68,68,.7)}70%{box-shadow:0 0 0 7px rgba(239,68,68,0)}100%{box-shadow:0 0 0 0 rgba(239,68,68,0)}}
+  .shine:after{content:"";position:absolute;top:0;left:-60%;width:40%;height:100%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.45),transparent);transform:skewX(-20deg);transition:left .7s}
+  .shine:hover:after{left:130%}
+
+  /* A. Royal Saffron */
+  .a{padding:10px 12px;border-radius:14px;background:linear-gradient(135deg,#FB923C 0%,#EA580C 55%,#C2410C 100%);color:#fff;
+     box-shadow:0 6px 18px -6px rgba(194,65,12,.55),inset 0 0 0 1px rgba(255,214,150,.55)}
+  .a:hover{box-shadow:0 10px 24px -6px rgba(194,65,12,.65),inset 0 0 0 1px rgba(255,214,150,.8)}
+  .a .eye{background:rgba(255,255,255,.18);box-shadow:inset 0 0 0 1px rgba(255,255,255,.4)}
+  .a .live{background:rgba(0,0,0,.22);color:#fff}
+
+  /* B. Classic Gold Frame */
+  .b{padding:10px 12px;border-radius:12px;background:linear-gradient(160deg,#3B0F0F 0%,#5B1414 100%);color:#F7D58B;
+     border:1.5px solid #D4A947;box-shadow:0 6px 16px -6px rgba(59,15,15,.6),inset 0 0 0 3px #3B0F0F,inset 0 0 0 4px rgba(212,169,71,.45)}
+  .b .t1{font-family:'Playfair Display',serif;font-size:16.5px;font-weight:700;color:#F7D58B}
+  .b .t2{color:#E9C27A}
+  .b .eye{background:radial-gradient(circle,#F7D58B 0%,#C9962E 100%);color:#3B0F0F}
+  .b .live{border:1px solid rgba(212,169,71,.6);color:#F7D58B}
+
+  /* C. Ivory Glass */
+  .c{padding:10px 12px;border-radius:14px;background:linear-gradient(180deg,#FFFFFF,#FFF4EA);color:#3A2418;
+     border:1.5px solid #F2B48A;box-shadow:0 4px 14px -6px rgba(234,88,12,.35)}
+  .c:hover{border-color:#EA580C;box-shadow:0 8px 20px -6px rgba(234,88,12,.45)}
+  .c .eye{background:linear-gradient(135deg,#F97316,#C2410C);color:#fff;box-shadow:0 3px 8px -2px rgba(194,65,12,.6)}
+  .c .t2{color:#C2410C}
+  .c .live{background:#FEE2E2;color:#B91C1C}
+
+  /* D. Midnight Broadcast (same colours as the dashboard's loading screen) */
+  .d{padding:10px 12px;border-radius:14px;background:radial-gradient(circle at 20% 20%,#2a1220 0%,#12070e 70%);color:#FFE7C7;
+     border:1px solid rgba(255,150,60,.45);box-shadow:0 0 0 1px rgba(255,150,60,.08),0 8px 22px -8px rgba(255,120,30,.55)}
+  .d:hover{box-shadow:0 0 0 1px rgba(255,150,60,.25),0 10px 28px -8px rgba(255,120,30,.75)}
+  .d .eye{background:radial-gradient(circle,#FFB35C 0%,#E8590C 70%);color:#12070e;box-shadow:0 0 12px rgba(255,140,40,.7)}
+  .d .t1{background:linear-gradient(90deg,#FFE0B0,#FF9A3C);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .d .live{background:rgba(239,68,68,.15);color:#FCA5A5;border:1px solid rgba(239,68,68,.35)}
+</style>
+</head>
+<body>
+  <h1>Pulse Eye — 4 button designs</h1>
+  <p class="sub">Sidebar ke sabse neeche, "Created by Data Team" ke theek upar. Har button sach me kaam karta hai — click karke dekhiye (naye tab me Nazar Live khulega). Pasand wala letter bata dijiye: A, B, C ya D.</p>
+
+  <div class="grid">
+    <!-- A -->
+    <div class="opt"><h2>A · Royal Saffron <span>dashboard ke rang</span></h2>
+      <div class="side"><div class="nav"><div class="on">Dashboard</div><div>Top Leaders</div><div>Parties</div><div>Handle Analytics</div></div>
+        <div class="spacer"></div>
+        <div class="slot"><a class="pe a shine" href="https://nazarindianpoliticspulse.onrender.com/live?mode=all" target="_blank" rel="noopener noreferrer" title="Open Pulse Eye – Live TV">
+          <span class="eye"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg></span>
+          <span class="txt"><span class="t1">Pulse Eye</span><span class="t2">Live TV</span></span>
+          <span class="live"><span class="dot"></span>LIVE</span></a></div>
+        <div class="foot">Created by Data Team</div></div>
+      <div class="note">Saffron gradient, sunehri patli border, hover par chamak. Dashboard ke orange theme se seedha match.</div></div>
+
+    <!-- B -->
+    <div class="opt"><h2>B · Classic Gold Frame <span>royal / classic</span></h2>
+      <div class="side"><div class="nav"><div class="on">Dashboard</div><div>Top Leaders</div><div>Parties</div><div>Handle Analytics</div></div>
+        <div class="spacer"></div>
+        <div class="slot"><a class="pe b shine" href="https://nazarindianpoliticspulse.onrender.com/live?mode=all" target="_blank" rel="noopener noreferrer" title="Open Pulse Eye – Live TV">
+          <span class="eye"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg></span>
+          <span class="txt"><span class="t1">Pulse Eye</span><span class="t2">Live TV</span></span>
+          <span class="live"><span class="dot"></span>LIVE</span></a></div>
+        <div class="foot">Created by Data Team</div></div>
+      <div class="note">Gehra maroon, double gold frame, serif naam — news-channel jaisa classic premium look.</div></div>
+
+    <!-- C -->
+    <div class="opt"><h2>C · Ivory Glass <span>saaf / halka</span></h2>
+      <div class="side"><div class="nav"><div class="on">Dashboard</div><div>Top Leaders</div><div>Parties</div><div>Handle Analytics</div></div>
+        <div class="spacer"></div>
+        <div class="slot"><a class="pe c" href="https://nazarindianpoliticspulse.onrender.com/live?mode=all" target="_blank" rel="noopener noreferrer" title="Open Pulse Eye – Live TV">
+          <span class="eye"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg></span>
+          <span class="txt"><span class="t1">Pulse Eye</span><span class="t2">Live TV</span></span>
+          <span class="live"><span class="dot"></span>LIVE</span></a></div>
+        <div class="foot">Created by Data Team</div></div>
+      <div class="note">Safed-ivory card, orange border aur orange "aankh" — sidebar ke saath ghul-mil jaata hai, zyada shor nahi.</div></div>
+
+    <!-- D -->
+    <div class="opt"><h2>D · Midnight Broadcast <span>TV studio</span></h2>
+      <div class="side"><div class="nav"><div class="on">Dashboard</div><div>Top Leaders</div><div>Parties</div><div>Handle Analytics</div></div>
+        <div class="spacer"></div>
+        <div class="slot"><a class="pe d shine" href="https://nazarindianpoliticspulse.onrender.com/live?mode=all" target="_blank" rel="noopener noreferrer" title="Open Pulse Eye – Live TV">
+          <span class="eye"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg></span>
+          <span class="txt"><span class="t1">Pulse Eye</span><span class="t2">Live TV</span></span>
+          <span class="live"><span class="dot"></span>LIVE</span></a></div>
+        <div class="foot">Created by Data Team</div></div>
+      <div class="note">Kaala-baingani studio background, saffron glow — dashboard ki loading screen aur Nazar page jaisa.</div></div>
+  </div>
+</body>
+</html>

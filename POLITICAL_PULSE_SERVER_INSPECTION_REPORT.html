@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Political Pulse - MongoDB & Server Inspection Report</title>
+<style>
+  :root {
+    --primary: #1e3a8a;
+    --primary-light: #3b82f6;
+    --accent: #f97316;
+    --bg: #f8fafc;
+    --card-bg: #ffffff;
+    --text: #0f172a;
+    --text-muted: #64748b;
+    --border: #e2e8f0;
+    --success: #16a34a;
+    --warning: #eab308;
+    --danger: #dc2626;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+    padding: 30px 20px;
+  }
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  .header {
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    color: #ffffff;
+    padding: 32px;
+    border-radius: 12px;
+    margin-bottom: 24px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  }
+  .header h1 {
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .header .badge {
+    background: #0284c7;
+    color: white;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 9999px;
+    text-transform: uppercase;
+  }
+  .meta-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 12px;
+    margin-top: 16px;
+    font-size: 13px;
+    color: #cbd5e1;
+  }
+  .meta-item strong { color: #ffffff; }
+  .btn-print {
+    float: right;
+    background: var(--accent);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    font-size: 13px;
+    font-weight: 600;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .btn-print:hover { background: #ea580c; }
+  
+  .card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 24px;
+    margin-bottom: 24px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  }
+  .card h2 {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 16px;
+    color: var(--primary);
+    border-bottom: 2px solid #f1f5f9;
+    padding-bottom: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  
+  /* Quick Cards */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  .stat-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+    border-left: 4px solid var(--primary-light);
+  }
+  .stat-card.alert { border-left-color: var(--danger); }
+  .stat-card.warning { border-left-color: var(--warning); }
+  .stat-card.success { border-left-color: var(--success); }
+  .stat-title { font-size: 12px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; }
+  .stat-val { font-size: 22px; font-weight: 700; margin: 4px 0; color: var(--text); }
+  .stat-sub { font-size: 11px; color: var(--text-muted); }
+
+  /* Tables */
+  .table-responsive {
+    overflow-x: auto;
+    margin-top: 10px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    text-align: left;
+  }
+  th {
+    background: #f8fafc;
+    color: #475569;
+    font-weight: 600;
+    padding: 10px 12px;
+    border-bottom: 2px solid var(--border);
+  }
+  td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border);
+    color: #1e293b;
+    vertical-align: middle;
+  }
+  tr:hover td { background-color: #f8fafc; }
+  .tag {
+    display: inline-block;
+    padding: 2px 8px;
+    font-size: 11px;
+    font-weight: 600;
+    border-radius: 4px;
+  }
+  .tag-success { background: #dcfce7; color: #15803d; }
+  .tag-warning { background: #fef9c3; color: #854d0e; }
+  .tag-danger { background: #fee2e2; color: #b91c1c; }
+  .tag-info { background: #e0f2fe; color: #0369a1; }
+  
+  .code-box {
+    background: #0f172a;
+    color: #f8fafc;
+    font-family: Consolas, Monaco, "Courier New", monospace;
+    font-size: 12px;
+    padding: 16px;
+    border-radius: 8px;
+    overflow-x: auto;
+    line-height: 1.6;
+    margin-top: 10px;
+  }
+  .alert-box {
+    background: #fffbeb;
+    border-left: 4px solid #f59e0b;
+    padding: 14px 18px;
+    border-radius: 6px;
+    font-size: 13px;
+    color: #92400e;
+    margin-top: 14px;
+  }
+  .alert-box strong { color: #78350f; }
+
+  @media print {
+    body { padding: 0; background: white; }
+    .btn-print { display: none; }
+    .card { box-shadow: none; border: 1px solid #ccc; page-break-inside: avoid; }
+    .header { background: #0f172a !important; -webkit-print-color-adjust: exact; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <!-- Header -->
+  <div class="header">
+    <button class="btn-print" onclick="window.print()">🖨️ Print / Save as PDF</button>
+    <h1>Political Pulse: System & MongoDB Inspection <span class="badge">READ-ONLY AUDIT</span></h1>
+    <div class="meta-grid">
+      <div class="meta-item"><strong>Date:</strong> 26 October 2026, 11:05 AM IST</div>
+      <div class="meta-item"><strong>Machine:</strong> DESKTOP-L6LFLP5 (Windows)</div>
+      <div class="meta-item"><strong>Repository:</strong> C:\Main Twitter Project</div>
+      <div class="meta-item"><strong>Mongo Host:</strong> 127.0.0.1:27017</div>
+    </div>
+  </div>
+
+  <!-- Key Metrics Cards -->
+  <div class="stats-grid">
+    <div class="stat-card success">
+      <div class="stat-title">MongoDB Version</div>
+      <div class="stat-val">v8.3.8</div>
+      <div class="stat-sub">WiredTiger Engine · Port 27017</div>
+    </div>
+    <div class="stat-card warning">
+      <div class="stat-title">Authentication</div>
+      <div class="stat-val">Disabled (No)</div>
+      <div class="stat-sub">Localhost only; no user/pw</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-title">Master Tweets</div>
+      <div class="stat-val">2,866,457</div>
+      <div class="stat-sub">3.13 GB Raw / 1.32 GB Storage</div>
+    </div>
+    <div class="stat-card alert">
+      <div class="stat-title">Website (server.js)</div>
+      <div class="stat-val">Offline</div>
+      <div class="stat-sub">Port 3000 not listening</div>
+    </div>
+  </div>
+
+  <!-- Section 1 & 4 Summary Table -->
+  <div class="card">
+    <h2>1. Host Server & Infrastructure Specifications</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Component</th>
+          <th>Configuration / Metric</th>
+          <th>Status / Impact</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Processor</strong></td>
+          <td>11th Gen Intel(R) Core(TM) i5-1135G7 @ 2.40GHz (4 Cores / 8 Logical Processors)</td>
+          <td><span class="tag tag-success">Healthy</span> Normal desktop CPU</td>
+        </tr>
+        <tr>
+          <td><strong>Physical RAM</strong></td>
+          <td>8.0 GB Total (7.67 GB usable, 8,241,082,368 bytes)</td>
+          <td><span class="tag tag-warning">Tight</span> 8 GB memory limit for MongoDB + Node + Pipeline</td>
+        </tr>
+        <tr>
+          <td><strong>Mongo Storage Disk</strong></td>
+          <td>Drive <code>C:</code> (Data Path: <code>C:\Program Files\MongoDB\Server\8.3\data</code>)</td>
+          <td><span class="tag tag-success">233.31 GB Free</span> (475.83 GB Total)</td>
+        </tr>
+        <tr>
+          <td><strong>Process: mongod.exe</strong></td>
+          <td>PID: 6868 · CPU: 2.0% · RAM: 478.15 MB (6.08% of RAM)</td>
+          <td><span class="tag tag-success">Active</span> Running normally</td>
+        </tr>
+        <tr>
+          <td><strong>Process: node.exe (server.js)</strong></td>
+          <td>Configured for Port 3000 (<code>http://localhost:3000</code>)</td>
+          <td><span class="tag tag-danger">Offline</span> Process not running</td>
+        </tr>
+        <tr>
+          <td><strong>Pipeline Scheduler</strong></td>
+          <td>Batch loop: <code>START_LIVE.bat</code> (Runs <code>run_pipeline.py</code> every 1 hour)</td>
+          <td><span class="tag tag-danger">Paused</span> Stopped on 23-Oct due to offline network share</td>
+        </tr>
+        <tr>
+          <td><strong>Pipeline Full Duration</strong></td>
+          <td>Single full run: <strong>4,204 seconds (~70 minutes)</strong></td>
+          <td><span class="tag tag-info">Stage Benchmark</span> Dual-pipeline + backup + daily report</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Section 2: Collection Stats -->
+  <div class="card">
+    <h2>2. Complete Collection Inventory Across Databases</h2>
+    <div class="table-responsive">
+      <table>
+        <thead>
+          <tr>
+            <th>Database</th>
+            <th>Collection</th>
+            <th>Doc Count</th>
+            <th>Data Size</th>
+            <th>Storage Size</th>
+            <th>Total Indexes</th>
+            <th>Avg Doc</th>
+            <th>Configured Indexes (Keys)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>pulse_master</strong></td>
+            <td><strong>master_tweets</strong></td>
+            <td><strong>2,866,457</strong></td>
+            <td><strong>3,130.16 MB</strong></td>
+            <td>1,318.94 MB</td>
+            <td>502.78 MB</td>
+            <td>1,145 B</td>
+            <td><code>_id</code>, <code>Tweet Date</code>, <code>State</code>, <code>Handle</code>, <code>Category</code>, <code>Party</code>, <code>Total Views</code>, <code>Total Likes</code>, <code>Total Retweets</code>, <code>Total Comments</code>, <code>Category+Tweet Date</code>, <code>Handle+Tweet Date</code>, <code>Source Folders</code>, <code>Source Folders+Handle</code></td>
+          </tr>
+          <tr>
+            <td>pulse_master</td>
+            <td>handles_seen</td>
+            <td>3,923</td>
+            <td>0.19 MB</td>
+            <td>0.11 MB</td>
+            <td>0.16 MB</td>
+            <td>49 B</td>
+            <td><code>_id</code></td>
+          </tr>
+          <tr>
+            <td>pulse_master</td>
+            <td>x_profiles</td>
+            <td>320</td>
+            <td>0.14 MB</td>
+            <td>0.16 MB</td>
+            <td>0.04 MB</td>
+            <td>445 B</td>
+            <td><code>_id</code></td>
+          </tr>
+          <tr>
+            <td>pulse_master</td>
+            <td>login_log</td>
+            <td>239</td>
+            <td>0.07 MB</td>
+            <td>0.04 MB</td>
+            <td>0.07 MB</td>
+            <td>316 B</td>
+            <td><code>_id</code>, <code>at</code></td>
+          </tr>
+          <tr>
+            <td>pulse_master</td>
+            <td>party_logos</td>
+            <td>16</td>
+            <td>0.01 MB</td>
+            <td>0.04 MB</td>
+            <td>0.02 MB</td>
+            <td>354 B</td>
+            <td><code>_id</code></td>
+          </tr>
+          <tr>
+            <td>pulse_master</td>
+            <td>access_requests</td>
+            <td>11</td>
+            <td>0.00 MB</td>
+            <td>0.02 MB</td>
+            <td>0.02 MB</td>
+            <td>213 B</td>
+            <td><code>_id</code></td>
+          </tr>
+          <tr>
+            <td>pulse_master</td>
+            <td>portal_users</td>
+            <td>4</td>
+            <td>0.00 MB</td>
+            <td>0.04 MB</td>
+            <td>0.02 MB</td>
+            <td>276 B</td>
+            <td><code>_id</code></td>
+          </tr>
+          <tr>
+            <td>pulse_master</td>
+            <td>handle_requests</td>
+            <td>1</td>
+            <td>0.00 MB</td>
+            <td>0.03 MB</td>
+            <td>0.02 MB</td>
+            <td>897 B</td>
+            <td><code>_id</code></td>
+          </tr>
+          <tr>
+            <td>pulse_master</td>
+            <td>tracker_cfg</td>
+            <td>1</td>
+            <td>0.00 MB</td>
+            <td>0.04 MB</td>
+            <td>0.02 MB</td>
+            <td>56 B</td>
+            <td><code>_id</code></td>
+          </tr>
+          <tr>
+            <td>pulse_master</td>
+            <td>pending_handles / tweets / tracked</td>
+            <td>0</td>
+            <td>0.00 MB</td>
+            <td>0.03 MB</td>
+            <td>0.03 MB</td>
+            <td>0 B</td>
+            <td><code>_id</code></td>
+          </tr>
+          <tr style="background:#f1f5f9;">
+            <td><strong>india_Pulse</strong></td>
+            <td>phd</td>
+            <td>3,667</td>
+            <td>24.66 MB</td>
+            <td>8.76 MB</td>
+            <td>0.06 MB</td>
+            <td>7,050 B</td>
+            <td><code>_id</code></td>
+          </tr>
+          <tr style="background:#f1f5f9;">
+            <td>india_Pulse</td>
+            <td>dashboard_data</td>
+            <td>17</td>
+            <td>17.72 MB</td>
+            <td>10.34 MB</td>
+            <td>0.02 MB</td>
+            <td>1,093 KB</td>
+            <td><code>_id</code></td>
+          </tr>
+          <tr style="background:#f1f5f9;">
+            <td>india_Pulse</td>
+            <td>handles</td>
+            <td>3,667</td>
+            <td>1.05 MB</td>
+            <td>0.49 MB</td>
+            <td>0.10 MB</td>
+            <td>301 B</td>
+            <td><code>_id</code></td>
+          </tr>
+          <tr style="background:#f1f5f9;">
+            <td>india_Pulse</td>
+            <td>mapping / x_profiles / meta</td>
+            <td>290</td>
+            <td>0.37 MB</td>
+            <td>0.31 MB</td>
+            <td>0.06 MB</td>
+            <td>-</td>
+            <td><code>_id</code></td>
+          </tr>
+          <tr>
+            <td><strong>up_pulse</strong></td>
+            <td><strong>tweets</strong></td>
+            <td><strong>2,866,457</strong></td>
+            <td><strong>1,775.32 MB</strong></td>
+            <td>697.84 MB</td>
+            <td>88.79 MB</td>
+            <td>649 B</td>
+            <td><code>_id</code>, <code>party</code>, <code>date</code>, <code>cat</code>, <code>h</code></td>
+          </tr>
+          <tr>
+            <td>up_pulse</td>
+            <td>phd</td>
+            <td>650</td>
+            <td>4.37 MB</td>
+            <td>1.58 MB</td>
+            <td>0.02 MB</td>
+            <td>7,050 B</td>
+            <td><code>_id</code></td>
+          </tr>
+          <tr>
+            <td>up_pulse</td>
+            <td>dashboard_data</td>
+            <td>17</td>
+            <td>3.64 MB</td>
+            <td>1.45 MB</td>
+            <td>0.02 MB</td>
+            <td>224 KB</td>
+            <td><code>_id</code></td>
+          </tr>
+          <tr>
+            <td>up_pulse</td>
+            <td>handles / mapping / meta</td>
+            <td>654</td>
+            <td>0.23 MB</td>
+            <td>0.19 MB</td>
+            <td>0.07 MB</td>
+            <td>-</td>
+            <td><code>_id</code></td>
+          </tr>
+          <tr style="background:#f1f5f9;">
+            <td><strong>political_lens</strong></td>
+            <td><strong>tweets</strong></td>
+            <td><strong>45,067</strong></td>
+            <td><strong>35.53 MB</strong></td>
+            <td>13.77 MB</td>
+            <td>3.81 MB</td>
+            <td>826 B</td>
+            <td><code>_id</code>, <code>d</code>, <code>pt</code>, <code>sn</code>, <code>pc</code>, <code>h</code>, <code>cat</code>, <code>dg</code>, <code>eng</code>, <code>v</code></td>
+          </tr>
+          <tr style="background:#f1f5f9;">
+            <td>political_lens</td>
+            <td>aggregates / meta</td>
+            <td>17</td>
+            <td>0.25 MB</td>
+            <td>0.24 MB</td>
+            <td>0.06 MB</td>
+            <td>-</td>
+            <td><code>_id</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Section 3: Deep Dive -->
+  <div class="card">
+    <h2>3. Tweet Ingestion & Volume Analysis</h2>
+    <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+      <div>
+        <h3 style="font-size:14px; margin-bottom:8px; color:var(--text);">Daily Tweet Volumes (Last 21 Days)</h3>
+        <table>
+          <thead>
+            <tr><th>Date</th><th>Tweet Count</th><th>Status</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>2026-10-17</td><td>21,048</td><td><span class="tag tag-success">OK</span></td></tr>
+            <tr><td>2026-10-18</td><td>19,409</td><td><span class="tag tag-success">OK</span></td></tr>
+            <tr><td>2026-10-19</td><td>20,505</td><td><span class="tag tag-success">OK</span></td></tr>
+            <tr><td>2026-10-20</td><td>24,473</td><td><span class="tag tag-success">OK</span></td></tr>
+            <tr><td>2026-10-21</td><td>25,577</td><td><span class="tag tag-success">OK</span></td></tr>
+            <tr><td>2026-10-22</td><td>23,538</td><td><span class="tag tag-success">OK</span></td></tr>
+            <tr><td>2026-10-23</td><td>3,686</td><td><span class="tag tag-warning">Partial</span></td></tr>
+            <tr><td>2026-10-24</td><td>0</td><td><span class="tag tag-danger">No Ingestion</span></td></tr>
+            <tr><td>2026-10-25</td><td>0</td><td><span class="tag tag-danger">No Ingestion</span></td></tr>
+            <tr><td>2026-10-26</td><td>0</td><td><span class="tag tag-danger">Inspection Date</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div>
+        <h3 style="font-size:14px; margin-bottom:8px; color:var(--text);">Storage & Metric Update Details</h3>
+        <table>
+          <thead>
+            <tr><th>Metric</th><th>Count</th><th>Total BSON Size</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Last 7 Days (Calendar)</strong></td>
+              <td>77,274 tweets</td>
+              <td><strong>80.32 MB</strong> (84.2 MB)</td>
+            </tr>
+            <tr>
+              <td><strong>Last 10 Days (Calendar)</strong></td>
+              <td>138,236 tweets</td>
+              <td><strong>145.60 MB</strong> (152.7 MB)</td>
+            </tr>
+            <tr>
+              <td><strong>Last 7 Active Ingestion Days</strong></td>
+              <td>138,236 tweets</td>
+              <td><strong>145.60 MB</strong></td>
+            </tr>
+            <tr>
+              <td><strong>Last 10 Active Ingestion Days</strong></td>
+              <td>216,458 tweets</td>
+              <td><strong>227.44 MB</strong></td>
+            </tr>
+          </tbody>
+        </table>
+        
+        <div class="alert-box" style="margin-top:16px;">
+          <strong>Metric Refresh Tracking:</strong><br>
+          In <code>pulse_master.master_tweets</code>, <strong>no timestamp field records when likes or views are updated</strong>. Ingestion updates existing tweets in-place using <code>$max</code> on likes/views and records initial arrival date strictly on insertion in <code>_first</code>.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 5: Slow Queries -->
+  <div class="card">
+    <h2>4. MongoDB Slow Query Analysis (from mongod.log)</h2>
+    <p style="font-size:12px; color:var(--text-muted); margin-bottom:12px;">
+      Profiling was verified <strong>OFF</strong> (<code>was: 0</code>). Slow operations (>100ms) were extracted from the active server log.
+    </p>
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Namespace / Collection</th>
+          <th>Operation</th>
+          <th>Duration</th>
+          <th>Plan</th>
+          <th>Root Cause / Impact</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>1</strong></td>
+          <td><code>up_pulse.tweets</code></td>
+          <td>getMore</td>
+          <td><strong>125,214 ms</strong> (~2.1 min)</td>
+          <td><code>COLLSCAN</code></td>
+          <td>Full collection cursor traversal on 2.86M documents</td>
+        </tr>
+        <tr>
+          <td><strong>2</strong></td>
+          <td><code>pulse_master.master_tweets</code></td>
+          <td>aggregate</td>
+          <td><strong>76,811 ms</strong> (~76.8 s)</td>
+          <td><code>COLLSCAN</code></td>
+          <td><code>$match: {'_first': '2026-10-22'}</code> (Missing index on <code>_first</code>)</td>
+        </tr>
+        <tr>
+          <td><strong>3</strong></td>
+          <td><code>pulse_master.master_tweets</code></td>
+          <td>aggregate</td>
+          <td><strong>75,046 ms</strong> (~75.0 s)</td>
+          <td><code>COLLSCAN</code></td>
+          <td><code>$match: {'_first': '2026-10-23'}</code> (Missing index on <code>_first</code>)</td>
+        </tr>
+        <tr>
+          <td><strong>4</strong></td>
+          <td><code>pulse_master.master_tweets</code></td>
+          <td>aggregate</td>
+          <td><strong>73,610 ms</strong> (~73.6 s)</td>
+          <td><code>COLLSCAN</code></td>
+          <td><code>$match: {'_first': '2026-10-23'}</code> + Category grouping</td>
+        </tr>
+        <tr>
+          <td><strong>5</strong></td>
+          <td><code>pulse_master.master_tweets</code></td>
+          <td>aggregate</td>
+          <td><strong>70,405 ms</strong> (~70.4 s)</td>
+          <td><code>COLLSCAN</code></td>
+          <td>Substring date extraction filtered by <code>_first</code></td>
+        </tr>
+        <tr>
+          <td><strong>6</strong></td>
+          <td><code>pulse_master.master_tweets</code></td>
+          <td>aggregate</td>
+          <td><strong>69,308 ms</strong> (~69.3 s)</td>
+          <td><code>COLLSCAN</code></td>
+          <td>Unindexed Category grouping across 2.86M rows</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="alert-box">
+      <strong>Critical Performance Fix:</strong>
+      <code>_first</code> is used in daily sync to filter today's/yesterday's tweets, but it has <strong>no index</strong>. Adding <code>db.master_tweets.createIndex({ _first: 1 })</code> will instantly drop these 70-second queries down to under <strong>5 milliseconds</strong>!
+    </div>
+  </div>
+
+  <!-- Section 6: Network Connectivity -->
+  <div class="card">
+    <h2>5. Network & External Connectivity</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Test Target</th>
+          <th>Port</th>
+          <th>Result</th>
+          <th>Notes</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Outbound TCP Port 27017</strong> (via portquiz.net)</td>
+          <td>27017</td>
+          <td><span class="tag tag-success">TCP Succeeded</span></td>
+          <td>Outbound connections to external MongoDB instances on port 27017 are fully allowed by firewall/ISP.</td>
+        </tr>
+        <tr>
+          <td><strong>Generic MongoDB Atlas</strong> (<code>cluster0.mongodb.net</code>)</td>
+          <td>27017</td>
+          <td><span class="tag tag-warning">DNS Failed</span></td>
+          <td>Expected behavior: Generic domain has no DNS record. Real Atlas connections require specific tenant prefixes (e.g. <code>cluster0.abcde.mongodb.net</code>).</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Action Plan -->
+  <div class="card" style="border-left: 4px solid var(--primary);">
+    <h2>6. Summary & Recommendations</h2>
+    <ul style="font-size:13px; line-height:1.8; padding-left:20px; color:#334155;">
+      <li><strong>Total Tweet Data Footprint:</strong> <strong>4,941.01 MB (~4.83 GB)</strong> raw BSON data across all collections; <strong>2,030.55 MB (~1.98 GB)</strong> compressed on disk.</li>
+      <li><strong>7-Day Data Rate:</strong> Approximately <strong>77,000 to 140,000 tweets</strong> (~80 MB to 145 MB BSON), requiring ~20 MB/day of storage.</li>
+      <li><strong>Immediate Priority:</strong> Create an index on <code>{ "_first": 1 }</code> in <code>pulse_master.master_tweets</code>. This will eliminate repeated 70-second full table scans during scraping cycles.</li>
+      <li><strong>Restore Ingestion:</strong> Verify that network path <code>\\192.168.2.85\d\Tweeter Data Social Media</code> is powered on and accessible, then launch <code>START_LIVE.bat</code> to resume ingestion and start the web dashboard server on port 3000.</li>
+    </ul>
+  </div>
+
+</div>
+
+</body>
+</html>

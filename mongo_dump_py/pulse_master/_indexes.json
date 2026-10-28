@@ -1,5 +1,28 @@
 {
  "access_requests": [],
+ "daily_summary": [
+  {
+   "name": "d_1",
+   "key": [
+    [
+     "d",
+     1
+    ]
+   ],
+   "unique": false
+  },
+  {
+   "name": "h_1",
+   "key": [
+    [
+     "h",
+     1
+    ]
+   ],
+   "unique": false
+  }
+ ],
+ "daily_words": [],
  "handle_requests": [],
  "handles_seen": [],
  "login_log": [
@@ -156,11 +179,23 @@
     ]
    ],
    "unique": false
+  },
+  {
+   "name": "_first_1",
+   "key": [
+    [
+     "_first",
+     1
+    ]
+   ],
+   "unique": false
   }
  ],
+ "party_logos": [],
  "pending_handles": [],
  "pending_tweets": [],
  "portal_users": [],
+ "summary_dirty": [],
  "tracked_handles": [],
  "tracker_cfg": [],
  "x_profiles": []

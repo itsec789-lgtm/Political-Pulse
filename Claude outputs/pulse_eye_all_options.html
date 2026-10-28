@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pulse Eye – All Options</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700;800&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+<style>
+ :root{--bg:#FBF6F1;--card:#fff;--text:#3A2418;--muted:#8a8176;--line:#eadfd4}
+ *{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;padding:28px 16px}
+ h1{font-size:20px;margin:0 0 4px} .sub{color:var(--muted);font-size:13px;margin:0 0 22px;max-width:960px;line-height:1.55}
+ .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:18px;max-width:1150px}
+ .opt{background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+ .opt h2{font-size:14px;margin:0;padding:12px 14px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:6px}
+ .rec{background:#16A34A;color:#fff;font-weight:800;font-size:9.5px;letter-spacing:.8px;padding:3px 8px;border-radius:20px;white-space:nowrap}
+ .side{background:#FFF8F2;padding:12px 12px 0;height:520px;display:flex;flex-direction:column}
+ .nav{font-size:13px;font-weight:600;display:flex;flex-direction:column;gap:2px} .nav div{padding:7px 10px;border-radius:9px;opacity:.85}
+ .nav .on{background:linear-gradient(90deg,#F97316,#EA580C);color:#fff;opacity:1}
+ .spacer{flex:1} .slot{padding:10px 0 12px}
+ .foot{border-top:1px dashed #ead7c6;text-align:center;font-size:10.5px;font-weight:700;color:#9A3412;padding:9px 0 11px}
+ .note{font-size:12px;color:var(--muted);padding:10px 14px 12px;line-height:1.5}
+ .score{display:flex;justify-content:space-between;gap:8px;margin-top:8px;font-size:11.5px;color:var(--text)}
+
+ a.pe{position:relative;display:flex;align-items:center;gap:11px;width:100%;padding:11px 12px;border-radius:15px;text-decoration:none;cursor:pointer;
+      isolation:isolate;overflow:hidden;color:var(--fg);transition:transform .2s ease,box-shadow .2s ease;
+      box-shadow:0 8px 20px -8px var(--glow),inset 0 1px 0 rgba(255,255,255,.25)}
+ a.pe:hover{transform:translateY(-2px);box-shadow:0 12px 26px -8px var(--glow)}
+ a.pe:active{transform:scale(.98)}
+ a.pe:before{content:"";position:absolute;inset:-2px;z-index:-1;border-radius:17px;background:conic-gradient(from var(--a,0deg),var(--r1),var(--r2),var(--r3),var(--r4),var(--r1));animation:spin 4s linear infinite}
+ a.pe .bg{position:absolute;inset:1.5px;border-radius:13.5px;z-index:0;background:linear-gradient(135deg,var(--b1),var(--b2))}
+ a.pe:after{content:"";position:absolute;inset:0;z-index:1;background:linear-gradient(105deg,transparent 35%,rgba(255,255,255,.3) 50%,transparent 65%);transform:translateX(-120%);animation:sweep 5s ease-in-out infinite}
+ @property --a{syntax:'<angle>';inherits:false;initial-value:0deg}
+ @keyframes spin{to{--a:360deg}} @keyframes sweep{0%,70%{transform:translateX(-120%)}100%{transform:translateX(120%)}}
+ .txt{display:flex;flex-direction:column;line-height:1.05;min-width:0;z-index:2}
+ .t1{font-weight:800;font-size:16px;letter-spacing:.3px;white-space:nowrap}
+ .t2{display:flex;align-items:center;gap:6px;margin-top:4px;font-size:10px;font-weight:800;letter-spacing:1.6px;text-transform:uppercase;color:var(--sub)}
+ .eye{position:relative;flex:0 0 auto;width:40px;height:40px;border-radius:50%;display:grid;place-items:center;z-index:2;color:var(--sub);
+      background:radial-gradient(circle at 35% 30%,#fff 0%,#f6f6f6 60%,#e9e9e9 100%);box-shadow:0 0 0 2px rgba(255,255,255,.35),0 4px 10px -2px rgba(0,0,0,.45)}
+ .eye svg{width:28px;height:28px;overflow:visible}
+ .eye .ball{transform-origin:12px 12px;animation:blink 4.2s infinite} .eye .iris{animation:look 6.5s ease-in-out infinite}
+ @keyframes blink{0%,44%,50%,92%,100%{transform:scaleY(1)}46.5%,95%{transform:scaleY(.06)}}
+ @keyframes look{0%,18%{transform:translate(0,0)}24%,40%{transform:translate(-2.2px,0)}48%,62%{transform:translate(2.2px,.4px)}70%,100%{transform:translate(0,0)}}
+ .eye .ring{position:absolute;inset:-3px;border-radius:50%;border:1.5px solid currentColor;opacity:0;animation:radar 2.4s ease-out infinite} .eye .ring.r2{animation-delay:1.2s}
+ @keyframes radar{0%{transform:scale(.8);opacity:.75}100%{transform:scale(1.45);opacity:0}}
+ .live{margin-left:auto;z-index:2;display:flex;align-items:center;gap:5px;font-size:9.5px;font-weight:800;letter-spacing:1.2px;padding:4px 8px;border-radius:20px;background:rgba(0,0,0,.28);color:#fff;box-shadow:inset 0 0 0 1px rgba(255,255,255,.25)}
+ .dot{width:7px;height:7px;border-radius:50%;background:#EF4444;animation:ping 1.4s infinite}
+ @keyframes ping{0%{box-shadow:0 0 0 0 rgba(239,68,68,.8)}70%{box-shadow:0 0 0 7px rgba(239,68,68,0)}100%{box-shadow:0 0 0 0 rgba(239,68,68,0)}}
+ .bars{display:inline-flex;align-items:flex-end;gap:2px;height:9px} .bars i{display:block;width:2px;border-radius:1px;background:currentColor;transform-origin:bottom;animation:eq 1s ease-in-out infinite}
+ .bars i:nth-child(1){height:4px;animation-delay:-.2s}.bars i:nth-child(2){height:9px;animation-delay:-.5s}.bars i:nth-child(3){height:6px;animation-delay:-.1s}.bars i:nth-child(4){height:8px;animation-delay:-.7s}
+ @keyframes eq{0%,100%{transform:scaleY(.35)}50%{transform:scaleY(1)}}
+ @media (prefers-reduced-motion:reduce){*{animation:none!important}}
+
+ /* 9 Midnight Studio */
+ a.pe.ms{--fg:#FFE7C7;--sub:#FFB86B;--glow:rgba(255,120,30,.8)}
+ a.pe.ms:before{background:none}
+ a.pe.ms .bg{inset:0;border-radius:15px;background:radial-gradient(circle at 15% 30%,#341626 0%,#160810 65%,#0d0509 100%);box-shadow:inset 0 0 0 1px rgba(255,150,60,.5)}
+ a.pe.ms .eye{background:radial-gradient(circle,#2a0f1d 0%,#12070e 100%);color:#FF9A3C;box-shadow:0 0 0 1.5px rgba(255,154,60,.6),0 0 16px rgba(255,140,40,.55)}
+ a.pe.ms .t1{background:linear-gradient(90deg,#FFE0B0,#FF9A3C);-webkit-background-clip:text;background-clip:text;color:transparent}
+ a.pe.ms .live{background:rgba(239,68,68,.16);color:#FCA5A5;box-shadow:inset 0 0 0 1px rgba(239,68,68,.4)}
+ /* 10 Royal Gold */
+ a.pe.rg{--fg:#F7D58B;--sub:#E9C27A;--glow:rgba(67,17,15,.8)}
+ a.pe.rg:before{background:linear-gradient(#D4A947,#D4A947);animation:none}
+ a.pe.rg .bg{background:linear-gradient(160deg,#43110F 0%,#6B1A14 100%);box-shadow:inset 0 0 0 2px #43110F,inset 0 0 0 3px rgba(212,169,71,.5)}
+ a.pe.rg .t1{font-family:'Playfair Display',serif;font-size:17px}
+ a.pe.rg .eye{background:radial-gradient(circle at 35% 30%,#FFF1C9 0%,#E2B65A 55%,#A87420 100%);color:#F7D58B}
+ a.pe.rg .live{background:transparent;color:#F7D58B;box-shadow:inset 0 0 0 1px rgba(212,169,71,.65)}
+</style></head><body>
+<h1>Pulse Eye — saare options (asli sidebar jaisa)</h1>
+<p class="sub">Sidebar cream aur orange hai, isliye <b>orange ke ulte rang</b> (neela, baingani, hara) sabse pehle nazar me aate hain. Har card me 2 number hain: <b>"Sidebar se alag"</b> — button sidebar ke rang se kitna alag dikhta hai (jitna bada, utna zyada "pehli nazar" me; 4.5× se upar achha, 7× se upar bahut achha); <b>"Text padhne me"</b> — button par likha naam kitna saaf padhta hai. Animation sab me wahi hai: jhapakti aankh, radar lehar, ghoomti border, LIVE batti.</p>
+<div class="grid">
+<div class="opt"><h2><b>1 · Navy Saffron</b> <span class="rec">MERA SUJHAAV</span></h2>
+ <div class="side"><div class="nav"><div class="on">Dashboard</div><div>Top Leaders</div><div>States &amp; CM</div><div>Elected Representatives</div><div>Parties</div><div>Narrative Groups</div><div>Handle Analytics</div><div>Leader Board</div><div>Tweet Intelligence</div></div><div class="spacer"></div>
+ <div class="slot"><a class="pe" style="--b1:#1E3A8A;--b2:#0B1739;--fg:#FFFFFF;--sub:#FDBA74;--r1:#FDBA74;--r2:#F97316;--r3:#FFE7C7;--r4:#1E40AF;--glow:#1E3A8A" href="https://nazarindianpoliticspulse.onrender.com/live?mode=all" target="_blank" rel="noopener noreferrer" title="Pulse Eye – Live TV">
+  <span class="bg"></span>
+  <span class="eye"><span class="ring"></span><span class="ring r2"></span><svg viewBox="0 0 24 24"><g class="ball">
+   <path d="M1.5 12C4 7.5 7.6 5.2 12 5.2S20 7.5 22.5 12C20 16.5 16.4 18.8 12 18.8S4 16.5 1.5 12Z" fill="#FFFFFF" stroke="#0B1739" stroke-width="1.6"/>
+   <g class="iris"><circle cx="12" cy="12" r="4.3" fill="#F97316"/><circle cx="12" cy="12" r="2" fill="#3A1004"/><circle cx="13.4" cy="10.6" r=".9" fill="#fff"/></g></g></svg></span>
+  <span class="txt"><span class="t1">Pulse Eye</span><span class="t2"><span class="bars"><i></i><i></i><i></i><i></i></span>Live TV</span></span>
+  <span class="live"><span class="dot"></span>LIVE</span></a></div>
+ <div class="foot">Created by Data Team</div></div>
+ <div class="note">Gehra neela + kesariya aankh. Orange sidebar ka ulta rang, isliye sabse pehle nazar padti hai.<div class="score"><span>Sidebar se alag: <b>9.8×</b> ★★★</span><span>Text padhne me: <b>10.4×</b></span></div></div></div>
+<div class="opt"><h2><b>2 · Royal Purple Gold</b></h2>
+ <div class="side"><div class="nav"><div class="on">Dashboard</div><div>Top Leaders</div><div>States &amp; CM</div><div>Elected Representatives</div><div>Parties</div><div>Narrative Groups</div><div>Handle Analytics</div><div>Leader Board</div><div>Tweet Intelligence</div></div><div class="spacer"></div>
+ <div class="slot"><a class="pe" style="--b1:#5B21B6;--b2:#2E1065;--fg:#FFFFFF;--sub:#FCD34D;--r1:#FCD34D;--r2:#A855F7;--r3:#FFF7D6;--r4:#7C3AED;--glow:#5B21B6" href="https://nazarindianpoliticspulse.onrender.com/live?mode=all" target="_blank" rel="noopener noreferrer" title="Pulse Eye – Live TV">
+  <span class="bg"></span>
+  <span class="eye"><span class="ring"></span><span class="ring r2"></span><svg viewBox="0 0 24 24"><g class="ball">
+   <path d="M1.5 12C4 7.5 7.6 5.2 12 5.2S20 7.5 22.5 12C20 16.5 16.4 18.8 12 18.8S4 16.5 1.5 12Z" fill="#FFFFFF" stroke="#2E1065" stroke-width="1.6"/>
+   <g class="iris"><circle cx="12" cy="12" r="4.3" fill="#7C3AED"/><circle cx="12" cy="12" r="2" fill="#1E0A3C"/><circle cx="13.4" cy="10.6" r=".9" fill="#fff"/></g></g></svg></span>
+  <span class="txt"><span class="t1">Pulse Eye</span><span class="t2"><span class="bars"><i></i><i></i><i></i><i></i></span>Live TV</span></span>
+  <span class="live"><span class="dot"></span>LIVE</span></a></div>
+ <div class="foot">Created by Data Team</div></div>
+ <div class="note">Baingani + sunehra. Premium, TV-channel jaisa, orange ke saath achha jodi.<div class="score"><span>Sidebar se alag: <b>8.5×</b> ★★★</span><span>Text padhne me: <b>9.0×</b></span></div></div></div>
+<div class="opt"><h2><b>3 · Emerald Live</b></h2>
+ <div class="side"><div class="nav"><div class="on">Dashboard</div><div>Top Leaders</div><div>States &amp; CM</div><div>Elected Representatives</div><div>Parties</div><div>Narrative Groups</div><div>Handle Analytics</div><div>Leader Board</div><div>Tweet Intelligence</div></div><div class="spacer"></div>
+ <div class="slot"><a class="pe" style="--b1:#047857;--b2:#022C22;--fg:#FFFFFF;--sub:#A7F3D0;--r1:#6EE7B7;--r2:#10B981;--r3:#ECFDF5;--r4:#047857;--glow:#047857" href="https://nazarindianpoliticspulse.onrender.com/live?mode=all" target="_blank" rel="noopener noreferrer" title="Pulse Eye – Live TV">
+  <span class="bg"></span>
+  <span class="eye"><span class="ring"></span><span class="ring r2"></span><svg viewBox="0 0 24 24"><g class="ball">
+   <path d="M1.5 12C4 7.5 7.6 5.2 12 5.2S20 7.5 22.5 12C20 16.5 16.4 18.8 12 18.8S4 16.5 1.5 12Z" fill="#FFFFFF" stroke="#022C22" stroke-width="1.6"/>
+   <g class="iris"><circle cx="12" cy="12" r="4.3" fill="#059669"/><circle cx="12" cy="12" r="2" fill="#022C22"/><circle cx="13.4" cy="10.6" r=".9" fill="#fff"/></g></g></svg></span>
+  <span class="txt"><span class="t1">Pulse Eye</span><span class="t2"><span class="bars"><i></i><i></i><i></i><i></i></span>Live TV</span></span>
+  <span class="live"><span class="dot"></span>LIVE</span></a></div>
+ <div class="foot">Created by Data Team</div></div>
+ <div class="note">Gehra hara. "Chalu / Live" ka ehsaas, cream par saaf alag dikhta hai.<div class="score"><span>Sidebar se alag: <b>5.2×</b> ★★</span><span>Text padhne me: <b>5.5×</b></span></div></div></div>
+<div class="opt"><h2><b>4 · Broadcast Red</b></h2>
+ <div class="side"><div class="nav"><div class="on">Dashboard</div><div>Top Leaders</div><div>States &amp; CM</div><div>Elected Representatives</div><div>Parties</div><div>Narrative Groups</div><div>Handle Analytics</div><div>Leader Board</div><div>Tweet Intelligence</div></div><div class="spacer"></div>
+ <div class="slot"><a class="pe" style="--b1:#DC2626;--b2:#7F1D1D;--fg:#FFFFFF;--sub:#FECACA;--r1:#FECACA;--r2:#EF4444;--r3:#FFF1F2;--r4:#991B1B;--glow:#DC2626" href="https://nazarindianpoliticspulse.onrender.com/live?mode=all" target="_blank" rel="noopener noreferrer" title="Pulse Eye – Live TV">
+  <span class="bg"></span>
+  <span class="eye"><span class="ring"></span><span class="ring r2"></span><svg viewBox="0 0 24 24"><g class="ball">
+   <path d="M1.5 12C4 7.5 7.6 5.2 12 5.2S20 7.5 22.5 12C20 16.5 16.4 18.8 12 18.8S4 16.5 1.5 12Z" fill="#FFFFFF" stroke="#7F1D1D" stroke-width="1.6"/>
+   <g class="iris"><circle cx="12" cy="12" r="4.3" fill="#DC2626"/><circle cx="12" cy="12" r="2" fill="#450A0A"/><circle cx="13.4" cy="10.6" r=".9" fill="#fff"/></g></g></svg></span>
+  <span class="txt"><span class="t1">Pulse Eye</span><span class="t2"><span class="bars"><i></i><i></i><i></i><i></i></span>Live TV</span></span>
+  <span class="live"><span class="dot"></span>LIVE</span></a></div>
+ <div class="foot">Created by Data Team</div></div>
+ <div class="note">News channel jaisa laal. Sabse tez "LIVE" feel, par orange ke paas hone se thoda kam alag.<div class="score"><span>Sidebar se alag: <b>4.6×</b> ★★</span><span>Text padhne me: <b>4.8×</b></span></div></div></div>
+<div class="opt"><h2><b>5 · Midnight Gold</b></h2>
+ <div class="side"><div class="nav"><div class="on">Dashboard</div><div>Top Leaders</div><div>States &amp; CM</div><div>Elected Representatives</div><div>Parties</div><div>Narrative Groups</div><div>Handle Analytics</div><div>Leader Board</div><div>Tweet Intelligence</div></div><div class="spacer"></div>
+ <div class="slot"><a class="pe" style="--b1:#1C1917;--b2:#000000;--fg:#FDE68A;--sub:#FBBF24;--r1:#FDE68A;--r2:#B45309;--r3:#FFFBEB;--r4:#F59E0B;--glow:#1C1917" href="https://nazarindianpoliticspulse.onrender.com/live?mode=all" target="_blank" rel="noopener noreferrer" title="Pulse Eye – Live TV">
+  <span class="bg"></span>
+  <span class="eye"><span class="ring"></span><span class="ring r2"></span><svg viewBox="0 0 24 24"><g class="ball">
+   <path d="M1.5 12C4 7.5 7.6 5.2 12 5.2S20 7.5 22.5 12C20 16.5 16.4 18.8 12 18.8S4 16.5 1.5 12Z" fill="#FFFBEB" stroke="#000000" stroke-width="1.6"/>
+   <g class="iris"><circle cx="12" cy="12" r="4.3" fill="#D97706"/><circle cx="12" cy="12" r="2" fill="#1C1917"/><circle cx="13.4" cy="10.6" r=".9" fill="#fff"/></g></g></svg></span>
+  <span class="txt"><span class="t1">Pulse Eye</span><span class="t2"><span class="bars"><i></i><i></i><i></i><i></i></span>Live TV</span></span>
+  <span class="live"><span class="dot"></span>LIVE</span></a></div>
+ <div class="foot">Created by Data Team</div></div>
+ <div class="note">Kaala + sona. Sabse zyada contrast, classy aur bhaari.<div class="score"><span>Sidebar se alag: <b>16.6×</b> ★★★</span><span>Text padhne me: <b>14.0×</b></span></div></div></div>
+<div class="opt"><h2><b>6 · Electric Blue</b></h2>
+ <div class="side"><div class="nav"><div class="on">Dashboard</div><div>Top Leaders</div><div>States &amp; CM</div><div>Elected Representatives</div><div>Parties</div><div>Narrative Groups</div><div>Handle Analytics</div><div>Leader Board</div><div>Tweet Intelligence</div></div><div class="spacer"></div>
+ <div class="slot"><a class="pe" style="--b1:#2563EB;--b2:#1E3A8A;--fg:#FFFFFF;--sub:#BFDBFE;--r1:#BFDBFE;--r2:#3B82F6;--r3:#EFF6FF;--r4:#1D4ED8;--glow:#2563EB" href="https://nazarindianpoliticspulse.onrender.com/live?mode=all" target="_blank" rel="noopener noreferrer" title="Pulse Eye – Live TV">
+  <span class="bg"></span>
+  <span class="eye"><span class="ring"></span><span class="ring r2"></span><svg viewBox="0 0 24 24"><g class="ball">
+   <path d="M1.5 12C4 7.5 7.6 5.2 12 5.2S20 7.5 22.5 12C20 16.5 16.4 18.8 12 18.8S4 16.5 1.5 12Z" fill="#FFFFFF" stroke="#1E3A8A" stroke-width="1.6"/>
+   <g class="iris"><circle cx="12" cy="12" r="4.3" fill="#2563EB"/><circle cx="12" cy="12" r="2" fill="#0B1739"/><circle cx="13.4" cy="10.6" r=".9" fill="#fff"/></g></g></svg></span>
+  <span class="txt"><span class="t1">Pulse Eye</span><span class="t2"><span class="bars"><i></i><i></i><i></i><i></i></span>Live TV</span></span>
+  <span class="live"><span class="dot"></span>LIVE</span></a></div>
+ <div class="foot">Created by Data Team</div></div>
+ <div class="note">Chamakdaar neela. Modern tech look, bahut fresh.<div class="score"><span>Sidebar se alag: <b>4.9×</b> ★★</span><span>Text padhne me: <b>5.2×</b></span></div></div></div>
+<div class="opt"><h2><b>7 · Teal Pulse</b></h2>
+ <div class="side"><div class="nav"><div class="on">Dashboard</div><div>Top Leaders</div><div>States &amp; CM</div><div>Elected Representatives</div><div>Parties</div><div>Narrative Groups</div><div>Handle Analytics</div><div>Leader Board</div><div>Tweet Intelligence</div></div><div class="spacer"></div>
+ <div class="slot"><a class="pe" style="--b1:#0F766E;--b2:#083344;--fg:#FFFFFF;--sub:#99F6E4;--r1:#99F6E4;--r2:#14B8A6;--r3:#F0FDFA;--r4:#0E7490;--glow:#0F766E" href="https://nazarindianpoliticspulse.onrender.com/live?mode=all" target="_blank" rel="noopener noreferrer" title="Pulse Eye – Live TV">
+  <span class="bg"></span>
+  <span class="eye"><span class="ring"></span><span class="ring r2"></span><svg viewBox="0 0 24 24"><g class="ball">
+   <path d="M1.5 12C4 7.5 7.6 5.2 12 5.2S20 7.5 22.5 12C20 16.5 16.4 18.8 12 18.8S4 16.5 1.5 12Z" fill="#FFFFFF" stroke="#083344" stroke-width="1.6"/>
+   <g class="iris"><circle cx="12" cy="12" r="4.3" fill="#0D9488"/><circle cx="12" cy="12" r="2" fill="#042F2E"/><circle cx="13.4" cy="10.6" r=".9" fill="#fff"/></g></g></svg></span>
+  <span class="txt"><span class="t1">Pulse Eye</span><span class="t2"><span class="bars"><i></i><i></i><i></i><i></i></span>Live TV</span></span>
+  <span class="live"><span class="dot"></span>LIVE</span></a></div>
+ <div class="foot">Created by Data Team</div></div>
+ <div class="note">Samudri hara-neela. Shaant par alag, orange ke saath sundar jodi.<div class="score"><span>Sidebar se alag: <b>5.2×</b> ★★</span><span>Text padhne me: <b>5.5×</b></span></div></div></div>
+<div class="opt"><h2><b>8 · Saffron (pichhla)</b></h2>
+ <div class="side"><div class="nav"><div class="on">Dashboard</div><div>Top Leaders</div><div>States &amp; CM</div><div>Elected Representatives</div><div>Parties</div><div>Narrative Groups</div><div>Handle Analytics</div><div>Leader Board</div><div>Tweet Intelligence</div></div><div class="spacer"></div>
+ <div class="slot"><a class="pe" style="--b1:#EA580C;--b2:#B8390A;--fg:#FFFFFF;--sub:#FFE7CF;--r1:#FFE3A3;--r2:#F59E0B;--r3:#FFF7E0;--r4:#EA580C;--glow:#EA580C" href="https://nazarindianpoliticspulse.onrender.com/live?mode=all" target="_blank" rel="noopener noreferrer" title="Pulse Eye – Live TV">
+  <span class="bg"></span>
+  <span class="eye"><span class="ring"></span><span class="ring r2"></span><svg viewBox="0 0 24 24"><g class="ball">
+   <path d="M1.5 12C4 7.5 7.6 5.2 12 5.2S20 7.5 22.5 12C20 16.5 16.4 18.8 12 18.8S4 16.5 1.5 12Z" fill="#FFFFFF" stroke="#B8390A" stroke-width="1.6"/>
+   <g class="iris"><circle cx="12" cy="12" r="4.3" fill="#EA580C"/><circle cx="12" cy="12" r="2" fill="#3A1004"/><circle cx="13.4" cy="10.6" r=".9" fill="#fff"/></g></g></svg></span>
+  <span class="txt"><span class="t1">Pulse Eye</span><span class="t2"><span class="bars"><i></i><i></i><i></i><i></i></span>Live TV</span></span>
+  <span class="live"><span class="dot"></span>LIVE</span></a></div>
+ <div class="foot">Created by Data Team</div></div>
+ <div class="note">Pehle wala orange. Theme se milta hai, isliye sidebar me ghul jaata hai.<div class="score"><span>Sidebar se alag: <b>3.4×</b> ★</span><span>Text padhne me: <b>3.6×</b></span></div></div></div>
+<div class="opt"><h2><b>9 · Midnight Studio</b></h2>
+ <div class="side"><div class="nav"><div class="on">Dashboard</div><div>Top Leaders</div><div>States &amp; CM</div><div>Elected Representatives</div><div>Parties</div><div>Narrative Groups</div><div>Handle Analytics</div><div>Leader Board</div><div>Tweet Intelligence</div></div><div class="spacer"></div>
+ <div class="slot"><a class="pe ms" href="https://nazarindianpoliticspulse.onrender.com/live?mode=all" target="_blank" rel="noopener noreferrer" title="Pulse Eye – Live TV">
+  <span class="bg"></span>
+  <span class="eye"><span class="ring"></span><span class="ring r2"></span><svg viewBox="0 0 24 24"><g class="ball">
+   <path d="M1.5 12C4 7.5 7.6 5.2 12 5.2S20 7.5 22.5 12C20 16.5 16.4 18.8 12 18.8S4 16.5 1.5 12Z" fill="#1d0a14" stroke="#FF9A3C" stroke-width="1.6"/>
+   <g class="iris"><circle cx="12" cy="12" r="4.3" fill="#FF8A1F"/><circle cx="12" cy="12" r="2" fill="#160810"/><circle cx="13.4" cy="10.6" r=".9" fill="#fff"/></g></g></svg></span>
+  <span class="txt"><span class="t1">Pulse Eye</span><span class="t2"><span class="bars"><i></i><i></i><i></i><i></i></span>Live TV</span></span>
+  <span class="live"><span class="dot"></span>LIVE</span></a></div>
+ <div class="foot">Created by Data Team</div></div>
+ <div class="note">Kaala TV-studio, chamakti amber aankh, ghoomti border nahi — glow se alag dikhta hai.<div class="score"><span>Sidebar se alag: <b>18.5×</b> ★★★</span><span>Text: <b>12.8×</b></span></div></div></div>
+<div class="opt"><h2><b>10 · Royal Gold</b></h2>
+ <div class="side"><div class="nav"><div class="on">Dashboard</div><div>Top Leaders</div><div>States &amp; CM</div><div>Elected Representatives</div><div>Parties</div><div>Narrative Groups</div><div>Handle Analytics</div><div>Leader Board</div><div>Tweet Intelligence</div></div><div class="spacer"></div>
+ <div class="slot"><a class="pe rg" href="https://nazarindianpoliticspulse.onrender.com/live?mode=all" target="_blank" rel="noopener noreferrer" title="Pulse Eye – Live TV">
+  <span class="bg"></span>
+  <span class="eye"><span class="ring"></span><span class="ring r2"></span><svg viewBox="0 0 24 24"><g class="ball">
+   <path d="M1.5 12C4 7.5 7.6 5.2 12 5.2S20 7.5 22.5 12C20 16.5 16.4 18.8 12 18.8S4 16.5 1.5 12Z" fill="#FFF8E6" stroke="#6B1A14" stroke-width="1.6"/>
+   <g class="iris"><circle cx="12" cy="12" r="4.3" fill="#8A5A12"/><circle cx="12" cy="12" r="2" fill="#2A0B08"/><circle cx="13.4" cy="10.6" r=".9" fill="#fff"/></g></g></svg></span>
+  <span class="txt"><span class="t1">Pulse Eye</span><span class="t2"><span class="bars"><i></i><i></i><i></i><i></i></span>Live TV</span></span>
+  <span class="live"><span class="dot"></span>LIVE</span></a></div>
+ <div class="foot">Created by Data Team</div></div>
+ <div class="note">Maroon + sona, serif naam, double gold frame — shahi classic.<div class="score"><span>Sidebar se alag: <b>15.1×</b> ★★★</span><span>Text: <b>8.3×</b></span></div></div></div></div>
+</body></html>

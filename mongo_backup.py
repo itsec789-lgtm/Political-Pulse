@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# replica-kit (27-Oct): state snapshot + manifest + staged dump (see backup())
 """
 mongo_backup.py  --  MongoDB ka backup aur restore, BINA mongodump ke.
 
@@ -38,6 +39,7 @@ Zaroorat: pymongo  |  MongoDB chalti honi chahiye
 import gzip
 import json
 import os
+import shutil
 import sys
 import time
 
@@ -80,9 +82,31 @@ def client():
 def backup():
     from bson import json_util
 
+    # replica-kit (27-Oct): poora dump pehle "mongo_dump_py_NEW" me banta hai, poora hone par hi
+    # asli naam par aata hai -- beech me ruk gaya to purana dump bilkul safe rehta hai.
+    # Purana dump hataya nahi jaata: "mongo_dump_py_OLD_<time>" naam se project ke BAHAR chala jaata hai.
+    global OUT
+    FINAL = OUT
+    pick = only_arg()
+    full = not pick
+    if full:
+        OUT = FINAL + "_NEW"
+        if os.path.isdir(OUT):
+            shutil.rmtree(OUT)              # pichhli adhoori koshish ka apna hi kachra
     cli = client()
     os.makedirs(OUT, exist_ok=True)
-    pick = only_arg()
+    MAN = {}
+    # auto_state.json = "kaun si network files ho chuki". Isse dump se PEHLE copy karte hain, taaki
+    # naye PC par dump ke baad ki files dobara padhi jayen (upsert hai -- duplicate nahi banta).
+    try:
+        sd = os.path.join(OUT, "_state")
+        os.makedirs(sd, exist_ok=True)
+        for src in (os.path.join(HERE, "DASHBOARD", "auto_state.json"),):
+            if os.path.isfile(src):
+                shutil.copy2(src, os.path.join(sd, os.path.basename(src)))
+                print("  state file saath rakhi: %s" % os.path.basename(src))
+    except Exception as e:
+        print("  (state file skip: %s)" % e)
 
     print("=" * 66)
     print("  BACKUP  ->  %s" % OUT)
@@ -108,7 +132,7 @@ def backup():
         print("\n  %s" % dbn)
 
         idx_all = {}
-        for c in sorted(colls):
+        for c in sorted(x for x in colls if not x.endswith('_test')):   # *_test = scratch
             # index ka naksha bhi rakh lo -- dump me index nahi aate
             try:
                 info = db[c].index_information()
@@ -130,6 +154,7 @@ def backup():
                     if total > 50000 and n % 100000 == 0:
                         print("      %-20s %s / %s" % (c, human(n), human(total)), flush=True)
             grand += n
+            MAN.setdefault(dbn, {})[c] = n
             print("      %-20s %-12s %7.1f MB   %ds"
                   % (c, human(n), size_mb(path), time.time() - t1), flush=True)
 
@@ -138,6 +163,23 @@ def backup():
         except Exception as e:
             print("      (index list skip: %s)" % e)
 
+    if full:
+        try:
+            json.dump({"ts": time.strftime("%Y-%m-%d %H:%M:%S"), "counts": MAN},
+                      open(os.path.join(OUT, "_manifest.json"), "w", encoding="utf-8"), indent=1)
+        except Exception as e:
+            print("  (manifest skip: %s)" % e)
+        stamp = time.strftime("%Y%m%d_%H%M")
+        if os.path.isdir(FINAL):
+            old = os.path.join(os.path.dirname(HERE) or HERE, "mongo_dump_py_OLD_" + stamp)
+            try:
+                os.replace(FINAL, old)
+            except Exception:
+                old = FINAL + "_OLD_" + stamp
+                os.replace(FINAL, old)
+            print("  purana dump hataya nahi, yahan rakha hai: %s" % old)
+        os.replace(OUT, FINAL)
+        OUT = FINAL
     cli.close()
     tot_mb = sum(size_mb(os.path.join(dp, f))
                  for dp, _, fs in os.walk(OUT) for f in fs)
@@ -172,6 +214,8 @@ def restore():
     t0 = time.time()
 
     for dbn in sorted(os.listdir(OUT)):
+        if dbn.startswith("_"):            # _state, _manifest
+            continue
         d = os.path.join(OUT, dbn)
         if not os.path.isdir(d):
             continue
