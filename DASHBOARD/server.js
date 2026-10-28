@@ -1523,9 +1523,26 @@ async function dashVersionKey(scope) {
      cache phenka jaata tha aur agla login 15-35 s atakta tha. Ab key me
      mapping ka MATLAB (content hash) hai, tareekh nahi. */
   var mp = mapContentKey();
-  var key = scope + '|' + v + '|' + mt + '|' + mp;
+  var key = scope + '|' + v + '|' + mt + '|' + mp + '|' + await hotVerKey(scope);
   _dashVer[scope] = { key: key, at: Date.now() };
   return key;
+}
+
+/* replica laptop: Atlas par naya build aaye to page bhi naya bane (dashFromHot
+   newerOnly). Internet call -- isliye 60 s ka apna cache. HOT band = ''. */
+var _hotVer = {};
+async function hotVerKey(scope) {
+  if (!MP.hotHealthy()) return '';
+  var c = _hotVer[scope];
+  if (c && (Date.now() - c.at) < 60000) return c.v;
+  var v = c ? c.v : '';
+  try {
+    var h = MP.hotClient(); await h.connect();
+    var cur = await h.db().collection(SCOPE_DB[scope] + '__meta').findOne({ _id: 'current' });
+    v = (cur && cur.lastUpdate) ? String(cur.lastUpdate) : '';
+  } catch (e) {}
+  _hotVer[scope] = { v: v, at: Date.now() };
+  return v;
 }
 
 var _mapKey = { mt: -1, h: '0' };
@@ -1616,7 +1633,10 @@ function dashCacheStats() {
 
 /* BHAARI hissa -- sab users ke liye ek jaisa. Iska natija cache hota hai. */
 var DASH_HOT = { used: 0, local: 0, lastReason: '' };
-async function dashFromHot(scope, client) {
+/* newerOnly: local data mil gaya hai -- Atlas tabhi jab uska build local se
+   NAYA ho (replica laptop jahan pipeline nahi chalti). Live server par dono
+   ka lastUpdate barabar rehta hai, to wahan local hi chalta hai. */
+async function dashFromHot(scope, client, newerOnly) {
   if (!MP.hotHealthy()) { DASH_HOT.local++; DASH_HOT.lastReason = MP.HOT.enabled ? 'hot unhealthy' : 'hot off'; return null; }
   const dbn = SCOPE_DB[scope];
   try {
@@ -1624,7 +1644,8 @@ async function dashFromHot(scope, client) {
     const h = MP.hotClient(); await h.connect();
     const hdb = h.db();
     const cur = await hdb.collection(dbn + '__meta').findOne({ _id: 'current' });
-    if (!cur || !cur.lastUpdate || !loc || String(loc.value) !== String(cur.lastUpdate)) {
+    const locV = loc ? String(loc.value) : '', hotV = (cur && cur.lastUpdate) ? String(cur.lastUpdate) : '';
+    if (!hotV || (newerOnly ? !(hotV > locV) : (locV && hotV < locV))) {
       DASH_HOT.local++; DASH_HOT.lastReason = 'Atlas copy is not the latest build'; return null;
     }
     const docs = await hdb.collection(dbn + '__' + COLLECTION + '__' + cur.slot).find({}).toArray();
@@ -1658,12 +1679,12 @@ async function buildDashBase(scope) {
       console.log("  Data mila database me: '" + db.databaseName + "'  (scope=" + scope + ")");
     }
   } catch (e) { console.log('  [dash] local read fail: ' + e.message + ' -> Atlas'); docs = phdDocs = null; }
-  if (!docs || !docs.length || !phdDocs || !phdDocs.length) {
-    const _hot = await dashFromHot(scope, client);
-    if (_hot) {
-      docs = _hot.docs; phdDocs = _hot.phdDocs;
-      console.log("  Data mila Atlas (HOT) se: " + _hot.name + "  (scope=" + scope + ")");
-    }
+  const _haveLocal = docs && docs.length && phdDocs && phdDocs.length;
+  const _hot = await dashFromHot(scope, client, !!_haveLocal);
+  if (_hot) {
+    docs = _hot.docs; phdDocs = _hot.phdDocs;
+    console.log("  Data mila Atlas (HOT) se: " + _hot.name + "  (scope=" + scope + ")"
+      + (_haveLocal ? ' -- local se naya build' : ''));
   }
   await client.close();
   if (!docs) throw new Error("Kisi bhi database me '" + COLLECTION + "' collection nahi mili.");
