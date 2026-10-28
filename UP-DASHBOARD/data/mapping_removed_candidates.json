@@ -1,21 +1,23 @@
 {
   "_kya_hai": "Ye handle nayi Mapping.xlsx me nahi mile. SIRF dekhne ke liye -- dashboard se kuch nahi hata. Sach me hatana ho to inhe mapping_removed.json ke \"handles\" me khud daalo.",
-  "at": "2026-10-26 14:37:48",
-  "kitne": 14,
+  "at": "2026-10-27 17:01:40",
+  "kitne": 16,
   "handles": [
-    "a_abdullakutty",
-    "bjpvinodsonkar",
-    "bpsvermabjp",
-    "gourchmandal",
+    "ajaymishrteni",
+    "drraghvendrashr",
+    "drsanjeevbalyan",
+    "erpraveennishad",
     "jamalsiddiqui_",
+    "lallusinghbjp",
+    "menonarvindbjp",
     "mlagorakhnath",
+    "mppradeepch",
     "mpriteshpandey",
     "nehaaisa",
+    "parvezalaminc",
+    "prakashraaj",
     "r_lakhanpal",
     "rkmauryapbh",
-    "rkushwahabjp",
-    "sadhviniranjan",
-    "subratpathak12",
-    "swamy39"
+    "sadhviniranjan"
   ]
 }
