@@ -4444,6 +4444,15 @@ app.get('/api/parties/comparison', async function (req, res) {
       try { handleMaster = JSON.parse(fs.readFileSync(hmPath, 'utf8')); } catch (e) {}
     }
 
+    // Build canonical lookup map: lowercase handle -> exact canonical handle
+    var canonMap = {};
+    Object.keys(handleMaster).forEach(function (k) {
+      var inf = handleMaster[k] || {};
+      var actual = inf.handle || k;
+      canonMap[k.toLowerCase()] = actual;
+      canonMap[actual.toLowerCase()] = actual;
+    });
+
     // Find all party handles
     var partyHandleMap = {};
     Object.keys(handleMaster).forEach(function (hKey) {
@@ -4464,7 +4473,11 @@ app.get('/api/parties/comparison', async function (req, res) {
 
     var allHandleVars = [];
     targetHandles.forEach(function (h) {
+      var lk = h.toLowerCase();
+      var actual = canonMap[lk] || (partyHandleMap[lk] && partyHandleMap[lk].handle) || h;
       allHandleVars.push(h, h.toLowerCase(), h.toUpperCase());
+      allHandleVars.push(actual, actual.toLowerCase(), actual.toUpperCase());
+      allHandleVars.push('@' + actual, '@' + h);
     });
 
     var matchCond = { Handle: { $in: Array.from(new Set(allHandleVars)) }, 'Tweet Text': NOT_RT };
@@ -4556,7 +4569,7 @@ app.get('/api/parties/comparison', async function (req, res) {
 
     var statsMap = {};
     rawStats.forEach(function (r) {
-      var hKey = String(r._id || '').toLowerCase();
+      var hKey = String(r._id || '').toLowerCase().replace(/^@/, '');
       if (!statsMap[hKey]) {
         statsMap[hKey] = {
           handle: r._id,
@@ -4583,7 +4596,7 @@ app.get('/api/parties/comparison', async function (req, res) {
 
     var timelineMap = {};
     rawTimelines.forEach(function (t) {
-      var hKey = String(t._id.handle || '').toLowerCase();
+      var hKey = String(t._id.handle || '').toLowerCase().replace(/^@/, '');
       if (!timelineMap[hKey]) timelineMap[hKey] = {};
       var cur = timelineMap[hKey][t._id.date] || { tweets: 0, likes: 0, reposts: 0, views: 0 };
       cur.tweets += (t.tweets || 0);
@@ -4595,7 +4608,7 @@ app.get('/api/parties/comparison', async function (req, res) {
 
     var sentimentMap = {};
     rawSentiments.forEach(function (s) {
-      var hKey = String(s._id.handle || '').toLowerCase();
+      var hKey = String(s._id.handle || '').toLowerCase().replace(/^@/, '');
       if (!sentimentMap[hKey]) sentimentMap[hKey] = {};
       var st = s._id.sentiment || 'Neutral';
       sentimentMap[hKey][st] = (sentimentMap[hKey][st] || 0) + (s.count || 0);
@@ -4603,7 +4616,7 @@ app.get('/api/parties/comparison', async function (req, res) {
 
     var leadersList = targetHandles.map(function (h) {
       var hKey = h.toLowerCase();
-      var meta = partyHandleMap[hKey] || {};
+      var meta = partyHandleMap[hKey] || handleMaster[hKey] || handleMaster[h] || (canonMap[hKey] && handleMaster[canonMap[hKey]]) || {};
       var stats = statsMap[hKey] || { tweets: 0, likes: 0, reposts: 0, views: 0, comments: 0 };
       var tl = timelineMap[hKey] || {};
       var sent = sentimentMap[hKey] || {};
@@ -4614,31 +4627,33 @@ app.get('/api/parties/comparison', async function (req, res) {
       var dayLikes = sortedDates.map(function (d) {
         return tl[d] ? (tl[d].likes || 0) : 0;
       });
+      var dayReposts = sortedDates.map(function (d) {
+        return tl[d] ? (tl[d].reposts || 0) : 0;
+      });
       var dayViews = sortedDates.map(function (d) {
         return tl[d] ? (tl[d].views || 0) : 0;
       });
 
+      var canonHandle = canonMap[hKey] || meta.handle || h;
       return {
-        handle: meta.handle || h,
-        name: meta.name || h,
+        handle: canonHandle,
+        name: meta.name || canonHandle,
         designation: (meta.designations && meta.designations[0]) || meta.level || 'Party Leader',
         state: meta.state || '',
-        avatar: '/api/avatar/' + (meta.handle || h),
+        avatar: '/api/avatar/' + canonHandle,
         stats: stats,
         timeline: {
           dates: sortedDates,
           tweets: dayPoints,
           likes: dayLikes,
+          reposts: dayReposts,
           views: dayViews
         },
         sentiments: sent
       };
     });
 
-    // Sort leaders descending by tweets
-    leadersList.sort(function (a, b) {
-      return (b.stats.tweets || 0) - (a.stats.tweets || 0);
-    });
+    // Note: leadersList preserves targetHandles order so card colors & line chart colors match 1:1
 
     res.json({
       ok: true,
