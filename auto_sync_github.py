@@ -30,38 +30,67 @@ def sync_loop():
     log(f"Polling interval: {CHECK_INTERVAL_SECONDS} seconds.")
     log("Whenever changes are pushed to GitHub, they will be pulled automatically.\n")
 
+    last_problem = None
+
+    def problem(msg):
+        # same problem every minute -> print it once, not 60 times an hour
+        nonlocal last_problem
+        if msg != last_problem:
+            log(msg)
+            last_problem = msg
+
     while True:
         try:
             # 1. Fetch latest refs from origin
             rc, out, err = run_git(['fetch', 'origin', 'main'])
             if rc != 0:
-                # network or auth hiccup, silently retry next loop
+                problem(f"WARNING: git fetch fail hua (internet / GitHub login?). Detail: {err}")
                 time.sleep(CHECK_INTERVAL_SECONDS)
                 continue
 
-            # 2. Compare local HEAD with origin/main
-            _, local_sha, _ = run_git(['rev-parse', 'HEAD'])
-            _, remote_sha, _ = run_git(['rev-parse', 'origin/main'])
+            # 2. How far ahead / behind origin/main are we?
+            _, counts, _ = run_git(['rev-list', '--left-right', '--count', 'HEAD...origin/main'])
+            ahead, behind = (int(x) for x in counts.split())
 
-            if local_sha and remote_sha and local_sha != remote_sha:
-                log(f"Detected new changes on GitHub! (remote: {remote_sha[:7]} != local: {local_sha[:7]})")
-                log("Pulling latest updates into your local project...")
+            if behind == 0 and ahead == 0:
+                last_problem = None
+            else:
+                # This folder is a mirror of GitHub main. Anything local that
+                # would get in the way is saved first (stash / backup branch),
+                # never thrown away.
+                stamp = datetime.datetime.now().strftime('%Y-%m-%d_%H%M')
+                log(f"GitHub par {behind} naye commit (yahan {ahead} extra). Syncing...")
 
-                # 3. Pull latest commits
-                rc_pull, out_pull, err_pull = run_git(['pull', '--no-rebase', 'origin', 'main'])
-                if rc_pull != 0 and any(kw in err_pull.lower() for kw in ['divergent', 'conflict', 'reconcile']):
-                    log("Notice: Local replica diverged from remote. Auto-aligning with origin/main...")
-                    rc_reset, _, _ = run_git(['reset', '--hard', 'origin/main'])
-                    if rc_reset == 0:
-                        rc_pull = 0
+                # 3. Local edits in files GitHub also changed -> stash only those
+                _, dirty, _ = run_git(['diff', '--name-only', 'HEAD'])
+                _, incoming, _ = run_git(['diff', '--name-only', 'HEAD', 'origin/main'])
+                blocking = sorted(set(dirty.split('\n')) & set(incoming.split('\n')) - {''})
+                if blocking:
+                    rc_st, _, err_st = run_git(['stash', 'push', '-m', f'auto-sync local edits {stamp}', '--'] + blocking)
+                    if rc_st != 0:
+                        problem(f"ERROR: local edits stash nahi hue -- sync ruk gaya. {err_st}")
+                        time.sleep(CHECK_INTERVAL_SECONDS)
+                        continue
+                    log(f"Local edits stash me rakhe ('git stash list'): {', '.join(blocking)}")
 
-                if rc_pull == 0:
+                # 4. Local-only commits -> keep them on a backup branch
+                if ahead:
+                    backup = f'backup/auto-sync-{stamp}'
+                    run_git(['branch', backup, 'HEAD'])
+                    log(f"{ahead} local-only commit backup branch me rakhe: {backup}")
+
+                # 5. Move to origin/main; --keep leaves other uncommitted edits alone
+                rc_sync, _, err_sync = run_git(['reset', '--keep', 'origin/main'])
+
+                if rc_sync == 0:
+                    last_problem = None
                     _, subject, _ = run_git(['log', '-1', '--pretty=%s'])
                     _, author, _ = run_git(['log', '-1', '--pretty=%an'])
                     log(f"SUCCESS: Synced updates by {author}: '{subject}'")
                     log("Your local project is now 100% up-to-date!\n")
                 else:
-                    log(f"Notice: Pull returned status {rc_pull}. Detail: {err_pull}")
+                    problem("ERROR: Sync nahi hua -- kuch nahi badla.\n"
+                            f"  {err_sync}")
 
         except KeyboardInterrupt:
             log("Auto-Sync stopped by user.")
