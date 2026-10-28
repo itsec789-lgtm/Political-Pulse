@@ -80,7 +80,17 @@ def sync_loop():
                     log(f"{ahead} local-only commit backup branch me rakhe: {backup}")
 
                 # 5. Move to origin/main; --keep leaves other uncommitted edits alone
+                _, old_head, _ = run_git(['rev-parse', 'HEAD'])
+                _, gone, _ = run_git(['diff', '--name-only', '--diff-filter=D', 'HEAD', 'origin/main'])
                 rc_sync, _, err_sync = run_git(['reset', '--keep', 'origin/main'])
+
+                # GitHub "stopped tracking" a file (secrets moved to .gitignore):
+                # git deletes it here too, so put the local copy back.
+                if rc_sync == 0 and gone:
+                    _, ignored, _ = run_git(['check-ignore', '--no-index'] + gone.split('\n'))
+                    if ignored:
+                        run_git(['restore', '--source', old_head, '--worktree', '--'] + ignored.split('\n'))
+                        log(f"Untracked kiye gaye files wapas rakhe: {', '.join(ignored.split())}")
 
                 if rc_sync == 0:
                     last_problem = None
