@@ -97,7 +97,8 @@ def summarize_day(coll, day):
             g = groups[key] = {'_id': doc_id(*key), 'h': h, 'd': d, 'st': st, 'pt': pt, 'cat': cat,
                                'tw': 0, 'lk': 0.0, 'rt': 0.0, 'vw': 0.0,
                                'rc': 0, 'rl': 0.0, 'rv': 0.0, 'rr': 0.0, 'cm': 0.0, 'rcm': 0.0,
-                               's': {c: 0 for c in CODES}, 'hr': [0] * 24, 'ht': {}, 'last': None}
+                               's': {c: 0 for c in CODES}, 'rs': {c: 0 for c in CODES},
+                               'hr': [0] * 24, 'ht': {}, 'last': None}
         lk, rt, vw = num(r.get(C['likes'])), num(r.get(C['rts'])), num(r.get(C['views']))
         sc = U.sent_code(S(r.get(C['sent'])))
         cm = num(r.get(CMT))
@@ -107,6 +108,7 @@ def summarize_day(coll, day):
         is_rt = S(r.get(C['text'])).startswith('RT @')
         if is_rt:
             g['rc'] += 1; g['rl'] += lk; g['rv'] += vw; g['rr'] += rt; g['rcm'] += cm
+            g['rs'][sc] += 1                                 # rt-sent: retweets ka sentiment
         # metrics_lib (29-Oct): s / hr / ht / words = OWN posts only (sv=2). Repost ka sentiment,
         # ghanta aur hashtag us handle ka apna nahi -- pehle ye tweet KPI se mel nahi khaate the.
         if not is_rt:
@@ -151,6 +153,8 @@ def summarize_day(coll, day):
             del g['hr']
         if not g['ht']:
             del g['ht']
+        if not any(g['rs'].values()):
+            del g['rs']
         g['sv'] = 2                                      # metrics_lib: s/hr/ht = own posts
         g['built'] = datetime.datetime.now(datetime.timezone.utc)
         docs.append(g)

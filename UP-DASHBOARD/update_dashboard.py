@@ -188,11 +188,15 @@ def load_template():
 RC_DAILY = collections.defaultdict(int)
 # tw-rt-split (27-Oct): likes / views of the reposted ORIGINAL posts, per (handle, day) -> phd 'l' / 'w'
 RL_DAILY = collections.defaultdict(int)
+# rt-sent (29-Oct): retweet ("RT @") rows ka sentiment -- Sentiment tab ka "Retweets" view.
+# RS_ACC[handle][code] = us handle ke retweets ka sentiment; RS_DAILY[(state, day, code)] = roz ka.
+RS_ACC = collections.defaultdict(lambda: {c: 0 for c in SENT_CODES})
+RS_DAILY = collections.defaultdict(int)
 RV_DAILY = collections.defaultdict(int)
 
 
 def read_csv_agg(csv_path, query=None):
-    RC_DAILY.clear(); RL_DAILY.clear(); RV_DAILY.clear()
+    RC_DAILY.clear(); RL_DAILY.clear(); RV_DAILY.clear(); RS_ACC.clear(); RS_DAILY.clear()
     # hot/cold plan, Phase 4: "SPLIT" = per-day summary for old days + raw tweets for the
     # last N days (summary_agg.py). Same 11 return values, so build() is unchanged.
     if str(csv_path).strip().upper() == 'SPLIT':
@@ -232,6 +236,17 @@ def read_csv_agg(csv_path, query=None):
         _rtm = ch[C['text']].astype(str).str.startswith('RT @')          # rt-split
         ch['_o'] = (~_rtm).astype(int)
         ch['_rc'] = _rtm.astype(int)
+        try:                                                            # rt-sent: retweets ka sentiment
+            _rr = ch[_rtm]
+            if len(_rr):
+                for (_h, _cd), _n in _rr.groupby([C['handle'], '_sc']).size().items():
+                    _h = str(_h).strip()
+                    if _h and _cd in SENT_CODES: RS_ACC[_h][_cd] += int(_n)
+                for (_st, _dd, _cd), _n in _rr.groupby([C['state'], '_d', '_sc']).size().items():
+                    _dd = str(_dd)[:10]
+                    if len(_dd) == 10: RS_DAILY[(str(_st).strip() or DASH, _dd, _cd)] += int(_n)
+        except Exception as _e:
+            print("  (rt-sent skip: %s)" % _e)
         for _c in SENT_CODES:                                           # metrics_lib: sentiment = own posts
             ch['_' + _c] = ch['_' + _c] * ch['_o']
         ch['_olk'] = ch[C['likes']] * ch['_o']
@@ -530,6 +545,11 @@ def case_merge(acc, meta, daily):
     for (h, d), n in list(RC_DAILY.items()):
         rc2[(keep.get(h.strip().lower(), h), d)] += n
     RC_DAILY.clear(); RC_DAILY.update(rc2)
+    _rs2 = collections.defaultdict(lambda: {c: 0 for c in SENT_CODES})   # rt-sent: spelling merge
+    for h, o in list(RS_ACC.items()):
+        k2 = keep.get(h.strip().lower(), h)
+        for c in SENT_CODES: _rs2[k2][c] += o.get(c, 0)
+    RS_ACC.clear(); RS_ACC.update(_rs2)
     for _X in (RL_DAILY, RV_DAILY):
         _m = collections.defaultdict(int)
         for (h, d), n in list(_X.items()):
@@ -610,7 +630,7 @@ def build(csv_path):
     dd['UNI']['tot']['rt'] = sum(a['rt'] for a in acc.values())
     dd['UNI']['tot']['rc'] = sum(a.get('rc', 0) for a in acc.values())     # rt-split: reposts
     dd['UNI']['handles'] = len(acc)
-    lv = collections.Counter(); sent = sent_blank()
+    lv = collections.Counter(); sent = sent_blank(); sent_rt = sent_blank()
     party_agg = {}; state_agg = {}
     MET = tuple(['tw','vw','lk','rt'] + SENT_CODES)
     def _blank(): return dict({'tw':0,'vw':0,'lk':0,'rt':0}, **sent_blank())
@@ -628,15 +648,21 @@ def build(csv_path):
         for k in MET: sd['tot'][k] += a[k]
         sd['handles'] += 1
         for sk in SENT_CODES: sd['sent'][sk] += a[sk]
+        _ra = RS_ACC.get(h)                                             # rt-sent
+        if _ra:
+            sd.setdefault('sentRT', sent_blank())
+            for sk in SENT_CODES: sd['sentRT'][sk] += _ra.get(sk, 0); sent_rt[sk] += _ra.get(sk, 0)
         if p:
             spd = sd['party'].get(p)
             if spd is None: spd = _blank(); spd['handles'] = 0; sd['party'][p] = spd
             for k in MET: spd[k] += a[k]
             spd['handles'] += 1
     dd['UNI']['level'] = dict(lv); dd['UNI']['party'] = party_agg; dd['UNI']['states'] = state_agg; dd['UNI']['sent'] = sent
+    dd['UNI']['sentRT'] = sent_rt                                       # rt-sent
     for o in dd['UNI']['allHandles']:
         a = acc.get(o['h'])
         if a: o.update(dict({'tw':a['tw'],'vw':a['vw'],'lk':a['lk'],'rt':a['rt']}, **{c: a[c] for c in SENT_CODES}))
+        if a: o['rc'] = int(a.get('rc', 0)); o['rs'] = dict(RS_ACC.get(o['h']) or sent_blank())   # rt-sent
         # followers/followings/naam/party/state bhi refresh -- pehle ye kabhi update nahi hote the
         m0 = meta.get(o['h'])
         if m0:
@@ -671,7 +697,8 @@ def build(csv_path):
             'followers': int(m2.get('followers', 0) or 0),
             'followings': int(m2.get('followings', 0) or 0),
             'tw': a['tw'], 'vw': a['vw'], 'lk': a['lk'], 'rt': a['rt'],
-            **{c: a[c] for c in SENT_CODES}})
+            **{c: a[c] for c in SENT_CODES},
+            'rc': int(a.get('rc', 0)), 'rs': dict(RS_ACC.get(h) or sent_blank())})   # rt-sent
     # STALE entries hatao (jo handle ab data me nahi)
     _before = len(dd['UNI']['allHandles'])
     dd['UNI']['allHandles'] = [o for o in dd['UNI']['allHandles'] if o['h'] in acc]
@@ -808,8 +835,17 @@ def build(csv_path):
         _canon = _known_states.get(str(_st).strip().lower())
         if _canon:
             _sd_get(_canon)[_cd][_i] += _n
+    _sr_S = {}                                                          # rt-sent: retweets ka roz ka sentiment
+    for (_st, _d3, _cd), _n in RS_DAILY.items():
+        _i = di.get(_d3)
+        if _i is None or _cd not in SENT_CODES: continue
+        for _key in ('ALL', _known_states.get(str(_st).strip().lower())):
+            if not _key: continue
+            _o = _sr_S.get(_key)
+            if _o is None: _o = _sr_S[_key] = {c: [0]*ND for c in SENT_CODES}
+            _o[_cd][_i] += _n
     dd['SENT_DAILY'] = {'cats': [{'k': c, 'label': SENT_LABEL[c]} for c in SENT_CODES],
-                        'dates': DATES, 'S': _sd_S}
+                        'dates': DATES, 'S': _sd_S, 'SR': _sr_S}
     print("  sentiment-daily: %d scope x %d din" % (len(_sd_S), ND))
 
     # UNI.updates = per-date UP tweet count (full range) -- ise 'Today'/date-filter max ke liye use hota hai

@@ -113,6 +113,13 @@ def split_agg(M, log=print):
             a['rc'] = a.get('rc', 0) + _rc
             for c in CODES:
                 a[c] += g['s'][c]
+            _rs = g.get('rs')                               # rt-sent: retweets ka sentiment
+            if _rs and hasattr(M, 'RS_ACC'):
+                for c in CODES:
+                    if _rs.get(c):
+                        M.RS_ACC[h][c] += _rs[c]
+                        if len(d) == 10:
+                            M.RS_DAILY[(g['st'] or M.DASH, d, c)] += _rs[c]
             if len(d) == 10:
                 dates.add(d)
                 e = daily[(h, d)]

@@ -3810,7 +3810,14 @@ a.pe-btn:after{content:"";position:absolute;inset:0;z-index:1;background:linear-
     <span class="filter-label">State</span>
     <select class="filter-select" id="sStateSelect" onchange="upSent(this.value)" style="min-width:180px"><option value="ALL">All India</option></select>
     <span style="font-size:10px;color:var(--muted)">Pick a state for its sentiment</span>
+    <span style="flex:1"></span>
+    <span class="filter-label">Show</span>
+    <div class="sent-mode" style="display:inline-flex;border:1px solid var(--border);border-radius:9px;overflow:hidden">
+      <button type="button" id="sentModeTw" onclick="setSentMode('tw')" style="border:none;padding:6px 14px;font-size:11px;font-weight:700;cursor:pointer;background:#E65100;color:#fff">Tweets</button>
+      <button type="button" id="sentModeRt" onclick="setSentMode('rt')" style="border:none;padding:6px 14px;font-size:11px;font-weight:700;cursor:pointer;background:transparent;color:var(--muted)">Retweets</button>
+    </div>
   </div>
+  <div id="sentModeNote" style="font-size:10.5px;color:var(--muted);margin:-6px 0 10px">Showing sentiment of the handles' own <b>tweets</b> (reposts excluded).</div>
   <div class="sent-overview">
     <div class="sent-card" data-sk="probjp" style="border-top:4px solid #E65100"><div class="sent-card-val" style="color:#E65100">—</div><div class="sent-card-lbl">Pro-BJP</div><div class="sent-card-pct" style="color:#E65100">—</div></div>
     <div class="sent-card" data-sk="antigovt" style="border-top:4px solid #AD1457"><div class="sent-card-val" style="color:#AD1457">—</div><div class="sent-card-lbl">Anti-Govt</div><div class="sent-card-pct" style="color:#AD1457">—</div></div>
@@ -7085,6 +7092,42 @@ function setSentOverview(state){var ov=document.querySelector('#sec-sentiment .s
 window.renderSentChart=function(){sentChartByParty('sentChart',partyRows(sState))};
 window.renderSentimentTab=function(){var body=document.getElementById('sentLeadersBody');if(!body)return;var X=window.SENTX;var arr=UNI.allHandles.filter(function(h){return sState==='ALL'||h.state===sState;});arr=arr.filter(function(h){return X.tot(h)>=20;}).sort(function(a,b){return X.tot(b)-X.tot(a);}).slice(0,12);if(!arr.length){body.innerHTML='<tr><td colspan="13" style="text-align:center;color:var(--muted);padding:16px">No handle with enough tweets in this selection</td></tr>';return;}body.innerHTML=arr.map(function(h,i){var t=X.tot(h);var cells=X.CATS.map(function(c){return '<td><span class="nv" style="color:'+c.c+'">'+X.n(h,c.k).toLocaleString('en-IN')+'</span></td>';}).join('');return '<tr><td><span class="rank">'+(i+1)+'</span></td>'+'<td style="font-size:10px;color:var(--muted)">@'+esc(h.h)+'</td>'+'<td><div style="font-weight:700;font-size:12px">'+esc(h.name)+'</div></td>'+'<td><span class="party-chip" style="background:'+pc(h.party)+'18;color:'+pc(h.party)+'">'+esc(h.party)+'</span></td>'+cells+'<td><span style="font-family:Rajdhani;font-weight:700;font-size:14px">'+t.toLocaleString('en-IN')+'</span></td></tr>';}).join('');};
 window.upSent=function(v){sState=v;setSentOverview(v);window.renderSentChart();window.renderSentimentTab();try{renderSentTrend();}catch(e){}};
+/* rt-sent (29-Oct): Sentiment tab ka Tweets / Retweets toggle. Ek hi button poore tab ko badalta hai --
+   cards, party chart, daily trend aur handle table. Tweets = handle ki apni posts, Retweets = "RT @" rows.
+   Data pipeline se: UNI.sentRT, UNI.states[st].sentRT, allHandles[].rs / .rc, SENT_DAILY.SR. */
+window.SENT_MODE='tw';
+(function(){
+  var X=window.SENTX;
+  function rtHandles(){return (UNI.allHandles||[]).map(function(h){var o=Object.assign({},h,h.rs||X.blank());o.tw=+h.rc||0;return o;});}
+  function withRT(fn){if(window.SENT_MODE!=='rt')return fn();var o=UNI.allHandles;UNI.allHandles=rtHandles();try{return fn();}finally{UNI.allHandles=o;}}
+  var _so=setSentOverview;
+  setSentOverview=function(st){
+    if(window.SENT_MODE!=='rt')return _so(st);
+    var ov=document.querySelector('#sec-sentiment .sent-overview');if(!ov)return;
+    var S=(st==='ALL'||!UNI.states||!UNI.states[st])?UNI.sentRT:(UNI.states[st].sentRT||X.blank());
+    if(!S){ov.innerHTML='<div style="grid-column:1/-1;color:var(--muted);font-size:11px;padding:14px;text-align:center">Retweet sentiment is not in this build yet &mdash; run the pipeline once.</div>';return;}
+    ov.innerHTML=window.sentCardsHTML(S,st==='ALL'?'':' · '+st);
+  };
+  var _rc=window.renderSentChart,_rt=window.renderSentimentTab,_tr=renderSentTrend;
+  window.renderSentChart=function(){return withRT(_rc);};
+  window.renderSentimentTab=function(){return withRT(_rt);};
+  renderSentTrend=function(){
+    var SD=window.SENT_DAILY;
+    if(window.SENT_MODE!=='rt'||!SD)return _tr();
+    var o=SD.S;SD.S=SD.SR||{};try{return _tr();}finally{SD.S=o;}
+  };
+  window.setSentMode=function(m){
+    window.SENT_MODE=(m==='rt')?'rt':'tw';var rt=window.SENT_MODE==='rt';
+    var a=document.getElementById('sentModeTw'),b=document.getElementById('sentModeRt');
+    if(a){a.style.background=rt?'transparent':'#E65100';a.style.color=rt?'var(--muted)':'#fff';}
+    if(b){b.style.background=rt?'#E65100':'transparent';b.style.color=rt?'#fff':'var(--muted)';}
+    var n=document.getElementById('sentModeNote');
+    if(n)n.innerHTML=rt?'Showing sentiment of <b>retweets</b> &mdash; posts by other accounts that these handles reposted ("RT @").':'Showing sentiment of the handles&#39; own <b>tweets</b> (reposts excluded).';
+    document.querySelectorAll('#sec-sentiment .sec-title').forEach(function(t){
+      if(t.textContent.indexOf('Sentiment by Handle')===0)t.textContent='Sentiment by Handle — top 12 by '+(rt?'retweets':'tweets');});
+    window.upSent((typeof sState!=='undefined'&&sState)?sState:'ALL');
+  };
+})();
 window.renderDashboard=function(){const b=document.getElementById('tweetsBody');if(!b)return;b.innerHTML=UNI.viral.slice(0,12).map((t,i)=>'<tr><td><span class="rank">'+(i+1)+'</span></td><td><div style="font-weight:700;font-size:12px">'+esc(t.name)+'</div><div style="font-size:10px;color:var(--muted)">@'+esc(t.h)+'</div></td><td style="max-width:250px;font-size:11px;line-height:1.5">'+esc((t.text||'').slice(0,120))+'…</td><td><span class="party-chip" style="background:'+pc(t.party)+'18;color:'+pc(t.party)+'">'+esc(t.party)+'</span></td><td><span style="font-size:9px;color:var(--muted);background:#f4f2ee;border-radius:6px;padding:2px 7px">'+esc(t.state||'—')+'</span></td><td>'+sbadge(t.sent)+'</td><td><span class="nv" style="color:#B71C1C">'+uf(t.lk)+'</span></td><td><span class="nv" style="color:#1B5E20">'+uf(t.rt)+'</span></td><td><span class="nv" style="color:#4A148C">'+uf(t.vw)+'</span></td></tr>').join('')}
 window.filterViralTweets=function(F,T){var b=document.getElementById('tweetsBody');if(!b)return;var nd=function(s){if(!s)return '';s=''+s;if(/^\d{4}-\d{2}-\d{2}$/.test(s))return s;var m=s.match(/^(\d{2})-(\d{2})-(\d{4})$/);return m?m[3]+'-'+m[2]+'-'+m[1]:s;};var _vp=((document.getElementById('dashParty')||{}).value)||'all';/* metrics_lib: viral bhi party filter maane */var arr=UNI.viral.filter(function(x){var dd=nd(x.date);if(_vp!=='all'&&(window.PM?PM.party(x.h):x.party)!==_vp)return false;return (!F||dd>=F)&&(!T||dd<=T);}).sort(function(a,b2){return b2.vw-a.vw;});if(!arr.length){b.innerHTML='<tr><td colspan="9" style="text-align:center;color:var(--muted);padding:16px">No viral tweet in this date range</td></tr>';return;}b.innerHTML=arr.slice(0,12).map(function(t,i){return '<tr><td><span class="rank">'+(i+1)+'</span></td><td><div style="font-weight:700;font-size:12px">'+esc(t.name)+'</div><div style="font-size:10px;color:var(--muted)">@'+esc(t.h)+'</div></td><td style="max-width:250px;font-size:11px;line-height:1.5">'+esc((t.text||'').slice(0,120))+'\u2026</td><td><span class="party-chip" style="background:'+pc(t.party)+'18;color:'+pc(t.party)+'">'+esc(t.party)+'</span></td><td><span style="font-size:9px;color:var(--muted);background:#f4f2ee;border-radius:6px;padding:2px 7px">'+esc(t.state||'\u2014')+'</span></td><td>'+sbadge(t.sent)+'</td><td><span class="nv" style="color:#B71C1C">'+uf(t.lk)+'</span></td><td><span class="nv" style="color:#1B5E20">'+uf(t.rt)+'</span></td><td><span class="nv" style="color:#4A148C">'+uf(t.vw)+'</span></td></tr>';}).join('');};
 function sbadge(s){var c=window.SENTX.of(s);return '<span class="sent-badge" style="background:'+c.c+'1e;color:'+c.c+'">'+c.label+'</span>';}
