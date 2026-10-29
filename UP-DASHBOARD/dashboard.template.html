@@ -1943,7 +1943,11 @@ a.pe-btn:after{content:"";position:absolute;inset:0;z-index:1;background:linear-
       <div style="position:relative;height:280px"><canvas id="sentTrendChart"></canvas></div>
     </div>
   </div>
-  <div class="sec-title">Sentiment by Handle — top 12 by tweets</div>
+  <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+    <div class="sec-title" id="sentTblTitle" style="flex:1">Sentiment by Handle — top 12 by tweets</div>
+    <span class="filter-label">Show</span>
+    <select id="sentTopN" class="filter-select" onchange="window.renderSentimentTab()" style="min-width:110px"><option value="12" selected>Top 12</option><option value="25">Top 25</option><option value="50">Top 50</option><option value="100">Top 100</option><option value="all">All</option></select>
+  </div>
   <div class="tbl-box">
     <table>
       <thead><tr><th>#</th><th>Handle</th><th>Name</th><th>Party</th><th>Pro-BJP</th><th>Anti-Govt</th><th>Pro-Govt</th><th>Positive</th><th>Neutral</th><th>Anti-BJP</th><th>Negative</th><th>No-Sent</th><th>Total</th></tr></thead>
@@ -3965,7 +3969,7 @@ window.upParties=function(v){pState=v;selParty=null;pOpts();var _b=document.getE
 let sState='ALL';
 function setSentOverview(state){var ov=document.querySelector('#sec-sentiment .sent-overview');if(!ov)return;var S=(state==='ALL'||!UNI.states||!UNI.states[state])?(UNI.sent||{}):(UNI.states[state].sent||{});ov.innerHTML=window.sentCardsHTML(S,state==='ALL'?'':' \u00b7 '+state);}
 window.renderSentChart=function(){sentChartByParty('sentChart',partyRows(sState))};
-window.renderSentimentTab=function(){var body=document.getElementById('sentLeadersBody');if(!body)return;var X=window.SENTX;var arr=UNI.allHandles.filter(function(h){return sState==='ALL'||h.state===sState;});arr=arr.filter(function(h){return X.tot(h)>=(window.SENT_MIN||20);}).sort(function(a,b){return X.tot(b)-X.tot(a);}).slice(0,12);if(!arr.length){body.innerHTML='<tr><td colspan="13" style="text-align:center;color:var(--muted);padding:16px">No handle with enough tweets in this selection</td></tr>';return;}body.innerHTML=arr.map(function(h,i){var t=X.tot(h);var cells=X.CATS.map(function(c){return '<td><span class="nv" style="color:'+c.c+'">'+X.n(h,c.k).toLocaleString('en-IN')+'</span></td>';}).join('');return '<tr><td><span class="rank">'+(i+1)+'</span></td>'+'<td style="font-size:10px;color:var(--muted)">@'+esc(h.h)+'</td>'+'<td><div style="font-weight:700;font-size:12px">'+esc(h.name)+'</div></td>'+'<td><span class="party-chip" style="background:'+pc(h.party)+'18;color:'+pc(h.party)+'">'+esc(h.party)+'</span></td>'+cells+'<td><span style="font-family:Rajdhani;font-weight:700;font-size:14px">'+t.toLocaleString('en-IN')+'</span></td></tr>';}).join('');};
+window.renderSentimentTab=function(){var body=document.getElementById('sentLeadersBody');if(!body)return;var X=window.SENTX;var arr=UNI.allHandles.filter(function(h){return sState==='ALL'||h.state===sState;});arr=arr.filter(function(h){return X.tot(h)>=(window.SENT_MIN||20);}).sort(function(a,b){return X.tot(b)-X.tot(a);});var _N=(document.getElementById('sentTopN')||{}).value||'12',_of=arr.length;arr=_N==='all'?arr:arr.slice(0,+_N||12);window._sentTbl={n:arr.length,of:_of};if(!arr.length){body.innerHTML='<tr><td colspan="13" style="text-align:center;color:var(--muted);padding:16px">No handle with enough tweets in this selection</td></tr>';return;}body.innerHTML=arr.map(function(h,i){var t=X.tot(h);var cells=X.CATS.map(function(c){return '<td><span class="nv" style="color:'+c.c+'">'+X.n(h,c.k).toLocaleString('en-IN')+'</span></td>';}).join('');return '<tr><td><span class="rank">'+(i+1)+'</span></td>'+'<td style="font-size:10px;color:var(--muted)">@'+esc(h.h)+'</td>'+'<td><div style="font-weight:700;font-size:12px">'+esc(h.name)+'</div></td>'+'<td><span class="party-chip" style="background:'+pc(h.party)+'18;color:'+pc(h.party)+'">'+esc(h.party)+'</span></td>'+cells+'<td><span style="font-family:Rajdhani;font-weight:700;font-size:14px">'+t.toLocaleString('en-IN')+'</span></td></tr>';}).join('');};
 window.upSent=function(v){sState=v;setSentOverview(v);window.renderSentChart();window.renderSentimentTab();try{renderSentTrend();}catch(e){}};
 
 /* rt-sent + sent-date (29-Oct): Sentiment tab ka Tweets / Retweets toggle aur date filter.
@@ -4032,7 +4036,14 @@ window.SENT_MODE='tw';window.SENT_RANGE=null;
   var _rc=window.renderSentChart,_rt=window.renderSentimentTab,_tr=renderSentTrend;
   window.renderSentChart=function(){return withRows(_rc);};
   /* chhote range me kisi handle ke 20 tweet nahi hote -- tab threshold 1 */
-  window.renderSentimentTab=function(){window.SENT_MIN=full()?20:1;try{return withRows(_rt);}finally{window.SENT_MIN=20;}};
+  /* sent-topn (29-Oct): ranking = mapping wale saare handle jinka us range/mode me kam se kam 1 post hai;
+     Top 12 / 25 / 50 / 100 / All upar ke dropdown se. Title batata hai kitne me se kitne dikh rahe hain. */
+  window.renderSentimentTab=function(){window.SENT_MIN=1;try{return withRows(_rt);}finally{window.SENT_MIN=20;title();}};
+  function title(){
+    var t=document.getElementById('sentTblTitle');if(!t)return;var i=window._sentTbl||{n:0,of:0},R=window.SENT_RANGE;
+    t.textContent='Sentiment by Handle — top '+i.n.toLocaleString('en-IN')+' of '+i.of.toLocaleString('en-IN')+' handles by '+(rt()?'retweets':'tweets')
+      +(full()?' · full range':' · '+R.f+(R.f===R.t?'':' → '+R.t));
+  }
   renderSentTrend=function(){
     var SD=window.SENT_DAILY;if(!SD)return _tr();
     var src=rt()?(SD.SR||{}):SD.S,D=SD.dates||[],i0=0,i1=D.length-1;
@@ -4045,8 +4056,6 @@ window.SENT_MODE='tw';window.SENT_RANGE=null;
     var n=document.getElementById('sentModeNote');if(!n)return;
     var w=rt()?'Showing sentiment of <b>retweets</b> &mdash; posts by other accounts that these handles reposted ("RT @")':'Showing sentiment of the handles&#39; own <b>tweets</b> (reposts excluded)';
     var R=window.SENT_RANGE;n.innerHTML=w+(full()?' &middot; full range.':' &middot; <b>'+R.f+(R.f===R.t?'':' &rarr; '+R.t)+'</b>.');
-    document.querySelectorAll('#sec-sentiment .sec-title').forEach(function(t){
-      if(t.textContent.indexOf('Sentiment by Handle')===0)t.textContent='Sentiment by Handle — top 12 by '+(rt()?'retweets':'tweets')+(full()?'':' in selected dates');});
   }
   window.setSentMode=function(m){
     window.SENT_MODE=(m==='rt')?'rt':'tw';var r=rt();
