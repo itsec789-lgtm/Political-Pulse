@@ -1,6 +1,6 @@
 @echo off
 REM ================================================================
-REM  UPDATE 29-Oct-2026  --  main system ko 28 + 29 Oct ke saare badlaav
+REM  UPDATE 29-Oct-2026  --  main system ko 27, 28 + 29 Oct ke saare badlaav
 REM
 REM  Ye folder project ke andar rakhiye:
 REM      C:\Main Twitter Project\UPDATE_29-OCT\
