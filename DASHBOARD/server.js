@@ -1963,6 +1963,10 @@ async function buildHtml(scope, role, who) {
       var rec = _m2[k] || {};
       if (rec.alias_of) return;                                  /* duplicate */
       if (_gone[String(k).toLowerCase()]) return;                /* hataya hua */
+      /* up-scope (29-Oct): UP page par sirf UP mapping ke handle -- warna card par
+         poori India ki ginti (LS MP 569) likh di jaati thi. UP roster wale baaki
+         handle client par live count (max) se aa jaate hain. */
+      if (scope === 'up' && MAPL.real(rec.state) !== 'Uttar Pradesh') return;
       var ls = rec.levels;
       if (!Array.isArray(ls) || !ls.length) ls = ['Others'];
       var top = ls[0];
