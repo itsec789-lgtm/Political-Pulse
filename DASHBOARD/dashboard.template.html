@@ -9707,7 +9707,7 @@ setTimeout(hExec,600);
     function fetchAndPopulate(query) {
       return api('/api/ha/handles', { cat: cat, q: query }).then(function (list) {
         LIST = list || [];
-        if (targetH && query !== targetH && !LIST.some(function (o) { return (o.h || '').toLowerCase() === String(targetH).toLowerCase(); })) {
+        if (!LIST.length && targetH && query !== targetH) {
           return fetchAndPopulate(targetH);
         }
         if (!LIST.length) { sel.innerHTML = '<option value="">No matches</option>'; return; }
@@ -10051,7 +10051,6 @@ setTimeout(hExec,600);
 
   var booted = false;
   var PENDING_HANDLE = null;
-  var HA_DEFAULT = { h: 'narendramodi', name: 'Shri Narendra Modi' };
   function boot(targetH) {
     if (targetH) PENDING_HANDLE = targetH;
     if (booted) {
@@ -10082,7 +10081,6 @@ setTimeout(hExec,600);
   window.haOpenHandle = function (handle, name) {
     if (!handle) return;
     var cleanH = handle.replace(/^@/, '').trim();
-    PENDING_HANDLE = cleanH;
     if (typeof window.closeProfile === 'function') {
       window.closeProfile();
     }
@@ -10104,12 +10102,7 @@ setTimeout(hExec,600);
   if (typeof orig === 'function') {
     window.switchTab = function (name) {
       var out = orig.apply(this, arguments);
-      /* ha-default (29-Oct): tab khulte hi default Modi ji ka handle -- jab tak kisi aur jagah se
-         koi khaas handle na khola gaya ho (haOpenHandle PENDING_HANDLE pehle set karta hai). */
-      if (name === 'handle-analytics') {
-        if (PENDING_HANDLE) boot();
-        else window.haBootWithHandle(HA_DEFAULT.h, HA_DEFAULT.name);
-      }
+      if (name === 'handle-analytics') boot();
       return out;
     };
   }
