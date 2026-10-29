@@ -6668,14 +6668,20 @@ setTimeout(hExec,600);
     sel.innerHTML = '<option value="">Loading…</option>';
     var cat = (el('haCat') || {}).value || 'ALL';
     var q = ((el('haQ') || {}).value || '').trim();
+    /* ha-default (29-Oct): bina chune tab khule to Modi ji; list me na ho to seedha dhoond kar */
+    var want = (CUR || (q ? '' : HA_DEFAULT)).toLowerCase();
+    function has(l) { return (l || []).some(function (o) { return (o.h || '').toLowerCase() === want; }); }
     return api('/api/ha/handles', { cat: cat, q: q }).then(function (list) {
+      if (want && !has(list)) return api('/api/ha/handles', { cat: 'ALL', q: want }).then(function (l2) { return has(l2) ? l2 : list; });
+      return list;
+    }).then(function (list) {
       LIST = list || [];
       if (!LIST.length) { sel.innerHTML = '<option value="">No matches</option>'; return; }
       sel.innerHTML = LIST.map(function (o) {
         return '<option value="' + esc(o.h) + '">' + esc(o.name || o.h) + '  (@' + esc(o.h) + ')</option>';
       }).join('');
-      var keep = LIST.some(function (o) { return o.h === CUR; });
-      sel.value = keep ? CUR : LIST[0].h;
+      var m = want ? LIST.find(function (o) { return (o.h || '').toLowerCase() === want; }) : null;
+      sel.value = m ? m.h : LIST[0].h;
       window.haPickSel();
     }).catch(function (e) {
       sel.innerHTML = '<option value="">' + esc(e.message) + '</option>';
@@ -7001,8 +7007,11 @@ setTimeout(hExec,600);
   window.haNext = function () { OFFSET += PAGE; loadTweets(); };
 
   var booted = false;
+  var HA_DEFAULT = 'narendramodi';
   function boot() {
-    if (booted) return; booted = true;
+    /* har baar tab khulne par default Modi ji */
+    if (booted) { CUR = null; var q0 = el('haQ'); if (q0) q0.value = ''; var c0 = el('haCat'); if (c0) c0.value = 'ALL'; return window.haLoadHandles(); }
+    booted = true;
     loadCats().then(window.haLoadHandles).catch(function (e) {
       var n = el('haNote'); if (n) { n.className = 'ha-note on'; n.textContent = e.message; }
     });
