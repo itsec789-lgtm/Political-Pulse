@@ -242,11 +242,13 @@ function analyse(rows, days) {
          aausat nikalta tha -- isliye adhoore data wale handle par
          "AVG LIKES 0" dikhta tha.
          Poore data wale handle (Modi, Yogi) par koi farak nahi padega.
-         Column bilkul khaali ho to null -> dashboard "--" dikhata hai. */
-      avgLikes:    cov.likes    ? Math.round(sumL / cov.likes)    : null,
-      avgComments: cov.comments ? Math.round(sumC / cov.comments) : null,
-      avgViews:    cov.views    ? Math.round(sumV / cov.views)    : null,
-      avgShares:   cov.shares   ? Math.round(sumS / cov.shares)   : null,
+         Column bilkul khaali ho to null -> dashboard "--" dikhata hai.
+         metrics_lib (29-Oct): denominator ab hamesha tweets (posts) -- Top 50 /
+         Dashboard ke "Avg Views/Post" jaisa hi, warna ek handle ke do aausat dikhte the. */
+      avgLikes:    cov.likes    ? Math.round(sumL / posts) : null,
+      avgComments: cov.comments ? Math.round(sumC / posts) : null,
+      avgViews:    cov.views    ? Math.round(sumV / posts) : null,
+      avgShares:   cov.shares   ? Math.round(sumS / posts) : null,
       totalLikes: likes, totalComments: comments, totalViews: views, totalShares: shares,
       totalEngagement: eng,
       /* er-fix v2

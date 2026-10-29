@@ -750,7 +750,8 @@ async function catRangePerHandle(scope, f, t, CR) {
 
 /* rt-split (27-Oct): "RT @..." rows are reposts of another account's post and carry THAT post's
    likes/views/retweets. Tweet counts and engagement use only a handle's own posts. */
-const NOT_RT = { $not: /^RT @/ };
+const ML = require('./metrics_lib.js');   /* metrics_lib (29-Oct): shared definitions */
+const NOT_RT = ML.NOT_RT;
 
 var _mjaCache = { t: 0, v: null };
 async function mjAgg() {
@@ -3760,7 +3761,7 @@ app.get('/api/live', newsGuard, async function (req, res) {
     }
     var fresh = 0;
     if (since && base.newest && since < base.newest) {
-      var q2 = Object.assign({}, q, { 'Tweet Date': { $gt: since } });
+      var q2 = Object.assign({}, q, { 'Tweet Date': { $gt: since }, 'Tweet Text': NOT_RT });   /* metrics_lib: naye TWEET, repost nahi */
       /* 'since' window ke andar ho to ginti Atlas par (hot/cold Phase 5) */
       fresh = await onTweets(since.slice(0, 10), function (cc) {
         return cc.countDocuments(q2, { maxTimeMS: 20000 });
@@ -4045,25 +4046,22 @@ app.get('/api/narrative-groups/stats', async function (req, res) {
     });
 
     // Date range support
+    allHandles = await ML.handleSpellings(MP, MASTER_DB, MASTER_COLL, allHandles);
     var matchCond = { Handle: { $in: allHandles }, 'Tweet Text': NOT_RT };
     var dFrom = String(req.query.from || '').trim().slice(0, 10);
     var dTo   = String(req.query.to   || '').trim().slice(0, 10);
-    if (dFrom || dTo) {
-      matchCond['Tweet Date'] = {};
-      if (dFrom) matchCond['Tweet Date'].$gte = dFrom;
-      if (dTo)   matchCond['Tweet Date'].$lte = dTo + ' 23:59:59';
-    }
+    if (dFrom || dTo) matchCond['Tweet Date'] = ML.dateCond(dFrom, dTo);
 
     var _src = 'cold';   /* hot | cold | archive -- kis store se aaya */
     var pipeline = [
       { $match: matchCond },
       {
         $group: {
-          _id: '$Handle',
+          _id: { $toLower: '$Handle' },
           tweets: { $sum: 1 },
-          likes: { $sum: '$Total Likes' },
-          rts: { $sum: '$Total Retweets' },
-          views: { $sum: '$Total Views' }
+          likes: { $sum: ML.numExpr('Total Likes') },
+          rts: { $sum: ML.numExpr('Total Retweets') },
+          views: { $sum: ML.numExpr('Total Views') }
         }
       }
     ];
@@ -4080,11 +4078,9 @@ app.get('/api/narrative-groups/stats', async function (req, res) {
         rts: r.rts || 0,
         views: r.views || 0
       };
-      handleMap[r._id] = obj;
-      if (r._id) {
-        handleMap[r._id.toLowerCase()] = obj;
-      }
+      handleMap[r._id] = obj;   /* _id ab lowercase -- sab spellings ek saath jude */
     });
+    allHandles.forEach(function (h) { var o = handleMap[String(h).toLowerCase()]; if (o) handleMap[h] = o; });
 
     res.json({ ok: true, source: _src, stats: handleMap, from: dFrom, to: dTo, timestamp: new Date().toISOString() });
   } catch (e) {
@@ -4108,28 +4104,15 @@ app.get('/api/narrative-groups/leader-analysis/:handle', async function (req, re
       rawHandle.toUpperCase(),
       rawHandle.charAt(0).toUpperCase() + rawHandle.slice(1)
     ]));
+    handleVariations = await ML.handleSpellings(MP, MASTER_DB, MASTER_COLL, handleVariations);
     var filter = { Handle: { $in: handleVariations }, 'Tweet Text': NOT_RT };
 
     // Date range support (explicit from/to or days preset)
     var dFrom = String(req.query.from || '').trim().slice(0, 10);
     var dTo   = String(req.query.to   || '').trim().slice(0, 10);
-    /* default-today (26-Oct): days=today -> sirf aaj (IST) */
-    if (!dFrom && !dTo && req.query.days === 'today') { dFrom = dTo = require('./hot_conf.js').todayIST(); }
-    if (!dFrom && !dTo && req.query.days && req.query.days !== 'all') {
-      var numDays = parseInt(req.query.days, 10);
-      if (!isNaN(numDays) && numDays > 0) {
-        var now = new Date();
-        dTo = now.toISOString().slice(0, 10);
-        var past = new Date(now);
-        past.setDate(past.getDate() - numDays);
-        dFrom = past.toISOString().slice(0, 10);
-      }
-    }
-    if (dFrom || dTo) {
-      filter['Tweet Date'] = {};
-      if (dFrom) filter['Tweet Date'].$gte = dFrom;
-      if (dTo)   filter['Tweet Date'].$lte = dTo + ' 23:59:59';
-    }
+    /* metrics_lib (29-Oct): IST range, end day inclusive */
+    var _rg = ML.resolveRange(req.query); dFrom = _rg.from; dTo = _rg.to;
+    if (dFrom || dTo) filter['Tweet Date'] = ML.dateCond(dFrom, dTo);
 
     // Unified parallel execution: 1 aggregation facet + top tweet + recents
     var pipeline = [
@@ -4141,10 +4124,10 @@ app.get('/api/narrative-groups/leader-analysis/:handle', async function (req, re
               $group: {
                 _id: null,
                 totalTweets: { $sum: 1 },
-                totalLikes: { $sum: '$Total Likes' },
-                totalRetweets: { $sum: '$Total Retweets' },
-                totalViews: { $sum: '$Total Views' },
-                totalComments: { $sum: '$Total Comments' }
+                totalLikes: { $sum: ML.numExpr('Total Likes') },
+                totalRetweets: { $sum: ML.numExpr('Total Retweets') },
+                totalViews: { $sum: ML.numExpr('Total Views') },
+                totalComments: { $sum: ML.numExpr('Total Comments') }
               }
             }
           ],
@@ -4153,9 +4136,9 @@ app.get('/api/narrative-groups/leader-analysis/:handle', async function (req, re
               $group: {
                 _id: { $substr: ['$Tweet Date', 0, 10] },
                 tweets: { $sum: 1 },
-                likes: { $sum: '$Total Likes' },
-                reposts: { $sum: '$Total Retweets' },
-                views: { $sum: '$Total Views' }
+                likes: { $sum: ML.numExpr('Total Likes') },
+                reposts: { $sum: ML.numExpr('Total Retweets') },
+                views: { $sum: ML.numExpr('Total Views') }
               }
             },
             { $sort: { _id: 1 } }
@@ -4226,28 +4209,15 @@ app.get('/api/narrative-groups/comparison', async function (req, res) {
       allHandleVars.push(h, h.toLowerCase(), h.toUpperCase());
     });
 
-    var matchCond = { Handle: { $in: Array.from(new Set(allHandleVars)) }, 'Tweet Text': NOT_RT };
+    allHandleVars = await ML.handleSpellings(MP, MASTER_DB, MASTER_COLL, allHandleVars);
+    var matchCond = { Handle: { $in: allHandleVars }, 'Tweet Text': NOT_RT };
 
     // Date range
     var dFrom = String(req.query.from || '').trim().slice(0, 10);
     var dTo   = String(req.query.to   || '').trim().slice(0, 10);
-    /* default-today (26-Oct): days=today -> sirf aaj (IST) */
-    if (!dFrom && !dTo && req.query.days === 'today') { dFrom = dTo = require('./hot_conf.js').todayIST(); }
-    if (!dFrom && !dTo && req.query.days && req.query.days !== 'all') {
-      var numDays = parseInt(req.query.days, 10);
-      if (!isNaN(numDays) && numDays > 0) {
-        var now = new Date();
-        dTo = now.toISOString().slice(0, 10);
-        var past = new Date(now);
-        past.setDate(past.getDate() - numDays);
-        dFrom = past.toISOString().slice(0, 10);
-      }
-    }
-    if (dFrom || dTo) {
-      matchCond['Tweet Date'] = {};
-      if (dFrom) matchCond['Tweet Date'].$gte = dFrom;
-      if (dTo)   matchCond['Tweet Date'].$lte = dTo + ' 23:59:59';
-    }
+    /* metrics_lib (29-Oct): IST range, end day inclusive */
+    var _rg = ML.resolveRange(req.query); dFrom = _rg.from; dTo = _rg.to;
+    if (dFrom || dTo) matchCond['Tweet Date'] = ML.dateCond(dFrom, dTo);
 
     // Sentiment filter
     var sentFilter = String(req.query.sentiment || '').trim();
@@ -4264,12 +4234,12 @@ app.get('/api/narrative-groups/comparison', async function (req, res) {
           leaderStats: [
             {
               $group: {
-                _id: '$Handle',
+                _id: { $toLower: '$Handle' },
                 tweets: { $sum: 1 },
-                likes: { $sum: '$Total Likes' },
-                reposts: { $sum: '$Total Retweets' },
-                views: { $sum: '$Total Views' },
-                comments: { $sum: '$Total Comments' }
+                likes: { $sum: ML.numExpr('Total Likes') },
+                reposts: { $sum: ML.numExpr('Total Retweets') },
+                views: { $sum: ML.numExpr('Total Views') },
+                comments: { $sum: ML.numExpr('Total Comments') }
               }
             }
           ],
@@ -4277,13 +4247,13 @@ app.get('/api/narrative-groups/comparison', async function (req, res) {
             {
               $group: {
                 _id: {
-                  handle: '$Handle',
+                  handle: { $toLower: '$Handle' },
                   date: { $substr: ['$Tweet Date', 0, 10] }
                 },
                 tweets: { $sum: 1 },
-                likes: { $sum: '$Total Likes' },
-                reposts: { $sum: '$Total Retweets' },
-                views: { $sum: '$Total Views' }
+                likes: { $sum: ML.numExpr('Total Likes') },
+                reposts: { $sum: ML.numExpr('Total Retweets') },
+                views: { $sum: ML.numExpr('Total Views') }
               }
             },
             { $sort: { '_id.date': 1 } }
@@ -4292,7 +4262,7 @@ app.get('/api/narrative-groups/comparison', async function (req, res) {
             {
               $group: {
                 _id: {
-                  handle: '$Handle',
+                  handle: { $toLower: '$Handle' },
                   sentiment: '$Sentiment'
                 },
                 count: { $sum: 1 }
@@ -4480,28 +4450,15 @@ app.get('/api/parties/comparison', async function (req, res) {
       allHandleVars.push('@' + actual, '@' + h);
     });
 
-    var matchCond = { Handle: { $in: Array.from(new Set(allHandleVars)) }, 'Tweet Text': NOT_RT };
+    allHandleVars = await ML.handleSpellings(MP, MASTER_DB, MASTER_COLL, allHandleVars);
+    var matchCond = { Handle: { $in: allHandleVars }, 'Tweet Text': NOT_RT };
 
     // Date range
     var dFrom = String(req.query.from || '').trim().slice(0, 10);
     var dTo   = String(req.query.to   || '').trim().slice(0, 10);
-    /* default-today (26-Oct): days=today -> sirf aaj (IST) */
-    if (!dFrom && !dTo && req.query.days === 'today') { dFrom = dTo = require('./hot_conf.js').todayIST(); }
-    if (!dFrom && !dTo && req.query.days && req.query.days !== 'all') {
-      var numDays = parseInt(req.query.days, 10);
-      if (!isNaN(numDays) && numDays > 0) {
-        var now = new Date();
-        dTo = now.toISOString().slice(0, 10);
-        var past = new Date(now);
-        past.setDate(past.getDate() - numDays);
-        dFrom = past.toISOString().slice(0, 10);
-      }
-    }
-    if (dFrom || dTo) {
-      matchCond['Tweet Date'] = {};
-      if (dFrom) matchCond['Tweet Date'].$gte = dFrom;
-      if (dTo)   matchCond['Tweet Date'].$lte = dTo + ' 23:59:59';
-    }
+    /* metrics_lib (29-Oct): IST range, end day inclusive */
+    var _rg = ML.resolveRange(req.query); dFrom = _rg.from; dTo = _rg.to;
+    if (dFrom || dTo) matchCond['Tweet Date'] = ML.dateCond(dFrom, dTo);
 
     // Sentiment filter
     var sentFilter = String(req.query.sentiment || '').trim();
@@ -4518,12 +4475,12 @@ app.get('/api/parties/comparison', async function (req, res) {
           leaderStats: [
             {
               $group: {
-                _id: '$Handle',
+                _id: { $toLower: '$Handle' },
                 tweets: { $sum: 1 },
-                likes: { $sum: '$Total Likes' },
-                reposts: { $sum: '$Total Retweets' },
-                views: { $sum: '$Total Views' },
-                comments: { $sum: '$Total Comments' }
+                likes: { $sum: ML.numExpr('Total Likes') },
+                reposts: { $sum: ML.numExpr('Total Retweets') },
+                views: { $sum: ML.numExpr('Total Views') },
+                comments: { $sum: ML.numExpr('Total Comments') }
               }
             }
           ],
@@ -4531,13 +4488,13 @@ app.get('/api/parties/comparison', async function (req, res) {
             {
               $group: {
                 _id: {
-                  handle: '$Handle',
+                  handle: { $toLower: '$Handle' },
                   date: { $substr: ['$Tweet Date', 0, 10] }
                 },
                 tweets: { $sum: 1 },
-                likes: { $sum: '$Total Likes' },
-                reposts: { $sum: '$Total Retweets' },
-                views: { $sum: '$Total Views' }
+                likes: { $sum: ML.numExpr('Total Likes') },
+                reposts: { $sum: ML.numExpr('Total Retweets') },
+                views: { $sum: ML.numExpr('Total Views') }
               }
             },
             { $sort: { '_id.date': 1 } }
@@ -4546,7 +4503,7 @@ app.get('/api/parties/comparison', async function (req, res) {
             {
               $group: {
                 _id: {
-                  handle: '$Handle',
+                  handle: { $toLower: '$Handle' },
                   sentiment: '$Sentiment'
                 },
                 count: { $sum: 1 }
@@ -4775,6 +4732,7 @@ async function queryTweets(terms, dFrom, dTo){
     } else {
       var col = client.db(REPORT_DB).collection('tweets');
       q = RS.poolQuery(terms, dFrom, dTo);
+      q.text = NOT_RT;                            // metrics_lib: pool path bhi sirf own posts (field 'text')
       out = await col.find(q, { projection: { _id: 0 } }).limit(REPORT_CAP).toArray();
     }
     console.log('  Mongo query [' + REPORT_SRC + ']: ' + out.length + ' tweets (' + (Date.now()-t0) + ' ms) terms=' + JSON.stringify(terms));
@@ -5100,7 +5058,7 @@ async function haRows(handle) {
     }
 
     var rows = await c.find(
-      { Handle: handle, 'Tweet Text': NOT_RT },
+      { Handle: { $in: await ML.handleSpellings(MP, MASTER_DB, MASTER_COLL, [handle]) }, 'Tweet Text': NOT_RT },
       { projection: {
           _id: 0, 'Handle': 1, 'Tweet ID': 1, 'Tweet URL': 1, 'Tweet Text': 1,
           'Tweet Date': 1, 'Followers': 1, 'Followings': 1, 'Total Posts': 1,

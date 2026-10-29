@@ -187,7 +187,8 @@ def load_template():
 # post's likes/views/retweets with them. They used to be counted as the handle's own tweets and
 # their retweet numbers inflated "Retweets" ~30x. Now tw/lk/vw/rt = the handle's OWN posts only;
 # reposts are counted separately as 'rc' (acc) and RC_DAILY[(handle, day)] (-> phd 'c').
-# Sentiment, hashtags, word cloud and hourly activity still see every row (unchanged).
+# metrics_lib (29-Oct): sentiment, hashtags, word cloud and hourly activity bhi ab SIRF own posts --
+# pehle ye har row (reposts samet) ginte the, isliye sentiment/heatmap tweet KPI se mel nahi khaate the.
 RC_DAILY = collections.defaultdict(int)
 # tw-rt-split (27-Oct): likes / views of the reposted ORIGINAL posts, per (handle, day) -> phd 'l' / 'w'
 RL_DAILY = collections.defaultdict(int)
@@ -240,6 +241,8 @@ def read_csv_agg(csv_path, query=None):
         _rtm = ch[C['text']].astype(str).str.startswith('RT @')          # rt-split
         ch['_o'] = (~_rtm).astype(int)
         ch['_rc'] = _rtm.astype(int)
+        for _c in SENT_CODES:                                           # metrics_lib: sentiment = own posts
+            ch['_' + _c] = ch['_' + _c] * ch['_o']
         ch['_olk'] = ch[C['likes']] * ch['_o']
         ch['_ort'] = ch[C['rts']] * ch['_o']
         ch['_ovw'] = ch[C['views']] * ch['_o']
@@ -303,7 +306,8 @@ def read_csv_agg(csv_path, query=None):
             if fw and dt >= m.get('_fdt', ''):              # followers sirf non-zero se update
                 m['_fdt'] = dt; m['followers'] = fw; m['followings'] = fg
         # hashtags (+ per party) + likes/views
-        for txt, party, lk, vw, _sc, d in zip(ch[C['text']], ch[C['party']], ch[C['likes']], ch[C['views']], ch['_sc'], ch['_d']):
+        for txt, party, lk, vw, _sc, d, _own in zip(ch[C['text']], ch[C['party']], ch[C['likes']], ch[C['views']], ch['_sc'], ch['_d'], ch['_o']):
+            if not _own: continue                                       # metrics_lib: repost ka text apna nahi
             # ---- Word Cloud ----
             # Hashtag wale 'continue' se PEHLE, warna bina hashtag wale tweets
             # (jo zyadatar hote hain) ke shabd kabhi gine hi na jaayein.
@@ -332,7 +336,7 @@ def read_csv_agg(csv_path, query=None):
         # Sentiment Trend chart pehle NAKLI tha (har din ka tweet count x fixed ratio).
         # Ab wo isi ginti se banta hai.
         try:
-            _gsd = ch.groupby([C['state'], '_d', '_sc']).size()
+            _gsd = ch[ch['_o'] == 1].groupby([C['state'], '_d', '_sc']).size()
             for (_st, _dd2, _cd), _n in _gsd.items():
                 _dd2 = str(_dd2)[:10]
                 if len(_dd2) != 10: continue
@@ -341,7 +345,7 @@ def read_csv_agg(csv_path, query=None):
             print("  (sentiment-daily skip: %s)" % _e)
 
         # hourly
-        hc = ch['_h'].value_counts()
+        hc = ch.loc[ch['_o'] == 1, '_h'].value_counts()                 # metrics_lib: own posts
         for hr, cnt in hc.items():
             if 0 <= int(hr) < 24: hourly[int(hr)] += int(cnt)
     return acc, meta, daily, sorted(dates), htag, htag_party, hourly, htag_daily, htag_party_daily, words, sdaily

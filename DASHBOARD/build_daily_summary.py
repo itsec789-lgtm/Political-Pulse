@@ -101,22 +101,26 @@ def summarize_day(coll, day):
         g['tw'] += 1; g['lk'] += lk; g['rt'] += rt; g['vw'] += vw
         # rt-split (27-Oct): tw/lk/rt/vw stay = ALL rows (Nazar reads tw that way). The "RT @"
         # reposts are counted again in rc/rl/rv/rr so builds can use own-posts = tw - rc etc.
-        if S(r.get(C['text'])).startswith('RT @'):
+        is_rt = S(r.get(C['text'])).startswith('RT @')
+        if is_rt:
             g['rc'] += 1; g['rl'] += lk; g['rv'] += vw; g['rr'] += rt
-        g['s'][sc] += 1
-        try:
-            hr = int(date[11:13])
-            if 0 <= hr < 24:
-                g['hr'][hr] += 1
-        except ValueError:
-            pass
+        # metrics_lib (29-Oct): s / hr / ht / words = OWN posts only (sv=2). Repost ka sentiment,
+        # ghanta aur hashtag us handle ka apna nahi -- pehle ye tweet KPI se mel nahi khaate the.
+        if not is_rt:
+            g['s'][sc] += 1
+            try:
+                hr = int(date[11:13])
+                if 0 <= hr < 24:
+                    g['hr'][hr] += 1
+            except ValueError:
+                pass
         dt = date[:19]
         if g['last'] is None or dt > g['last']['dt']:      # first max wins, like idxmax
             g['last'] = {'dt': dt, 'name': S(r.get(C['name'])), 'party': S(r.get(C['party'])),
                          'desig': S(r.get(C['desig'])), 'state': S(r.get(C['state'])),
                          'pc': S(r.get(C['pc'])), 'ac': S(r.get(C['ac'])),
                          'fw': int(num(r.get(C['followers']))), 'fg': int(num(r.get(C['followings'])))}
-        txt = S(r.get(C['text']))
+        txt = '' if is_rt else S(r.get(C['text']))
         # word cloud (same steps as read_csv_agg)
         if txt:
             t2 = U._TAG_RE.sub(' ', U._MENTION_RE.sub(' ', U._URL_RE.sub(' ', txt)))
@@ -143,6 +147,7 @@ def summarize_day(coll, day):
             del g['hr']
         if not g['ht']:
             del g['ht']
+        g['sv'] = 2                                      # metrics_lib: s/hr/ht = own posts
         g['built'] = datetime.datetime.now(datetime.timezone.utc)
         docs.append(g)
     wdocs = [{'_id': '%s|%s' % (sc, day), 'scope': sc, 'd': day,
