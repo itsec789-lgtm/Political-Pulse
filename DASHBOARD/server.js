@@ -3914,7 +3914,11 @@ app.get('/api/sent-range', dashGuard, async function (req, res) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(f) || !/^\d{4}-\d{2}-\d{2}$/.test(t) || f > t) {
     return res.status(400).json({ ok: false, error: 'bad date range' });
   }
-  var key = f + '|' + t, hit = _srCache.get(key);
+  /* sent-date (29-Oct): mode=rt -> retweets ka sentiment (daily_summary 'rs' + live "RT @" rows);
+     scope=up -> sirf Uttar Pradesh ke rows (Sentiment tab ka date filter isi se chalta hai). */
+  var mode = req.query.mode === 'rt' ? 'rt' : 'tw';
+  var scope = req.query.scope === 'up' ? 'up' : 'all';
+  var key = f + '|' + t + '|' + mode + '|' + scope, hit = _srCache.get(key);
   if (hit && Date.now() - hit.at < 120000) return res.json(hit.v);
   try {
     var per = Object.create(null), src = [];
@@ -3930,9 +3934,12 @@ app.get('/api/sent-range', dashGuard, async function (req, res) {
       try {
         await cli.connect();
         var grp = { _id: '$h' };
-        ML.SENT_CODES.forEach(function (c) { grp[c] = { $sum: { $ifNull: ['$s.' + c, 0] } }; });
+        var fld = mode === 'rt' ? '$rs.' : '$s.';
+        ML.SENT_CODES.forEach(function (c) { grp[c] = { $sum: { $ifNull: [fld + c, 0] } }; });
+        var sm = { d: { $gte: f, $lte: sEnd } };
+        if (scope === 'up') sm.st = 'Uttar Pradesh';
         var rows = await cli.db(MASTER_DB).collection('daily_summary').aggregate([
-          { $match: { d: { $gte: f, $lte: sEnd } } }, { $group: grp }
+          { $match: sm }, { $group: grp }
         ], { maxTimeMS: 20000, allowDiskUse: true }).toArray();
         rows.forEach(function (r) { ML.SENT_CODES.forEach(function (c) { add(r._id, c, r[c]); }); });
         src.push('summary');
@@ -3943,13 +3950,14 @@ app.get('/api/sent-range', dashGuard, async function (req, res) {
       var raw = await onTweets(rf, async function (col, store) {
         src.push(store);
         return col.aggregate([
-          { $match: { 'Tweet Date': ML.dateCond(rf, t), 'Tweet Text': NOT_RT } },
+          { $match: Object.assign({ 'Tweet Date': ML.dateCond(rf, t), 'Tweet Text': mode === 'rt' ? ML.IS_RT : NOT_RT },
+                                  scope === 'up' ? { State: 'Uttar Pradesh' } : {}) },
           { $group: { _id: { h: '$Handle', s: '$Sentiment' }, n: { $sum: 1 } } }
         ], { maxTimeMS: 20000 }).toArray();
       });
       (raw || []).forEach(function (r) { add(r._id.h, ML.sentCode(r._id.s), r.n); });
     }
-    var v = { ok: true, from: f, to: t, per: per, source: src.join('+') };
+    var v = { ok: true, from: f, to: t, mode: mode, scope: scope, per: per, source: src.join('+') };
     _srCache.set(key, { at: Date.now(), v: v });
     if (_srCache.size > 100) _srCache.delete(_srCache.keys().next().value);
     res.json(v);
