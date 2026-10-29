@@ -4333,59 +4333,38 @@ a.pe-btn:after{content:"";position:absolute;inset:0;z-index:1;background:linear-
       </div>
     </div>
 
-    <!-- Hero Profile Card -->
-    <div class="ng-hero-card">
-      <div class="ng-hero-left">
-        <div class="ng-hero-logo" id="ngHeroLogo"></div>
-        <div class="ng-hero-info">
-          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-            <span class="ng-hero-acronym" id="ngHeroAcronym">CJP</span>
-            <span class="ng-hero-name" id="ngHeroName">Cockroach Janta Party</span>
-            <span class="ng-pill ng-pill-pol" id="ngHeroBadge">Political Group</span>
+    <!-- Hero Profile Card -- option-d (29-Oct): Parties tab jaisa -- group rang ka banner + tairte KPI cards.
+         IDs wahi (openNarrativeGroup inhe bharta hai). Styles .pd-* Parties tab ke header wale. -->
+    <style>
+    .pd-hero .ng-logo-cover{padding:0!important}
+    .pd-hero .ng-logo-cover img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+    .pd-title .ng-acr{font-family:Rajdhani;font-weight:700;font-size:28px;line-height:1.05;color:#fff;letter-spacing:.5px}
+    .pd-title .ng-full{font-size:15px;font-weight:600;color:rgba(255,255,255,.9)}
+    </style>
+    <div class="pd-hero" id="ngHeroCard">
+      <div class="pd-band">
+        <div class="pd-row">
+          <div class="ph-logo-circle ng-logo-cover" id="ngHeroLogo"></div>
+          <div class="pd-info">
+            <div class="pd-title">
+              <span class="ng-acr" id="ngHeroAcronym"></span>
+              <span class="ng-full" id="ngHeroName"></span>
+              <span class="ph-badge" id="ngHeroBadge"></span>
+            </div>
+            <div class="ph-sub" id="ngHeroSubtitle"></div>
+            <div class="ph-desc" id="ngHeroDesc"></div>
+            <div class="ph-links">
+              <a href="https://x.com/Cockroachisback" target="_blank" class="ph-link-pill" id="ngHeroHandle"><svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 22.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg> <span id="ngHeroHandleText">@Cockroachisback</span></a>
+              <a href="https://x.com/CJP_is_back" target="_blank" class="ph-link-pill" id="ngHeroWeb"><svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 22.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg> <span id="ngHeroWebText">@CJP_is_back</span></a>
+            </div>
           </div>
-          <div class="ng-hero-sub" id="ngHeroSubtitle">Cockroach Janta Party Official</div>
-          <div style="display:flex;align-items:center;gap:14px;margin-top:8px;font-size:12px">
-            <a href="https://x.com/Cockroachisback" target="_blank" class="ng-meta-link" id="ngHeroHandle"><svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 22.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg> <span id="ngHeroHandleText">@Cockroachisback</span></a>
-            <a href="https://x.com/CJP_is_back" target="_blank" class="ng-meta-link" id="ngHeroWeb"><svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 22.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg> <span id="ngHeroWebText">@CJP_is_back</span></a>
-          </div>
-          <p class="ng-hero-desc" id="ngHeroDesc">Cockroach Janta Party (CJP) is a people's movement focused on constitutional values, social justice and democratic rights.</p>
         </div>
       </div>
-
-      <!-- 4 KPI Stat Cards with Trend Badges -->
-      <div class="ng-hero-kpis">
-        <div class="ng-kpi-card">
-          <div class="ng-kpi-top">
-            <span class="ng-kpi-icon tw">&#128394;</span>
-            <span class="ng-kpi-trend pos" id="ngKpiTwTr">&uarr; Live</span>
-          </div>
-          <div class="ng-kpi-val" id="ngKpiTwVal">0</div>
-          <div class="ng-kpi-lbl">Total Tweets</div>
-        </div>
-        <div class="ng-kpi-card">
-          <div class="ng-kpi-top">
-            <span class="ng-kpi-icon lk">&#10084;&#65039;</span>
-            <span class="ng-kpi-trend pos" id="ngKpiLkTr">&uarr; Live</span>
-          </div>
-          <div class="ng-kpi-val" id="ngKpiLkVal">0</div>
-          <div class="ng-kpi-lbl">Total Likes</div>
-        </div>
-        <div class="ng-kpi-card">
-          <div class="ng-kpi-top">
-            <span class="ng-kpi-icon rt">&#128257;</span>
-            <span class="ng-kpi-trend pos" id="ngKpiRtTr">&uarr; Live</span>
-          </div>
-          <div class="ng-kpi-val" id="ngKpiRtVal">0</div>
-          <div class="ng-kpi-lbl">Total Reposts</div>
-        </div>
-        <div class="ng-kpi-card">
-          <div class="ng-kpi-top">
-            <span class="ng-kpi-icon vw">&#128202;</span>
-            <span class="ng-kpi-trend pos" id="ngKpiVwTr">&uarr; Live</span>
-          </div>
-          <div class="ng-kpi-val" id="ngKpiVwVal">0</div>
-          <div class="ng-kpi-lbl">Total Views</div>
-        </div>
+      <div class="pd-stats">
+        <div class="pd-card pd-main"><div class="pd-lbl">Tweets</div><div class="pd-val" id="ngKpiTwVal">&mdash;</div><div class="pd-per" id="ngKpiTwPer">own posts</div></div>
+        <div class="pd-card"><div class="pd-lbl">Likes</div><div class="pd-val" id="ngKpiLkVal">&mdash;</div><div class="pd-per" id="ngKpiLkPer"></div></div>
+        <div class="pd-card"><div class="pd-lbl">Reposts</div><div class="pd-val" id="ngKpiRtVal">&mdash;</div><div class="pd-per" id="ngKpiRtPer"></div></div>
+        <div class="pd-card"><div class="pd-lbl">Views</div><div class="pd-val" id="ngKpiVwVal">&mdash;</div><div class="pd-per" id="ngKpiVwPer"></div></div>
       </div>
     </div>
 
@@ -12949,7 +12928,7 @@ function openNarrativeGroup(id){
   var bd = document.getElementById('ngHeroBadge');
   if(bd){
     bd.textContent = g.category;
-    bd.className = 'ng-pill ' + (g.category === 'Political Group' ? 'ng-pill-pol' : (g.category === 'Student Wing' ? 'ng-pill-stu' : (g.category === 'Political Wing' ? 'ng-pill-wing' : 'ng-pill-ind')));
+    bd.className = 'ph-badge';
   }
   var hdlTxt = document.getElementById('ngHeroHandleText');
   var hdlLnk = document.getElementById('ngHeroHandle');
@@ -12985,6 +12964,7 @@ function openNarrativeGroup(id){
   if(rtV) rtV.textContent = fmtNgNum(g.stats.rts);
   var vwV = document.getElementById('ngKpiVwVal');
   if(vwV) vwV.textContent = fmtNgNum(g.stats.views);
+  ngHeroExtras(g);
 
   // Render Charts & Cards
   renderGroupMemberRoster(g.leaders || []);
@@ -12994,6 +12974,19 @@ function openNarrativeGroup(id){
   renderGroupMembersCards(g.leaders || []);
 }
 window.openNarrativeGroup = openNarrativeGroup;
+/* option-d (29-Oct): banner ka rang = group ka rang; har card ke neeche per-tweet, aur Tweets card par chuni
+   hui range -- taaki "0" ka matlab saaf ho (jaise aaj ka koi tweet nahi). */
+function ngHeroExtras(g) {
+  var hc = document.getElementById('ngHeroCard'); if (hc && g.color) hc.style.setProperty('--pc', g.color);
+  var st = g.stats || {}, tw = +st.tweets || 0;
+  function per(id, v) { var e = document.getElementById(id); if (e) e.innerHTML = tw ? '<b>' + Math.round((+v || 0) / tw).toLocaleString('en-IN') + '</b> per tweet' : '&mdash;'; }
+  per('ngKpiLkPer', st.likes); per('ngKpiRtPer', st.rts); per('ngKpiVwPer', st.views);
+  var sel = document.getElementById('ngFilterRange'), lbl = '';
+  try { lbl = sel && sel.options[sel.selectedIndex] ? sel.options[sel.selectedIndex].text : ''; } catch (e) {}
+  var t = document.getElementById('ngKpiTwPer');
+  if (t) t.textContent = 'own posts' + (lbl ? ' \u00b7 ' + lbl : '') + ' \u00b7 ' + (g.leaders || []).length + ' members';
+}
+window.ngHeroExtras = ngHeroExtras;
 
 function closeNarrativeGroup(){
   _ngActiveGroup = null;
