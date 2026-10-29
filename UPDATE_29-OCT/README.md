@@ -49,6 +49,13 @@ Data copy nahi hota. Wahan ke `master_tweets` se naye code ke saath **dobara ban
 - Home engagement rate mein comments bhi
 - Leader Board ki photos gol
 - **Sentiment tab:** Tweets / Retweets button, date filter, aur "Sentiment by Handle" mein Top 12 / 25 / 50 / 100 / All, chuni tareekh ke hisaab se
+- **Parties tab:**
+  - BJP ke Key Leaders (Modi ji, Amit Shah, Nitin Nabin ji, Yogi ji) Directory mein sabse upar
+  - Leader Comparison shuru mein Modi ji, Amit Shah, Yogi ji
+  - Har party ka naya header: party rang ka banner, poora logo (kat-ta nahi), 4 cards per-tweet ke saath
+- **Narrative Groups:**
+  - Naya "Narrative Race": animated leaderboard (Tweets / Likes / Retweets / Views), #1 spotlight, ▲▼ rank badge. Purani table hata di
+  - Group page ka header bhi Parties jaisa
 
 Poori jaankari: `DASHBOARD\DATA_CONSISTENCY_AUDIT_REPORT.md`
 

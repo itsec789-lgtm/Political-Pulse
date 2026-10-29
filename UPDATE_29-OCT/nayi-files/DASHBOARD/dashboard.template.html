@@ -3966,102 +3966,61 @@ a.pe-btn:after{content:"";position:absolute;inset:0;z-index:1;background:linear-
       </button>
     </div>
 
-    <!-- PARTY HERO CARD -->
-    <div class="party-hero-card" id="partyHeroCard">
-      <div class="ph-watermark" id="partyHeroWatermark"><img src="/assets/party_logos/BJP.png" alt="" loading="lazy"></div>
-      <div class="ph-left">
-        <div class="ph-logo-circle" id="partyHeroLogo"><img src="/assets/party_logos/BJP.png" alt="BJP" style="width:100%;height:100%;object-fit:contain;border-radius:50%" onerror="this.parentElement.textContent='BJP'"></div>
-        <div class="ph-info">
-          <div class="ph-title-row">
-            <span class="ph-name" id="partyHeroName">BJP Bharatiya Janata Party</span>
-            <span class="ph-badge" id="partyHeroBadge">National Party</span>
-          </div>
-          <div class="ph-sub" id="partyHeroSub">Bharatiya Janata Party Official Leadership Roster</div>
-          <div class="ph-links" id="partyHeroLinks"></div>
-          <div class="ph-desc" id="partyHeroDesc">
-            Official national political intelligence and engagement analysis across parliamentary, ministerial, and state leadership.
+    <!-- PARTY HERO CARD -- option-d (29-Oct): party rang ka banner + upar tairte KPI cards.
+         Logo wahi party_logos image (partyLogoUrl), IDs wahi -- openPartyDetail inhe bharta hai. -->
+    <style>
+    .pd-hero{--pc:#E65100;border-radius:18px;overflow:hidden;background:#fff;border:1px solid #EEE6DA;box-shadow:0 12px 32px -20px rgba(0,0,0,.35);margin-bottom:18px}
+    .pd-band{position:relative;color:#fff;padding:24px 28px 66px;overflow:hidden;
+      background:linear-gradient(115deg,color-mix(in srgb,var(--pc) 70%,#000) 0%,var(--pc) 55%,color-mix(in srgb,var(--pc) 72%,#fff) 100%)}
+    .pd-band::after{content:"";position:absolute;right:-70px;top:-90px;width:340px;height:340px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.2),rgba(255,255,255,0) 70%);pointer-events:none}
+    .pd-band .ph-watermark{display:none!important}   /* kai logo ki image me safed background hai -> banner par dabba dikhta tha */
+    .pd-row{display:flex;align-items:center;gap:18px;position:relative;z-index:1;flex-wrap:wrap}
+    .pd-row .ph-logo-circle{width:74px;height:74px;border-radius:50%;background:#fff;flex:none;display:flex;align-items:center;justify-content:center;
+      box-shadow:0 0 0 5px rgba(255,255,255,.24),0 8px 18px -8px rgba(0,0,0,.45);font-family:Rajdhani;font-weight:700;color:var(--pc);overflow:hidden}
+    /* logo-fit (29-Oct): party logo poora dikhe -- gol frame ke andar contain + padding, image par gol crop nahi */
+    #partyHeroLogo{width:84px;height:84px;padding:12px!important;box-sizing:border-box}
+    #partyHeroLogo img{width:100%!important;height:100%!important;object-fit:contain!important;border-radius:0!important;display:block}
+    .pd-info{min-width:0;flex:1 1 320px}
+    .pd-title{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+    .pd-title .ph-name{font-family:Rajdhani;font-weight:700;font-size:28px;line-height:1.05;color:#fff}
+    .pd-title .ph-badge{font-size:10.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:4px 10px;border-radius:999px;
+      background:rgba(255,255,255,.18)!important;color:#fff!important;border:1px solid rgba(255,255,255,.32)}
+    .pd-info .ph-sub{font-size:12.5px;color:rgba(255,255,255,.9);margin-top:6px}
+    .pd-info .ph-desc{font-size:12px;color:rgba(255,255,255,.78);margin-top:6px;max-width:640px;line-height:1.5}
+    .pd-info .ph-links{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+    .pd-info .ph-link-pill{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;color:#fff;text-decoration:none;
+      background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.3);border-radius:999px;padding:4px 10px}
+    .pd-info .ph-link-pill:hover{background:rgba(255,255,255,.26)}
+    .pd-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;padding:0 22px 22px;margin-top:-46px;position:relative;z-index:2}
+    .pd-card{background:#fff;border-radius:14px;padding:16px 18px;border:1px solid #EEE6DA;box-shadow:0 8px 20px -14px rgba(0,0,0,.35)}
+    .pd-lbl{font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#7A7166}
+    .pd-val{font-family:Rajdhani;font-weight:700;font-size:32px;line-height:1;margin-top:8px;color:#1E1B16;white-space:nowrap;font-variant-numeric:tabular-nums}
+    .pd-card.pd-main .pd-val{color:var(--pc)}
+    .pd-per{font-size:12px;color:#7A7166;margin-top:7px}
+    .pd-per b{color:#1E1B16;font-weight:700}
+    @media (max-width:820px){.pd-stats{grid-template-columns:1fr 1fr}.pd-band{padding:20px 18px 60px}.pd-band .ph-watermark{display:none!important}}
+    </style>
+    <div class="pd-hero" id="partyHeroCard">
+      <div class="pd-band">
+        <div class="ph-watermark" id="partyHeroWatermark"></div>
+        <div class="pd-row">
+          <div class="ph-logo-circle" id="partyHeroLogo"></div>
+          <div class="pd-info">
+            <div class="pd-title">
+              <span class="ph-name" id="partyHeroName"></span>
+              <span class="ph-badge" id="partyHeroBadge"></span>
+            </div>
+            <div class="ph-sub" id="partyHeroSub"></div>
+            <div class="ph-desc" id="partyHeroDesc"></div>
+            <div class="ph-links" id="partyHeroLinks"></div>
           </div>
         </div>
       </div>
-
-      <!-- 4 ATTRACTIVE EXECUTIVE KPIS GRID -->
-      <div class="ph-kpis-grid">
-        <!-- TWEETS -->
-        <div class="ph-kpi-card kpi-tweets">
-          <div class="ph-kpi-top">
-            <div class="ph-kpi-icon-wrap icon-tweets">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M12 20h9"/>
-                <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
-              </svg>
-            </div>
-            <span class="ph-live-pill">
-              <span class="ph-live-dot"></span>
-              LIVE
-            </span>
-          </div>
-          <div class="ph-kpi-val val-tweets" id="heroKpiTw">17.85 L</div>
-          <div class="ph-kpi-lbl">TOTAL TWEETS</div>
-          <div class="ph-kpi-bar bar-tweets"></div>
-        </div>
-
-        <!-- LIKES -->
-        <div class="ph-kpi-card kpi-likes">
-          <div class="ph-kpi-top">
-            <div class="ph-kpi-icon-wrap icon-likes">
-              <svg viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-              </svg>
-            </div>
-            <span class="ph-live-pill">
-              <span class="ph-live-dot"></span>
-              LIVE
-            </span>
-          </div>
-          <div class="ph-kpi-val val-likes" id="heroKpiLk">9.06 Cr</div>
-          <div class="ph-kpi-lbl">TOTAL LIKES</div>
-          <div class="ph-kpi-bar bar-likes"></div>
-        </div>
-
-        <!-- REPOSTS -->
-        <div class="ph-kpi-card kpi-reposts">
-          <div class="ph-kpi-top">
-            <div class="ph-kpi-icon-wrap icon-reposts">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="17 1 21 5 17 9"/>
-                <path d="M3 11V9a4 4 0 0 1 4-4h14"/>
-                <polyline points="7 23 3 19 7 15"/>
-                <path d="M21 13v2a4 4 0 0 1-4 4H3"/>
-              </svg>
-            </div>
-            <span class="ph-live-pill">
-              <span class="ph-live-dot"></span>
-              LIVE
-            </span>
-          </div>
-          <div class="ph-kpi-val val-reposts" id="heroKpiRt">100.8 Cr</div>
-          <div class="ph-kpi-lbl">TOTAL REPOSTS</div>
-          <div class="ph-kpi-bar bar-reposts"></div>
-        </div>
-
-        <!-- VIEWS -->
-        <div class="ph-kpi-card kpi-views">
-          <div class="ph-kpi-top">
-            <div class="ph-kpi-icon-wrap icon-views">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-                <circle cx="12" cy="12" r="3"/>
-              </svg>
-            </div>
-            <span class="ph-live-pill">
-              <span class="ph-live-dot"></span>
-              LIVE
-            </span>
-          </div>
-          <div class="ph-kpi-val val-views" id="heroKpiVw">498.1 Cr</div>
-          <div class="ph-kpi-lbl">TOTAL VIEWS</div>
-          <div class="ph-kpi-bar bar-views"></div>
-        </div>
+      <div class="pd-stats">
+        <div class="pd-card pd-main"><div class="pd-lbl">Tweets</div><div class="pd-val" id="heroKpiTw">&mdash;</div><div class="pd-per" id="heroKpiTwPer">own posts</div></div>
+        <div class="pd-card"><div class="pd-lbl">Likes</div><div class="pd-val" id="heroKpiLk">&mdash;</div><div class="pd-per" id="heroKpiLkPer"></div></div>
+        <div class="pd-card"><div class="pd-lbl">Reposts</div><div class="pd-val" id="heroKpiRt">&mdash;</div><div class="pd-per" id="heroKpiRtPer"></div></div>
+        <div class="pd-card"><div class="pd-lbl">Views</div><div class="pd-val" id="heroKpiVw">&mdash;</div><div class="pd-per" id="heroKpiVwPer"></div></div>
       </div>
     </div>
 
@@ -4332,7 +4291,104 @@ a.pe-btn:after{content:"";position:absolute;inset:0;z-index:1;background:linear-
       </div>
     </div>
 
-    <div class="data-table-wrap" style="background:#FFF;border:1px solid #ECEFF1;border-radius:12px;overflow-x:auto;box-shadow:0 1px 4px rgba(0,0,0,0.03);margin-top:14px">
+
+    <!-- ng-race (29-Oct): Narrative Race -- groups ek race me, chuna hua metric (Tweets/Likes/Retweets/Views).
+         Metric ya date badalte hi bars badhti hain, groups sarak kar nayi rank par aate hain, rank ka badlaav
+         (▲/▼) dikhta hai. Data wahi NARRATIVE_GROUPS_DATA (getFilteredNarrativeGroups) jo neeche table ka hai. -->
+    <style>
+    .ngr{--mc:#1E88E5;position:relative;margin-top:16px;background:#fff;border:1px solid #EDE5D9;border-radius:20px;overflow:hidden;
+      box-shadow:0 22px 48px -34px rgba(70,35,0,.5)}
+    .ngr-glow{position:absolute;inset:-40% -10% auto auto;width:520px;height:520px;border-radius:50%;pointer-events:none;
+      background:radial-gradient(circle,color-mix(in srgb,var(--mc) 16%,transparent),transparent 65%);transition:background .6s}
+    .ngr-top{position:relative;display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:18px 22px 6px}
+    .ngr-kick{font:800 10.5px Inter,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--mc);transition:color .5s}
+    .ngr-title{font:700 22px Rajdhani,sans-serif;color:#1B1712;line-height:1.1}
+    .ngr-sub{font-size:12px;color:#7A7166;margin-top:2px}
+    .ngr-seg{margin-left:auto;display:flex;background:#F4EEE5;border-radius:13px;padding:4px;position:relative}
+    .ngr-seg button{position:relative;z-index:1;border:none;background:none;font:700 12px Inter,sans-serif;color:#6B6257;padding:8px 15px;border-radius:10px;cursor:pointer;transition:color .3s}
+    .ngr-seg button.on{color:#fff}
+    .ngr-seg .ngr-pill{position:absolute;top:4px;bottom:4px;border-radius:10px;background:var(--mc);box-shadow:0 6px 14px -6px var(--mc);
+      transition:left .5s cubic-bezier(.2,.8,.2,1),width .5s cubic-bezier(.2,.8,.2,1),background .5s}
+    .ngr-body{position:relative;display:grid;grid-template-columns:270px 1fr;gap:18px;padding:12px 22px 18px}
+    /* spotlight (#1) */
+    .ngr-spot{position:relative;border-radius:16px;padding:18px;color:#fff;overflow:hidden;min-height:250px;display:flex;flex-direction:column;
+      background:linear-gradient(150deg,color-mix(in srgb,var(--sc,#E65100) 75%,#000),var(--sc,#E65100) 60%,color-mix(in srgb,var(--sc,#E65100) 70%,#fff));transition:background .7s}
+    .ngr-spot::before{content:"";position:absolute;right:-60px;top:-60px;width:220px;height:220px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.25),transparent 70%)}
+    .ngr-crown{font:800 10.5px Inter,sans-serif;letter-spacing:.14em;text-transform:uppercase;opacity:.9;display:flex;align-items:center;gap:6px}
+    .ngr-spot-logo{width:76px;height:76px;border-radius:50%;background:#fff;margin:14px 0 10px;box-shadow:0 0 0 5px rgba(255,255,255,.25),0 10px 22px -10px rgba(0,0,0,.5);overflow:hidden;position:relative}
+    .ngr-spot-logo img{width:100%;height:100%;object-fit:cover}
+    .ngr-spot-logo::after{content:"";position:absolute;inset:-9px;border-radius:50%;border:2px solid rgba(255,255,255,.6);animation:ngrRing 2.4s ease-out infinite}
+    @keyframes ngrRing{0%{transform:scale(.86);opacity:.8}100%{transform:scale(1.25);opacity:0}}
+    .ngr-spot-name{font:700 22px Rajdhani,sans-serif;line-height:1}
+    .ngr-spot-full{font-size:12px;opacity:.85;margin-top:3px}
+    .ngr-spot-val{font:700 40px Rajdhani,sans-serif;line-height:1;margin-top:auto;font-variant-numeric:tabular-nums}
+    .ngr-spot-lbl{font-size:12px;opacity:.88;margin-top:4px}
+    .ngr-spot-lead{margin-top:10px;font-size:11.5px;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.28);border-radius:999px;padding:5px 10px;width:max-content;max-width:100%}
+    .ngr-spot.empty{background:linear-gradient(150deg,#5B524A,#8B8178)}
+    /* lanes */
+    .ngr-lanes{position:relative}
+    .ngr-lane{position:absolute;left:0;right:0;height:62px;display:grid;grid-template-columns:30px 210px 1fr 150px;align-items:center;gap:14px;
+      padding:0 10px;border-radius:12px;cursor:pointer;transition:transform .85s cubic-bezier(.22,.9,.24,1),background .25s,opacity .5s}
+    .ngr-lane:hover{background:#FBF7F1}
+    .ngr-lane.in{animation:ngrIn .6s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--i)*70ms)}
+    @keyframes ngrIn{from{opacity:0;filter:blur(3px)}to{opacity:1;filter:none}}
+    .ngr-rk{font:700 22px Rajdhani,sans-serif;color:#CFC5B8;text-align:center;font-variant-numeric:tabular-nums;transition:color .4s}
+    .ngr-lane.lead .ngr-rk{color:var(--mc)}
+    .ngr-who{display:flex;align-items:center;gap:11px;min-width:0}
+    .ngr-lg{width:40px;height:40px;border-radius:50%;flex:none;background:#fff;overflow:hidden;box-shadow:0 0 0 2.5px #fff,0 0 0 4px color-mix(in srgb,var(--gc) 45%,#fff)}
+    .ngr-lg img{width:100%;height:100%;object-fit:cover}
+    .ngr-acr{font:700 15px Rajdhani,sans-serif;color:#1B1712;display:flex;align-items:center;gap:6px}
+    .ngr-full{font-size:11px;color:#8A8074;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .ngr-mv{font:800 9.5px Inter,sans-serif;border-radius:6px;padding:1px 5px;opacity:0;transform:translateY(4px);transition:opacity .4s,transform .4s}
+    .ngr-mv.show{opacity:1;transform:none}
+    .ngr-mv.up{background:#E7F6EC;color:#1B7A3A}.ngr-mv.dn{background:#FDECEC;color:#B42318}
+    .ngr-track{position:relative;height:32px;border-radius:10px;background:#F6F1E9;overflow:hidden}
+    .ngr-fill{position:absolute;left:0;top:0;bottom:0;width:0;border-radius:10px;
+      background:linear-gradient(90deg,color-mix(in srgb,var(--gc) 70%,#fff),var(--gc));transition:width 1s cubic-bezier(.22,.9,.24,1)}
+    .ngr-fill::after{content:"";position:absolute;inset:0;background:linear-gradient(105deg,transparent 35%,rgba(255,255,255,.55) 50%,transparent 65%);transform:translateX(-120%)}
+    .ngr.shine .ngr-fill::after{animation:ngrShine 1.1s .55s ease-out}
+    @keyframes ngrShine{to{transform:translateX(120%)}}
+    .ngr-val{position:absolute;top:50%;transform:translateY(-50%);font:700 15px Rajdhani,sans-serif;white-space:nowrap;font-variant-numeric:tabular-nums;
+      transition:left 1s cubic-bezier(.22,.9,.24,1),right 1s cubic-bezier(.22,.9,.24,1),color .3s}
+    .ngr-share{font-size:10.5px;font-weight:600;opacity:.85;margin-left:6px}
+    .ngr-zero{position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:11px;color:#B3A99C}
+    .ngr-mem{display:flex;align-items:center}
+    .ngr-mem img,.ngr-mem .more{width:28px;height:28px;border-radius:50%;border:2px solid #fff;margin-left:-9px;object-fit:cover;background:#EEE6DA;transition:margin .3s,transform .3s}
+    .ngr-mem img:first-child{margin-left:0}
+    .ngr-lane:hover .ngr-mem img,.ngr-lane:hover .ngr-mem .more{margin-left:1px}
+    .ngr-mem .more{display:flex;align-items:center;justify-content:center;font:700 9.5px Inter,sans-serif;color:#4B4439}
+    .ngr-cnt{font-size:11px;color:#8A8074;margin-top:3px}
+    .ngr-lane.dim{opacity:.55}
+    .ngr-foot{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font-size:11.5px;color:#8A8074;border-top:1px dashed #EDE5D9;padding:10px 22px 14px}
+    @media (max-width:980px){.ngr-body{grid-template-columns:1fr}.ngr-spot{min-height:0}.ngr-lane{grid-template-columns:26px 1fr 120px}.ngr-lane .ngr-memcol{display:none}}
+    @media (max-width:640px){.ngr-lane{grid-template-columns:24px 1fr;height:88px}.ngr-track{grid-column:2}.ngr-seg{margin-left:0}}
+    @media (prefers-reduced-motion:reduce){.ngr *,.ngr *::before,.ngr *::after{animation:none!important;transition:none!important}}
+    </style>
+    <div class="ngr" id="ngRace">
+      <div class="ngr-glow"></div>
+      <div class="ngr-top">
+        <div>
+          <div class="ngr-kick" id="ngrKick">Narrative Race</div>
+          <div class="ngr-title">Who is leading the conversation</div>
+          <div class="ngr-sub" id="ngrSub"></div>
+        </div>
+        <div class="ngr-seg" id="ngrSeg"><span class="ngr-pill"></span>
+          <button data-k="tweets" data-c="#1E88E5" data-l="tweets" class="on">Tweets</button>
+          <button data-k="likes" data-c="#D81B60" data-l="likes">Likes</button>
+          <button data-k="rts" data-c="#2E7D32" data-l="retweets">Retweets</button>
+          <button data-k="views" data-c="#6A1B9A" data-l="views">Views</button>
+        </div>
+      </div>
+      <div class="ngr-body">
+        <div class="ngr-spot" id="ngrSpot"></div>
+        <div class="ngr-lanes" id="ngrLanes"></div>
+      </div>
+      <div class="ngr-foot"><span id="ngrFootL"></span><span>Click any group to open its full analysis</span></div>
+    </div>
+    <!-- ng-race (29-Oct): table ab nahi dikhti -- Narrative Race hi directory hai. Table DOM me rehti hai
+         (renderNarrativeGroupsTable usi se race ko bhi chalata hai), bas chhupi hui. -->
+    <style>#ngTableWrap,#ngPagination{display:none!important}</style>
+    <div class="data-table-wrap" id="ngTableWrap" style="background:#FFF;border:1px solid #ECEFF1;border-radius:12px;overflow-x:auto;box-shadow:0 1px 4px rgba(0,0,0,0.03);margin-top:14px">
       <table class="data-table ng-table" id="ngMainTable">
         <thead>
           <tr>
@@ -4377,59 +4433,38 @@ a.pe-btn:after{content:"";position:absolute;inset:0;z-index:1;background:linear-
       </div>
     </div>
 
-    <!-- Hero Profile Card -->
-    <div class="ng-hero-card">
-      <div class="ng-hero-left">
-        <div class="ng-hero-logo" id="ngHeroLogo"></div>
-        <div class="ng-hero-info">
-          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-            <span class="ng-hero-acronym" id="ngHeroAcronym">CJP</span>
-            <span class="ng-hero-name" id="ngHeroName">Cockroach Janta Party</span>
-            <span class="ng-pill ng-pill-pol" id="ngHeroBadge">Political Group</span>
+    <!-- Hero Profile Card -- option-d (29-Oct): Parties tab jaisa -- group rang ka banner + tairte KPI cards.
+         IDs wahi (openNarrativeGroup inhe bharta hai). Styles .pd-* Parties tab ke header wale. -->
+    <style>
+    .pd-hero .ng-logo-cover{padding:0!important}
+    .pd-hero .ng-logo-cover img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+    .pd-title .ng-acr{font-family:Rajdhani;font-weight:700;font-size:28px;line-height:1.05;color:#fff;letter-spacing:.5px}
+    .pd-title .ng-full{font-size:15px;font-weight:600;color:rgba(255,255,255,.9)}
+    </style>
+    <div class="pd-hero" id="ngHeroCard">
+      <div class="pd-band">
+        <div class="pd-row">
+          <div class="ph-logo-circle ng-logo-cover" id="ngHeroLogo"></div>
+          <div class="pd-info">
+            <div class="pd-title">
+              <span class="ng-acr" id="ngHeroAcronym"></span>
+              <span class="ng-full" id="ngHeroName"></span>
+              <span class="ph-badge" id="ngHeroBadge"></span>
+            </div>
+            <div class="ph-sub" id="ngHeroSubtitle"></div>
+            <div class="ph-desc" id="ngHeroDesc"></div>
+            <div class="ph-links">
+              <a href="https://x.com/Cockroachisback" target="_blank" class="ph-link-pill" id="ngHeroHandle"><svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 22.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg> <span id="ngHeroHandleText">@Cockroachisback</span></a>
+              <a href="https://x.com/CJP_is_back" target="_blank" class="ph-link-pill" id="ngHeroWeb"><svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 22.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg> <span id="ngHeroWebText">@CJP_is_back</span></a>
+            </div>
           </div>
-          <div class="ng-hero-sub" id="ngHeroSubtitle">Cockroach Janta Party Official</div>
-          <div style="display:flex;align-items:center;gap:14px;margin-top:8px;font-size:12px">
-            <a href="https://x.com/Cockroachisback" target="_blank" class="ng-meta-link" id="ngHeroHandle"><svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 22.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg> <span id="ngHeroHandleText">@Cockroachisback</span></a>
-            <a href="https://x.com/CJP_is_back" target="_blank" class="ng-meta-link" id="ngHeroWeb"><svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 22.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg> <span id="ngHeroWebText">@CJP_is_back</span></a>
-          </div>
-          <p class="ng-hero-desc" id="ngHeroDesc">Cockroach Janta Party (CJP) is a people's movement focused on constitutional values, social justice and democratic rights.</p>
         </div>
       </div>
-
-      <!-- 4 KPI Stat Cards with Trend Badges -->
-      <div class="ng-hero-kpis">
-        <div class="ng-kpi-card">
-          <div class="ng-kpi-top">
-            <span class="ng-kpi-icon tw">&#128394;</span>
-            <span class="ng-kpi-trend pos" id="ngKpiTwTr">&uarr; Live</span>
-          </div>
-          <div class="ng-kpi-val" id="ngKpiTwVal">0</div>
-          <div class="ng-kpi-lbl">Total Tweets</div>
-        </div>
-        <div class="ng-kpi-card">
-          <div class="ng-kpi-top">
-            <span class="ng-kpi-icon lk">&#10084;&#65039;</span>
-            <span class="ng-kpi-trend pos" id="ngKpiLkTr">&uarr; Live</span>
-          </div>
-          <div class="ng-kpi-val" id="ngKpiLkVal">0</div>
-          <div class="ng-kpi-lbl">Total Likes</div>
-        </div>
-        <div class="ng-kpi-card">
-          <div class="ng-kpi-top">
-            <span class="ng-kpi-icon rt">&#128257;</span>
-            <span class="ng-kpi-trend pos" id="ngKpiRtTr">&uarr; Live</span>
-          </div>
-          <div class="ng-kpi-val" id="ngKpiRtVal">0</div>
-          <div class="ng-kpi-lbl">Total Reposts</div>
-        </div>
-        <div class="ng-kpi-card">
-          <div class="ng-kpi-top">
-            <span class="ng-kpi-icon vw">&#128202;</span>
-            <span class="ng-kpi-trend pos" id="ngKpiVwTr">&uarr; Live</span>
-          </div>
-          <div class="ng-kpi-val" id="ngKpiVwVal">0</div>
-          <div class="ng-kpi-lbl">Total Views</div>
-        </div>
+      <div class="pd-stats">
+        <div class="pd-card pd-main"><div class="pd-lbl">Tweets</div><div class="pd-val" id="ngKpiTwVal">&mdash;</div><div class="pd-per" id="ngKpiTwPer">own posts</div></div>
+        <div class="pd-card"><div class="pd-lbl">Likes</div><div class="pd-val" id="ngKpiLkVal">&mdash;</div><div class="pd-per" id="ngKpiLkPer"></div></div>
+        <div class="pd-card"><div class="pd-lbl">Reposts</div><div class="pd-val" id="ngKpiRtVal">&mdash;</div><div class="pd-per" id="ngKpiRtPer"></div></div>
+        <div class="pd-card"><div class="pd-lbl">Views</div><div class="pd-val" id="ngKpiVwVal">&mdash;</div><div class="pd-per" id="ngKpiVwPer"></div></div>
       </div>
     </div>
 
@@ -12943,8 +12978,136 @@ function renderNarrativeGroupsTable(){
   var pNext = document.getElementById('ngBtnNext');
   if(pPrev) pPrev.disabled = (_ngCurrentPage <= 1);
   if(pNext) pNext.disabled = (_ngCurrentPage >= totalPages);
+  try { renderNgRace(); } catch (e) { console.warn('ng-race', e); }
 }
 window.filterNarrativeGroups = renderNarrativeGroupsTable;
+
+/* ===== ng-race (29-Oct): Narrative Race -- render =====
+   Har group ka ek lane (id se), taaki dobara render par wahi element sarke (FLIP) aur number purane se naye tak gine. */
+var _ngr = { k: 'tweets', c: '#1E88E5', l: 'tweets', prevRank: {}, prevVal: {}, built: false };
+function _ngrFmt(n) { return (typeof fmtNgNum === 'function') ? fmtNgNum(n) : String(Math.round(n)); }
+function _ngrEsc(x) { return String(x == null ? '' : x).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+function _ngrImg(src, handle, name) {
+  var h = _ngrEsc(handle || ''), n = encodeURIComponent(name || handle || '?');
+  return '<img src="' + _ngrEsc(src || ('/api/avatar/' + encodeURIComponent(handle || ''))) + '" alt="" loading="lazy" onerror="if(!this._t&&\'' + h + '\'){this._t=1;this.src=\'/api/avatar/' + encodeURIComponent(handle || '') + '\';}else{this.onerror=null;this.src=\'https://ui-avatars.com/api/?name=' + n + '&background=EEE6DA&color=4B4439&size=64\';}">';
+}
+function _ngrTween(el, from, to, ms) {
+  var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (reduce || from === to) { el.firstChild.nodeValue = _ngrFmt(to); return; }
+  var st = null;
+  requestAnimationFrame(function step(t) {
+    if (!st) st = t; var p = Math.min(1, (t - st) / ms), e = 1 - Math.pow(1 - p, 3);
+    el.firstChild.nodeValue = _ngrFmt(from + (to - from) * e);
+    if (p < 1) requestAnimationFrame(step);
+  });
+}
+function renderNgRace() {
+  var box = document.getElementById('ngRace'), lanes = document.getElementById('ngrLanes');
+  if (!box || !lanes) return;
+  var list = getFilteredNarrativeGroups(), k = _ngr.k, H = 62;
+  var vals = list.map(function (g) { return +((g.stats || {})[k]) || 0; });
+  var max = Math.max.apply(null, vals.concat([0])) || 1, sum = vals.reduce(function (a, b) { return a + b; }, 0);
+  var order = list.map(function (g, i) { return i; }).sort(function (a, b) { return vals[b] - vals[a] || a - b; });
+
+  /* header text */
+  var sel = document.getElementById('ngFilterRange'), lbl = '';
+  try { lbl = sel && sel.options[sel.selectedIndex] ? sel.options[sel.selectedIndex].text : ''; } catch (e) {}
+  var sub = document.getElementById('ngrSub');
+  if (sub) sub.textContent = 'Ranked by ' + _ngr.l + (lbl ? ' · ' + lbl : '') + ' · ' + list.length + ' groups';
+  var foot = document.getElementById('ngrFootL');
+  if (foot) foot.textContent = 'Total ' + _ngr.l + ': ' + _ngrFmt(sum) + '  ·  bar = share of the group in first place';
+  box.style.setProperty('--mc', _ngr.c);
+
+  /* lanes (keyed by group id) */
+  var have = {};
+  Array.prototype.forEach.call(lanes.children, function (el) { have[el.dataset.id] = el; });
+  var keep = {};
+  lanes.style.height = (list.length * H) + 'px';
+  order.forEach(function (gi, pos) {
+    var g = list[gi], v = vals[gi], el = have[g.id], fresh = !el;
+    keep[g.id] = 1;
+    if (fresh) {
+      el = document.createElement('div');
+      el.className = 'ngr-lane in'; el.dataset.id = g.id;
+      el.style.setProperty('--gc', g.color || '#E65100'); el.style.setProperty('--i', pos);
+      el.onclick = function () { openNarrativeGroup(g.id); };
+      var mem = (g.leaders || []).slice(0, 4).map(function (m) { return _ngrImg(m.avatar, m.handle, m.name); }).join('');
+      var extra = (g.leaders || []).length - 4;
+      el.innerHTML = '<div class="ngr-rk"></div>'
+        + '<div class="ngr-who"><div class="ngr-lg">' + _ngrImg(g.logoUrl, g.handle, g.acronym) + '</div>'
+        + '<div style="min-width:0"><div class="ngr-acr">' + _ngrEsc(g.acronym) + ' <span class="ngr-mv"></span></div><div class="ngr-full">' + _ngrEsc(g.name) + '</div></div></div>'
+        + '<div class="ngr-track"><div class="ngr-fill"></div><div class="ngr-val">0<span class="ngr-share"></span></div><div class="ngr-zero" style="display:none">No activity in this range</div></div>'
+        + '<div class="ngr-memcol"><div class="ngr-mem">' + mem + (extra > 0 ? '<span class="more">+' + extra + '</span>' : '') + '</div>'
+        + '<div class="ngr-cnt">' + (g.leaders || []).length + ' members</div></div>';
+      el.style.transform = 'translateY(' + (pos * H) + 'px)';
+      lanes.appendChild(el);
+    }
+    el.style.transform = 'translateY(' + (pos * H) + 'px)';
+    el.classList.toggle('lead', pos === 0 && v > 0);
+    el.classList.toggle('dim', v === 0);
+    el.querySelector('.ngr-rk').textContent = pos + 1;
+    /* rank movement since the last render */
+    var mv = el.querySelector('.ngr-mv'), prev = _ngr.prevRank[g.id];
+    if (_ngr.built && prev != null && prev !== pos && v > 0) {
+      var d = prev - pos;
+      mv.className = 'ngr-mv show ' + (d > 0 ? 'up' : 'dn');
+      mv.textContent = (d > 0 ? '▲' : '▼') + Math.abs(d);
+    } else { mv.className = 'ngr-mv'; mv.textContent = ''; }
+    _ngr.prevRank[g.id] = pos;
+    /* bar + value */
+    var pct = v ? Math.max(v / max * 100, 2) : 0, inside = pct > 26;
+    el.querySelector('.ngr-fill').style.width = pct + '%';
+    var ve = el.querySelector('.ngr-val'), z = el.querySelector('.ngr-zero');
+    ve.style.display = v ? '' : 'none'; z.style.display = v ? 'none' : '';
+    if (inside) { ve.style.left = 'auto'; ve.style.right = 'calc(' + (100 - pct) + '% + 12px)'; }
+    else { ve.style.right = 'auto'; ve.style.left = 'calc(' + pct + '% + 10px)'; }
+    ve.style.color = inside ? '#fff' : (g.color || '#1B1712');
+    ve.querySelector('.ngr-share').textContent = sum && v ? (v * 100 / sum).toFixed(1) + '%' : '';
+    _ngrTween(ve, _ngr.prevVal[g.id] || 0, v, 950);
+    _ngr.prevVal[g.id] = v;
+  });
+  Array.prototype.forEach.call(Array.prototype.slice.call(lanes.children), function (el) { if (!keep[el.dataset.id]) el.remove(); });
+
+  /* spotlight = #1 */
+  var spot = document.getElementById('ngrSpot');
+  if (spot) {
+    var tg = list[order[0]], tv = tg ? vals[order[0]] : 0;
+    if (!tg || !tv) {
+      spot.className = 'ngr-spot empty';
+      spot.innerHTML = '<div class="ngr-crown">No leader yet</div><div style="margin-top:auto;font:700 20px Rajdhani,sans-serif">No ' + _ngr.l + ' in this range</div>'
+        + '<div class="ngr-spot-lbl">Try a longer date range (e.g. 7 Days or Full Range).</div>';
+    } else {
+      var sv = order.length > 1 ? vals[order[1]] : 0, sg = order.length > 1 ? list[order[1]] : null;
+      var lead = sv ? ('Leads ' + _ngrEsc(sg.acronym) + ' by ' + (tv / sv >= 2 ? (tv / sv).toFixed(1) + '×' : _ngrFmt(tv - sv))) : 'Only group with ' + _ngr.l + ' here';
+      spot.className = 'ngr-spot';
+      spot.style.setProperty('--sc', tg.color || '#E65100');
+      spot.onclick = function () { openNarrativeGroup(tg.id); }; spot.style.cursor = 'pointer';
+      spot.innerHTML = '<div class="ngr-crown">&#9733; #1 by ' + _ngr.l + '</div>'
+        + '<div class="ngr-spot-logo">' + _ngrImg(tg.logoUrl, tg.handle, tg.acronym) + '</div>'
+        + '<div class="ngr-spot-name">' + _ngrEsc(tg.acronym) + '</div><div class="ngr-spot-full">' + _ngrEsc(tg.name) + '</div>'
+        + '<div class="ngr-spot-val">0</div><div class="ngr-spot-lbl">' + _ngr.l + ' · ' + (sum ? (tv * 100 / sum).toFixed(1) : 0) + '% of all groups</div>'
+        + '<div class="ngr-spot-lead">' + lead + '</div>';
+      _ngrTween(spot.querySelector('.ngr-spot-val'), 0, tv, 1100);
+    }
+  }
+  box.classList.remove('shine'); void box.offsetWidth; box.classList.add('shine');
+  _ngr.built = true;
+
+  /* metric switch pill */
+  var seg = document.getElementById('ngrSeg');
+  if (seg) {
+    var b = seg.querySelector('[data-k="' + k + '"]'), pill = seg.querySelector('.ngr-pill');
+    seg.querySelectorAll('button').forEach(function (x) { x.classList.toggle('on', x === b); });
+    if (b && pill) { pill.style.left = b.offsetLeft + 'px'; pill.style.width = b.offsetWidth + 'px'; }
+    if (!seg._wired) {
+      seg._wired = 1;
+      seg.querySelectorAll('button').forEach(function (x) {
+        x.onclick = function () { _ngr.k = x.dataset.k; _ngr.c = x.dataset.c; _ngr.l = x.dataset.l; renderNgRace(); };
+      });
+    }
+  }
+}
+window.renderNgRace = renderNgRace;
 
 function changeNgPage(delta){
   _ngCurrentPage += delta;
@@ -12993,7 +13156,7 @@ function openNarrativeGroup(id){
   var bd = document.getElementById('ngHeroBadge');
   if(bd){
     bd.textContent = g.category;
-    bd.className = 'ng-pill ' + (g.category === 'Political Group' ? 'ng-pill-pol' : (g.category === 'Student Wing' ? 'ng-pill-stu' : (g.category === 'Political Wing' ? 'ng-pill-wing' : 'ng-pill-ind')));
+    bd.className = 'ph-badge';
   }
   var hdlTxt = document.getElementById('ngHeroHandleText');
   var hdlLnk = document.getElementById('ngHeroHandle');
@@ -13029,6 +13192,7 @@ function openNarrativeGroup(id){
   if(rtV) rtV.textContent = fmtNgNum(g.stats.rts);
   var vwV = document.getElementById('ngKpiVwVal');
   if(vwV) vwV.textContent = fmtNgNum(g.stats.views);
+  ngHeroExtras(g);
 
   // Render Charts & Cards
   renderGroupMemberRoster(g.leaders || []);
@@ -13038,6 +13202,19 @@ function openNarrativeGroup(id){
   renderGroupMembersCards(g.leaders || []);
 }
 window.openNarrativeGroup = openNarrativeGroup;
+/* option-d (29-Oct): banner ka rang = group ka rang; har card ke neeche per-tweet, aur Tweets card par chuni
+   hui range -- taaki "0" ka matlab saaf ho (jaise aaj ka koi tweet nahi). */
+function ngHeroExtras(g) {
+  var hc = document.getElementById('ngHeroCard'); if (hc && g.color) hc.style.setProperty('--pc', g.color);
+  var st = g.stats || {}, tw = +st.tweets || 0;
+  function per(id, v) { var e = document.getElementById(id); if (e) e.innerHTML = tw ? '<b>' + Math.round((+v || 0) / tw).toLocaleString('en-IN') + '</b> per tweet' : '&mdash;'; }
+  per('ngKpiLkPer', st.likes); per('ngKpiRtPer', st.rts); per('ngKpiVwPer', st.views);
+  var sel = document.getElementById('ngFilterRange'), lbl = '';
+  try { lbl = sel && sel.options[sel.selectedIndex] ? sel.options[sel.selectedIndex].text : ''; } catch (e) {}
+  var t = document.getElementById('ngKpiTwPer');
+  if (t) t.textContent = 'own posts' + (lbl ? ' \u00b7 ' + lbl : '') + ' \u00b7 ' + (g.leaders || []).length + ' members';
+}
+window.ngHeroExtras = ngHeroExtras;
 
 function closeNarrativeGroup(){
   _ngActiveGroup = null;
@@ -14554,6 +14731,34 @@ var _partyCompDays = 'today';
 var _partyCompSentiment = 'all';
 var _partyCompFreq = 'daily';
 var _partyActiveHandles = [];
+/* option-d (29-Oct): party ka rang -- PARTY_CONFIGS, phir dashboard ka PCOL / PCOLORS, warna neutral slate
+   (pehle har anjaan party BJP jaisi saffron dikhti thi). */
+function partyColorOf(p) {
+  if (PARTY_CONFIGS[p] && PARTY_CONFIGS[p].color) return PARTY_CONFIGS[p].color;
+  try { if (typeof PCOL !== 'undefined' && PCOL[p]) return PCOL[p]; } catch (e) {}
+  try { if (typeof PCOLORS !== 'undefined' && PCOLORS[p]) return PCOLORS[p]; } catch (e) {}
+  return '#475569';
+}
+/* party-pins (29-Oct): party ke key leaders -- Directory me sabse upar (isi kram me) aur
+   Leader Comparison me shuru se chune hue. Baaki handle tweets ke hisaab se (max -> low).
+   Jo party yahan nahi hai uska pehle jaisa (sirf tweets se). */
+var PARTY_PINNED = { BJP: ['narendramodi', 'amitshah', 'NitinNabin', 'myogiadityanath'] };
+var PARTY_DEFAULT_COMPARE = { BJP: ['narendramodi', 'amitshah', 'myogiadityanath'] };
+function pinnedFirst(handles, pins) {
+  if (!pins || !pins.length) return handles.slice();
+  var used = {}, top = [];
+  pins.forEach(function (p) {
+    var k = String(p).toLowerCase();
+    for (var i = 0; i < handles.length; i++) {
+      if (!used[i] && String(handles[i].handle).toLowerCase() === k) { used[i] = 1; top.push(handles[i]); return; }
+    }
+  });
+  return top.concat(handles.filter(function (_, i) { return !used[i]; }));
+}
+function isPinnedLeader(party, handle) {
+  var k = String(handle).toLowerCase();
+  return (PARTY_PINNED[party] || []).some(function (p) { return String(p).toLowerCase() === k; });
+}
 var _partyOverviewDonut = null;
 var _partyCompLineChart = null;
 var _partyCompDonutChart = null;
@@ -14642,7 +14847,7 @@ function openPartyDetail(partyName) {
   if (detailView) detailView.style.display = 'block';
 
   var cfg = PARTY_CONFIGS[partyName] || {
-    name: partyName, fullName: partyName, color: '#E65100',
+    name: partyName, fullName: partyName, color: partyColorOf(partyName),
     badge: 'Recognized Party', badgeBg: 'rgba(230,81,0,0.12)', badgeColor: '#E65100',
     links: [], desc: 'Official leadership engagement and analytics.'
   };
@@ -14675,11 +14880,12 @@ function openPartyDetail(partyName) {
     }
   }
 
+  var _hc = document.getElementById('partyHeroCard'); if (_hc) _hc.style.setProperty('--pc', cfg.color);
   var nm = document.getElementById('partyHeroName');
-  if (nm) nm.textContent = cfg.name + ' ' + cfg.fullName;
+  if (nm) nm.textContent = (cfg.fullName && cfg.fullName !== cfg.name) ? cfg.fullName : cfg.name;
 
   var bdg = document.getElementById('partyHeroBadge');
-  if (bdg) { bdg.innerHTML = cfg.badge; bdg.style.background = cfg.badgeBg; bdg.style.color = cfg.badgeColor; }
+  if (bdg) { bdg.innerHTML = cfg.badge; }
 
   var sub = document.getElementById('partyHeroSub');
   if (sub) sub.textContent = cfg.fullName + ' Official Leadership Roster';
@@ -14710,6 +14916,9 @@ function openPartyDetail(partyName) {
   var lkEl = document.getElementById('heroKpiLk'); if (lkEl) lkEl.textContent = fmtF(totLk);
   var rtEl = document.getElementById('heroKpiRt'); if (rtEl) rtEl.textContent = fmtF(totRt);
   var vwEl = document.getElementById('heroKpiVw'); if (vwEl) vwEl.textContent = fmtF(totVw);
+  function _per(id, v) { var e = document.getElementById(id); if (e) e.innerHTML = totTw ? '<b>' + Math.round(v / totTw).toLocaleString('en-IN') + '</b> per tweet' : '&mdash;'; }
+  _per('heroKpiLkPer', totLk); _per('heroKpiRtPer', totRt); _per('heroKpiVwPer', totVw);
+  var _tws = document.getElementById('heroKpiTwPer'); if (_tws) _tws.textContent = 'own posts \u00b7 ' + partyHandles.length.toLocaleString('en-IN') + ' handles';
 
   switchPartySubTab(_partySubTab || 'overview');
   window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -14773,7 +14982,7 @@ function getPartyHandlesList(partyName) {
 
 function renderPartyOverview() {
   var pName = _activePartyKey;
-  var cfg = PARTY_CONFIGS[pName] || { color: '#E65100' };
+  var cfg = PARTY_CONFIGS[pName] || { color: partyColorOf(pName) };
   var handles = getPartyHandlesList(pName);
 
   var totalHandles = handles.length;
@@ -14786,13 +14995,15 @@ function renderPartyOverview() {
   var rosterList = document.getElementById('partyRosterList');
   if (rosterList) {
     rosterList.innerHTML = '';
-    var topList = handles.slice(0, 15);
+    var topList = pinnedFirst(handles, PARTY_PINNED[pName]).slice(0, 15);
     topList.forEach(function(l) {
+      var _pin = isPinnedLeader(pName, l.handle)
+        ? ' <span style="font-size:9px;font-weight:800;color:#fff;background:' + cfg.color + ';border-radius:6px;padding:1px 6px;margin-left:4px;vertical-align:middle">Key Leader</span>' : '';
       var item = document.createElement('div');
       item.className = 'roster-item';
       item.innerHTML = '<div class="roster-left">'
         + '<img class="roster-avatar" src="/api/avatar/' + l.handle + '" onerror="this.src=\'https://ui-avatars.com/api/?name=' + encodeURIComponent(l.name) + '&background=' + cfg.color.replace('#','') + '&color=fff&size=64\'">'
-        + '<div><div class="roster-name">' + l.name + ' <span style="font-size:10px;font-weight:600;color:#64748B">(' + l.designation + ')</span></div>'
+        + '<div><div class="roster-name">' + l.name + ' <span style="font-size:10px;font-weight:600;color:#64748B">(' + l.designation + ')</span>' + _pin + '</div>'
         + '<div class="roster-handle">@' + l.handle + '</div></div></div>'
         + '<div class="roster-stats"><div>'
         + '<div class="roster-tw">' + fmtF(l.stats.tweets) + ' tw</div>'
@@ -14955,7 +15166,7 @@ function openComparisonWithLeader(handle) {
 // =============================================================================
 function renderLeaderComparison() {
   var pName = _activePartyKey;
-  var cfg = PARTY_CONFIGS[pName] || { color: '#E65100', name: pName, fullName: pName };
+  var cfg = PARTY_CONFIGS[pName] || { color: partyColorOf(pName), name: pName, fullName: pName };
 
   var ttl = document.getElementById('partyCompTitle');
   if (ttl) ttl.textContent = 'Leader Comparison \u2013 ' + cfg.name;
@@ -14964,9 +15175,12 @@ function renderLeaderComparison() {
 
   var handles = getPartyHandlesList(pName);
 
-  // Default: top 3 leaders checked
+  // Default: party ke key leaders (BJP: Modi, Amit Shah, Yogi); na mile to top 3 by tweets
   if (!_partyActiveHandles || !_partyActiveHandles.length) {
-    _partyActiveHandles = handles.slice(0, 3).map(function(l) { return l.handle.toLowerCase(); });
+    var _def = pinnedFirst(handles, PARTY_DEFAULT_COMPARE[pName]).slice(0, (PARTY_DEFAULT_COMPARE[pName] || []).length || 3)
+      .filter(function (l) { return !PARTY_DEFAULT_COMPARE[pName] || isPinnedLeader(pName, l.handle); });
+    if (!_def.length) _def = handles.slice(0, 3);
+    _partyActiveHandles = _def.map(function(l) { return l.handle.toLowerCase(); });
   }
 
   renderPartyLeaderCardsRow(handles, cfg);
@@ -14980,11 +15194,11 @@ function renderPartyLeaderCardsRow(handles, cfg) {
 
   var colors = ['#E65100', '#1D4ED8', '#059669', '#7C3AED', '#E11D48', '#D97706'];
 
-  // Top 4 leaders by tweets
-  var displayLeaders = handles.slice(0, 4);
+  // Top 4 cards: party ke key leaders pehle, phir tweets ke hisaab se
+  var displayLeaders = pinnedFirst(handles, PARTY_PINNED[_activePartyKey]).slice(0, 4);
 
   // If user selected extra leaders beyond the top 4, also show them
-  handles.slice(4).forEach(function(l) {
+  handles.forEach(function(l) {
     var hKey = l.handle.toLowerCase();
     if (_partyActiveHandles.includes(hKey) && !displayLeaders.includes(l)) {
       displayLeaders.push(l);
@@ -15043,7 +15257,7 @@ function togglePartyLeader(hKey) {
   }
 
   var handles = getPartyHandlesList(_activePartyKey);
-  var cfg = PARTY_CONFIGS[_activePartyKey] || { color: '#E65100' };
+  var cfg = PARTY_CONFIGS[_activePartyKey] || { color: partyColorOf(_activePartyKey) };
   renderPartyLeaderCardsRow(handles, cfg);
   fetchAndRenderPartyComparisonChart();
 }
@@ -15055,7 +15269,7 @@ function switchPartyMetric(metric) {
     p.classList.toggle('active', p.getAttribute('data-metric') === metric);
   });
   var handles = getPartyHandlesList(_activePartyKey);
-  var cfg = PARTY_CONFIGS[_activePartyKey] || { color: '#E65100' };
+  var cfg = PARTY_CONFIGS[_activePartyKey] || { color: partyColorOf(_activePartyKey) };
   renderPartyLeaderCardsRow(handles, cfg);
   fetchAndRenderPartyComparisonChart();
 }
@@ -15387,7 +15601,7 @@ function filterPartyModalLeaders(query) {
   var matches = handles.filter(function(l) {
     if (!query) return true;
     return l.name.toLowerCase().includes(query) || l.handle.toLowerCase().includes(query) || (l.designation || '').toLowerCase().includes(query);
-  }).slice(0, 40);
+  }).slice(0, 100);
 
   if (!matches.length) {
     list.innerHTML = '<div style="text-align:center;padding:24px;color:#94A3B8;font-size:12px">No leaders matched your search.</div>';
