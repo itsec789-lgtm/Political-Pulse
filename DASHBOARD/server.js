@@ -827,7 +827,7 @@ function removedSet() {
   } catch (e) { return _rm || Object.create(null); }
 }
 
-function mapGate(map) {
+function mapGate(map, scope) {
   var st;
   try { st = MAPL.stats(); } catch (e) { st = null; }
   var nMap = st ? (st.handles || st.count || 0) : 0;
@@ -938,6 +938,18 @@ function mapGate(map) {
               || v.toLowerCase() === 'na' || v.toLowerCase() === 'n/a') ? '' : v;
     }
     var _ct = Object.create(null);     /* cat-cards (13-Oct) */
+    /* up-scope (29-Oct): UP dashboard ke category / CM cards pehle POORI India ki mapping
+       se gine jaate the (LS MP 569 handles, Chief Ministers 31). Ab UP par sirf wo handle
+       jinki mapping state Uttar Pradesh hai, ya jo UP roster (allHandles) me hain. */
+    var _upRoster = null;
+    if (scope === 'up') {
+      _upRoster = Object.create(null);
+      try { (map.UNI.allHandles || []).forEach(function (r) { _upRoster[String((r && r.h) || '').toLowerCase()] = 1; }); } catch (e) {}
+    }
+    function _inScope(k, rec) {
+      if (!_upRoster) return true;
+      return _real(rec && rec.state) === 'Uttar Pradesh' || !!_upRoster[String(k).toLowerCase()];
+    }
     Object.keys(_mm).forEach(function (k) {
       var rec = _mm[k] || {};
       var low = String(k).toLowerCase();
@@ -960,7 +972,7 @@ function mapGate(map) {
          Ek aadmi do Category me ho sakta hai (Yogi: MLA + Top Leaders),
          isliye list. Alias entry (wahi handle, doosre case me) ko ginti
          me nahi lete -- warna ek hi aadmi do baar gin jaata. */
-      if (!rec.alias_of) {
+      if (!rec.alias_of && _inScope(k, rec)) {
         var _cs = Array.isArray(rec.categories) ? rec.categories.slice()
                 : (_real(rec.category) ? [_real(rec.category)] : []);
         _cs = _cs.map(function (c) { return _real(c); }).filter(Boolean);
@@ -1249,7 +1261,7 @@ function mapGate(map) {
       var _as = Object.create(null);
       Object.keys(_mm).forEach(function (k) {
         var rec = _mm[k] || {};
-        if (rec.alias_of) return;
+        if (rec.alias_of || !_inScope(k, rec)) return;
         var ls = rec.levels || [];
         if (ls.indexOf('CM') >= 0) _row(_as, 'Chief Minister').map++;
         if (ls.indexOf('Dy CM') >= 0) _row(_as, 'Dy CM').map++;
@@ -1707,7 +1719,7 @@ async function buildDashBase(scope) {
   try { map['MJAGG'] = await mjAgg(); } catch (e) { map['MJAGG'] = {}; }
 
   /* map-gate : Mapping.xlsx se hataye gaye handle yahan nikal jaate hain */
-  var _gate = mapGate(map);
+  var _gate = mapGate(map, scope);
   if (map.__catRange) { _CATRANGE[scope] = map.__catRange; _CATRANGE[scope].ver = Date.now(); }
   if (_gate.on && _gate.dropped) {
     console.log('  map-gate: ' + _gate.dropped + ' handle mapping me nahi hain -- '
