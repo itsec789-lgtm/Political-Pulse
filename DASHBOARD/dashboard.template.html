@@ -3977,6 +3977,9 @@ a.pe-btn:after{content:"";position:absolute;inset:0;z-index:1;background:linear-
     .pd-row{display:flex;align-items:center;gap:18px;position:relative;z-index:1;flex-wrap:wrap}
     .pd-row .ph-logo-circle{width:74px;height:74px;border-radius:50%;background:#fff;flex:none;display:flex;align-items:center;justify-content:center;
       box-shadow:0 0 0 5px rgba(255,255,255,.24),0 8px 18px -8px rgba(0,0,0,.45);font-family:Rajdhani;font-weight:700;color:var(--pc);overflow:hidden}
+    /* logo-fit (29-Oct): party logo poora dikhe -- gol frame ke andar contain + padding, image par gol crop nahi */
+    #partyHeroLogo{width:84px;height:84px;padding:12px!important;box-sizing:border-box}
+    #partyHeroLogo img{width:100%!important;height:100%!important;object-fit:contain!important;border-radius:0!important;display:block}
     .pd-info{min-width:0;flex:1 1 320px}
     .pd-title{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
     .pd-title .ph-name{font-family:Rajdhani;font-weight:700;font-size:28px;line-height:1.05;color:#fff}
