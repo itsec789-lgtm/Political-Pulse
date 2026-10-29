@@ -528,7 +528,13 @@ def main():
     _CODE_RE = _re2.compile(r'^(AC|PC)[_\s-]?\d+$', _re2.I)
     code_learn = {}          # purane handle ka AC/PC No raw file se seekh lo
     today = datetime.date.today()
+    _ig = 0
     for f, mt, sz in newf:
+        # Instagram export (same Toolkit folder me aate hain) Twitter dashboard ka data nahi --
+        # pehle har run me 876 files "ERROR read" deti thi aur agle run me phir padhi jaati thi.
+        # Ab ek baar 'processed' mark (skip=instagram); chahiye to --rescan.
+        if '_instagram_' in os.path.basename(f).lower():
+            state["processed"][f] = {"mtime": mt, "size": sz, "skip": "instagram"}; _ig += 1; continue
         try:
             df, um = P2.read_map_file(f, mp, DATE_FROM, today)
         except Exception as e:
@@ -574,6 +580,8 @@ def main():
         added += len(df)
         log("  %-46s +%d rows" % (os.path.basename(f)[:46], len(df)))
 
+    if _ig:
+        log("  %d Instagram export file(s) skip -- Twitter dashboard me nahi aate (ek baar mark)." % _ig)
     # audit-fix A2/A4/A5/A14 : save_state ab push ke BAAD hoti hai (neeche dekho)
     if code_learn:
         for h, cd in code_learn.items():

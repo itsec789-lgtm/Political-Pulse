@@ -7086,7 +7086,7 @@ window.renderSentChart=function(){sentChartByParty('sentChart',partyRows(sState)
 window.renderSentimentTab=function(){var body=document.getElementById('sentLeadersBody');if(!body)return;var X=window.SENTX;var arr=UNI.allHandles.filter(function(h){return sState==='ALL'||h.state===sState;});arr=arr.filter(function(h){return X.tot(h)>=20;}).sort(function(a,b){return X.tot(b)-X.tot(a);}).slice(0,12);if(!arr.length){body.innerHTML='<tr><td colspan="13" style="text-align:center;color:var(--muted);padding:16px">No handle with enough tweets in this selection</td></tr>';return;}body.innerHTML=arr.map(function(h,i){var t=X.tot(h);var cells=X.CATS.map(function(c){return '<td><span class="nv" style="color:'+c.c+'">'+X.n(h,c.k).toLocaleString('en-IN')+'</span></td>';}).join('');return '<tr><td><span class="rank">'+(i+1)+'</span></td>'+'<td style="font-size:10px;color:var(--muted)">@'+esc(h.h)+'</td>'+'<td><div style="font-weight:700;font-size:12px">'+esc(h.name)+'</div></td>'+'<td><span class="party-chip" style="background:'+pc(h.party)+'18;color:'+pc(h.party)+'">'+esc(h.party)+'</span></td>'+cells+'<td><span style="font-family:Rajdhani;font-weight:700;font-size:14px">'+t.toLocaleString('en-IN')+'</span></td></tr>';}).join('');};
 window.upSent=function(v){sState=v;setSentOverview(v);window.renderSentChart();window.renderSentimentTab();try{renderSentTrend();}catch(e){}};
 window.renderDashboard=function(){const b=document.getElementById('tweetsBody');if(!b)return;b.innerHTML=UNI.viral.slice(0,12).map((t,i)=>'<tr><td><span class="rank">'+(i+1)+'</span></td><td><div style="font-weight:700;font-size:12px">'+esc(t.name)+'</div><div style="font-size:10px;color:var(--muted)">@'+esc(t.h)+'</div></td><td style="max-width:250px;font-size:11px;line-height:1.5">'+esc((t.text||'').slice(0,120))+'…</td><td><span class="party-chip" style="background:'+pc(t.party)+'18;color:'+pc(t.party)+'">'+esc(t.party)+'</span></td><td><span style="font-size:9px;color:var(--muted);background:#f4f2ee;border-radius:6px;padding:2px 7px">'+esc(t.state||'—')+'</span></td><td>'+sbadge(t.sent)+'</td><td><span class="nv" style="color:#B71C1C">'+uf(t.lk)+'</span></td><td><span class="nv" style="color:#1B5E20">'+uf(t.rt)+'</span></td><td><span class="nv" style="color:#4A148C">'+uf(t.vw)+'</span></td></tr>').join('')}
-window.filterViralTweets=function(F,T){var b=document.getElementById('tweetsBody');if(!b)return;var nd=function(s){if(!s)return '';s=''+s;if(/^\d{4}-\d{2}-\d{2}$/.test(s))return s;var m=s.match(/^(\d{2})-(\d{2})-(\d{4})$/);return m?m[3]+'-'+m[2]+'-'+m[1]:s;};var arr=UNI.viral.filter(function(x){var dd=nd(x.date);return (!F||dd>=F)&&(!T||dd<=T);}).sort(function(a,b2){return b2.vw-a.vw;});if(!arr.length){b.innerHTML='<tr><td colspan="9" style="text-align:center;color:var(--muted);padding:16px">No viral tweet in this date range</td></tr>';return;}b.innerHTML=arr.slice(0,12).map(function(t,i){return '<tr><td><span class="rank">'+(i+1)+'</span></td><td><div style="font-weight:700;font-size:12px">'+esc(t.name)+'</div><div style="font-size:10px;color:var(--muted)">@'+esc(t.h)+'</div></td><td style="max-width:250px;font-size:11px;line-height:1.5">'+esc((t.text||'').slice(0,120))+'\u2026</td><td><span class="party-chip" style="background:'+pc(t.party)+'18;color:'+pc(t.party)+'">'+esc(t.party)+'</span></td><td><span style="font-size:9px;color:var(--muted);background:#f4f2ee;border-radius:6px;padding:2px 7px">'+esc(t.state||'\u2014')+'</span></td><td>'+sbadge(t.sent)+'</td><td><span class="nv" style="color:#B71C1C">'+uf(t.lk)+'</span></td><td><span class="nv" style="color:#1B5E20">'+uf(t.rt)+'</span></td><td><span class="nv" style="color:#4A148C">'+uf(t.vw)+'</span></td></tr>';}).join('');};
+window.filterViralTweets=function(F,T){var b=document.getElementById('tweetsBody');if(!b)return;var nd=function(s){if(!s)return '';s=''+s;if(/^\d{4}-\d{2}-\d{2}$/.test(s))return s;var m=s.match(/^(\d{2})-(\d{2})-(\d{4})$/);return m?m[3]+'-'+m[2]+'-'+m[1]:s;};var _vp=((document.getElementById('dashParty')||{}).value)||'all';/* metrics_lib: viral bhi party filter maane */var arr=UNI.viral.filter(function(x){var dd=nd(x.date);if(_vp!=='all'&&(window.PM?PM.party(x.h):x.party)!==_vp)return false;return (!F||dd>=F)&&(!T||dd<=T);}).sort(function(a,b2){return b2.vw-a.vw;});if(!arr.length){b.innerHTML='<tr><td colspan="9" style="text-align:center;color:var(--muted);padding:16px">No viral tweet in this date range</td></tr>';return;}b.innerHTML=arr.slice(0,12).map(function(t,i){return '<tr><td><span class="rank">'+(i+1)+'</span></td><td><div style="font-weight:700;font-size:12px">'+esc(t.name)+'</div><div style="font-size:10px;color:var(--muted)">@'+esc(t.h)+'</div></td><td style="max-width:250px;font-size:11px;line-height:1.5">'+esc((t.text||'').slice(0,120))+'\u2026</td><td><span class="party-chip" style="background:'+pc(t.party)+'18;color:'+pc(t.party)+'">'+esc(t.party)+'</span></td><td><span style="font-size:9px;color:var(--muted);background:#f4f2ee;border-radius:6px;padding:2px 7px">'+esc(t.state||'\u2014')+'</span></td><td>'+sbadge(t.sent)+'</td><td><span class="nv" style="color:#B71C1C">'+uf(t.lk)+'</span></td><td><span class="nv" style="color:#1B5E20">'+uf(t.rt)+'</span></td><td><span class="nv" style="color:#4A148C">'+uf(t.vw)+'</span></td></tr>';}).join('');};
 function sbadge(s){var c=window.SENTX.of(s);return '<span class="sent-badge" style="background:'+c.c+'1e;color:'+c.c+'">'+c.label+'</span>';}
 // populate state dropdowns
 function fillStateSel(id,allLbl){const s=document.getElementById(id);if(!s)return;s.innerHTML='<option value="ALL">'+allLbl+'</option>'+STATES.map(st=>'<option value="'+esc(st)+'">'+esc(st)+'</option>').join('')}
@@ -7569,12 +7569,15 @@ const GROWTH="__MONGO_GROWTH__";try{window.GROWTH=GROWTH;}catch(e){}
    var eng=tot.k+tot.r;var erate=tot.v?(eng/tot.v*100):0;
    function kcard(ic,val,lbl,col){return '<div class="kpi" style="--ka:'+col+'"><div style="display:flex;align-items:center;gap:7px;color:'+col+'"><span style="font-size:14px">'+ic+'</span><div class="kpi-val" style="font-size:22px">'+val+'</div></div><div class="kpi-lbl">'+lbl+'</div></div>';}
    var kk=document.getElementById('homeKpis');
-   if(kk)kk.innerHTML=kcard('🐦',uf2(tot.t),'Total Tweets','#1DA1F2')+kcard('👁',uf2(tot.v),'Impressions','#4A148C')+kcard('❤️',uf2(tot.k),'Likes','#E0245E')+kcard('🔁',uf2(tot.r),'Retweets','#17BF63')+kcard('👥',uf2(tot.f),'Followers','#E65100')+kcard('⚡',erate.toFixed(2)+'%','Engagement Rate','#794BC4');
+   if(kk)kk.innerHTML=kcard('🐦',uf2(tot.t),'Total Tweets','#1DA1F2')+kcard('👁',uf2(tot.v),'Impressions','#4A148C')+kcard('❤️',uf2(tot.k),'Likes','#E0245E')+kcard('🔁',uf2(tot.r),'Retweets','#17BF63')+kcard('👥',uf2(tot.f),'Followers','#E65100')+'<div id="homeErCard" style="display:contents">'+kcard('⚡',erate.toFixed(2)+'%','Engagement Rate','#794BC4')+'</div>';
    var A=AS['ALL|ALL'];var labels=AD.map(function(d){return d.slice(5);});
    if(A)hline('hActivity',labels,[{l:'Tweets',d:A.t,c:'#1DA1F2',f:true,y:'y'},{l:'Impressions',d:A.v,c:'#794BC4',y:'y1'}]);
    if(ch.hActivity){} 
    hdonut('hSent',['Neutral','Positive','Negative'],[SENT.neu,SENT.pos,SENT.neg],['#8899A6','#17BF63','#E0245E']);
    if(A){var rate=A.v.map(function(v,i){return v?((A.k[i]+A.r[i])/v*100):0;});hline('hRate',labels,[{l:'Eng Rate %',d:rate,c:'#794BC4',f:true}]);}
+   /* eng-daily (29-Oct): ER = (likes + retweets + comments) / views -- Handle Analytics / Leader analysis jaisa.
+      Comments sirf server ke paas hain, isliye aate hi card + chart dobara. */
+   try{if(window.fetch){var _sc=/^\/up(\/|$)/.test(location.pathname)?'up':'all';fetch('/api/eng-daily?scope='+_sc,{credentials:'same-origin'}).then(function(q){return q.json();}).then(function(j){if(!j||!j.ok)return;var E=j.days||{};var T={lk:0,rt:0,cm:0,vw:0};AD.forEach(function(d){var o=E[d];if(o){T.lk+=o.lk;T.rt+=o.rt;T.cm+=o.cm;T.vw+=o.vw;}});var er=T.vw?((T.lk+T.rt+T.cm)/T.vw*100):0;var c=document.getElementById('homeErCard');if(c)c.innerHTML=kcard('⚡',er.toFixed(2)+'%','Engagement Rate','#794BC4');var rt2=AD.map(function(d){var o=E[d];return o&&o.vw?((o.lk+o.rt+o.cm)/o.vw*100):0;});hline('hRate',labels,[{l:'Eng Rate %',d:rt2,c:'#794BC4',f:true}]);}).catch(function(){});}}catch(e){}
    hdonut('hType',['Likes','Retweets'],[tot.k,tot.r],['#E0245E','#17BF63']);
    var dow=[0,0,0,0,0,0,0],dn=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];if(A)AD.forEach(function(d,i){var wd=new Date(d+'T00:00:00').getDay();dow[wd]+=A.t[i];});
    var dowPairs=[1,2,3,4,5,6,0].map(function(wd){return [dn[wd],dow[wd]];});hbar('hDow',dowPairs,'#1DA1F2',false);
@@ -11613,7 +11616,11 @@ function metrics(x, r) {
     for (var j = 0; j < PD.length; j++) { if (PD[j] >= f0 && PD[j] <= t0) { lk2 += (+P.k[j] || 0); rt2 += (+(P.r || [])[j] || 0); } }
     o.lk = lk2; o.rt = rt2;
   }
-  CATS.forEach(function (cc) { o[cc.k] = Math.round((x.sent[cc.k] || 0) * s); });
+  /* sent-range (29-Oct): range ka ASLI sentiment server se (own posts). Jab tak aa na jaaye,
+     tweet-share wala andaza; aate hi render() dobara chalta hai. */
+  var SP = sentRangeFor(r);
+  if (SP) { var sp = SP[String(x.h).toLowerCase()] || {}; CATS.forEach(function (cc) { o[cc.k] = +sp[cc.k] || 0; }); }
+  else CATS.forEach(function (cc) { o[cc.k] = Math.round((x.sent[cc.k] || 0) * s); });
   _mc[key] = o;
   return o;
 }
@@ -11622,6 +11629,25 @@ function mkFull(x) {
   CATS.forEach(function (cc) { o[cc.k] = x.sent[cc.k] || 0; });
   return o;
 }
+var _sr = { key: '', per: null, busy: '' };
+function sentRangeFor(r) {
+  if (isFull() || !DAYS[r[0]] || !DAYS[r[1]]) return null;
+  var k = DAYS[r[0]] + '|' + DAYS[r[1]];
+  if (_sr.key === k) return _sr.per;
+  if (_sr.busy !== k && W.fetch) {
+    _sr.busy = k;
+    W.fetch('/api/sent-range?from=' + DAYS[r[0]] + '&to=' + DAYS[r[1]], { credentials: 'same-origin' })
+      .then(function (q) { return q.json(); })
+      .then(function (j) {
+        if (_sr.busy !== k) return;
+        _sr.key = k; _sr.per = (j && j.ok) ? j.per : null; _sr.busy = '';
+        if (_sr.per) { _mk = ''; try { render(); } catch (e) {} }
+      })
+      .catch(function () { if (_sr.busy === k) _sr.busy = ''; });
+  }
+  return null;
+}
+function sentExact() { var r = range(); return isFull() || (_sr.per && _sr.key === DAYS[r[0]] + '|' + DAYS[r[1]]); }
 function newRange(r) { var k = r[0] + '-' + r[1]; if (k !== _mk) { _mk = k; _mc = Object.create(null); } }
 
 /* ---------- 6. handles chhanna ---------- */
@@ -11728,7 +11754,7 @@ function cascade() {
 
 /* ---------- 8. KPI card ---------- */
 function card(d, active) {
-  var c = col(d.p), ap = isFull() ? '' : '<span class="pstat-ap">approx.</span>';
+  var c = col(d.p), ap = sentExact() ? '' : '<span class="pstat-ap">approx.</span>';
   var dz = Object.keys(d.desig).sort(function (a, b) { return d.desig[b] - d.desig[a] || (a < b ? -1 : 1); });
   var sum = dz.reduce(function (a, k) { return a + d.desig[k]; }, 0);
   /* Mapping me kai bar 20-25 alag-alag pad hote hain (ek-ek handle wale bhi).
@@ -11957,7 +11983,7 @@ function drawSent(all0, sel) {
   });
   $('pfSentTitle').textContent = sel ? ('Sentiment — ' + sel + ' vs all parties') : 'Sentiment by Party';
   $('pfSentNote').innerHTML = '&#128269; All 8 categories &middot; <strong>' + rangeLabel() + '</strong>' +
-    (isFull() ? '' : ' &middot; <em>over a date range sentiment is split by tweet share (approx.)</em>');
+    (sentExact() ? '' : ' &middot; <em>over a date range sentiment is split by tweet share (approx.)</em>');
 }
 
 /* ---------- 11. ek hi render ---------- */

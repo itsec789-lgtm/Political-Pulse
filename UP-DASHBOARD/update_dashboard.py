@@ -348,6 +348,7 @@ def _top_viral_index(n=400):
     proj = dict({k: 1 for k in cols}, _id=0)
     col = MongoClient(MONGO_URL)['pulse_master']['master_tweets']
     base = {C['state']: SCOPE_STATE} if SCOPE_STATE else {}
+    base[C['text']] = {'$not': re.compile(r'^RT @')}     # metrics_lib: viral = own tweets (repost ke views uske nahi)
     rows = list(col.find(dict(base, **{C['views']: {'$type': 'number'}}), proj).sort(C['views'], -1).limit(n * 4))
     rows += list(col.find(dict(base, **{C['views']: {'$exists': True, '$not': {'$type': 'number'}}}), proj))
     if not rows: return []
@@ -356,6 +357,7 @@ def _top_viral_index(n=400):
         if k not in df.columns: df[k] = ''
     ch = df[cols].fillna('').astype(str)
     ch = ch[ch[C['state']].str.strip() == SCOPE_STATE] if SCOPE_STATE else ch
+    ch = ch[~ch[C['text']].str.startswith('RT @')]
     ch['_vw'] = pd.to_numeric(ch[C['views']].str.replace(',', '', regex=False), errors='coerce').fillna(0)
     allv = ch.drop_duplicates(subset=URL).nlargest(n, '_vw')
     def _num(x):
@@ -390,6 +392,7 @@ def top_viral(csv_path, n=400):
         ch = ch.rename(columns=lambda c: c.strip()).fillna('')
         if SCOPE_STATE:
             ch = ch[ch[C['state']].astype(str).str.strip() == SCOPE_STATE]
+        ch = ch[~ch[C['text']].astype(str).str.startswith('RT @')]   # metrics_lib: viral = own tweets
         if len(ch) == 0: continue
         ch['_vw'] = pd.to_numeric(ch[C['views']].str.replace(',', '', regex=False), errors='coerce').fillna(0)
         frames.append(ch.nlargest(min(n * 2, len(ch)), '_vw'))

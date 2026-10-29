@@ -80,6 +80,20 @@ async function handleSpellings(MP, db, coll, handles) {
   return Array.from(out);
 }
 
+/* Sentiment string -> code. update_dashboard.py ke sent_code() jaisa hi (wahi map). */
+const SENT_CODES = ['probjp', 'antigovt', 'progovt', 'pos', 'neu', 'antibjp', 'neg', 'none'];
+const _SENT_MAP = {
+  probjp: 'probjp', prbjp: 'probjp', bjppro: 'probjp', antibjp: 'antibjp', bjpanti: 'antibjp',
+  progovt: 'progovt', progov: 'progovt', progovernment: 'progovt',
+  antigovt: 'antigovt', antigov: 'antigovt', antigovernment: 'antigovt',
+  positive: 'pos', pos: 'pos', negative: 'neg', neg: 'neg', neutral: 'neu', neu: 'neu',
+  nosentiment: 'none', nosent: 'none', none: 'none', na: 'none', nan: 'none', null: 'none', '': 'none'
+};
+function sentCode(v) {
+  var k = String(v == null ? '' : v).trim().toLowerCase().replace(/[^a-z0-9]+/g, '');
+  return _SENT_MAP[k] || 'none';
+}
+
 /* Ratios -- har jagah ek hi formula. */
 function avgPerPost(total, posts) { return posts ? Math.round((+total || 0) / posts) : 0; }
 function engagementRate(likes, rts, comments, views) {
@@ -92,5 +106,6 @@ module.exports = {
   numExpr: numExpr, sumOf: sumOf,
   addDays: addDays, resolveRange: resolveRange, dateCond: dateCond,
   normHandle: normHandle, handleSpellings: handleSpellings,
+  SENT_CODES: SENT_CODES, sentCode: sentCode,
   avgPerPost: avgPerPost, engagementRate: engagementRate
 };

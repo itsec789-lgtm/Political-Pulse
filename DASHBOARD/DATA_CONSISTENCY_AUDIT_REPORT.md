@@ -70,13 +70,18 @@ To re-run it: `node verify_consistency.js <from> <to> <port> [handles]`. It need
 
 ## 5. What is not fully consistent, and why
 
-- **Parties tab sentiment over a date range** is still estimated from tweet share. There is no per-handle daily sentiment data to use instead. The card says "approx.".
-- **Handle Analytics engagement rate** leaves out rows where engagement is greater than views, because those rows have bad data. Comparisons include all rows.
-- **Home engagement rate** = (likes + retweets) ÷ views. The Home data has no comment counts.
-- **Home, Level donut, CM KPIs and party cards** show the full period and ignore filters by design (they are "current state" views). **Viral tweets** ignore the party filter.
-- **`/api/live` total, admin counts and admin downloads** still include retweets on purpose. They are raw database size and export figures, not dashboard metrics.
-- **Handle Analytics "days" presets** count back from the handle's newest tweet, not from today. This keeps handles with older data from showing empty charts.
-- **The visual check in a signed-in browser is not done.** The test server needs a login, and I didn't enter your credentials.
+Follow-up fixes made on 29 Oct (later the same day):
+- **Parties tab sentiment over a date range** is now the real tweets-only count from the new `/api/sent-range` endpoint (`daily_summary` for older days, live MongoDB for recent ones). The "approx." label only shows while that data is loading.
+- **Viral tweets** now follow the Dashboard party filter. The UP pipeline also leaves retweets out of the viral list, because a retweet carries the original post's views.
+- **Home engagement rate** = (likes + retweets + comments) ÷ views, from the new `/api/eng-daily` endpoint. `daily_summary` now stores comments (`cm` / `rcm`). This is now the same formula as Handle Analytics and Leader Analysis.
+- **Instagram export files** (876 of them in the Toolkit folders) are skipped once and remembered. Previously they failed with "ERROR read" on every pipeline run. They are not imported into the Twitter dashboard.
+
+Still different, deliberately:
+- **Handle Analytics engagement rate** leaves out rows where engagement is greater than views, because those rows have bad data.
+- **Handle Analytics "days" presets** count back from the handle's newest tweet, so handles with older data don't show empty charts.
+- **Home, Level donut, CM KPIs and party cards** always show the full period ("current state" views).
+- **`/api/live` total, admin counts and admin downloads** include retweets. They are raw database size and export figures.
+- **Empty source CSVs** (0 bytes) still log "format samajh nahi aaya". The files have no data to read.
 
 ## 6. Tests performed
 
@@ -84,4 +89,5 @@ To re-run it: `node verify_consistency.js <from> <to> <port> [handles]`. It need
 2. Multi-spelling handles (the main cause of the "17 vs 20" problem).
 3. Total checks: sentiment = hourly = tweets for both scopes, and the `daily_summary` sentiment total = own tweets.
 4. A one-day `daily_summary` test build compared with the live collection before the full rebuild: tweet and retweet counts identical, sentiment reduced to own posts only.
-5. Syntax checks: `node --check` on the server files, `py_compile` on the pipeline files, and a script-level parse of both templates.
+5. Sentiment (per category) and comment totals in `daily_summary` match `master_tweets` for 6 handles over 20–26 Oct.
+6. Syntax checks: `node --check` on the server files, `py_compile` on the pipeline files, and a script-level parse of both templates.

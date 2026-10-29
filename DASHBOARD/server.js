@@ -3888,6 +3888,111 @@ app.get('/api/cat-range', dashGuard, async function (req, res) {
   }
 });
 
+/* sent-range (29-Oct): har handle ka ASLI sentiment (own posts) chune hue din ke liye.
+   Parties tab pehle range me sentiment ko tweet-share se baant-ta tha (approx.).
+   Cutoff se pehle daily_summary (sv=2 -> s = own posts), uske baad live master -- cat-range jaisa. */
+var _srCache = new Map();
+app.get('/api/sent-range', dashGuard, async function (req, res) {
+  res.set('Cache-Control', 'no-store');
+  var f = String(req.query.from || '').slice(0, 10), t = String(req.query.to || '').slice(0, 10);
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(f) || !/^\d{4}-\d{2}-\d{2}$/.test(t) || f > t) {
+    return res.status(400).json({ ok: false, error: 'bad date range' });
+  }
+  var key = f + '|' + t, hit = _srCache.get(key);
+  if (hit && Date.now() - hit.at < 120000) return res.json(hit.v);
+  try {
+    var per = Object.create(null), src = [];
+    function add(h, code, n) {
+      var low = ML.normHandle(h); if (!low || !n) return;
+      var o = per[low] || (per[low] = {});
+      o[code] = (o[code] || 0) + n;
+    }
+    var cut = MP.windowCutoff();
+    var sEnd = t < cut ? t : _prevDay(cut);
+    if (f <= sEnd) {
+      var cli = MP.client();
+      try {
+        await cli.connect();
+        var grp = { _id: '$h' };
+        ML.SENT_CODES.forEach(function (c) { grp[c] = { $sum: { $ifNull: ['$s.' + c, 0] } }; });
+        var rows = await cli.db(MASTER_DB).collection('daily_summary').aggregate([
+          { $match: { d: { $gte: f, $lte: sEnd } } }, { $group: grp }
+        ], { maxTimeMS: 20000, allowDiskUse: true }).toArray();
+        rows.forEach(function (r) { ML.SENT_CODES.forEach(function (c) { add(r._id, c, r[c]); }); });
+        src.push('summary');
+      } finally { try { await cli.close(); } catch (e) {} }
+    }
+    if (t >= cut) {
+      var rf = f > cut ? f : cut;
+      var raw = await onTweets(rf, async function (col, store) {
+        src.push(store);
+        return col.aggregate([
+          { $match: { 'Tweet Date': ML.dateCond(rf, t), 'Tweet Text': NOT_RT } },
+          { $group: { _id: { h: '$Handle', s: '$Sentiment' }, n: { $sum: 1 } } }
+        ], { maxTimeMS: 20000 }).toArray();
+      });
+      (raw || []).forEach(function (r) { add(r._id.h, ML.sentCode(r._id.s), r.n); });
+    }
+    var v = { ok: true, from: f, to: t, per: per, source: src.join('+') };
+    _srCache.set(key, { at: Date.now(), v: v });
+    if (_srCache.size > 100) _srCache.delete(_srCache.keys().next().value);
+    res.json(v);
+  } catch (e) {
+    console.log('  [/api/sent-range] ' + e.message);
+    res.json({ ok: false, error: String(e.message || e).slice(0, 200) });
+  }
+});
+
+/* eng-daily (29-Oct): roz ka own-post likes / retweets / comments / views -- ek hi set se.
+   Home ka Engagement Rate pehle (likes + RT) / views tha, comments ke bina; Handle Analytics
+   aur Leader analysis me comments shaamil the. Ab sab jagah (likes + RT + comments) / views.
+   Scope: all -> Media House / Journalist bahar (dashboard jaisa), up -> sirf Uttar Pradesh. */
+var _edCache = new Map();
+app.get('/api/eng-daily', dashGuard, async function (req, res) {
+  res.set('Cache-Control', 'no-store');
+  var scope = req.query.scope === 'up' ? 'up' : 'all';
+  var hit = _edCache.get(scope);
+  if (hit && Date.now() - hit.at < 600000) return res.json(hit.v);
+  try {
+    var day = Object.create(null);
+    function add(d, lk, rt, cm, vw) {
+      if (!d || d.length !== 10) return;
+      var o = day[d] || (day[d] = { lk: 0, rt: 0, cm: 0, vw: 0 });
+      o.lk += +lk || 0; o.rt += +rt || 0; o.cm += +cm || 0; o.vw += +vw || 0;
+    }
+    var cut = MP.windowCutoff(), sEnd = _prevDay(cut);
+    var mq = scope === 'up' ? { st: 'Uttar Pradesh' } : { cat: { $nin: ['Media House', 'Journalist'] } };
+    var cli = MP.client();
+    try {
+      await cli.connect();
+      var rows = await cli.db(MASTER_DB).collection('daily_summary').aggregate([
+        { $match: Object.assign({ d: { $lte: sEnd } }, mq) },
+        { $group: { _id: '$d',
+            lk: { $sum: { $subtract: ['$lk', { $ifNull: ['$rl', 0] }] } },
+            rt: { $sum: { $subtract: ['$rt', { $ifNull: ['$rr', 0] }] } },
+            cm: { $sum: { $subtract: [{ $ifNull: ['$cm', 0] }, { $ifNull: ['$rcm', 0] }] } },
+            vw: { $sum: { $subtract: ['$vw', { $ifNull: ['$rv', 0] }] } } } }
+      ], { maxTimeMS: 30000, allowDiskUse: true }).toArray();
+      rows.forEach(function (r) { add(r._id, r.lk, r.rt, r.cm, r.vw); });
+    } finally { try { await cli.close(); } catch (e) {} }
+    var lq = scope === 'up' ? { State: 'Uttar Pradesh' } : { Category: { $nin: ['Media House', 'Journalist'] } };
+    var raw = await onTweets(cut, async function (col) {
+      return col.aggregate([
+        { $match: Object.assign({ 'Tweet Date': { $gte: cut }, 'Tweet Text': NOT_RT }, lq) },
+        { $group: { _id: { $substr: ['$Tweet Date', 0, 10] }, lk: ML.sumOf('Total Likes'),
+            rt: ML.sumOf('Total Retweets'), cm: ML.sumOf('Total Comments'), vw: ML.sumOf('Total Views') } }
+      ], { maxTimeMS: 20000 }).toArray();
+    });
+    (raw || []).forEach(function (r) { add(r._id, r.lk, r.rt, r.cm, r.vw); });
+    var v = { ok: true, scope: scope, days: day };
+    _edCache.set(scope, { at: Date.now(), v: v });
+    res.json(v);
+  } catch (e) {
+    console.log('  [/api/eng-daily] ' + e.message);
+    res.json({ ok: false, error: String(e.message || e).slice(0, 200) });
+  }
+});
+
 app.get('/api/tw/top', dashGuard, async function (req, res) {
   res.set('Cache-Control', 'no-store');
   var metric = String(req.query.metric || 'views');

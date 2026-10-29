@@ -44,6 +44,8 @@ WORDS_PER_DAY = 0          # 0 = keep every word of the day (exact Word Cloud co
 TAG_RE = re.compile(r'#[\wऀ-ॣ०-ॿ]+')   # exactly as read_csv_agg
 NEED = sorted(set(U.C.values()))
 PROJ = dict({k: 1 for k in NEED}, _id=0)
+CMT = 'Total Comments'                       # eng-totals (29-Oct): comments bhi summary me
+PROJ[CMT] = 1
 C = U.C
 CODES = U.SENT_CODES
 
@@ -94,16 +96,17 @@ def summarize_day(coll, day):
         if g is None:
             g = groups[key] = {'_id': doc_id(*key), 'h': h, 'd': d, 'st': st, 'pt': pt, 'cat': cat,
                                'tw': 0, 'lk': 0.0, 'rt': 0.0, 'vw': 0.0,
-                               'rc': 0, 'rl': 0.0, 'rv': 0.0, 'rr': 0.0,
+                               'rc': 0, 'rl': 0.0, 'rv': 0.0, 'rr': 0.0, 'cm': 0.0, 'rcm': 0.0,
                                's': {c: 0 for c in CODES}, 'hr': [0] * 24, 'ht': {}, 'last': None}
         lk, rt, vw = num(r.get(C['likes'])), num(r.get(C['rts'])), num(r.get(C['views']))
         sc = U.sent_code(S(r.get(C['sent'])))
-        g['tw'] += 1; g['lk'] += lk; g['rt'] += rt; g['vw'] += vw
+        cm = num(r.get(CMT))
+        g['tw'] += 1; g['lk'] += lk; g['rt'] += rt; g['vw'] += vw; g['cm'] += cm
         # rt-split (27-Oct): tw/lk/rt/vw stay = ALL rows (Nazar reads tw that way). The "RT @"
         # reposts are counted again in rc/rl/rv/rr so builds can use own-posts = tw - rc etc.
         is_rt = S(r.get(C['text'])).startswith('RT @')
         if is_rt:
-            g['rc'] += 1; g['rl'] += lk; g['rv'] += vw; g['rr'] += rt
+            g['rc'] += 1; g['rl'] += lk; g['rv'] += vw; g['rr'] += rt; g['rcm'] += cm
         # metrics_lib (29-Oct): s / hr / ht / words = OWN posts only (sv=2). Repost ka sentiment,
         # ghanta aur hashtag us handle ka apna nahi -- pehle ye tweet KPI se mel nahi khaate the.
         if not is_rt:
@@ -143,6 +146,7 @@ def summarize_day(coll, day):
     for g in groups.values():
         g['lk'], g['rt'], g['vw'] = int(g['lk']), int(g['rt']), int(g['vw'])
         g['rl'], g['rv'], g['rr'] = int(g['rl']), int(g['rv']), int(g['rr'])
+        g['cm'], g['rcm'] = int(g['cm']), int(g['rcm'])
         if not any(g['hr']):
             del g['hr']
         if not g['ht']:
