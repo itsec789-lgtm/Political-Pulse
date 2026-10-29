@@ -1,0 +1,369 @@
+[
+  {
+    "id": "cjp",
+    "name": "Cockroach Janta Party",
+    "subtitle": "Cockroach Janta Party Official",
+    "acronym": "CJP",
+    "category": "Political Group",
+    "color": "#FF5722",
+    "website": "https://x.com/Cockroachisback",
+    "handle": "Cockroachisback",
+    "desc": "Cockroach Janta Party (CJP) is a people's movement focused on constitutional values, social justice and democratic rights.",
+    "handles": [
+      "Cockroachisback",
+      "CJP_is_back",
+      "abhijeet_dipke",
+      "SauravDassss",
+      "AshutoshRanka",
+      "Aafreen_Nawazz",
+      "VijayMallangi",
+      "AjinkyaCJP",
+      "Ankitrevolution",
+      "rohan_ad",
+      "deepakbaliyan90",
+      "whattalawyer",
+      "Vaishnavii_gaur",
+      "mehrpasr",
+      "neha_aisa"
+    ],
+    "leaders": [
+      {
+        "name": "Abhijeet Dipke",
+        "handle": "abhijeet_dipke",
+        "role": "Founder & Convenor - Cockroach Janta Party",
+        "url": "https://x.com/abhijeet_dipke",
+        "avatar": "https://pbs.twimg.com/profile_images/2080997334398140416/rPBE_IDp_400x400.jpg"
+      },
+      {
+        "name": "Saurav Das",
+        "handle": "SauravDassss",
+        "role": "Co-convenor, Cockroach Janta Party",
+        "url": "https://x.com/SauravDassss",
+        "avatar": "https://pbs.twimg.com/profile_images/2083298231543332864/HxyD--mh_400x400.jpg"
+      },
+      {
+        "name": "Ashutosh Ranka",
+        "handle": "AshutoshRanka",
+        "role": "Co-Convener, CJP",
+        "url": "https://x.com/AshutoshRanka",
+        "avatar": "https://pbs.twimg.com/profile_images/2085309653882392576/A3JP8qaX_400x400.jpg"
+      },
+      {
+        "name": "Aafreen",
+        "handle": "Aafreen_Nawazz",
+        "role": "National Secretary - Cockroach Janta Party",
+        "url": "https://x.com/Aafreen_Nawazz",
+        "avatar": "https://pbs.twimg.com/profile_images/2108559377443721216/enV1jZZq_400x400.jpg"
+      },
+      {
+        "name": "Ratna Singh",
+        "handle": "whattalawyer",
+        "role": "Legal Affairs Head CJP",
+        "url": "https://x.com/whattalawyer",
+        "avatar": "https://pbs.twimg.com/profile_images/2083251038954635264/Bmb86pTw_400x400.jpg"
+      },
+      {
+        "name": "Ajinkya Shinde",
+        "handle": "AjinkyaCJP",
+        "role": "National Organisation In-charge CJP",
+        "url": "https://x.com/AjinkyaCJP",
+        "avatar": "https://pbs.twimg.com/profile_images/2085708325426233344/EyBlyqQz_400x400.jpg"
+      },
+      {
+        "name": "Vijay Mallangi",
+        "handle": "VijayMallangi",
+        "role": "Media & South Zone Lead CJP",
+        "url": "https://x.com/VijayMallangi",
+        "avatar": "https://pbs.twimg.com/profile_images/2048882062283939840/gdi5dpRb_400x400.jpg"
+      },
+      {
+        "name": "Ankit Bhardwaj",
+        "handle": "Ankitrevolution",
+        "role": "East & North-East Zonal Lead",
+        "url": "https://x.com/Ankitrevolution",
+        "avatar": "https://pbs.twimg.com/profile_images/2089175063564271616/qmUgewI0_400x400.jpg"
+      },
+      {
+        "name": "Rohan",
+        "handle": "rohan_ad",
+        "role": "Technology Lead CJP",
+        "url": "https://x.com/rohan_ad",
+        "avatar": "https://pbs.twimg.com/profile_images/2079384679984267264/0HmRtHkq_400x400.jpg"
+      },
+      {
+        "name": "Deepak Baliyan",
+        "handle": "deepakbaliyan90",
+        "role": "Organisational Co-Incharge",
+        "url": "https://x.com/deepakbaliyan90",
+        "avatar": "https://pbs.twimg.com/profile_images/2086478870015008768/qnEnFoVC_400x400.jpg"
+      },
+      {
+        "name": "Vaishnavi Gaur",
+        "handle": "Vaishnavii_gaur",
+        "role": "Policy, Politics, and other things",
+        "url": "https://x.com/Vaishnavii_gaur",
+        "avatar": "https://pbs.twimg.com/profile_images/2080931004978765824/Rl_x5Yzn_400x400.jpg"
+      },
+      {
+        "name": "Mehr",
+        "handle": "mehrpasr",
+        "role": "Party Leader",
+        "url": "https://x.com/mehrpasr",
+        "avatar": "https://pbs.twimg.com/profile_images/2104926157863067648/-cVm8H6I_400x400.jpg"
+      },
+      {
+        "name": "Neha Bora",
+        "handle": "neha_aisa",
+        "role": "Associated Member",
+        "url": "https://x.com/neha_aisa",
+        "avatar": "https://pbs.twimg.com/profile_images/2112227598835331072/CST8FRqw_400x400.jpg"
+      }
+    ],
+    "logoUrl": "https://pbs.twimg.com/profile_images/2084653551540973569/OMRqYpa0_400x400.jpg"
+  },
+  {
+    "id": "iyc",
+    "name": "Indian Youth Congress",
+    "subtitle": "Youth Wing of Indian National Congress",
+    "acronym": "IYC",
+    "category": "Political Wing",
+    "color": "#1976D2",
+    "website": "https://x.com/IYC",
+    "handle": "IYC",
+    "desc": "Indian Youth Congress is the youth wing of the Indian National Congress party, actively mobilizing youth on social and political issues.",
+    "handles": [
+      "IYC",
+      "srinivasiyc",
+      "Tanzil_NSUI",
+      "ABHIRANJANIYC",
+      "gaurang_iyc",
+      "mathura_iyc"
+    ],
+    "leaders": [
+      {
+        "name": "IYC Official",
+        "handle": "IYC",
+        "role": "Party Page",
+        "url": "https://x.com/IYC",
+        "avatar": "https://pbs.twimg.com/profile_images/2109207333628997632/Yt7jVKXp_400x400.jpg"
+      },
+      {
+        "name": "Srinivas BV",
+        "handle": "srinivasiyc",
+        "role": "Former President - Indian Youth Congress",
+        "url": "https://x.com/srinivasiyc",
+        "avatar": "https://pbs.twimg.com/profile_images/2079618758184935424/sCma56vS_400x400.jpg"
+      },
+      {
+        "name": "Tanzil Hussain",
+        "handle": "Tanzil_NSUI",
+        "role": "Vice President Assam Pradesh Youth Congress",
+        "url": "https://x.com/Tanzil_NSUI",
+        "avatar": "https://pbs.twimg.com/profile_images/1751538488531361792/IuKFU73j_400x400.jpg"
+      }
+    ],
+    "logoUrl": "https://pbs.twimg.com/profile_images/2109207333628997632/Yt7jVKXp_400x400.jpg"
+  },
+  {
+    "id": "bhim_army",
+    "name": "Bhim Army Student Federation",
+    "subtitle": "Student Federation of Bhim Army",
+    "acronym": "BASF",
+    "category": "Political Group",
+    "color": "#0288D1",
+    "website": "https://x.com/BhimArmyChief",
+    "handle": "BhimArmyChief",
+    "desc": "Bhim Army Student Federation advocates for student rights, educational equity, and social justice.",
+    "handles": [
+      "BhimArmyChief"
+    ],
+    "leaders": [
+      {
+        "name": "Chandra Shekhar Aazad",
+        "handle": "BhimArmyChief",
+        "role": "National President",
+        "url": "https://x.com/BhimArmyChief",
+        "avatar": "https://pbs.twimg.com/profile_images/1686588577264922624/4zBmxxTV_400x400.jpg"
+      }
+    ],
+    "logoUrl": "https://pbs.twimg.com/profile_images/1686588577264922624/4zBmxxTV_400x400.jpg"
+  },
+  {
+    "id": "aisf",
+    "name": "All India Students' Federation",
+    "subtitle": "Oldest Student Organisation in India",
+    "acronym": "AISF",
+    "category": "Student Wing",
+    "color": "#D32F2F",
+    "website": "https://x.com/aisftweets",
+    "handle": "aisftweets",
+    "desc": "All India Students' Federation is the oldest student organization in India, founded on 12 August 1936.",
+    "handles": [
+      "nawsad_siddique",
+      "AdvocateKanhaiya",
+      "aisftweets"
+    ],
+    "leaders": [
+      {
+        "name": "Md Nawsad Siddique",
+        "handle": "nawsad_siddique",
+        "role": "Leader / MLA",
+        "url": "https://x.com/nawsad_siddique",
+        "avatar": "https://pbs.twimg.com/profile_images/1458889795157979164/PUlN-9U-_400x400.jpg"
+      },
+      {
+        "name": "Kanhaiya Kumar (Alum)",
+        "handle": "AdvocateKanhaiya",
+        "role": "Former President",
+        "url": "https://x.com/AdvocateKanhaiya",
+        "avatar": "https://pbs.twimg.com/profile_images/1539264737803874305/jOzKXBUa_400x400.jpg"
+      }
+    ],
+    "logoUrl": "https://pbs.twimg.com/profile_images/1458889795157979164/PUlN-9U-_400x400.jpg"
+  },
+  {
+    "id": "sfi",
+    "name": "Students' Federation of India",
+    "subtitle": "Independence, Democracy, Socialism",
+    "acronym": "SFI",
+    "category": "Student Wing",
+    "color": "#C62828",
+    "website": "https://x.com/SFI_CEC",
+    "handle": "SFI_CEC",
+    "desc": "Students' Federation of India is an Indian student organization politically aligned to the CPI(M).",
+    "handles": [
+      "SFI_CEC",
+      "AisheGhosh"
+    ],
+    "leaders": [
+      {
+        "name": "SFI Central Executive",
+        "handle": "SFI_CEC",
+        "role": "Official Handle",
+        "url": "https://x.com/SFI_CEC",
+        "avatar": "https://pbs.twimg.com/profile_images/1746241774425878529/1VdDTieR_400x400.jpg"
+      },
+      {
+        "name": "Aishe Ghosh",
+        "handle": "AisheGhosh",
+        "role": "Student Leader",
+        "url": "https://x.com/AisheGhosh",
+        "avatar": "https://pbs.twimg.com/profile_images/1567197719755911169/1UOHyQRU_400x400.jpg"
+      }
+    ],
+    "logoUrl": "https://pbs.twimg.com/profile_images/1746241774425878529/1VdDTieR_400x400.jpg"
+  },
+  {
+    "id": "aisa",
+    "name": "All India Students' Association",
+    "subtitle": "Left Student Organisation",
+    "acronym": "AISA",
+    "category": "Student Wing",
+    "color": "#E53935",
+    "website": "https://x.com/aisa_official_",
+    "handle": "aisa_official_",
+    "desc": "All India Students' Association is a left-wing student organization committed to fighting for students' rights and social justice.",
+    "handles": [
+      "aisa_official_",
+      "neha_aisa",
+      "AISA_tweets"
+    ],
+    "leaders": [
+      {
+        "name": "AISA Official",
+        "handle": "aisa_official_",
+        "role": "Official Handle",
+        "url": "https://x.com/aisa_official_",
+        "avatar": "https://pbs.twimg.com/profile_images/2016611870141272064/dcvECp08_400x400.jpg"
+      },
+      {
+        "name": "Neha Bora",
+        "handle": "neha_aisa",
+        "role": "Student Activist",
+        "url": "https://x.com/neha_aisa",
+        "avatar": "https://pbs.twimg.com/profile_images/2112227598835331072/CST8FRqw_400x400.jpg"
+      }
+    ],
+    "logoUrl": "https://pbs.twimg.com/profile_images/2016611870141272064/dcvECp08_400x400.jpg"
+  },
+  {
+    "id": "creators",
+    "name": "Creators Hub",
+    "subtitle": "Independent Digital Creators & Media Network",
+    "acronym": "Creators",
+    "category": "Independent",
+    "color": "#8E24AA",
+    "website": "https://x.com",
+    "handle": "CreatorsHub",
+    "desc": "Hub of independent digital creators, political commentators, analysts, and satirists driving digital narratives across India.",
+    "handles": [
+      "sardesairajdeep",
+      "ajitanjum",
+      "abhisar_sharma",
+      "dhruv_rathee",
+      "prakashraaj",
+      "ppbajpai",
+      "thevirdas",
+      "kunalkamra88"
+    ],
+    "leaders": [
+      {
+        "name": "Rajdeep Sardesai",
+        "handle": "sardesairajdeep",
+        "role": "Senior Journalist & Consulting Editor",
+        "url": "https://x.com/sardesairajdeep",
+        "avatar": "https://pbs.twimg.com/profile_images/1851246667829235712/fzBcQGQG_400x400.jpg"
+      },
+      {
+        "name": "Ajit Anjum",
+        "handle": "ajitanjum",
+        "role": "Senior Independent Journalist",
+        "url": "https://x.com/ajitanjum",
+        "avatar": "https://pbs.twimg.com/profile_images/1551587717670379520/G682Ux1s_400x400.jpg"
+      },
+      {
+        "name": "Abhisar Sharma",
+        "handle": "abhisar_sharma",
+        "role": "Journalist & Political Commentator",
+        "url": "https://x.com/abhisar_sharma",
+        "avatar": "https://pbs.twimg.com/profile_images/1362382729925419013/yXs1eOx6_400x400.jpg"
+      },
+      {
+        "name": "Dhruv Rathee",
+        "handle": "dhruv_rathee",
+        "role": "Digital Creator & Commentator",
+        "url": "https://x.com/dhruv_rathee",
+        "avatar": "https://pbs.twimg.com/profile_images/1257381512498077696/ACJBYZ-n_400x400.jpg"
+      },
+      {
+        "name": "Prakash Raj",
+        "handle": "prakashraaj",
+        "role": "Actor, Activist & Commentator",
+        "url": "https://x.com/prakashraaj",
+        "avatar": "https://pbs.twimg.com/profile_images/1081544964700426241/bOcibzHN_400x400.jpg"
+      },
+      {
+        "name": "Punya Prasun Bajpai",
+        "handle": "ppbajpai",
+        "role": "Senior Journalist & Analyst",
+        "url": "https://x.com/ppbajpai",
+        "avatar": "https://pbs.twimg.com/profile_images/875628311837265920/5fJPmXhK_400x400.jpg"
+      },
+      {
+        "name": "Vir Das",
+        "handle": "thevirdas",
+        "role": "Comedian & Satirist",
+        "url": "https://x.com/thevirdas",
+        "avatar": "https://pbs.twimg.com/profile_images/1359394524980629508/xYuMlKUp_400x400.jpg"
+      },
+      {
+        "name": "Kunal Kamra",
+        "handle": "kunalkamra88",
+        "role": "Stand-up Comedian & Satirist",
+        "url": "https://x.com/kunalkamra88",
+        "avatar": "https://pbs.twimg.com/profile_images/1598166022753726464/TBuJT4IY_400x400.jpg"
+      }
+    ],
+    "logoUrl": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='chg' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%238E24AA'/><stop offset='50%' stop-color='%23E91E63'/><stop offset='100%' stop-color='%23FF5722'/></linearGradient></defs><rect width='100' height='100' rx='28' fill='url(%23chg)'/><circle cx='50' cy='50' r='38' fill='none' stroke='rgba(255,255,255,0.2)' stroke-width='3'/><path d='M50 26 C43.4 26 38 31.4 38 38 L38 52 C38 58.6 43.4 64 50 64 C56.6 64 62 58.6 62 52 L62 38 C62 31.4 56.6 26 50 26 Z' fill='%23ffffff'/><path d='M30 48 C30 59 39 68 50 68 C61 68 70 59 70 48' fill='none' stroke='%23ffffff' stroke-width='5' stroke-linecap='round'/><line x1='50' y1='68' x2='50' y2='78' stroke='%23ffffff' stroke-width='5' stroke-linecap='round'/><line x1='38' y1='78' x2='62' y2='78' stroke='%23ffffff' stroke-width='5' stroke-linecap='round'/></svg>"
+  }
+]
