@@ -6,8 +6,6 @@ DASHBOARD/dashboard.template.html
 DASHBOARD/data/narrative_groups_config.json
 DASHBOARD/ha_lib.js
 DASHBOARD/metrics_lib.js
-DASHBOARD/nazar_push.py
-DASHBOARD/rebuild_mapping.py
 DASHBOARD/run_pipeline.py
 DASHBOARD/server.js
 DASHBOARD/summary_agg.py
@@ -26,8 +24,3 @@ UP-DASHBOARD/summary_agg.py
 UP-DASHBOARD/update_dashboard.py
 auto_sync_github.py
 mongo_backup.py
-tools/test_fast_login.js
-tools/test_others_date.js
-tools/test_pulse_eye.js
-tools/test_routes_hot.js
-tools/test_tw_rt.js

@@ -1,6 +1,6 @@
 # UPDATE 29-Oct-2026: main system par chalane ka tareeka
 
-Yeh folder main system ko **27, 28 aur 29 Oct ke saare badlaav** deta hai: code bhi aur MongoDB bhi.
+Yeh folder main system ko **28 aur 29 Oct ke saare badlaav** deta hai: code bhi aur MongoDB bhi.
 
 ## Kya karna hai (bas 3 kadam)
 
@@ -19,7 +19,7 @@ Yeh folder main system ko **27, 28 aur 29 Oct ke saare badlaav** deta hai: code 
 
 | Step | Kaam | Samay |
 |---|---|---|
-| 1 | Jo 33 files badlengi, unka backup → `_backup_before_UPDATE_29-OCT\` | 1 s |
+| 1 | Jo 26 files badlengi, unka backup → `_backup_before_UPDATE_29-OCT\` | 1 s |
 | 2 | Nayi files copy (`nayi-files\` → project) | 1 s |
 | 3 | Syntax check (node + python) | 10 s |
 | 4 | MongoDB: `daily_summary` dobara (`build_daily_summary.py --live --all`) | 3–5 min |
@@ -64,7 +64,7 @@ Poori jaankari: `DASHBOARD\DATA_CONSISTENCY_AUDIT_REPORT.md`
 | Command | Kaam |
 |---|---|
 | `RUN_UPDATE.bat --check` | Sirf jaanch, kuch nahi badalta |
-| `RUN_UPDATE.bat --rollback` | 33 files purani halat mein. Phir `RUN_SERVER` window band karke `START_LIVE.bat` chalaiye |
+| `RUN_UPDATE.bat --rollback` | 26 files purani halat mein. Phir `RUN_SERVER` window band karke `START_LIVE.bat` chalaiye |
 
 ## Dhyaan dein
 
