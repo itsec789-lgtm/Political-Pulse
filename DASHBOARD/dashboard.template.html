@@ -14554,6 +14554,26 @@ var _partyCompDays = 'today';
 var _partyCompSentiment = 'all';
 var _partyCompFreq = 'daily';
 var _partyActiveHandles = [];
+/* party-pins (29-Oct): party ke key leaders -- Directory me sabse upar (isi kram me) aur
+   Leader Comparison me shuru se chune hue. Baaki handle tweets ke hisaab se (max -> low).
+   Jo party yahan nahi hai uska pehle jaisa (sirf tweets se). */
+var PARTY_PINNED = { BJP: ['narendramodi', 'amitshah', 'NitinNabin', 'myogiadityanath'] };
+var PARTY_DEFAULT_COMPARE = { BJP: ['narendramodi', 'amitshah', 'myogiadityanath'] };
+function pinnedFirst(handles, pins) {
+  if (!pins || !pins.length) return handles.slice();
+  var used = {}, top = [];
+  pins.forEach(function (p) {
+    var k = String(p).toLowerCase();
+    for (var i = 0; i < handles.length; i++) {
+      if (!used[i] && String(handles[i].handle).toLowerCase() === k) { used[i] = 1; top.push(handles[i]); return; }
+    }
+  });
+  return top.concat(handles.filter(function (_, i) { return !used[i]; }));
+}
+function isPinnedLeader(party, handle) {
+  var k = String(handle).toLowerCase();
+  return (PARTY_PINNED[party] || []).some(function (p) { return String(p).toLowerCase() === k; });
+}
 var _partyOverviewDonut = null;
 var _partyCompLineChart = null;
 var _partyCompDonutChart = null;
@@ -14786,13 +14806,15 @@ function renderPartyOverview() {
   var rosterList = document.getElementById('partyRosterList');
   if (rosterList) {
     rosterList.innerHTML = '';
-    var topList = handles.slice(0, 15);
+    var topList = pinnedFirst(handles, PARTY_PINNED[pName]).slice(0, 15);
     topList.forEach(function(l) {
+      var _pin = isPinnedLeader(pName, l.handle)
+        ? ' <span style="font-size:9px;font-weight:800;color:#fff;background:' + cfg.color + ';border-radius:6px;padding:1px 6px;margin-left:4px;vertical-align:middle">Key Leader</span>' : '';
       var item = document.createElement('div');
       item.className = 'roster-item';
       item.innerHTML = '<div class="roster-left">'
         + '<img class="roster-avatar" src="/api/avatar/' + l.handle + '" onerror="this.src=\'https://ui-avatars.com/api/?name=' + encodeURIComponent(l.name) + '&background=' + cfg.color.replace('#','') + '&color=fff&size=64\'">'
-        + '<div><div class="roster-name">' + l.name + ' <span style="font-size:10px;font-weight:600;color:#64748B">(' + l.designation + ')</span></div>'
+        + '<div><div class="roster-name">' + l.name + ' <span style="font-size:10px;font-weight:600;color:#64748B">(' + l.designation + ')</span>' + _pin + '</div>'
         + '<div class="roster-handle">@' + l.handle + '</div></div></div>'
         + '<div class="roster-stats"><div>'
         + '<div class="roster-tw">' + fmtF(l.stats.tweets) + ' tw</div>'
@@ -14964,9 +14986,12 @@ function renderLeaderComparison() {
 
   var handles = getPartyHandlesList(pName);
 
-  // Default: top 3 leaders checked
+  // Default: party ke key leaders (BJP: Modi, Amit Shah, Yogi); na mile to top 3 by tweets
   if (!_partyActiveHandles || !_partyActiveHandles.length) {
-    _partyActiveHandles = handles.slice(0, 3).map(function(l) { return l.handle.toLowerCase(); });
+    var _def = pinnedFirst(handles, PARTY_DEFAULT_COMPARE[pName]).slice(0, (PARTY_DEFAULT_COMPARE[pName] || []).length || 3)
+      .filter(function (l) { return !PARTY_DEFAULT_COMPARE[pName] || isPinnedLeader(pName, l.handle); });
+    if (!_def.length) _def = handles.slice(0, 3);
+    _partyActiveHandles = _def.map(function(l) { return l.handle.toLowerCase(); });
   }
 
   renderPartyLeaderCardsRow(handles, cfg);
@@ -14980,11 +15005,11 @@ function renderPartyLeaderCardsRow(handles, cfg) {
 
   var colors = ['#E65100', '#1D4ED8', '#059669', '#7C3AED', '#E11D48', '#D97706'];
 
-  // Top 4 leaders by tweets
-  var displayLeaders = handles.slice(0, 4);
+  // Top 4 cards: party ke key leaders pehle, phir tweets ke hisaab se
+  var displayLeaders = pinnedFirst(handles, PARTY_PINNED[_activePartyKey]).slice(0, 4);
 
   // If user selected extra leaders beyond the top 4, also show them
-  handles.slice(4).forEach(function(l) {
+  handles.forEach(function(l) {
     var hKey = l.handle.toLowerCase();
     if (_partyActiveHandles.includes(hKey) && !displayLeaders.includes(l)) {
       displayLeaders.push(l);
@@ -15387,7 +15412,7 @@ function filterPartyModalLeaders(query) {
   var matches = handles.filter(function(l) {
     if (!query) return true;
     return l.name.toLowerCase().includes(query) || l.handle.toLowerCase().includes(query) || (l.designation || '').toLowerCase().includes(query);
-  }).slice(0, 40);
+  }).slice(0, 100);
 
   if (!matches.length) {
     list.innerHTML = '<div style="text-align:center;padding:24px;color:#94A3B8;font-size:12px">No leaders matched your search.</div>';
