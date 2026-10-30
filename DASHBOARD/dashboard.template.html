@@ -8518,7 +8518,25 @@ window.AD=AD;window.renderDashDate=renderDashDate;try{renderDashDate();}catch(e)
     function norm(s) { return String(s || '').trim().toLowerCase(); }
     var target = norm(catKey);
 
+    /* cat-fix (30-Oct): card Mapping ki CATEGORY se ginta hai. Yahan pehle "level YA
+       category" milne par handle jud jaata tha -- jaise VasundharaBJP (level MLA,
+       Category NOB) MLA ke panel me bhi aa jaati thi aur NOB card me bhi: MLA
+       9,10,407 vs card 9,09,980. Ab jiske paas Category hai, sirf usi se milaan;
+       CM / Dy CM level se (card ka admStats bhi level se); Category na ho to purana tareeka. */
+    var _CAT_ALIAS = { 'ls mp': 'ls_mp', 'rs mp': 'rs_mp', 'mla contestants': 'mla contestent',
+      'media houses': 'media house', 'journalists': 'journalist', 'page': 'official page' };
+    var _isAdm = (target === 'chief minister' || target === 'cm' || target === 'chief ministers' ||
+                  target === 'dy cm' || target === 'dy. cms' || target === 'deputy chief minister');
     function matches(hObj) {
+      var cs = (hObj.cats || []).map(norm);
+      if (cs.length && !_isAdm) {
+        var want = _CAT_ALIAS[target] || target;
+        for (var ci = 0; ci < cs.length; ci++) { if ((_CAT_ALIAS[cs[ci]] || cs[ci]) === want) return true; }
+        return false;
+      }
+      return _matchOld(hObj);
+    }
+    function _matchOld(hObj) {
       var lvl = norm(hObj.level || (growthH[hObj.h] && growthH[hObj.h].l) || '');
       var cats = (hObj.cats || []).map(norm);
       var cat = norm(hObj.cat || '');
