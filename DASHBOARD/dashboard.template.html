@@ -5851,16 +5851,15 @@ a.pe-btn:after{content:"";position:absolute;inset:0;z-index:1;background:linear-
     .pa-abtn:hover{border-color:#D1D5DB;background:#FAFAF9}
     .pa-abtn.on{background:#111827;border-color:#111827;color:#fff}
     .pa-abtn:focus-visible,.pa-tab:focus-visible,.pa-pt:focus-visible{outline:2px solid #E65100;outline-offset:-2px}
-    .pa-tabs{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid #E5E7EB}
-    .pa-tab{padding:14px 22px 12px;cursor:pointer;border:none;border-right:1px solid #E5E7EB;background:none;text-align:left;font:inherit;color:inherit;position:relative;transition:background .15s;touch-action:manipulation;user-select:none;-webkit-tap-highlight-color:transparent;min-width:0}
-    .pa-tab:last-child{border-right:none}
-    .pa-tab:hover{background:#FAFAF9}
+    /* KPI card: kesariya outline + halki kesariya chhaya; chuna hua card gehra kesariya */
+    .pa-tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;padding:14px 22px 16px;border-top:1px solid #E5E7EB}
+    .pa-tab{padding:14px 16px 12px;cursor:pointer;border:2px solid #FF9933;border-radius:12px;background:#fff;box-shadow:0 4px 12px -6px rgba(255,153,51,.45);text-align:left;font:inherit;color:inherit;position:relative;transition:border-color .15s,box-shadow .15s,transform .15s;touch-action:manipulation;user-select:none;-webkit-tap-highlight-color:transparent;min-width:0}
+    .pa-tab:hover{border-color:#F57C00;box-shadow:0 8px 18px -8px rgba(245,124,0,.5);transform:translateY(-1px)}
     .pa-tab .t{font-size:13px;color:#1F2937;font-weight:600;display:flex;align-items:center;justify-content:space-between}
     .pa-tab .t svg{width:14px;height:14px;color:#9CA3AF;transition:transform .3s,color .2s}
     .pa-tab .v{font-size:23px;font-weight:600;letter-spacing:-.5px;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     .pa-tab .d{font-size:12px;color:#6B7280;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-    .pa-tab.act{background:#FFFBF7}
-    .pa-tab.act:after{content:"";position:absolute;left:0;right:0;bottom:0;height:2px;background:#E65100}
+    .pa-tab.act{border-color:#E65100;background:#FFF6EC;box-shadow:0 0 0 3px rgba(255,153,51,.18),0 8px 18px -8px rgba(230,81,0,.5)}
     .pa-tab.act .t{color:#111827}
     .pa-tab.act .t svg{transform:rotate(180deg);color:#E65100}
     .pa-up{color:#067647;font-weight:600}.pa-dn{color:#B42318;font-weight:600}
@@ -5923,7 +5922,7 @@ a.pe-btn:after{content:"";position:absolute;inset:0;z-index:1;background:linear-
     .pa-pt .m b{font-size:16px;font-weight:600}
     .pa-pt .m span{font-size:12px;color:#6B7280;margin-left:6px}
     @media (max-width:900px){
-      .pa-tabs{grid-template-columns:1fr 1fr}.pa-tab:nth-child(2){border-right:none}.pa-tab:nth-child(-n+2){border-bottom:1px solid #E5E7EB}
+      .pa-tabs{grid-template-columns:1fr 1fr;padding:12px 14px 14px}
       .pa-mg,.pa-pg{grid-template-columns:1fr 1fr}
       .pa-pt{grid-template-columns:1fr 1fr;row-gap:10px}.pa-pt .k{grid-column:span 2}.pa-pt .m{border-left:none;padding:0}
       .pa-per{margin-left:0;width:100%;order:3}.pa-abtn span{display:none}
