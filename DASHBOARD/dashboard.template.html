@@ -3375,6 +3375,61 @@ body.ui-capture #sec-dashboard .kpi{transform:none!important}
 @media(max-width:620px){#siCard .si-r{grid-template-columns:36px 1fr 52px}}
 </style>
 
+<style id="uiMinCss">
+/* ===== ui-min (30-Oct): kam rang. Ek brand rang (kesariya) + syaahi.
+   Rang sirf wahan jahan wo khud jaankari hai (party, sentiment). =====*/
+/* KPI cards: har metric ka alag rang nahi; upar ki patti nahi (gol kone se bahar nikalti thi) */
+#sec-dashboard .kpi{--ka:#E65100!important}
+#sec-dashboard .kpi::before,#sec-dashboard .lv-card::before{display:none!important}
+#sec-dashboard .kpi-val{color:#141414}
+#sec-dashboard .kpi.kpi-open{box-shadow:0 0 0 2px #E65100,var(--sh-2)}
+/* metric icon: X jaisa, patla, grey -- open card par kesariya */
+#sec-dashboard .kpi-lbl::before{background:#8A817A;width:14px;height:14px}
+#sec-dashboard .kpi.kpi-open .kpi-lbl::before{background:#E65100}
+#sec-dashboard .kpi[data-kpi="tweets"]{--ico:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3.5 11.5c0-4.1 3.4-7 7.6-7h1.8c4.2 0 7.6 3 7.6 7s-3.4 7-7.6 7h-1.4L7 21v-3.4c-2.1-1.3-3.5-3.5-3.5-6.1z'/%3E%3C/svg%3E")!important}
+#sec-dashboard .kpi[data-kpi="likes"],#sec-dashboard .kpi[data-kpi="avglpt"]{--ico:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 20s-7.2-4.5-9.1-8.7C1.5 8.2 3.4 5 6.7 5c2 0 3.4 1.1 4.3 2.4l1 1.3 1-1.3C13.9 6.1 15.3 5 17.3 5c3.3 0 5.2 3.2 3.8 6.3C19.2 15.5 12 20 12 20z'/%3E%3C/svg%3E")!important}
+#sec-dashboard .kpi[data-kpi="rts"],#sec-dashboard .kpi[data-kpi="rcount"]{--ico:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 10V8.2A2.7 2.7 0 0 1 7.7 5.5H18'/%3E%3Cpath d='M15.5 3l2.5 2.5L15.5 8'/%3E%3Cpath d='M19 14v1.8a2.7 2.7 0 0 1-2.7 2.7H6'/%3E%3Cpath d='M8.5 21L6 18.5 8.5 16'/%3E%3C/svg%3E")!important}
+#sec-dashboard .kpi[data-kpi="views"],#sec-dashboard .kpi[data-kpi="rviews"],#sec-dashboard .kpi[data-kpi="avgvpt"],#sec-dashboard .kpi[data-kpi="ravgv"]{--ico:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.9' stroke-linecap='round'%3E%3Cpath d='M5 20v-7M10 20V5M15 20v-9M20 20V8'/%3E%3C/svg%3E")!important}
+
+/* category cards: rang ki jagah syaahi; dot nahi */
+#sec-dashboard .lv-card{--lc:#E65100!important}
+#sec-dashboard .lv-val{color:#141414}
+#sec-dashboard .lv-lbl::before{display:none}
+#sec-dashboard .lv-card.cat-card-open{box-shadow:0 0 0 2px #E65100,var(--sh-2)}
+
+/* Close karke wapas aaye card par halki lehar */
+@keyframes uiBack{0%{box-shadow:0 0 0 0 rgba(230,81,0,.5),var(--sh-1)}100%{box-shadow:0 0 0 16px rgba(230,81,0,0),var(--sh-1)}}
+#sec-dashboard .ui-back{animation:uiBack 1.3s ease-out}
+
+/* ---------- analysis panel (KPI + Category) ---------- */
+#sec-dashboard #kpiDetailPanel,#sec-dashboard #catDetailPanel{border:1px solid var(--line);border-top:3px solid #E65100;border-radius:var(--r-lg);
+  padding:20px 22px 18px;box-shadow:var(--sh-2)}
+#sec-dashboard #kpiDetailPanel.kpi-dp-open{grid-template-areas:"top top" "stats stats" "chart tbl";row-gap:0}
+#sec-dashboard #kpiDpStats{grid-area:stats}
+#sec-dashboard .kpi-dp-lbl{font-size:11px;letter-spacing:1px;color:#78716C}
+#sec-dashboard .kpi-dp-bigval{color:#141414!important;font-size:34px;margin-top:2px}
+#sec-dashboard .kpi-dp-range{font-size:12px;color:#78716C;margin-top:4px}
+.ui-dp-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:4px 0 16px}
+.ui-dps{background:#FBF9F6;border:1px solid var(--line);border-radius:12px;padding:10px 13px;min-width:0}
+.ui-dps .k{display:block;font:700 10px/1.2 'DM Sans',sans-serif;letter-spacing:.8px;text-transform:uppercase;color:#8A817A}
+.ui-dps b{display:block;font:700 21px/1.15 'Rajdhani',sans-serif;color:#141414;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ui-dps .s{display:block;font-size:11px;color:#8A817A;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#sec-dashboard .kpi-dp-chart{height:300px}
+#sec-dashboard .kpi-dp-tbl{max-height:300px;border:1px solid var(--line);border-radius:12px}
+#sec-dashboard .cat-dp-chart-box{height:300px}
+#sec-dashboard .cat-dp-tbl-box{max-height:300px}
+#sec-dashboard .cat-dp-kpi-val{color:#141414}
+#sec-dashboard .cat-dp-kpi-val.cat-dp-range{font-size:12.5px}
+#sec-dashboard :is(.kpi-dp-tbl,.cat-dp-tbl-box) th{font:700 10px 'DM Sans',sans-serif;letter-spacing:.8px;color:#8A817A;background:#FBF9F6}
+#sec-dashboard :is(.kpi-dp-tbl,.cat-dp-tbl-box) td{padding:8px 12px;border-bottom:1px solid #F3EEE7}
+.ui-dt{font-size:12px;color:#57534E;white-space:nowrap}
+.ui-dv{position:relative;text-align:right;font:600 12.5px 'DM Sans',sans-serif;color:#141414;font-variant-numeric:tabular-nums;min-width:96px}
+.ui-dv span{position:relative;z-index:1}
+.ui-dv i{position:absolute;right:12px;bottom:4px;height:2px;border-radius:2px;background:rgba(230,81,0,.45);max-width:calc(100% - 24px)}
+@media(max-width:1200px){#sec-dashboard #kpiDetailPanel.kpi-dp-open{grid-template-columns:1fr;grid-template-areas:"top" "stats" "chart" "tbl"}}
+@media(max-width:900px){.ui-dp-stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+</style>
+
 <script>
 /* Chart.js ke legend chart config me 'right' set hain -- phone par wo aadhi
  * chaudai kha jaate hain. Chart banne se PEHLE hi bottom kar dete hain. */
@@ -3421,6 +3476,71 @@ window.uiGrad=function(col,a){
     return gr;
   };
 };
+
+/* ui-detail (30-Oct): KPI / Category ke "analysis" panel ko samajhne layak banana.
+   Data wahi jo panel pehle se nikalta hai -- yahan sirf dikhana: roz ke bars +
+   7 din ki average line, mahine ke naam, saaf tareekh, poore number, chhota saaransh. */
+window.uiDetail=(function(){
+  var MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],DOW=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  function pd(d){var a=String(d||'').split('-');return a.length===3?new Date(+a[0],+a[1]-1,+a[2]):new Date(NaN);}
+  function nice(d,y){var x=pd(d);return isNaN(x)?String(d):(x.getDate()+' '+MON[x.getMonth()]+(y?' '+x.getFullYear():''));}
+  function long(d){var x=pd(d);return isNaN(x)?String(d):(DOW[x.getDay()]+', '+x.getDate()+' '+MON[x.getMonth()]+' '+x.getFullYear());}
+  function cmp(n){n=+n||0;var a=Math.abs(n);return a>=1e7?(n/1e7).toFixed(2)+' Cr':a>=1e5?(n/1e5).toFixed(2)+' L':a>=1e3?(n/1e3).toFixed(1)+'K':(Math.round(n*10)/10).toLocaleString('en-IN');}
+  function full(n){return Math.round(+n||0).toLocaleString('en-IN');}
+  function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+  function range(L){
+    if(!L||!L.length)return '—';
+    var a=pd(L[0]),b=pd(L[L.length-1]),n=L.length,same=a.getFullYear()===b.getFullYear();
+    var s=(n===1)?nice(L[0],true):(nice(L[0],!same)+' – '+nice(L[L.length-1],true));
+    return s+' · '+n+(n===1?' day':' days');
+  }
+  function roll(v,w){var o=[],s=0;for(var i=0;i<v.length;i++){s+=(+v[i]||0);if(i>=w)s-=(+v[i-w]||0);o.push(i>=w-1?s/w:null);}return o;}
+  function chart(cv,L,V,o){
+    o=o||{};if(!cv||!window.Chart)return null;
+    try{var old=Chart.getChart(cv);if(old)old.destroy();}catch(e){}
+    var n=L.length,avg=n>=14,unit=o.unit||'';
+    var ds=[{type:'bar',label:'Daily',data:V,order:2,backgroundColor:'rgba(230,81,0,.26)',hoverBackgroundColor:'rgba(230,81,0,.6)',
+             borderRadius:2,borderSkipped:false,barPercentage:.92,categoryPercentage:1,maxBarThickness:28}];
+    if(avg)ds.push({type:'line',label:'7-day average',data:roll(V,7),order:1,borderColor:'#2B211B',backgroundColor:'#2B211B',
+             borderWidth:2,pointRadius:0,pointHoverRadius:4,pointHitRadius:8,tension:.35,fill:false,spanGaps:true});
+    return new Chart(cv,{data:{labels:L,datasets:ds},options:{
+      maintainAspectRatio:false,animation:{duration:550,easing:'easeOutQuart'},
+      interaction:{mode:'index',intersect:false},
+      plugins:{datalabels:{display:false},
+        legend:{display:avg,position:'top',align:'end',labels:{usePointStyle:true,boxWidth:8,boxHeight:8,padding:14,
+          font:{family:"'DM Sans',sans-serif",size:11},color:'#57534E'}},
+        tooltip:{backgroundColor:'rgba(20,16,13,.94)',padding:11,cornerRadius:9,displayColors:true,boxPadding:4,usePointStyle:true,
+          titleFont:{family:"'DM Sans',sans-serif",size:12,weight:'700'},bodyFont:{family:"'DM Sans',sans-serif",size:12},
+          callbacks:{title:function(it){return it&&it[0]?long(L[it[0].dataIndex]):'';},
+            label:function(c){if(c.raw==null)return null;return ' '+c.dataset.label+': '+(c.datasetIndex===0?full(c.raw):cmp(c.raw))+(unit?' '+unit:'');}}}},
+      scales:{
+        x:{grid:{display:false},border:{display:false},
+          ticks:{autoSkip:n<=31,maxTicksLimit:n<=31?8:undefined,maxRotation:0,color:'#78716C',font:{family:"'DM Sans',sans-serif",size:11},
+            callback:function(v,i){var d=L[i];if(n<=31)return nice(d);var x=pd(d);
+              if(i===0||x.getDate()===1)return MON[x.getMonth()]+((i===0||x.getMonth()===0)?" '"+String(x.getFullYear()).slice(2):'');return '';}}},
+        y:{beginAtZero:true,border:{display:false},grid:{color:'#F1ECE4'},
+          ticks:{maxTicksLimit:5,color:'#78716C',font:{family:"'DM Sans',sans-serif",size:11},callback:function(v){return cmp(v);}}}}}});
+  }
+  function stats(el,L,V,o){
+    if(!el)return;o=o||{};var n=L.length;if(!n){el.innerHTML='';return;}
+    var mx=0,mi=0;for(var i=0;i<n;i++)if((+V[i]||0)>mx){mx=+V[i]||0;mi=i;}
+    var last=n-1,unit=o.unit?' '+esc(o.unit):'';
+    function tile(k,v,s){return '<div class="ui-dps"><span class="k">'+k+'</span><b>'+v+'</b>'+(s?'<span class="s">'+s+'</span>':'')+'</div>';}
+    el.innerHTML=(o.isAvg?'':tile('Daily average',cmp((+o.total||0)/n)+unit,'over '+n+(n===1?' day':' days')))
+      +tile(o.isAvg?'Best day':'Peak day',cmp(mx)+unit,esc(long(L[mi])))
+      +tile('Latest day',cmp(V[last])+unit,esc(long(L[last])))
+      +tile('Period',esc(range(L).split(' · ')[0]),n+(n===1?' day':' days'));
+  }
+  function table(tb,L,V,o){
+    if(!tb)return;o=o||{};
+    if(!L.length){tb.innerHTML='<tr><td colspan="2" class="kpi-dp-empty">No data for the selected range</td></tr>';return;}
+    var mx=0;V.forEach(function(x){if((+x||0)>mx)mx=+x||0;});
+    var h='';for(var i=L.length-1;i>=0;i--){var v=+V[i]||0,w=mx?Math.max(1.5,v/mx*100):0;
+      h+='<tr><td class="ui-dt">'+esc(long(L[i]))+'</td><td class="ui-dv"><span>'+(o.isAvg?cmp(v):full(v))+'</span><i style="width:'+w.toFixed(1)+'%"></i></td></tr>';}
+    tb.innerHTML=h;
+  }
+  return {chart:chart,stats:stats,table:table,range:range,cmp:cmp,full:full,long:long,nice:nice};
+})();
 </script>
 </head>
 <body>
@@ -8437,7 +8557,7 @@ const GROWTH="__MONGO_GROWTH__";try{window.GROWTH=GROWTH;}catch(e){}
    var kk=document.getElementById('dashKpis');
    if(kk)kk.innerHTML=kc('tweets',tot.t,'Total Tweets',rlab,'#1a1a1a')+kc('likes',tot.k,'Total Likes','Engagement','#B71C1C')+kc('rts',tot.r,'Retweets Received','On own tweets','#1B5E20')+kc('views',tot.v,'Total Views','Impressions','#4A148C')+kc('avgvpt',avg,'Avg Views/Tweet','Content efficiency','#E65100')+kc('avglpt',tot.t?Math.round(tot.k/tot.t):0,'Avg Likes/Tweet','Engagement per tweet','#00838F');
    try{window.updateLevelStrip&&window.updateLevelStrip();}catch(e){}
-   if(kk&&typeof Chart!=='undefined'){var _davg=dser_t.map(function(x,i){return x?Math.round(dser_v[i]/x):0;});var _davl=dser_t.map(function(x,i){return x?Math.round(dser_k[i]/x):0;});var _sser=[dser_t,dser_k,dser_r,dser_v,_davg,_davl];var _scol=['#1a1a1a','#B71C1C','#1B5E20','#4A148C','#E65100','#00838F'];var _cvs=kk.querySelectorAll('canvas.kspark');window._ksp=window._ksp||[];for(var _ci=0;_ci<_cvs.length&&_ci<_sser.length;_ci++){if(window._ksp[_ci]){try{window._ksp[_ci].destroy();}catch(e){}}window._ksp[_ci]=new Chart(_cvs[_ci],{type:'line',data:{labels:_sser[_ci].map(function(_,j){return j;}),datasets:[{data:_sser[_ci],borderColor:_scol[_ci],backgroundColor:(window.uiGrad?window.uiGrad(_scol[_ci],.26):_scol[_ci]+'22'),fill:true,tension:0.4,pointRadius:0,borderWidth:2}]},options:{maintainAspectRatio:false,animation:{duration:700,easing:'easeOutQuart'},plugins:{legend:{display:false},datalabels:{display:false},tooltip:{enabled:false}},scales:{x:{display:false},y:{display:false}}}});}}
+   if(kk&&typeof Chart!=='undefined'){var _davg=dser_t.map(function(x,i){return x?Math.round(dser_v[i]/x):0;});var _davl=dser_t.map(function(x,i){return x?Math.round(dser_k[i]/x):0;});var _sser=[dser_t,dser_k,dser_r,dser_v,_davg,_davl];var _scol=['#E65100','#E65100','#E65100','#E65100','#E65100','#E65100'];/* ui-min (30-Oct): sab sparkline ek brand rang me */var _cvs=kk.querySelectorAll('canvas.kspark');window._ksp=window._ksp||[];for(var _ci=0;_ci<_cvs.length&&_ci<_sser.length;_ci++){if(window._ksp[_ci]){try{window._ksp[_ci].destroy();}catch(e){}}window._ksp[_ci]=new Chart(_cvs[_ci],{type:'line',data:{labels:_sser[_ci].map(function(_,j){return j;}),datasets:[{data:_sser[_ci],borderColor:_scol[_ci],backgroundColor:(window.uiGrad?window.uiGrad(_scol[_ci],.26):_scol[_ci]+'22'),fill:true,tension:0.4,pointRadius:0,borderWidth:2}]},options:{maintainAspectRatio:false,animation:{duration:700,easing:'easeOutQuart'},plugins:{legend:{display:false},datalabels:{display:false},tooltip:{enabled:false}},scales:{x:{display:false},y:{display:false}}}});}}
    var top=Object.keys(per).map(function(h){return {h:h,v:per[h].v,t:per[h].t,k:per[h].k};}).sort(function(a,b){return b.v-a.v;}).slice(0,8);
    var tp=document.getElementById('dashTop');
    if(tp){var _hd='<div style="overflow-x:auto"><table class="data-table" style="width:100%;min-width:640px"><thead><tr><th>#</th><th>Name / Handle</th><th>Designation</th><th>Party</th><th class="num">Followers</th><th class="num">Following</th><th class="num">Tweets</th><th class="num">Avg Views/Post</th></tr></thead><tbody>';
@@ -8646,19 +8766,34 @@ window.AD=AD;window.renderDashDate=renderDashDate;try{renderDashDate();}catch(e)
     var elVal = document.getElementById('kpiDpVal');
     if (elVal) {
       elVal.textContent = _uf(data.total);
-      elVal.style.color = def.color || 'var(--saffron)';
+      /* ui-detail: number gehre rang me -- har metric ka alag rang nahi */
+      elVal.style.color = '';
     }
+    var UD = window.uiDetail;
+    var _unit = { tweets:'tweets', likes:'likes', rts:'retweets', views:'views', avgvpt:'views / tweet', avglpt:'likes / tweet',
+                  rcount:'reposts', rlikes:'likes', rviews:'views', ravgv:'views / retweet', ravgl:'likes / retweet' }[key] || '';
     var elRng = document.getElementById('kpiDpRange');
     if (elRng) {
-      elRng.textContent = 'Selected range: ' + (fromV || '—') + ' to ' + (toV || '—') +
-        (def.isAvg ? ' · Average over period' : ' · Total over period');
+      elRng.textContent = (UD ? UD.range(data.labels) : ((fromV || '—') + ' to ' + (toV || '—'))) +
+        (def.isAvg ? ' · average over the period' : ' · total over the period');
     }
     var elTh = document.getElementById('kpiDpTh');
     if (elTh) elTh.textContent = def.label;
 
+    /* ui-detail: saransh (daily avg / peak / latest / period) -- wahi data */
+    if (UD) {
+      var _st = document.getElementById('kpiDpStats');
+      if (!_st) {
+        var _top = document.querySelector('#kpiDetailPanel .kpi-dp-top');
+        if (_top) { _st = document.createElement('div'); _st.id = 'kpiDpStats'; _st.className = 'ui-dp-stats'; _top.parentNode.insertBefore(_st, _top.nextSibling); }
+      }
+      UD.stats(_st, data.labels, data.vals, { total: data.total, isAvg: def.isAvg, unit: _unit });
+    }
+
     /* table (newest first) */
     var tb = document.getElementById('kpiDpTbody');
-    if (tb) {
+    if (tb && UD) UD.table(tb, data.labels, data.vals, { isAvg: def.isAvg });
+    else if (tb) {
       if (!data.labels.length) {
         tb.innerHTML = '<tr><td colspan="2" class="kpi-dp-empty">No data for selected range</td></tr>';
       } else {
@@ -8674,7 +8809,10 @@ window.AD=AD;window.renderDashDate=renderDashDate;try{renderDashDate();}catch(e)
     if (_kpiChart) { try { _kpiChart.destroy(); } catch(e){} _kpiChart = null; }
 
     var ctx = document.getElementById('kpiDpChart');
-    if (ctx && window.Chart && data.labels.length) {
+    if (ctx && UD && data.labels.length) {
+      try { _kpiChart = UD.chart(ctx, data.labels, data.vals, { unit: _unit }); }
+      catch(e) { console.warn('[kpi-expand] Chart error:', e); }
+    } else if (ctx && window.Chart && data.labels.length) {
       try {
         _kpiChart = new Chart(ctx, {
           type: 'line',
@@ -8974,10 +9112,12 @@ window.AD=AD;window.renderDashDate=renderDashDate;try{renderDashDate();}catch(e)
     var elAvg = document.getElementById('catDpAvg');
     if (elAvg) elAvg.textContent = (data.avgPerHandle || 0).toLocaleString('en-IN');
     var elRng = document.getElementById('catDpRange');
-    if (elRng) elRng.textContent = (data.from || '—') + ' → ' + (data.to || '—');
+    var UD = window.uiDetail;
+    if (elRng) elRng.textContent = UD ? UD.range(data.labels) : ((data.from || '—') + ' → ' + (data.to || '—'));
 
     var tb = document.getElementById('catDpTbody');
-    if (tb) {
+    if (tb && UD) UD.table(tb, data.labels, data.vals, {});
+    else if (tb) {
       if (!data.labels.length) {
         tb.innerHTML = '<tr><td colspan="2" class="cat-dp-empty">No tweet data for selected range</td></tr>';
       } else {
@@ -8992,7 +9132,10 @@ window.AD=AD;window.renderDashDate=renderDashDate;try{renderDashDate();}catch(e)
     if (_catChart) { try { _catChart.destroy(); } catch(e){} _catChart = null; }
 
     var ctx = document.getElementById('catDpChart');
-    if (ctx && window.Chart && data.labels.length) {
+    if (ctx && UD && data.labels.length) {
+      try { _catChart = UD.chart(ctx, data.labels, data.vals, { unit: 'tweets' }); }
+      catch(e) { console.warn('[cat-expand] Chart error:', e); }
+    } else if (ctx && window.Chart && data.labels.length) {
       try {
         _catChart = new Chart(ctx, {
           type: 'line',
@@ -9157,13 +9300,13 @@ function hFiltered(){var p=party();return p==='all'?D.handles:D.handles.filter(f
 function idxRange(){var f=(document.getElementById('dashFrom')||{}).value||D.AD[0],t=(document.getElementById('dashTo')||{}).value||D.AD[N-1];var idx=[];D.AD.forEach(function(d,i){if(d>=f&&d<=t)idx.push(i);});return idx.length?idx:D.AD.map(function(_,i){return i;});}
 const sr=function(arr,idx){return idx.reduce(function(s,i){return s+(arr[i]||0);},0);};
 
-const chTrend=mk('ov_trend',{data:{labels:[],datasets:[{type:'bar',label:'Tweets',data:[],backgroundColor:'#F0871A99',yAxisID:'y',borderRadius:3},{type:'line',label:'Avg Views/Post',data:[],borderColor:'#7B1FA2',backgroundColor:'#7B1FA211',fill:true,tension:.35,pointRadius:0,borderWidth:2.5,yAxisID:'y1'}]},options:{plugins:{legend:{display:true,labels:{boxWidth:10,usePointStyle:true,font:{size:10}}},tooltip:{callbacks:{label:function(c){return c.dataset.label+': '+uf(c.raw);}}}},scales:{y:{position:'left',grid:{color:'#f0ede8'},ticks:{callback:uf,font:{size:9}}},y1:{position:'right',grid:{display:false},ticks:{callback:uf,font:{size:9}}},x:{ticks:{font:{size:8}}}}}});
+const chTrend=mk('ov_trend',{data:{labels:[],datasets:[{type:'bar',label:'Tweets',data:[],backgroundColor:'#F0871A99',yAxisID:'y',borderRadius:3},{type:'line',label:'Avg Views/Post',data:[],borderColor:'#2B211B',backgroundColor:'#2B211B11',fill:true,tension:.35,pointRadius:0,borderWidth:2.5,yAxisID:'y1'}]},options:{plugins:{legend:{display:true,labels:{boxWidth:10,usePointStyle:true,font:{size:10}}},tooltip:{callbacks:{label:function(c){return c.dataset.label+': '+uf(c.raw);}}}},scales:{y:{position:'left',grid:{color:'#f0ede8'},ticks:{callback:uf,font:{size:9}}},y1:{position:'right',grid:{display:false},ticks:{callback:uf,font:{size:9}}},x:{ticks:{font:{size:8}}}}}});
 const chParty=mk('ov_party',{type:'doughnut',data:{labels:allKeys,datasets:[{data:[],backgroundColor:allKeys.map(pc),borderWidth:3,borderColor:'#fff',offset:allKeys.map(function(){return 0;})}]},options:{cutout:'58%',plugins:{legend:{display:true,position:'right',labels:{boxWidth:9,usePointStyle:true,font:{size:9}}},tooltip:{callbacks:{label:function(c){return c.label+': '+uf(c.raw);}}}}}});
 mk('ov_sent',{type:'doughnut',data:{labels:window.SENTX.CATS.map(function(c){return c.label;}),datasets:[{data:window.SENTX.CATS.map(function(c){return (D.sentN&&D.sentN[c.k])||(D.sent&&D.sent[c.label])||0;}),backgroundColor:window.SENTX.CATS.map(function(c){return c.c;}),borderWidth:3,borderColor:'#fff'}]},options:{cutout:'62%',plugins:{legend:{display:true,position:'bottom',labels:{boxWidth:8,usePointStyle:true,font:{size:8}}},tooltip:{callbacks:{label:function(c){return c.label+': '+(+c.raw||0).toLocaleString('en-IN');}}}}}});
-const chEng=mk('ov_eng',{data:{labels:[],datasets:[{type:'line',label:'Likes',data:[],borderColor:'#C62828',backgroundColor:'#C6282811',fill:true,tension:.35,pointRadius:0,borderWidth:2},{type:'line',label:'Retweets',data:[],borderColor:'#1B5E20',backgroundColor:'#1B5E2011',fill:true,tension:.35,pointRadius:0,borderWidth:2}]},options:{plugins:{legend:{display:true,labels:{boxWidth:9,usePointStyle:true,font:{size:9}}}},scales:{x:{grid:{display:false},ticks:{maxTicksLimit:8,font:{size:8}}},y:{grid:{color:'#f3f0eb'},ticks:{callback:uf,font:{size:9}}}}}});
+const chEng=mk('ov_eng',{data:{labels:[],datasets:[{type:'line',label:'Likes',data:[],borderColor:'#E65100',backgroundColor:'#E6510011',fill:true,tension:.35,pointRadius:0,borderWidth:2},{type:'line',label:'Retweets',data:[],borderColor:'#2B211B',backgroundColor:'#2B211B11',fill:true,tension:.35,pointRadius:0,borderWidth:2}]},options:{plugins:{legend:{display:true,labels:{boxWidth:9,usePointStyle:true,font:{size:9}}}},scales:{x:{grid:{display:false},ticks:{maxTicksLimit:8,font:{size:8}}},y:{grid:{color:'#f3f0eb'},ticks:{callback:uf,font:{size:9}}}}}});
 const chTop=mk('ov_top',{type:'bar',data:{labels:[],datasets:[{data:[],backgroundColor:[],borderRadius:5}]},options:{indexAxis:'y',plugins:{tooltip:{callbacks:{label:function(c){return uf(c.raw)+' views/post';}}}},scales:{x:{ticks:{callback:uf,font:{size:8}},grid:{color:'#f3f0eb'}},y:{grid:{display:false},ticks:{font:{size:8.5}}}}}});
 const chAct=mk('ov_active',{type:'bar',data:{labels:[],datasets:[{data:[],backgroundColor:[],borderRadius:5}]},options:{indexAxis:'y',plugins:{tooltip:{callbacks:{label:function(c){return uf(c.raw)+' tweets';}}}},scales:{x:{ticks:{callback:uf,font:{size:8}},grid:{color:'#f3f0eb'}},y:{grid:{display:false},ticks:{font:{size:8.5}}}}}});
-const chState=mk('ov_states',{type:'bar',data:{labels:[],datasets:[{data:[],backgroundColor:'#0D1B6E',borderRadius:5}]},options:{indexAxis:'y',plugins:{tooltip:{callbacks:{label:function(c){return uf(c.raw)+' tweets';}}}},scales:{x:{ticks:{callback:uf,font:{size:8}},grid:{color:'#f3f0eb'}},y:{grid:{display:false},ticks:{font:{size:9}}}}}});
+const chState=mk('ov_states',{type:'bar',data:{labels:[],datasets:[{data:[],backgroundColor:'#E65100',borderRadius:5}]},options:{indexAxis:'y',plugins:{tooltip:{callbacks:{label:function(c){return uf(c.raw)+' tweets';}}}},scales:{x:{ticks:{callback:uf,font:{size:8}},grid:{color:'#f3f0eb'}},y:{grid:{display:false},ticks:{font:{size:9}}}}}});
 const chConc=mk('ov_conc',{type:'doughnut',data:{labels:['#1','#2-5','Rest'],datasets:[{data:[0,0,0],backgroundColor:['#E65100','#FF8F00','#d8cfc2'],borderWidth:2,borderColor:'#fff'}]},options:{cutout:'60%',plugins:{legend:{display:true,position:'bottom',labels:{boxWidth:8,usePointStyle:true,font:{size:8.5}}},tooltip:{callbacks:{label:function(c){return c.label+': '+c.raw.toFixed(1)+'%';}}}}}});
 
 function heatColor(t,mx){if(t<=0||mx<=0)return '#f4f0ea';var r=t/mx;var a=[253,232,208],b=[194,65,12];var c=a.map(function(v,i){return Math.round(v+(b[i]-v)*r);});return 'rgb('+c[0]+','+c[1]+','+c[2]+')';}
@@ -16788,7 +16931,7 @@ function toggleModalLeader(handle) {
     }
     if(typeof Chart==='undefined')return;
     /* likes cards removed 27-Oct: scraper stores 0 likes on repost rows */
-    var ser=[s.c,s.w,per(s.c,s.w)],col=['#1B5E20','#4A148C','#E65100'];
+    var ser=[s.c,s.w,per(s.c,s.w)],col=['#E65100','#E65100','#E65100'];/* ui-min: ek rang */
     var cv=g.querySelectorAll('canvas.kspark');
     for(var i=0;i<cv.length&&i<ser.length;i++){
       if(SP[i]){try{SP[i].destroy();}catch(e){}SP[i]=null;}
@@ -17201,6 +17344,21 @@ function toggleModalLeader(handle) {
       try{nav();}catch(e){console.warn('[ui-v3] nav',e);}
       window.addEventListener('scroll',function(){if(!_sq)_sq=requestAnimationFrame(spy);},{passive:true});
       window.addEventListener('resize',function(){try{pillInd();spy();}catch(e){}});
+      /* ui-detail (30-Oct): analysis panel "Close" karo to page wapas usi card par
+         jaaye jise tap kiya tha (panel neeche khulta hai, band hone par aap wahin
+         atak jaate the). Capture me pakadte hain -- tab tak card "open" hi hota hai. */
+      document.addEventListener('click',function(e){
+        var b=e.target&&e.target.closest?e.target.closest('.kpi-dp-close,.cat-dp-close'):null;if(!b||!SEC.contains(b))return;
+        var card=SEC.querySelector(b.classList.contains('kpi-dp-close')?'.kpi.kpi-open':'.lv-card.cat-card-open');if(!card)return;
+        setTimeout(function(){
+          var r=card.getBoundingClientRect();
+          if(r.top<offTop()||r.bottom>window.innerHeight){
+            window.scrollTo({top:Math.max(0,r.top+window.scrollY-offTop()-10),behavior:RM?'auto':'smooth'});
+          }
+          card.classList.remove('ui-back');void card.offsetWidth;card.classList.add('ui-back');
+          setTimeout(function(){card.classList.remove('ui-back');},1400);
+        },20);
+      },true);
       /* ui-v3.3: 1-7 dabao -> seedha us section par (sirf Dashboard par, type karte waqt nahi) */
       document.addEventListener('keydown',function(e){
         if(e.ctrlKey||e.metaKey||e.altKey||e.shiftKey||e.repeat)return;
