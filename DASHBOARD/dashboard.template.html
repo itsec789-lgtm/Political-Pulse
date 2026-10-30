@@ -3249,6 +3249,39 @@ body.ui-capture #sec-dashboard .kpi{transform:none!important}
 }
 
 /* ---------- responsive ---------- */
+/* ---------- ui-v3.3 (30-Oct): section navigator -- ek glass capsule, numbered items,
+   scroll ke saath chalta highlight. Generic pills ki jagah. ---------- */
+.ui-hero-body{max-width:780px}
+.ui-chipwrap.ui-jump{display:inline-flex;align-items:stretch;gap:2px;margin-top:20px;max-width:100%;padding:4px;border-radius:14px;
+  background:linear-gradient(180deg,rgba(255,255,255,.075),rgba(255,255,255,.025));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.09),inset 0 0 0 1px rgba(255,255,255,.075),0 10px 28px -14px rgba(0,0,0,.7);
+  -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+.ui-jump-lbl{flex:none;display:flex;align-items:center;gap:7px;padding:0 12px 0 9px;margin-right:2px;
+  font:700 9.5px 'DM Sans',sans-serif;letter-spacing:1.7px;text-transform:uppercase;color:rgba(255,214,170,.5);
+  border-right:1px solid rgba(255,255,255,.08)}
+.ui-jump-lbl i{width:5px;height:5px;border-radius:50%;background:#FF9933;box-shadow:0 0 8px rgba(255,153,51,.9)}
+.ui-jump-vp{position:relative;flex:1 1 auto;min-width:0;display:flex}
+.ui-chipwrap.ui-jump .ui-hero-chips{position:relative;gap:2px;padding:0;margin:0;align-items:stretch}
+.ui-chipwrap.ui-jump .ui-chip{position:relative;z-index:1;gap:7px;padding:8px 13px;border-radius:10px;background:transparent;box-shadow:none;
+  font:600 12.5px 'DM Sans',sans-serif;letter-spacing:.1px;color:rgba(255,236,214,.64);transition:color .2s,background .2s}
+.ui-chipwrap.ui-jump .ui-chip:hover{color:#fff;background:rgba(255,255,255,.045);transform:none}
+.ui-chipwrap.ui-jump .ui-chip.on{color:#fff}
+.ui-chip-n{font:700 10.5px 'Rajdhani',sans-serif;letter-spacing:.6px;color:rgba(255,170,90,.55);transition:color .2s;font-variant-numeric:tabular-nums}
+.ui-chip:hover .ui-chip-n,.ui-chip.on .ui-chip-n{color:#FFB347}
+.ui-chip kbd{display:none}
+.ui-jump-ind{position:absolute;top:0;bottom:0;left:0;width:0;border-radius:10px;z-index:0;pointer-events:none;opacity:0;
+  background:linear-gradient(180deg,rgba(255,255,255,.12),rgba(255,255,255,.06));
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.12),0 8px 20px -10px rgba(255,140,0,.6);
+  transition:transform .5s cubic-bezier(.2,.8,.2,1),width .5s cubic-bezier(.2,.8,.2,1),opacity .25s}
+.ui-jump-ind::after{content:'';position:absolute;left:24%;right:24%;bottom:-1px;height:2px;border-radius:2px;
+  background:linear-gradient(90deg,transparent,#FF9933 30%,#FFD8A8 50%,#FF9933 70%,transparent)}
+.ui-chipwrap.ui-jump .ui-chip-arr{width:26px;height:26px;margin-top:-13px;color:#FFE7CF;background:rgba(24,12,5,.82);
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.14),0 4px 12px rgba(0,0,0,.45)}
+.ui-chipwrap.ui-jump .ui-chip-arr:hover{background:rgba(48,24,8,.95);color:#fff}
+.ui-chipwrap.ui-jump .ui-chip-arr.l{left:2px}.ui-chipwrap.ui-jump .ui-chip-arr.r{right:2px}
+@media(max-width:820px){.ui-jump-lbl{display:none}.ui-chipwrap.ui-jump{display:flex}}
+@media (prefers-reduced-motion:reduce){.ui-jump-ind{transition:none}}
+
 @media(min-width:1200px){#sec-dashboard main{padding-right:64px}}
 @media(max-width:1199px){.ui-dots{display:none}}
 @media(max-width:820px){
@@ -16659,15 +16692,6 @@ function toggleModalLeader(handle) {
   function go(el){if(!el)return;var y=el.getBoundingClientRect().top+window.scrollY-offTop();window.scrollTo({top:Math.max(0,y),behavior:RM?'auto':'smooth'});}
 
   /* ---- sections (jump chips + dot nav dono yahi) ---- */
-  var IC={
-    sum:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>',
-    cat:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8"/></svg>',
-    trend:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>',
-    party:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.2 15.9A10 10 0 1 1 8 2.8"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>',
-    reach:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>',
-    lead:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3 6.5 7 .8-5.2 4.7 1.5 7L12 17.5 5.7 21l1.5-7L2 9.3l7-.8z"/></svg>',
-    ins:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 22h4"/><path d="M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.3 1 2.3h6c0-1 .4-1.8 1-2.3A7 7 0 0 0 12 2z"/></svg>'
-  };
   function targets(){
     var ov=document.querySelectorAll('#sec-dashboard .ov-section');
     return [
@@ -16725,20 +16749,40 @@ function toggleModalLeader(handle) {
 
   /* ---- 1b. chips ek line me + teer ---- */
   var ARR='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>';
+  /* ui-v3.3: capsule = [JUMP TO] [viewport: chips + highlight + teer] */
   function chipSlider(j){
-    if(j.parentNode&&j.parentNode.classList.contains('ui-chipwrap'))return;
-    var w=document.createElement('div');w.className='ui-chipwrap';
-    j.parentNode.insertBefore(w,j);w.appendChild(j);
+    if(j.parentNode&&j.parentNode.classList.contains('ui-jump-vp'))return;
+    var w=document.createElement('div');w.className='ui-chipwrap ui-jump';
+    var lb=document.createElement('div');lb.className='ui-jump-lbl';lb.setAttribute('aria-hidden','true');
+    lb.innerHTML='<i></i><span>Jump to</span>';
+    var vp=document.createElement('div');vp.className='ui-jump-vp';
+    j.parentNode.insertBefore(w,j);w.appendChild(lb);w.appendChild(vp);vp.appendChild(j);
+    var ind=document.createElement('span');ind.className='ui-jump-ind';ind.setAttribute('aria-hidden','true');j.appendChild(ind);
     var l=document.createElement('button'),r=document.createElement('button');
     l.type=r.type='button';l.className='ui-chip-arr l';r.className='ui-chip-arr r';
     l.setAttribute('aria-label','Scroll left');r.setAttribute('aria-label','Scroll right');
     l.innerHTML=ARR;r.innerHTML=ARR;l.firstChild.style.transform='rotate(180deg)';
-    w.appendChild(l);w.appendChild(r);
+    vp.appendChild(l);vp.appendChild(r);
     function upd(){var m=j.scrollWidth-j.clientWidth;w.classList.toggle('can-l',j.scrollLeft>4);w.classList.toggle('can-r',j.scrollLeft<m-4);}
     l.addEventListener('click',function(){j.scrollBy({left:-Math.max(160,j.clientWidth*.6),behavior:RM?'auto':'smooth'});});
     r.addEventListener('click',function(){j.scrollBy({left:Math.max(160,j.clientWidth*.6),behavior:RM?'auto':'smooth'});});
     j.addEventListener('scroll',upd,{passive:true});window.addEventListener('resize',upd);
     upd();setTimeout(upd,400);setTimeout(upd,1500);
+  }
+  /* jis section me ho, highlight wahin -- scroll ke saath sarakta hai */
+  var _jumpCur=null;
+  function jumpActive(k){
+    var j=$('uiHeroJump');if(!j)return;var ind=j.querySelector('.ui-jump-ind');
+    var on=null;each(j.querySelectorAll('.ui-chip'),function(b){var m=b.getAttribute('data-k')===k;b.classList.toggle('on',m);if(m){on=b;b.setAttribute('aria-current','true');}else b.removeAttribute('aria-current');});
+    if(!ind)return;
+    if(!on||!on.offsetWidth){ind.style.opacity='0';return;}
+    ind.style.opacity='1';ind.style.width=on.offsetWidth+'px';ind.style.transform='translateX('+on.offsetLeft+'px)';
+    if(k!==_jumpCur){_jumpCur=k;
+      /* chip nazar se bahar ho to use dikhao (sirf capsule ke andar sarakna, page nahi) */
+      var L=on.offsetLeft,R=L+on.offsetWidth;
+      /* seedha set (smooth nahi) -- page ka smooth scroll isse atakta nahi */
+      if(L<j.scrollLeft+8||R>j.scrollLeft+j.clientWidth-8)j.scrollLeft=Math.max(0,L-40);
+    }
   }
 
   /* ---- 1. hero ---- */
@@ -16758,10 +16802,12 @@ function toggleModalLeader(handle) {
     }
     var j=$('uiHeroJump');
     if(j&&!j.firstChild){
-      targets().forEach(function(t){
-        var b=document.createElement('button');b.type='button';b.className='ui-chip';
-        b.innerHTML=IC[t[1]]+'<span></span>';b.lastChild.textContent=t[0];
-        b.addEventListener('click',function(){var el=targets().filter(function(x){return x[0]===t[0];})[0];go(el&&el[2]);});
+      targets().forEach(function(t,i){
+        var b=document.createElement('button');b.type='button';b.className='ui-chip';b.setAttribute('data-k',t[0]);
+        b.innerHTML='<span class="ui-chip-n"></span><span></span>';
+        b.firstChild.textContent=(i<9?'0':'')+(i+1);b.lastChild.textContent=t[0];
+        b.title=t[0]+'  ·  press '+(i+1);
+        b.addEventListener('click',function(){var el=targets().filter(function(x){return x[0]===t[0];})[0];jumpActive(t[0]);go(el&&el[2]);});
         j.appendChild(b);
       });
       try{chipSlider(j);}catch(e){console.warn('[ui-v3] chips',e);}
@@ -16852,6 +16898,7 @@ function toggleModalLeader(handle) {
     targets().forEach(function(t){if(t[2].getBoundingClientRect().top<=line)cur=t[0];});
     if(!cur){var f=targets()[0];cur=f&&f[0];}
     each(dots.querySelectorAll('.ui-dot'),function(b){b.classList.toggle('on',b.getAttribute('data-k')===cur);});
+    try{jumpActive(cur);}catch(e){}
     if(topB)topB.classList.toggle('show',window.scrollY>600);
   }
 
@@ -16882,6 +16929,15 @@ function toggleModalLeader(handle) {
       try{nav();}catch(e){console.warn('[ui-v3] nav',e);}
       window.addEventListener('scroll',function(){if(!_sq)_sq=requestAnimationFrame(spy);},{passive:true});
       window.addEventListener('resize',function(){try{pillInd();spy();}catch(e){}});
+      /* ui-v3.3: 1-7 dabao -> seedha us section par (sirf Dashboard par, type karte waqt nahi) */
+      document.addEventListener('keydown',function(e){
+        if(e.ctrlKey||e.metaKey||e.altKey||e.shiftKey||e.repeat)return;
+        if(!/^[1-9]$/.test(e.key)||!SEC||!SEC.classList.contains('active'))return;
+        var a=document.activeElement,tg=(a&&a.tagName)||'';
+        if(/^(INPUT|SELECT|TEXTAREA)$/.test(tg)||(a&&a.isContentEditable))return;
+        var t=targets()[+e.key-1];if(!t)return;
+        e.preventDefault();jumpActive(t[0]);go(t[2]);
+      });
       document.addEventListener('change',function(){setTimeout(function(){try{heroText();pillInd();}catch(e){}},80);},true);
       document.addEventListener('click',function(){setTimeout(function(){try{pillInd();heroText();}catch(e){}},90);},true);
       setInterval(function(){try{heroText();pillInd();}catch(e){}},1500);
