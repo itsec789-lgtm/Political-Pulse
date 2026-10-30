@@ -24,8 +24,21 @@ set NODE_MEM=3072
 set TRIES=0
 
 :loop
-REM port 3000 par koi purana server baitha ho to use hatao
-for /f "tokens=5" %%p in ('netstat -ano ^| findstr ":3000" ^| findstr LISTENING') do taskkill /F /PID %%p >nul 2>&1
+REM one-server (30-Oct): port 3000 par pehle se server ho to use MAT maaro --
+REM ye window khud band ho jaati hai. Pehle har window doosre ka server maar
+REM deti thi: START_LOCAL do-teen baar chalane par 6 window aapas me ladti
+REM rahin aur page kabhi turant nahi khulta tha. (Win 11 Terminal me title se
+REM purani window band nahi hoti.) START_LOCAL / START_LIVE naya server chalane
+REM se PEHLE port khud khaali karte hain, isliye restart pehle jaisa chalta hai.
+set BUSY=
+for /f "tokens=5" %%p in ('netstat -ano ^| findstr ":3000" ^| findstr LISTENING') do set BUSY=%%p
+if defined BUSY (
+  echo.
+  echo   Port 3000 par server pehle se chal raha hai ^(PID !BUSY!^).
+  echo   Dusra server nahi chalayenge -- ye window band ho rahi hai.
+  timeout /t 3 /nobreak >nul
+  exit
+)
 
 echo.
 echo ============================================================
