@@ -5609,15 +5609,47 @@ a.pe-btn:after{content:"";position:absolute;inset:0;z-index:1;background:linear-
     <div class="htc-feed" id="haTopFeed"></div>
   </div>
 
-  <div class="ha-card">
-    <div class="ha-stitle">Growth Trends</div>
-    <div class="ha-grid" id="haGrowth"><div class="ha-msg">Ek handle chuno.</div></div>
+  <!-- ha-collapse (30-Oct): Growth Trends / Content Performance -- title par click se khule / band.
+       Shuru me khule; jo chuna wo browser yaad rakhta hai. -->
+  <style>
+  .ha-coll .ha-stitle{display:flex;align-items:center;gap:10px;cursor:pointer;user-select:none;border-radius:8px;transition:background .2s}
+  .ha-coll .ha-stitle:hover{background:#FFF6EE}
+  .ha-coll .ha-stitle:focus-visible{outline:2px solid #E65100;outline-offset:2px}
+  .ha-cchev{margin-left:auto;width:28px;height:28px;border-radius:50%;border:1px solid #F1D7C2;background:#fff;display:flex;align-items:center;justify-content:center;flex:none;transition:transform .35s cubic-bezier(.2,.8,.2,1)}
+  .ha-cchev svg{width:14px;height:14px;color:#E65100}
+  .ha-coll.closed .ha-cchev{transform:rotate(-90deg)}
+  .ha-chint{font-size:11px;font-weight:600;color:#9A9085;text-transform:none;letter-spacing:0}
+  .ha-cbody{display:grid;grid-template-rows:1fr;transition:grid-template-rows .4s cubic-bezier(.2,.8,.2,1),opacity .3s}
+  .ha-coll.closed .ha-cbody{grid-template-rows:0fr;opacity:0}
+  .ha-cin{overflow:hidden;min-height:0}
+  @media (prefers-reduced-motion:reduce){.ha-cbody,.ha-cchev{transition:none}}
+  </style>
+  <div class="ha-card ha-coll" data-key="growth">
+    <div class="ha-stitle" role="button" tabindex="0" aria-expanded="true">Growth Trends <span class="ha-chint">click to collapse</span><span class="ha-cchev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg></span></div>
+    <div class="ha-cbody"><div class="ha-cin"><div class="ha-grid" id="haGrowth"><div class="ha-msg">Ek handle chuno.</div></div></div></div>
   </div>
 
-  <div class="ha-card">
-    <div class="ha-stitle">Content Performance</div>
-    <div class="ha-grid" id="haContent"><div class="ha-msg">&mdash;</div></div>
+  <div class="ha-card ha-coll" data-key="content">
+    <div class="ha-stitle" role="button" tabindex="0" aria-expanded="true">Content Performance <span class="ha-chint">click to collapse</span><span class="ha-cchev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg></span></div>
+    <div class="ha-cbody"><div class="ha-cin"><div class="ha-grid" id="haContent"><div class="ha-msg">&mdash;</div></div></div></div>
   </div>
+  <script>
+  (function () {
+    function key(c) { return 'ha_coll_' + c.getAttribute('data-key'); }
+    function set(c, closed) {
+      c.classList.toggle('closed', closed);
+      var t = c.querySelector('.ha-stitle'); t.setAttribute('aria-expanded', String(!closed));
+      var h = c.querySelector('.ha-chint'); if (h) h.textContent = closed ? 'click to expand' : 'click to collapse';
+    }
+    document.querySelectorAll('.ha-coll').forEach(function (c) {
+      try { if (localStorage.getItem(key(c)) === '1') set(c, true); } catch (e) {}
+      var t = c.querySelector('.ha-stitle');
+      function flip() { var cl = !c.classList.contains('closed'); set(c, cl); try { localStorage.setItem(key(c), cl ? '1' : '0'); } catch (e) {} }
+      t.addEventListener('click', flip);
+      t.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); flip(); } });
+    });
+  })();
+  </script>
 
   <!-- no-er : Engagement Rate card hata diya gaya hai.
        Is data me 'Total Retweets' column galat bhara hua hai (shares views
