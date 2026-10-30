@@ -5553,7 +5553,52 @@ a.pe-btn:after{content:"";position:absolute;inset:0;z-index:1;background:linear-
         <p class="ha-bio" id="haBio"></p>
       </div>
     </div>
-    <div class="ha-cells" id="haCells"></div>
+    <!-- ha-stats (30-Oct): upar Profile & activity, neeche "Per-tweet averages" -- click par khule / band ho -->
+    <style>
+    .hs-wrap{padding:14px 16px 16px;border-top:1px solid var(--border)}
+    .hs-kh{font:700 11px Inter,sans-serif;letter-spacing:.09em;text-transform:uppercase;color:#8A8074;margin:0 0 10px;display:flex;align-items:center;gap:8px}
+    .hs-kh::after{content:"";flex:1;height:1px;background:#EFE8DD}
+    .hs-prof{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
+    .hs-st{border:1px solid #EFE8DD;border-radius:14px;padding:14px 16px 12px;background:#fff;min-width:0;transition:transform .2s,box-shadow .2s}
+    .hs-st:hover{transform:translateY(-2px);box-shadow:0 10px 22px -16px rgba(0,0,0,.35)}
+    .hs-ic{width:30px;height:30px;border-radius:9px;display:flex;align-items:center;justify-content:center;margin-bottom:10px}
+    .hs-ic svg{width:17px;height:17px}
+    .hs-v{font:700 26px Rajdhani,sans-serif;line-height:1;font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .hs-l{font-size:11.5px;color:#7A7166;margin-top:5px;font-weight:600}
+    .hs-sub{font-size:11px;color:#9A9085;margin-top:3px}
+    .hs-avg{margin-top:14px;border:1px solid #F1D7C2;border-radius:14px;background:linear-gradient(180deg,#FFF8F2,#fff);overflow:hidden}
+    .hs-hd{width:100%;display:flex;align-items:center;gap:14px;padding:13px 16px;border:none;background:none;cursor:pointer;text-align:left;font:inherit;color:inherit}
+    .hs-hd:hover{background:#FFF3EA}
+    .hs-aic{width:36px;height:36px;border-radius:11px;background:#E65100;color:#fff;display:flex;align-items:center;justify-content:center;flex:none;box-shadow:0 6px 14px -8px #E65100}
+    .hs-aic svg{width:19px;height:19px}
+    .hs-t{font-weight:800;font-size:14.5px;color:#1E1B16}
+    .hs-s{font-size:12px;color:#7A7166;margin-top:2px}
+    .hs-chips{display:flex;gap:8px;margin-left:auto;flex-wrap:wrap;justify-content:flex-end;transition:opacity .25s}
+    .hs-chip{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:700;background:#fff;border:1px solid #F1E2D3;border-radius:999px;padding:5px 10px;font-variant-numeric:tabular-nums;color:#1E1B16}
+    .hs-chip i{width:7px;height:7px;border-radius:50%}
+    .hs-avg.open .hs-chips{opacity:0;pointer-events:none}
+    .hs-chev{width:30px;height:30px;border-radius:50%;border:1px solid #F1D7C2;display:flex;align-items:center;justify-content:center;flex:none;background:#fff;transition:transform .35s cubic-bezier(.2,.8,.2,1),background .2s}
+    .hs-chev svg{width:15px;height:15px;color:#E65100}
+    .hs-avg.open .hs-chev{transform:rotate(180deg);background:#FFF1E6}
+    .hs-body{display:grid;grid-template-rows:0fr;transition:grid-template-rows .4s cubic-bezier(.2,.8,.2,1)}
+    .hs-avg.open .hs-body{grid-template-rows:1fr}
+    .hs-in{overflow:hidden}
+    .hs-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;padding:4px 16px 16px}
+    .hs-ac{border:1px solid #EFE8DD;border-radius:14px;padding:14px 16px;background:#fff;opacity:0;transform:translateY(8px);transition:opacity .35s,transform .35s}
+    .hs-avg.open .hs-ac{opacity:1;transform:none}
+    .hs-avg.open .hs-ac:nth-child(2){transition-delay:.06s}.hs-avg.open .hs-ac:nth-child(3){transition-delay:.12s}.hs-avg.open .hs-ac:nth-child(4){transition-delay:.18s}
+    .hs-acl{font-size:12px;font-weight:700;display:flex;align-items:center;gap:6px}
+    .hs-acl svg{width:15px;height:15px}
+    .hs-acv{font:700 30px Rajdhani,sans-serif;line-height:1;margin-top:10px;font-variant-numeric:tabular-nums;color:#1E1B16}
+    .hs-acu{font-size:11.5px;color:#9A9085;margin-top:4px}
+    .hs-bar{height:6px;border-radius:3px;background:#F3EEE6;margin-top:12px;overflow:hidden}
+    .hs-bar i{display:block;height:100%;border-radius:3px;width:0;transition:width .9s cubic-bezier(.2,.8,.2,1) .15s}
+    .hs-avg.open .hs-bar i{width:var(--w)}
+    .hs-acn{font-size:11px;color:#9A9085;margin-top:6px}
+    @media (max-width:900px){.hs-prof{grid-template-columns:repeat(2,1fr)}.hs-grid{grid-template-columns:1fr 1fr}.hs-chips{display:none}}
+    @media (prefers-reduced-motion:reduce){.hs-wrap *{transition:none!important}}
+    </style>
+    <div class="hs-wrap" id="haCells"></div>
     <div class="ha-note" id="haNote"></div>
   </div>
 
@@ -10463,22 +10508,66 @@ setTimeout(hExec,600);
     fillProfile(p, c);
 
     /* ---- stat cells  (no-er : Engagement Rate tile hata di) ---- */
-    var cells = [
-      [big(p.xFollowers || s.followers), 'Followers'],
-      [big(p.xFollowing || s.following), 'Following'],
-      [big(p.xPosts || s.totalPosts), 'Total Posts'], [s.postsPerDay, 'Posts / Day'],
-      /* avg-fix front : jis column ka data hi nahi aaya, uspar "0" ke
-         bajaye "--". 0 ka matlab hota hai "sach me zero", aur wo galat
-         sandesh tha -- data hai hi nahi. */
-      [bigN(s.avgLikes), 'Avg Likes'], [bigN(s.avgComments), 'Avg Comments'],
-      [bigN(s.avgViews), 'Avg Views'], [bigN(s.avgShares), 'Avg Shares'],
-      [big(s.totalEngagement), 'Total Engagement']
-    ];
-    /* kpi-tiles : har tile ka left-bar party colour ka */
-    el('haCells').innerHTML = cells.map(function (x) {
-      return '<div class="c" style="--accent:' + c + '"><div class="v">'
-        + esc(String(x[0])) + '</div><div class="l">' + x[1] + '</div></div>';
-    }).join('');
+    /* ha-stats (30-Oct): upar Profile & activity; averages alag section me (click par khule / band).
+       avg-fix front waisa hi: jis column ka data hi nahi, wahan "--" (bigN), 0 nahi. */
+    var HSI = {
+      fol: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>',
+      fing: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6M22 11h-6"/></svg>',
+      post: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v12H5.17L4 17.17z"/><path d="M8 9h8M8 12h5"/></svg>',
+      day: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>',
+      eng: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>',
+      avg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/></svg>',
+      chev: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>',
+      vw: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>',
+      lk: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-4.4-9.3-8.8C1.2 9.3 2.8 5.5 6.5 5.1c2-.2 3.6.9 4.5 2.4.9-1.5 2.5-2.6 4.5-2.4 3.7.4 5.3 4.2 3.8 7.1C19 16.6 12 21 12 21z"/></svg>',
+      sh: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 2l4 4-4 4"/><path d="M3 11V9a3 3 0 0 1 3-3h15"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v2a3 3 0 0 1-3 3H3"/></svg>',
+      cm: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.4A8 8 0 1 1 21 12z"/></svg>'
+    };
+    function hsSt(ic, bg, fg, v, l, sub) {
+      return '<div class="hs-st"><div class="hs-ic" style="background:' + bg + ';color:' + fg + '">' + ic + '</div>'
+        + '<div class="hs-v">' + esc(String(v)) + '</div><div class="hs-l">' + l + '</div>' + (sub ? '<div class="hs-sub">' + sub + '</div>' : '') + '</div>';
+    }
+    var aV = s.avgViews, aL = s.avgLikes, aS = s.avgShares, aC = s.avgComments;
+    function pctOfViews(x) { return (aV > 0 && x != null) ? (x * 100 / aV) : null; }
+    function hsAc(ic, col, label, v, unit, x) {
+      var pc = (label === 'Avg views') ? (aV ? 100 : 0) : pctOfViews(x);
+      var note = label === 'Avg views' ? (aV ? 'reach ka base' : 'views ka data nahi')
+        : (pc == null ? 'views ke bina % nahi' : (x ? pc.toFixed(1) + '% of views' : 'abhi koi nahi'));
+      return '<div class="hs-ac"><div class="hs-acl" style="color:' + col + '">' + ic + label + '</div>'
+        + '<div class="hs-acv">' + esc(String(v)) + '</div><div class="hs-acu">' + unit + '</div>'
+        + '<div class="hs-bar"><i style="background:' + col + ';--w:' + (pc == null ? 0 : Math.max(pc ? .5 : 0, Math.min(100, pc))) + '%"></i></div>'
+        + '<div class="hs-acn">' + note + '</div></div>';
+    }
+    var hsOpen = !!(el('haAvgBox') && el('haAvgBox').classList.contains('open'));
+    el('haCells').innerHTML =
+        '<div class="hs-kh">Profile &amp; activity</div><div class="hs-prof">'
+      + hsSt(HSI.fol, '#FFF1E6', '#E65100', big(p.xFollowers || s.followers), 'Followers')
+      + hsSt(HSI.fing, '#FDF3E3', '#B45309', big(p.xFollowing || s.following), 'Following')
+      + hsSt(HSI.post, '#E8F3FD', '#1D9BF0', big(p.xPosts || s.totalPosts), 'Total posts')
+      + hsSt(HSI.day, '#EEF6EE', '#2E7D32', s.postsPerDay, 'Posts / day')
+      + hsSt(HSI.eng, '#F3E8FF', '#7E22CE', big(s.totalEngagement), 'Total engagement', 'likes + comments + shares')
+      + '</div>'
+      + '<div class="hs-avg' + (hsOpen ? ' open' : '') + '" id="haAvgBox">'
+      + '<button type="button" class="hs-hd" id="haAvgBtn" aria-expanded="' + hsOpen + '">'
+      + '<span class="hs-aic">' + HSI.avg + '</span>'
+      + '<span><div class="hs-t">Per-tweet averages</div><div class="hs-s">Har tweet par ausatan kitna response mila &middot; click to ' + (hsOpen ? 'collapse' : 'expand') + '</div></span>'
+      + '<span class="hs-chips">'
+      + '<span class="hs-chip"><i style="background:#6A1B9A"></i>' + bigN(aV) + ' views</span>'
+      + '<span class="hs-chip"><i style="background:#E0245E"></i>' + bigN(aL) + ' likes</span>'
+      + '<span class="hs-chip"><i style="background:#17BF63"></i>' + bigN(aS) + ' shares</span>'
+      + '<span class="hs-chip"><i style="background:#1D9BF0"></i>' + bigN(aC) + ' comments</span></span>'
+      + '<span class="hs-chev">' + HSI.chev + '</span></button>'
+      + '<div class="hs-body"><div class="hs-in"><div class="hs-grid">'
+      + hsAc(HSI.vw, '#6A1B9A', 'Avg views', bigN(aV), 'views per tweet', aV)
+      + hsAc(HSI.lk, '#E0245E', 'Avg likes', bigN(aL), 'likes per tweet', aL)
+      + hsAc(HSI.sh, '#17BF63', 'Avg shares', bigN(aS), 'reposts per tweet', aS)
+      + hsAc(HSI.cm, '#1D9BF0', 'Avg comments', bigN(aC), 'comments per tweet', aC)
+      + '</div></div></div></div>';
+    el('haAvgBtn').onclick = function () {
+      var box = el('haAvgBox'), o = box.classList.toggle('open');
+      this.setAttribute('aria-expanded', o);
+      this.querySelector('.hs-s').innerHTML = 'Har tweet par ausatan kitna response mila &middot; click to ' + (o ? 'collapse' : 'expand');
+    };
 
     /* ---- neeche ki note  (xlive-front) ---- */
     LASTCOV = s.coverage || {};
