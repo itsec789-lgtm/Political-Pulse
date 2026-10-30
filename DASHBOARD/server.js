@@ -1693,7 +1693,10 @@ async function buildDashBase(scope) {
     }
   } catch (e) { console.log('  [dash] local read fail: ' + e.message + ' -> Atlas'); docs = phdDocs = null; }
   const _haveLocal = docs && docs.length && phdDocs && phdDocs.length;
-  const _hot = await dashFromHot(scope, client, !!_haveLocal);
+  /* local-first (30-Oct): local me data ho to page HAMESHA local se. Pehle Atlas par naya build milte hi
+     (doosre computer ka push) ~20 MB internet se aata tha -- page 100-166 s me banta tha (local se ~3 s).
+     Atlas ab sirf tab jab local me data hi na mile. */
+  const _hot = _haveLocal ? null : await dashFromHot(scope, client, false);
   if (_hot) {
     docs = _hot.docs; phdDocs = _hot.phdDocs;
     console.log("  Data mila Atlas (HOT) se: " + _hot.name + "  (scope=" + scope + ")"
