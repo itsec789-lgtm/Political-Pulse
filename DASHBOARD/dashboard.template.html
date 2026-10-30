@@ -3476,6 +3476,10 @@ body.ui-capture #sec-dashboard .kpi{transform:none!important}
 #sec-dashboard .lv-rail:has(>.level-strip[style*="none"]) .lv-nav{display:none}
 @media(max-width:820px){#sec-dashboard .lv-rail .lv-card{flex-basis:180px;min-height:130px}#sec-dashboard .lv-nav{display:none}}
 @media (prefers-reduced-motion:reduce){#sec-dashboard .lv-rail>.level-strip{scroll-behavior:auto}}
+/* analysis panel (KPI + category) ke upar wale info cards: wahi patli orange ring jo KPI cards par */
+#sec-dashboard .ui-dps,#sec-dashboard .cat-dp-kpi{border:1.5px solid #F7A25B!important;border-radius:14px!important;
+  box-shadow:0 2px 10px -4px rgba(230,81,0,.18);transition:border-color .2s,box-shadow .2s}
+#sec-dashboard .ui-dps:hover,#sec-dashboard .cat-dp-kpi:hover{border-color:#EA580C!important;box-shadow:0 8px 20px -10px rgba(230,81,0,.32)}
 </style>
 
 <style id="uiHdrCss">
