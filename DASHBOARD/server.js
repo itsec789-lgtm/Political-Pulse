@@ -2167,7 +2167,11 @@ async function buildHtml(scope, role, who) {
        mapping ka poora count mat thopo. 'All parties' par hi poora count. */
     +   "function _lvAll(){try{var p=(document.getElementById('dashParty')||{}).value;"
     +     "return !p||p==='all';}catch(e){return true;}}"
+    /* cat-fix (30-Oct): All-India ka updateLevelStrip ab khud Category se
+       ginta hai aur Mapping wali line ("567 handles · 455 par data") likhta
+       hai -- wahan ye level-ginti use mita deti thi. Flag wahi lagata hai. */
     +   "function _lvFix(){try{"
+    +     "if(window._lvCatAware)return;"
     +     "if(!_lvAll())return;"
     +     "var live={};((window.UNI&&UNI.allHandles)||[]).forEach(function(h){"
     +       "var k=h.level||'Others';live[k]=(live[k]||0)+1;});"
