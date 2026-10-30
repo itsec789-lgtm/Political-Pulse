@@ -5971,7 +5971,7 @@ a.pe-btn:after{content:"";position:absolute;inset:0;z-index:1;background:linear-
   <div class="ha-card" id="haTopCard" style="display:none">
     <div class="ha-stitle">Top Performing Tweet <span>this period</span></div>
     <!-- top-card (30-Oct): Latest Tweets jaisa X card + translate tabs (twCard / wireCards) -->
-    <div class="htc-head"><span class="htc-xh"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>Tweet</span><span>Sentiment</span></div>
+    <div class="htc-head solo"><span class="htc-xh"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>Tweet</span></div>
     <div class="htc-feed" id="haTopFeed"></div>
   </div>
 
@@ -6120,6 +6120,12 @@ a.pe-btn:after{content:"";position:absolute;inset:0;z-index:1;background:linear-
     .htc-open:hover{text-decoration:underline}
     .htc-sent{display:flex;align-items:center;gap:8px;font-size:13.5px;font-weight:600}
     .htc-sent i{width:9px;height:9px;border-radius:50%;flex:none}
+    /* top-sent (30-Oct): SIRF Top Performing Tweet -- sentiment column nahi, card ke andar pill (X logo ke pehle) */
+    .htc-row.solo,.htc-head.solo{grid-template-columns:1fr}
+    .htc-spill{margin-left:auto;display:inline-flex;align-items:center;gap:6px;font:600 12.5px Inter,sans-serif;color:var(--sc);
+      background:color-mix(in srgb,var(--sc) 9%,#fff);border:1px solid color-mix(in srgb,var(--sc) 28%,#fff);border-radius:999px;padding:3px 10px;white-space:nowrap}
+    .htc-spill i{width:8px;height:8px;border-radius:50%;background:var(--sc);flex:none}
+    .htc-spill + .htc-x{margin-left:10px}
     .htc-empty{padding:26px;text-align:center;color:#8A8074;font-size:13px}
     @media (max-width:700px){.htc-head{display:none}.htc-row{grid-template-columns:1fr}.htc-sent{padding:0 6px}}
     </style>
@@ -11431,9 +11437,11 @@ setTimeout(hExec,600);
       return '<span class="htc-a ' + k + '" title="' + label + ': ' + nf(v) + '">' + TW_I[k]
         + '<b class="num" id="' + hid + '-' + k + '">' + big(v) + '</b></span>';
     }
-    return '<div class="htc-row"><article class="htc-tw">'
+    var top = i === 'top';   /* top-sent: Top tweet me sentiment card ke andar */
+    return '<div class="htc-row' + (top ? ' solo' : '') + '"><article class="htc-tw">'
       + '<div class="htc-hd"><img class="htc-av" src="/api/avatar/' + encodeURIComponent(CUR) + '" alt="" loading="lazy" onerror="this.style.visibility=\'hidden\'">'
-      + '<div style="min-width:0"><div class="htc-nm">' + esc(nm) + '</div><div class="htc-hn">@' + esc(CUR) + '</div></div>' + TW_I.x + '</div>'
+      + '<div style="min-width:0"><div class="htc-nm">' + esc(nm) + '</div><div class="htc-hn">@' + esc(CUR) + '</div></div>'
+      + (top ? '<span class="htc-spill" style="--sc:' + sc + '"><i></i>' + esc(t.sent || '—') + '</span>' : '') + TW_I.x + '</div>'
       + (L ? '<div class="htc-lang" data-i="' + i + '" data-name="' + L.name + '" data-code="' + L.code + '"><button class="on" data-to="orig">' + TW_I.globe + 'Original · ' + L.name
             + '</button><button data-to="en">English</button></div>' : '')
       + '<div class="htc-txt clamp" id="htcT' + i + '"' + (L ? ' lang="' + L.code + '"' + (L.code === 'ur' ? ' dir="rtl"' : '') : '') + '>' + twHtml(t.text) + '</div>'
@@ -11442,7 +11450,7 @@ setTimeout(hExec,600);
       + '<div class="htc-date">' + twDate(t.date) + '</div>'
       + '<div class="htc-acts">' + act('cm', t.comments, 'Comments') + act('sh', t.shares, 'Shares') + act('lk', t.likes, 'Likes') + act('vw', t.views, 'Views')
       + (t.url ? '<a class="htc-open" href="' + esc(t.url) + '" target="_blank" rel="noopener">Open on X &#8599;</a>' : '') + '</div>'
-      + '</article><div class="htc-sent" style="color:' + sc + '"><i style="background:' + sc + '"></i>' + esc(t.sent || '—') + '</div></div>';
+      + '</article>' + (top ? '' : '<div class="htc-sent" style="color:' + sc + '"><i style="background:' + sc + '"></i>' + esc(t.sent || '—') + '</div>') + '</div>';
   }
   function cardMore(b) {
     b.querySelectorAll('.htc-more').forEach(function (m) {
