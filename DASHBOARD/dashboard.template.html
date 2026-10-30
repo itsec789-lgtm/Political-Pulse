@@ -5558,9 +5558,10 @@ a.pe-btn:after{content:"";position:absolute;inset:0;z-index:1;background:linear-
   </div>
 
   <div class="ha-card" id="haTopCard" style="display:none">
-    <div class="ha-stitle">Top Performing Tweet <span>this period</span></div>
-    <div class="ha-toptext" id="haTopText"></div>
-    <div class="ha-inline" id="haTopStats"></div>
+    <div class="ha-stitle">&#127942; Top Performing Tweet <span>this period</span></div>
+    <!-- top-card (30-Oct): Latest Tweets jaisa X card + translate tabs (twCard / wireCards) -->
+    <div class="htc-head"><span>Tweet</span><span>Sentiment</span></div>
+    <div class="htc-feed" id="haTopFeed"></div>
   </div>
 
   <div class="ha-card">
@@ -10488,14 +10489,9 @@ setTimeout(hExec,600);
     var t = r.topTweet, tc = el('haTopCard');
     if (t) {
       tc.style.display = '';
-      el('haTopText').textContent = t.text || '';
-      el('haTopStats').innerHTML =
-        '<span>Likes <b>' + big(t.likes) + '</b></span>'
-        + '<span>Comments <b>' + big(t.comments) + '</b></span>'
-        + '<span>Views <b>' + big(t.views) + '</b></span>'
-        + '<span>Shares <b>' + big(t.shares) + '</b></span>'
-        + (t.url ? '<a style="margin-left:auto;color:' + c + ';font-weight:700;text-decoration:none" href="'
-            + esc(t.url) + '" target="_blank" rel="noopener">Open ↗</a>' : '');
+      var tf = el('haTopFeed'), who = (LIST || []).find(function (o) { return o.h === CUR; }) || { name: p.name };
+      tf.innerHTML = twCard(t, 'top', who);
+      wireCards(tf, { top: t });
     } else { tc.style.display = 'none'; }
 
     /* ---- charts ---- */
@@ -10627,7 +10623,7 @@ setTimeout(hExec,600);
   };
   function twCard(t, i, who) {
     var L = twLang(t.text), sk = String(t.sent || '').toLowerCase(), sc = TW_SENT[sk] || '#78909C';
-    var nm = who.name || CUR, hid = 'tw' + (t.id || i);
+    var nm = who.name || CUR, hid = 'tw' + (i === 'top' ? 'top' : '') + (t.id || i);
     function act(k, v, label) {
       /* id -> "↑ +17" wala live-delta tracker card ke number bhi pakadta hai */
       return '<span class="htc-a ' + k + '" title="' + label + ': ' + nf(v) + '">' + TW_I[k]
@@ -10685,7 +10681,7 @@ setTimeout(hExec,600);
     });
     /* translation SIRF click par; ek baar aaya to yahin yaad (server bhi save karta hai) */
     b.querySelectorAll('.htc-lang').forEach(function (box) {
-      var i = +box.getAttribute('data-i'), name = box.getAttribute('data-name'), tw = list[i];
+      var i = box.getAttribute('data-i'), name = box.getAttribute('data-name'), tw = list[i];
       var t = el('htcT' + i), n = el('htcN' + i), busy = false, got = {};
       var orig = { html: t.innerHTML, lang: t.getAttribute('lang'), dir: t.getAttribute('dir') };
       box.addEventListener('click', function (e) {
