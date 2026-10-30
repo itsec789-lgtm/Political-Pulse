@@ -3109,9 +3109,22 @@ html{scroll-behavior:smooth}
 .ui-hero-map{position:absolute;right:2%;top:50%;width:min(300px,32%);transform:translateY(-50%);z-index:-1;pointer-events:none;
   opacity:0;animation:uiFadeIn 1.4s .2s var(--ease) forwards}
 @keyframes uiFadeIn{to{opacity:1}}
-.ui-hero-map svg{width:100%;height:auto;display:block;filter:drop-shadow(0 0 18px rgba(255,140,0,.35))}
-.ui-hero-map path{fill:rgba(255,140,0,.07);stroke:rgba(255,176,90,.5);stroke-width:.22;stroke-linejoin:round}
-.ui-hero-map .dot{fill:#FFB050;filter:drop-shadow(0 0 1.2px rgba(255,185,90,.95));animation:dotPulse 2.6s ease-in-out infinite}
+.ui-hero-map svg{width:100%;height:auto;display:block;overflow:visible;filter:drop-shadow(0 0 16px rgba(255,153,51,.22))}
+/* ui-v3.1: naksha halke tirange me -- upar kesariya, beech safed, neeche hara */
+.ui-hero-map path.ui-land{fill:url(#uiTri);stroke:rgba(255,240,222,.42);stroke-width:.22;stroke-linejoin:round}
+.ui-hero-map .dot{r:.62;animation:none;filter:drop-shadow(0 0 1px rgba(255,255,255,.7))}
+.ui-hero-map .dot.t0{fill:#FFB366}.ui-hero-map .dot.t1{fill:#FFF6EA}.ui-hero-map .dot.t2{fill:#7FD68A}
+/* shehar -> Delhi: data bahta hua */
+.ui-net path{fill:none;stroke-width:.24;stroke-linecap:round;opacity:.5}
+.ui-net path.t0{stroke:rgba(255,179,102,.55)}.ui-net path.t1{stroke:rgba(255,246,234,.45)}.ui-net path.t2{stroke:rgba(127,214,138,.55)}
+.ui-net path.ui-flow{stroke-dasharray:1.2 2.6;animation:uiFlow 2.8s linear infinite}
+@keyframes uiFlow{to{stroke-dashoffset:-15.2}}
+.ui-pk{filter:drop-shadow(0 0 1.2px rgba(255,255,255,.95))}
+.ui-pk.t0{fill:#FFC27A}.ui-pk.t1{fill:#FFFFFF}.ui-pk.t2{fill:#8CE59A}
+.ui-hub{fill:#FFF3E2;filter:drop-shadow(0 0 2px rgba(255,200,140,.95))}
+.ui-hub-ring{fill:none;stroke:rgba(255,214,170,.7);stroke-width:.3;transform-box:fill-box;transform-origin:center;animation:uiHubRing 2.8s ease-out infinite}
+.ui-hub-ring.r2{animation-delay:1.4s;stroke:rgba(127,214,138,.6)}
+@keyframes uiHubRing{0%{transform:scale(.6);opacity:.9}100%{transform:scale(4.2);opacity:0}}
 .ui-hero-body{position:relative;max-width:660px}
 .ui-hero-eyebrow{display:flex;align-items:center;gap:10px;font:700 11px 'DM Sans',sans-serif;letter-spacing:1.6px;text-transform:uppercase;color:rgba(255,214,170,.78)}
 .ui-live{display:inline-flex;align-items:center;gap:6px;padding:3px 10px 3px 8px;border-radius:999px;letter-spacing:1px;
@@ -3125,13 +3138,30 @@ html{scroll-behavior:smooth}
 .ui-hero-sub{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;margin:0;font-size:12.5px;color:rgba(255,236,214,.74)}
 .ui-hero-sub b{color:#fff;font-weight:600}
 .ui-dot-sep{width:4px;height:4px;border-radius:50%;background:rgba(255,236,214,.35)}
-.ui-hero-chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+/* ui-v3.1: chips ek hi line me -- side me sarakte hain, dono taraf teer */
+.ui-chipwrap{position:relative;margin-top:16px;max-width:100%}
+.ui-hero-chips{display:flex;flex-wrap:nowrap;gap:8px;overflow-x:auto;scroll-behavior:smooth;scrollbar-width:none;padding:2px 2px 4px}
+.ui-hero-chips::-webkit-scrollbar{display:none}
+.ui-chipwrap.can-l .ui-hero-chips{-webkit-mask-image:linear-gradient(90deg,transparent 0,#000 44px);mask-image:linear-gradient(90deg,transparent 0,#000 44px)}
+.ui-chipwrap.can-r .ui-hero-chips{-webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 44px),transparent);mask-image:linear-gradient(90deg,#000 calc(100% - 44px),transparent)}
+.ui-chipwrap.can-l.can-r .ui-hero-chips{-webkit-mask-image:linear-gradient(90deg,transparent 0,#000 44px,#000 calc(100% - 44px),transparent);mask-image:linear-gradient(90deg,transparent 0,#000 44px,#000 calc(100% - 44px),transparent)}
+.ui-chip-arr{position:absolute;top:50%;width:28px;height:28px;min-height:0;margin-top:-15px;border:0;border-radius:50%;cursor:pointer;z-index:2;
+  display:none;place-items:center;color:#2B1407;background:#FFE7CF;box-shadow:0 4px 12px rgba(0,0,0,.35);transition:transform .15s,background .15s}
+.ui-chip-arr:hover{background:#fff;transform:scale(1.08)}
+.ui-chip-arr svg{width:14px;height:14px}
+.ui-chip-arr.l{left:-4px}.ui-chip-arr.r{right:-4px}
+.ui-chipwrap.can-l .ui-chip-arr.l,.ui-chipwrap.can-r .ui-chip-arr.r{display:grid}
 .ui-chip{appearance:none;border:0;cursor:pointer;display:inline-flex;align-items:center;gap:6px;min-height:0;
   font:600 12px 'DM Sans',sans-serif;color:#FFE7CF;padding:7px 13px;border-radius:999px;
   background:rgba(255,255,255,.07);box-shadow:inset 0 0 0 1px rgba(255,255,255,.13);transition:background .2s,transform .2s,color .2s}
+.ui-hero-chips .ui-chip{flex:0 0 auto;white-space:nowrap}
 .ui-chip:hover{background:rgba(255,140,0,.24);color:#fff;transform:translateY(-1px)}
 .ui-chip:focus-visible{outline:none;box-shadow:0 0 0 2px #FFB347}
 .ui-chip svg{width:13px;height:13px;flex:none}
+
+/* ui-v3.1: range ki line filter bar me nahi (wo bar ko do line ka kar deti thi) --
+   wahi text upar hero me dikhta hai. Element DOM me rehta hai, JS use padhta hai. */
+#sec-dashboard .ui-fbar #dashRangeNote{display:none!important}
 
 /* ---------- pills: sarakta hua indicator ---------- */
 .ui-pills{position:relative;isolation:isolate}
@@ -3150,9 +3180,9 @@ html{scroll-behavior:smooth}
 #sec-dashboard .kpi.kpi-open{transform:translateY(-3px)}
 #sec-dashboard .kpi::before{content:'';position:absolute;left:0;right:0;top:0;height:3px;z-index:1;
   background:linear-gradient(90deg,var(--ka),transparent 88%)}
+/* ui-v3.1 (30-Oct): adhuri "share" patti hata di -- KPI jaisi poori rangeen patti */
 #sec-dashboard .lv-card::before{content:'';position:absolute;left:0;right:0;top:0;height:3px;z-index:1;
-  background:linear-gradient(var(--lc),var(--lc)) no-repeat 0 0/var(--share,0%) 100%,var(--line-2);
-  transition:background-size .7s var(--ease)}
+  background:linear-gradient(90deg,var(--lc),transparent 88%)}
 #sec-dashboard :is(.kpi,.lv-card,.ov-card,.sum-card)::after{content:'';position:absolute;inset:0;border-radius:inherit;
   pointer-events:none;opacity:0;transition:opacity .3s;z-index:0;
   background:radial-gradient(260px circle at var(--mx,50%) var(--my,50%),rgba(255,140,0,.09),transparent 62%)}
@@ -3197,12 +3227,13 @@ html{scroll-behavior:smooth}
 /* ---------- PDF ke waqt sab sthir aur dikhta hua ---------- */
 body.ui-capture #sec-dashboard .ui-rv{opacity:1!important;transform:none!important;transition:none!important}
 body.ui-capture #sec-dashboard *{animation:none!important}
-body.ui-capture .ui-dots,body.ui-capture .ui-top{display:none!important}
+body.ui-capture .ui-dots,body.ui-capture .ui-top,body.ui-capture .ui-pk,body.ui-capture .ui-hub-ring,body.ui-capture .ui-chip-arr{display:none!important}
 body.ui-capture #sec-dashboard .kpi{transform:none!important}
 
 /* ---------- reduced motion ---------- */
 @media (prefers-reduced-motion:reduce){
-  .ui-hero-glow,.ui-hero-title span,.ui-live i,.ui-hero-map{animation:none!important;opacity:1}
+  .ui-hero-glow,.ui-hero-title span,.ui-live i,.ui-hero-map,.ui-net path.ui-flow{animation:none!important;opacity:1}
+  .ui-pk,.ui-hub-ring{display:none}
   #sec-dashboard .ui-rv{opacity:1;transform:none;transition:none}
   #sec-dashboard .ui-tick{animation:none}
   #sec-dashboard .kpi,#sec-dashboard .kpi:hover{transform:none}
@@ -3216,8 +3247,6 @@ body.ui-capture #sec-dashboard .kpi{transform:none!important}
   .ui-hero{padding:20px 18px;border-radius:18px;min-height:0}
   .ui-hero-title{font-size:24px}
   .ui-hero-map{width:46%;right:-8%;opacity:.5}
-  .ui-hero-chips{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin-right:-18px;padding-right:18px}
-  .ui-hero-chips::-webkit-scrollbar{display:none}
   .ui-chip{flex:0 0 auto}
   .ui-top{right:14px;bottom:16px}
 }
@@ -16599,6 +16628,60 @@ function toggleModalLeader(handle) {
     ].filter(function(t){return !!t[2];});
   }
 
+  /* ---- 1a. naksha: halka tiranga + har shehar se Delhi tak data ka bahaav ----
+     ui-v3.1 (30-Oct): blink ki jagah "data jud raha hai" -- shehron se packets
+     Delhi (hub) ki taraf chalte hain. Sirf sajavat, koi data nahi. */
+  var NS='http://www.w3.org/2000/svg';
+  function el(n,a){var e=document.createElementNS(NS,n);for(var k in a)e.setAttribute(k,a[k]);return e;}
+  function net(svg){
+    if(svg.querySelector('.ui-net'))return;
+    var land=svg.querySelector('path');if(land)land.setAttribute('class','ui-land');
+    var defs=el('defs',{}),g=el('linearGradient',{id:'uiTri',x1:'0',y1:'0',x2:'0',y2:'1'});
+    [['0','rgba(255,153,51,.20)'],['.48','rgba(255,250,242,.07)'],['1','rgba(46,160,67,.20)']].forEach(function(s){g.appendChild(el('stop',{offset:s[0],'stop-color':s[1]}));});
+    defs.appendChild(g);svg.insertBefore(defs,svg.firstChild);
+    var dots=Array.prototype.slice.call(svg.querySelectorAll('.dot'));if(!dots.length)return;
+    var HX=31.0,HY=17.7;                      /* Delhi */
+    var grp=el('g',{'class':'ui-net'});
+    dots.forEach(function(d,i){
+      d.removeAttribute('style');var t='t'+(i%3);d.setAttribute('class','dot '+t);
+      var x=parseFloat(d.getAttribute('cx')),y=parseFloat(d.getAttribute('cy'));
+      if(Math.abs(x-HX)<.5&&Math.abs(y-HY)<.5)return;
+      /* halka mudaav: beech ka control point line ke perpendicular */
+      var mx=(x+HX)/2,my=(y+HY)/2,dx=HX-x,dy=HY-y,len=Math.sqrt(dx*dx+dy*dy)||1,bend=Math.min(9,len*.18)*(i%2?1:-1);
+      var cx=(mx-dy/len*bend).toFixed(1),cy=(my+dx/len*bend).toFixed(1);
+      var dd='M'+x+' '+y+' Q'+cx+' '+cy+' '+HX+' '+HY;
+      grp.appendChild(el('path',{d:dd,'class':t+(i%4===0?' ui-flow':'')}));
+      if(RM)return;
+      var pk=el('circle',{r:'.55','class':'ui-pk '+t});
+      var dur=(2.6+(i%5)*.45).toFixed(2)+'s',beg=((i*0.37)%3.2).toFixed(2)+'s';
+      var am=el('animateMotion',{dur:dur,begin:beg,repeatCount:'indefinite',path:dd,calcMode:'spline',keyTimes:'0;1',keySplines:'.4 0 .6 1'});
+      pk.appendChild(am);
+      pk.appendChild(el('animate',{attributeName:'opacity',values:'0;1;1;0',keyTimes:'0;.15;.85;1',dur:dur,begin:beg,repeatCount:'indefinite'}));
+      grp.appendChild(pk);
+    });
+    var firstDot=dots[0];firstDot.parentNode.insertBefore(grp,firstDot);
+    if(!RM){svg.appendChild(el('circle',{cx:HX,cy:HY,r:'1.2','class':'ui-hub-ring'}));svg.appendChild(el('circle',{cx:HX,cy:HY,r:'1.2','class':'ui-hub-ring r2'}));}
+    svg.appendChild(el('circle',{cx:HX,cy:HY,r:'1.05','class':'ui-hub'}));
+  }
+
+  /* ---- 1b. chips ek line me + teer ---- */
+  var ARR='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>';
+  function chipSlider(j){
+    if(j.parentNode&&j.parentNode.classList.contains('ui-chipwrap'))return;
+    var w=document.createElement('div');w.className='ui-chipwrap';
+    j.parentNode.insertBefore(w,j);w.appendChild(j);
+    var l=document.createElement('button'),r=document.createElement('button');
+    l.type=r.type='button';l.className='ui-chip-arr l';r.className='ui-chip-arr r';
+    l.setAttribute('aria-label','Scroll left');r.setAttribute('aria-label','Scroll right');
+    l.innerHTML=ARR;r.innerHTML=ARR;l.firstChild.style.transform='rotate(180deg)';
+    w.appendChild(l);w.appendChild(r);
+    function upd(){var m=j.scrollWidth-j.clientWidth;w.classList.toggle('can-l',j.scrollLeft>4);w.classList.toggle('can-r',j.scrollLeft<m-4);}
+    l.addEventListener('click',function(){j.scrollBy({left:-Math.max(160,j.clientWidth*.6),behavior:RM?'auto':'smooth'});});
+    r.addEventListener('click',function(){j.scrollBy({left:Math.max(160,j.clientWidth*.6),behavior:RM?'auto':'smooth'});});
+    j.addEventListener('scroll',upd,{passive:true});window.addEventListener('resize',upd);
+    upd();setTimeout(upd,400);setTimeout(upd,1500);
+  }
+
   /* ---- 1. hero ---- */
   function heroText(){
     var r=$('uiHeroRange'),u=$('uiHeroUpd');
@@ -16609,7 +16692,7 @@ function toggleModalLeader(handle) {
   function hero(){
     var h=$('uiHero');if(!h)return false;
     var mp=$('uiHeroMap');
-    if(mp&&!mp.firstChild){var src=document.querySelector('#loader .splash-map svg');if(src){var c=src.cloneNode(true);c.removeAttribute('id');each(c.querySelectorAll('[id]'),function(n){n.removeAttribute('id');});mp.appendChild(c);}}
+    if(mp&&!mp.firstChild){var src=document.querySelector('#loader .splash-map svg');if(src){var c=src.cloneNode(true);c.removeAttribute('id');each(c.querySelectorAll('[id]'),function(n){n.removeAttribute('id');});mp.appendChild(c);try{net(c);}catch(e){console.warn('[ui-v3] map',e);}}}
     var j=$('uiHeroJump');
     if(j&&!j.firstChild){
       targets().forEach(function(t){
@@ -16618,6 +16701,7 @@ function toggleModalLeader(handle) {
         b.addEventListener('click',function(){var el=targets().filter(function(x){return x[0]===t[0];})[0];go(el&&el[2]);});
         j.appendChild(b);
       });
+      try{chipSlider(j);}catch(e){console.warn('[ui-v3] chips',e);}
     }
     heroText();
     return !!(mp&&mp.firstChild)&&!!(j&&j.firstChild);
@@ -16650,19 +16734,8 @@ function toggleModalLeader(handle) {
     c.style.removeProperty('--rx');c.style.removeProperty('--ry');
   }
 
-  /* ---- 4. category share-patti (sabse bade card ke hisaab se lambai) ---- */
-  function num(t){var n=parseFloat(String(t||'').replace(/[^0-9.]/g,''));return isNaN(n)?0:n;}
-  function shares(){
-    ['lvStrip','lvOtherStrip'].forEach(function(id){
-      var s=$(id);if(!s)return;var cs=s.querySelectorAll('.lv-card');if(!cs.length)return;
-      var v=[],mx=0;each(cs,function(c){var x=num((c.querySelector('.lv-val')||{}).textContent);v.push(x);if(x>mx)mx=x;});
-      each(cs,function(c,i){var p=mx?Math.max(2,Math.round(v[i]/mx*100)):0;var cur=c.style.getPropertyValue('--share');if(cur!==p+'%')c.style.setProperty('--share',p+'%');});
-    });
-  }
-
   /* ---- 5. value tick: text badla to halka animation (text khud nahi chhuate) ---- */
   function tick(el){if(RM||!el)return;el.classList.remove('ui-tick');void el.offsetWidth;el.classList.add('ui-tick');}
-  var _shQ=0;function shLater(){if(_shQ)return;_shQ=setTimeout(function(){_shQ=0;try{shares();}catch(e){}},60);}
   function watch(){
     if(!window.MutationObserver)return;
     var mo=new MutationObserver(function(ms){
@@ -16672,7 +16745,6 @@ function toggleModalLeader(handle) {
         if(v&&m.type==='characterData')tick(v);
         else if(v&&m.type==='childList'&&m.addedNodes.length)tick(v);
       });
-      shLater();
     });
     ['lvStrip','lvOtherStrip'].forEach(function(id){var s=$(id);if(s)mo.observe(s,{childList:true,subtree:true,characterData:true});});
   }
@@ -16739,7 +16811,6 @@ function toggleModalLeader(handle) {
     var ok=true;
     try{ok=hero()&&ok;}catch(e){console.warn('[ui-v3] hero',e);}
     try{pillInd();}catch(e){}
-    try{shares();}catch(e){}
     try{wrapPdf();}catch(e){}
     if(!_booted){
       _booted=true;
@@ -16748,7 +16819,7 @@ function toggleModalLeader(handle) {
       try{nav();}catch(e){console.warn('[ui-v3] nav',e);}
       window.addEventListener('scroll',function(){if(!_sq)_sq=requestAnimationFrame(spy);},{passive:true});
       window.addEventListener('resize',function(){try{pillInd();spy();}catch(e){}});
-      document.addEventListener('change',function(){setTimeout(function(){try{heroText();pillInd();shares();}catch(e){}},80);},true);
+      document.addEventListener('change',function(){setTimeout(function(){try{heroText();pillInd();}catch(e){}},80);},true);
       document.addEventListener('click',function(){setTimeout(function(){try{pillInd();heroText();}catch(e){}},90);},true);
       setInterval(function(){try{heroText();pillInd();}catch(e){}},1500);
     }
