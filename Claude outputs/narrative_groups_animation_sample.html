@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Narrative Groups Animation</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#F6F3EE;--card:#fff;--ink:#1E1B16;--muted:#7A7166;--line:#EFE8DD;--acc:#E65100;
+  --tw:#1E88E5;--lk:#C2185B;--rt:#2E7D32;--vw:#6A1B9A}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);font-family:Inter,system-ui,sans-serif;color:var(--ink);padding:24px 16px 60px}
+.wrap{max-width:1180px;margin:0 auto}
+h1{font-family:Rajdhani;font-size:26px;margin:0}
+.lead{color:var(--muted);font-size:13px;margin:4px 0 16px}
+.bar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
+.bar button{border:1px solid var(--line);background:#fff;border-radius:999px;padding:7px 14px;font:600 12px Inter;cursor:pointer;color:#4B4439}
+.bar button.on{background:var(--acc);color:#fff;border-color:var(--acc)}
+.bar .replay{margin-left:auto;background:#1E1B16;color:#fff;border-color:#1E1B16}
+.desc{font-size:12.5px;color:#4B4439;background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin-bottom:14px}
+.tbl{background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.head,.row{display:grid;grid-template-columns:44px 2.2fr 1.1fr .9fr .9fr .9fr .9fr 2fr;align-items:center;gap:10px;padding:0 18px}
+.head{height:44px;background:#FBF8F3;border-bottom:1px solid var(--line);font:700 11px Rajdhani;letter-spacing:.08em;text-transform:uppercase;color:var(--acc)}
+.head .n,.row .n{text-align:right}
+.row{min-height:78px;border-bottom:1px solid var(--line);position:relative;transition:background .25s,transform .25s,box-shadow .25s}
+.row:last-child{border-bottom:none}
+.row:hover{background:#FFFBF6;transform:translateY(-1px);box-shadow:0 8px 20px -16px rgba(0,0,0,.35);z-index:1}
+.row::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--gc);transform:scaleY(0);transition:transform .3s;transform-origin:center}
+.row:hover::before{transform:scaleY(1)}
+.rank{font:700 18px Rajdhani;color:var(--acc)}
+.grp{display:flex;align-items:center;gap:12px;min-width:0}
+.logo{width:44px;height:44px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;font:700 13px Rajdhani;color:#fff;background:var(--gc);box-shadow:0 0 0 3px #fff,0 0 0 4px var(--line)}
+.gname{font-weight:700;font-size:14px}.gsub{font-size:11.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pill{font-size:11px;font-weight:700;border-radius:999px;padding:4px 10px;width:max-content}
+.pol{background:#FFF1E3;color:#C2410C}.wing{background:#FFF8DC;color:#A16207}.stu{background:#E0F2FE;color:#0369A1}.dig{background:#F3E8FF;color:#7E22CE}
+.num{font:700 15px Rajdhani;font-variant-numeric:tabular-nums}
+.cell{position:relative}
+.cell .track{height:3px;border-radius:2px;background:#F1EBE2;margin-top:5px;overflow:hidden}
+.cell .fill{display:block;height:100%;border-radius:2px;width:0;transition:width 1.1s cubic-bezier(.2,.8,.2,1)}
+.c-tw{color:var(--tw)}.c-lk{color:var(--lk)}.c-rt{color:var(--rt)}.c-vw{color:var(--vw)}
+.f-tw{background:var(--tw)}.f-lk{background:var(--lk)}.f-rt{background:var(--rt)}.f-vw{background:var(--vw)}
+.zero{color:#B9B0A4}
+.av{display:flex}
+.av span{width:30px;height:30px;border-radius:50%;border:2px solid #fff;margin-left:-8px;display:flex;align-items:center;justify-content:center;font:700 10px Inter;color:#fff;transition:margin .3s,transform .3s}
+.av span:first-child{margin-left:0}
+.row:hover .av span{margin-left:2px}
+.av span:hover{transform:translateY(-3px) scale(1.08)}
+.av .more{background:#EEE7DC;color:#4B4439}
+.mem{font-size:11px;color:var(--muted);margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* ---- animation styles (class on .tbl) ---- */
+/* A: stagger rise */
+.tbl.a .row{opacity:0;transform:translateY(14px)}
+.tbl.a.go .row{animation:rise .55s cubic-bezier(.2,.8,.2,1) forwards;animation-delay:calc(var(--i)*90ms)}
+@keyframes rise{to{opacity:1;transform:none}}
+/* B: slide + logo pop */
+.tbl.b .row{opacity:0;transform:translateX(-24px)}
+.tbl.b .logo{transform:scale(.4);opacity:0}
+.tbl.b.go .row{animation:slide .5s ease-out forwards;animation-delay:calc(var(--i)*110ms)}
+.tbl.b.go .logo{animation:pop .5s cubic-bezier(.34,1.56,.64,1) forwards;animation-delay:calc(var(--i)*110ms + 180ms)}
+@keyframes slide{to{opacity:1;transform:none}}
+@keyframes pop{to{opacity:1;transform:scale(1)}}
+/* C: rank shuffle -- rows start in random order and glide into ranked order */
+.tbl.c .rows{position:relative}
+.tbl.c .row{transition:transform .9s cubic-bezier(.2,.8,.2,1),opacity .5s,background .25s,box-shadow .25s}
+
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.tbl .row,.tbl .logo{opacity:1!important;transform:none!important}}
+@media (max-width:900px){.head{display:none}.row{grid-template-columns:36px 1fr 1fr;padding:12px}.row>*:nth-child(n+4){grid-column:span 1}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Narrative Groups: animation sample</h1>
+  <p class="lead">Asli numbers (3 Days, 27–29 Oct). Style chuniye, phir "Replay" dabaiye. Har style mein numbers 0 se gin kar badhte hain, aur neeche ki patli line batati hai ki is column mein group sabse upar wale ke mukable kitna hai.</p>
+  <div class="bar">
+    <button data-s="a" class="on">A · Stagger rise</button>
+    <button data-s="b">B · Slide + logo pop</button>
+    <button data-s="c">C · Rank shuffle</button>
+    <button class="replay" id="replay">&#8635; Replay</button>
+  </div>
+  <div class="desc" id="desc"></div>
+  <div class="tbl a" id="tbl">
+    <div class="head"><div>#</div><div>Group / Name</div><div>Category</div><div class="n">Tweets</div><div class="n">Likes</div><div class="n">Retweets</div><div class="n">Views</div><div>Top leaders</div></div>
+    <div class="rows" id="rows"></div>
+  </div>
+</div>
+<script>
+var G=[
+ {a:'CJP',n:'Cockroach Janta Party',cat:'Political Group',cls:'pol',c:'#FF5722',tw:7,lk:32900,rt:5000,vw:600000,m:['AD','SD','AR','AF'],more:9,mn:'Abhijeet Dipke, Saurav Das, Ashutosh Ranka…'},
+ {a:'IYC',n:'Indian Youth Congress',cat:'Political Wing',cls:'wing',c:'#1976D2',tw:30,lk:18900,rt:4900,vw:281000,m:['IY','SB','TH'],more:0,mn:'IYC Official, Srinivas BV, Tanzil Hussain'},
+ {a:'BASF',n:'Bhim Army Student Federation',cat:'Political Group',cls:'pol',c:'#0288D1',tw:1,lk:630,rt:175,vw:18500,m:['CA'],more:0,mn:'Chandra Shekhar Aazad'},
+ {a:'AISF',n:"All India Students' Federation",cat:'Student Wing',cls:'stu',c:'#D32F2F',tw:0,lk:0,rt:0,vw:0,m:['NS','KK'],more:0,mn:'Md Nawsad Siddique, Kanhaiya Kumar'},
+ {a:'SFI',n:'Students Federation of India',cat:'Student Wing',cls:'stu',c:'#C62828',tw:0,lk:0,rt:0,vw:0,m:['SF','AN'],more:0,mn:'SFI CEC, P. M. Arsho'},
+ {a:'AISA',n:'All India Students Association',cat:'Student Wing',cls:'stu',c:'#E53935',tw:0,lk:0,rt:0,vw:0,m:['AI','NB'],more:0,mn:'AISA Official, N. Sai Balaji'},
+ {a:'DCN',n:'Digital Creators Network',cat:'Digital Creators',cls:'dig',c:'#8E24AA',tw:0,lk:0,rt:0,vw:0,m:['DR','RK','AS'],more:5,mn:'Dhruv Rathee, Ravish Kumar…'}
+];
+var MAX={tw:0,lk:0,rt:0,vw:0};G.forEach(function(g){['tw','lk','rt','vw'].forEach(function(k){MAX[k]=Math.max(MAX[k],g[k]);});});
+var DESC={a:'Rows ek-ek karke neeche se upar uthti hain (90ms ka gap), numbers 0 se gin kar badhte hain, aur rang ki patli line bharti hai. Sabse saaf aur professional; har tab ke tables par chal sakta hai.',
+ b:'Rows baayein se andar aati hain, aur har group ka logo halka sa "pop" karta hai. Thoda zyada zindadil; Narrative Groups jaise chhote table ke liye achha.',
+ c:'Rows pehle bikhre kram mein dikhti hain, phir sarak kar rank ke kram mein aa jaati hain (sabse zyada tweets upar). Date range badalne par yahi animation dikhayega ki kaun upar aaya, kaun neeche gaya.'};
+function fmt(n){if(n>=1e7)return (n/1e7).toFixed(2)+' Cr';if(n>=1e5)return (n/1e5).toFixed(2)+' L';if(n>=1e3)return (n/1e3).toFixed(1)+' K';return String(Math.round(n));}
+var COLS=['#6D4C41','#455A64','#8D6E63','#5D4037','#37474F','#795548'];
+function rowHTML(g,i){
+  function cell(k){var z=!g[k];return '<div class="cell n"><div class="num c-'+k+(z?' zero':'')+'" data-v="'+g[k]+'">0</div><div class="track"><span class="fill f-'+k+'" data-w="'+(MAX[k]?Math.round(g[k]*100/MAX[k]):0)+'"></span></div></div>';}
+  var av=g.m.map(function(x,j){return '<span style="background:'+COLS[j%COLS.length]+'">'+x+'</span>';}).join('')+(g.more?'<span class="more">+'+g.more+'</span>':'');
+  return '<div class="row" style="--i:'+i+';--gc:'+g.c+'"><div class="rank">'+(i+1)+'</div>'
+   +'<div class="grp"><div class="logo">'+g.a+'</div><div style="min-width:0"><div class="gname">'+g.a+'</div><div class="gsub">'+g.n+'</div></div></div>'
+   +'<div><span class="pill '+g.cls+'">'+g.cat+'</span></div>'+cell('tw')+cell('lk')+cell('rt')+cell('vw')
+   +'<div style="min-width:0"><div class="av">'+av+'</div><div class="mem">'+g.mn+'</div></div></div>';
+}
+var reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+function countUp(root,delay){
+  root.querySelectorAll('.num').forEach(function(el,ix){
+    var v=+el.getAttribute('data-v'),row=el.closest('.row'),i=+getComputedStyle(row).getPropertyValue('--i')||0;
+    if(reduce||!v){el.textContent=fmt(v);return;}
+    var start=null,dur=1100,wait=delay(i);
+    setTimeout(function(){requestAnimationFrame(function step(t){if(!start)start=t;var p=Math.min(1,(t-start)/dur),e=1-Math.pow(1-p,3);el.textContent=fmt(v*e);if(p<1)requestAnimationFrame(step);});},wait);
+  });
+  root.querySelectorAll('.fill').forEach(function(f){var i=+getComputedStyle(f.closest('.row')).getPropertyValue('--i')||0;setTimeout(function(){f.style.width=f.getAttribute('data-w')+'%';},reduce?0:delay(i)+150);});
+}
+var style='a';
+function play(){
+  var t=document.getElementById('tbl'),rows=document.getElementById('rows');
+  t.className='tbl '+style;document.getElementById('desc').textContent=DESC[style];
+  rows.innerHTML=G.map(rowHTML).join('');
+  void t.offsetWidth;
+  if(style==='c'){
+    var els=[].slice.call(rows.children),h=els[0].offsetHeight,order=els.map(function(_,i){return i;}).sort(function(){return Math.random()-.5;});
+    els.forEach(function(r,i){r.style.transition='none';r.style.transform='translateY('+((order[i]-i)*h)+'px)';r.style.opacity='.35';});
+    void rows.offsetWidth;
+    setTimeout(function(){els.forEach(function(r,i){r.style.transition='';r.style.transitionDelay=(i*60)+'ms';r.style.transform='';r.style.opacity='1';});},350);
+    countUp(rows,function(i){return 600+i*60;});
+  }else{
+    t.classList.add('go');
+    countUp(rows,function(i){return i*(style==='a'?90:110)+200;});
+  }
+}
+document.querySelectorAll('.bar button[data-s]').forEach(function(b){b.onclick=function(){document.querySelectorAll('.bar button[data-s]').forEach(function(x){x.classList.remove('on');});b.classList.add('on');style=b.getAttribute('data-s');play();};});
+document.getElementById('replay').onclick=play;
+play();
+</script>
+</body>
+</html>

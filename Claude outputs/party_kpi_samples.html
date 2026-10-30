@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Party KPI Samples</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#F6F3EE;--card:#fff;--ink:#1E1B16;--muted:#7A7166;--line:#E9E2D6;--bjp:#E65100;--bjp-soft:#FFF3EA}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);font-family:Inter,system-ui,sans-serif;color:var(--ink);padding:28px 16px 60px}
+.wrap{max-width:1180px;margin:0 auto}
+h1{font-family:Rajdhani;font-size:26px;margin:0 0 4px}
+.lead{color:var(--muted);font-size:13px;margin:0 0 26px}
+.opt{margin-bottom:34px}
+.opt-tag{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--bjp);margin-bottom:8px}
+.opt-note{font-size:12px;color:var(--muted);margin:8px 2px 0}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px 24px;display:flex;gap:28px;align-items:center;flex-wrap:wrap}
+.who{display:flex;gap:16px;align-items:center;flex:1 1 360px;min-width:0}
+.logo{width:64px;height:64px;border-radius:50%;background:var(--bjp-soft);display:flex;align-items:center;justify-content:center;font-size:30px;flex:none}
+.pname{font-family:Rajdhani;font-weight:700;font-size:22px;line-height:1.1}
+.pmeta{font-size:12px;color:var(--muted);margin-top:4px}
+.pmeta b{color:var(--bjp);font-weight:600}
+.links{margin-top:8px;display:flex;gap:6px}
+.links span{font-size:11px;border:1px solid var(--line);border-radius:999px;padding:3px 9px;color:#4B4439}
+
+/* A -- clean stat strip */
+.a-stats{display:flex;flex:1 1 520px}
+.a-stat{flex:1;padding:0 18px;border-left:1px solid var(--line)}
+.a-stat:first-child{border-left:none}
+.a-lbl{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-weight:600}
+.a-val{font-family:Rajdhani;font-weight:700;font-size:28px;margin-top:2px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.a-stat{min-width:0}
+.a-sub{font-size:11.5px;color:var(--muted);margin-top:1px}
+
+/* B -- tweets as hero, the rest as per-tweet */
+.b-stats{display:grid;grid-template-columns:1.3fr 1fr 1fr 1fr;gap:0;flex:1 1 560px;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.b-cell{padding:14px 16px;border-left:1px solid var(--line)}
+.b-cell:first-child{border-left:none;background:var(--bjp-soft)}
+.b-lbl{font-size:11px;color:var(--muted);font-weight:600}
+.b-val{font-family:Rajdhani;font-weight:700;font-size:26px;font-variant-numeric:tabular-nums}
+.b-cell:first-child .b-val{font-size:34px;color:var(--bjp)}
+.b-per{font-size:11.5px;color:#4B4439;margin-top:2px}
+.b-per b{font-variant-numeric:tabular-nums}
+
+/* C -- compact header + bar */
+.c-head{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;width:100%}
+.c-row{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;width:100%;margin-top:18px;padding-top:16px;border-top:1px solid var(--line)}
+.c-val{font-family:Rajdhani;font-weight:700;font-size:28px;font-variant-numeric:tabular-nums;line-height:1}
+.c-lbl{font-size:12px;color:var(--muted);margin-top:6px;display:flex;align-items:center;gap:6px}
+.c-dot{width:8px;height:8px;border-radius:2px;background:var(--bjp)}
+.c-bar{height:4px;border-radius:2px;background:#F1EBE2;margin-top:10px;overflow:hidden}
+.c-bar i{display:block;height:100%;background:var(--bjp)}
+.c-upd{font-size:11.5px;color:var(--muted)}
+.c-upd b{color:#2E7D32;font-weight:600}
+
+@media (max-width:760px){
+  .a-stats{flex-wrap:wrap}.a-stat{flex:1 1 45%;border-left:none;padding:8px 0}
+  .b-stats{grid-template-columns:1fr 1fr}.b-cell{border-left:none;border-top:1px solid var(--line)}
+  .c-row{grid-template-columns:1fr 1fr}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Party header: KPI samples</h1>
+  <p class="lead">Same BJP numbers as the dashboard (Apr–Oct 2026). No icon tiles, no gradients, no "LIVE" pills. Pick one: A, B or C.</p>
+
+  <!-- A -->
+  <div class="opt">
+    <div class="opt-tag">Option A · Clean stat strip</div>
+    <div class="panel">
+      <div class="who">
+        <div class="logo">🪷</div>
+        <div>
+          <div class="pname">Bharatiya Janata Party</div>
+          <div class="pmeta"><b>National party · Ruling</b> · 1,948 handles tracked</div>
+          <div class="links"><span>@BJP4India</span><span>@narendramodi</span></div>
+        </div>
+      </div>
+      <div class="a-stats">
+        <div class="a-stat"><div class="a-lbl">Tweets</div><div class="a-val">9.72 L</div><div class="a-sub">own posts only</div></div>
+        <div class="a-stat"><div class="a-lbl">Likes</div><div class="a-val">9.19 Cr</div><div class="a-sub">on those tweets</div></div>
+        <div class="a-stat"><div class="a-lbl">Reposts</div><div class="a-val">2.20 Cr</div><div class="a-sub">by other users</div></div>
+        <div class="a-stat"><div class="a-lbl">Views</div><div class="a-val">497.28 Cr</div><div class="a-sub">impressions</div></div>
+      </div>
+    </div>
+    <div class="opt-note">Simplest. Thin dividers instead of four coloured boxes; each number says what it counts.</div>
+  </div>
+
+  <!-- B -->
+  <div class="opt">
+    <div class="opt-tag">Option B · Tweets first, the rest per tweet</div>
+    <div class="panel">
+      <div class="who">
+        <div class="logo">🪷</div>
+        <div>
+          <div class="pname">Bharatiya Janata Party</div>
+          <div class="pmeta"><b>National party · Ruling</b> · 1,948 handles tracked</div>
+          <div class="links"><span>@BJP4India</span><span>@narendramodi</span></div>
+        </div>
+      </div>
+      <div class="b-stats">
+        <div class="b-cell"><div class="b-lbl">Tweets</div><div class="b-val">9.72 L</div><div class="b-per">own posts, Apr–Oct</div></div>
+        <div class="b-cell"><div class="b-lbl">Likes</div><div class="b-val">9.19 Cr</div><div class="b-per"><b>95</b> per tweet</div></div>
+        <div class="b-cell"><div class="b-lbl">Reposts</div><div class="b-val">2.20 Cr</div><div class="b-per"><b>23</b> per tweet</div></div>
+        <div class="b-cell"><div class="b-lbl">Views</div><div class="b-val">497.28 Cr</div><div class="b-per"><b>5,116</b> per tweet</div></div>
+      </div>
+    </div>
+    <div class="opt-note">More useful: the per-tweet line makes parties comparable (a big party always has big totals).</div>
+  </div>
+
+  <!-- C -->
+  <div class="opt">
+    <div class="opt-tag">Option C · Header on top, numbers below with share bars</div>
+    <div class="panel">
+      <div class="c-head">
+        <div class="who" style="flex:0 1 auto">
+          <div class="logo">🪷</div>
+          <div>
+            <div class="pname">Bharatiya Janata Party</div>
+            <div class="pmeta"><b>National party · Ruling</b> · 1,948 handles tracked</div>
+            <div class="links"><span>@BJP4India</span><span>@narendramodi</span></div>
+          </div>
+        </div>
+        <div class="c-upd">Data till 27 Oct 2026 · <b>updated hourly</b></div>
+      </div>
+      <div class="c-row">
+        <div><div class="c-val">9.72 L</div><div class="c-lbl"><span class="c-dot"></span>Tweets · own posts</div><div class="c-bar"><i style="width:72%"></i></div></div>
+        <div><div class="c-val">9.19 Cr</div><div class="c-lbl"><span class="c-dot"></span>Likes · 95 per tweet</div><div class="c-bar"><i style="width:61%"></i></div></div>
+        <div><div class="c-val">2.20 Cr</div><div class="c-lbl"><span class="c-dot"></span>Reposts · 23 per tweet</div><div class="c-bar"><i style="width:58%"></i></div></div>
+        <div><div class="c-val">497.28 Cr</div><div class="c-lbl"><span class="c-dot"></span>Views · 5,116 per tweet</div><div class="c-bar"><i style="width:66%"></i></div></div>
+      </div>
+    </div>
+    <div class="opt-note">Bars = BJP's share of that metric across all parties (bar widths here are placeholders; the real share would be computed from data).</div>
+  </div>
+</div>
+</body>
+</html>
