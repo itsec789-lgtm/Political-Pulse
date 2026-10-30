@@ -5951,16 +5951,20 @@ a.pe-btn:after{content:"";position:absolute;inset:0;z-index:1;background:linear-
   .ha-coll .ha-stitle{display:flex;align-items:center;gap:10px;cursor:pointer;user-select:none;border-radius:8px;transition:background .2s}
   .ha-coll .ha-stitle:hover{background:#FFF6EE}
   .ha-coll .ha-stitle:focus-visible{outline:2px solid #E65100;outline-offset:2px}
-  .ha-cchev{margin-left:auto;width:28px;height:28px;border-radius:50%;border:1px solid #F1D7C2;background:#fff;display:flex;align-items:center;justify-content:center;flex:none;transition:transform .35s cubic-bezier(.2,.8,.2,1)}
-  .ha-cchev svg{width:14px;height:14px;color:#E65100}
-  .ha-coll.closed .ha-cchev{transform:rotate(-90deg)}
+  /* chev-v2 (30-Oct): gol ghera nahi, sirf teer. Band = neeche aur halka upar-neeche hilta; khula = upar */
+  .ha-cchev{margin-left:auto;width:24px;height:24px;display:flex;align-items:center;justify-content:center;flex:none;transform:rotate(180deg);transition:transform .35s cubic-bezier(.2,.8,.2,1)}
+  .ha-cchev svg{width:20px;height:20px;color:#E65100;transition:color .2s}
+  .ha-coll.closed .ha-cchev{transform:none}
+  .ha-coll.closed .ha-cchev svg{animation:haBob 1.6s ease-in-out infinite}
+  @keyframes haBob{0%,100%{transform:translateY(-2px)}50%{transform:translateY(2px)}}
+  .ha-coll .ha-stitle:hover .ha-cchev svg{color:#BF360C}
   .ha-chint{font-size:11px;font-weight:600;color:#9A9085;text-transform:none;letter-spacing:0}
   .ha-stitle .ha-chint{font-size:11.5px;font-weight:500;color:#9CA3AF}
   .ha-stitle .ha-cchev{margin-left:auto}
   .ha-cbody{display:grid;grid-template-rows:1fr;transition:grid-template-rows .4s cubic-bezier(.2,.8,.2,1),opacity .3s}
   .ha-coll.closed .ha-cbody{grid-template-rows:0fr;opacity:0}
   .ha-cin{overflow:hidden;min-height:0}
-  @media (prefers-reduced-motion:reduce){.ha-cbody,.ha-cchev{transition:none}}
+  @media (prefers-reduced-motion:reduce){.ha-cbody,.ha-cchev{transition:none}.ha-coll.closed .ha-cchev svg{animation:none}}
   </style>
   <div class="ha-card ha-coll" data-key="growth">
     <div class="ha-stitle" role="button" tabindex="0" aria-expanded="true">Growth Trends <span class="ha-chint">click to collapse</span><span class="ha-cchev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg></span></div>
