@@ -2899,6 +2899,195 @@ svg#indiaMap{width:100%;height:100%;max-width:100%;max-height:100%;display:block
 }
 </style>
 
+<style id="uiV2Css">
+/* ===== ui-v2 (29-Oct): All-India Dashboard ka naya roop =====
+   SIRF dikhawat. Koi number, id, class ya JS ka hisaab nahi badla.
+   Har rule #sec-dashboard (ya sidebar) tak simit hai -- doosre tab waise hi.
+   Plan: DASHBOARD/UIUX_PLAN_ALL_INDIA.md */
+:root{
+  --ink:#141414;--ink-2:#3B3B3B;--ink-3:#6B6B6B;--ink-4:#9A9A9A;
+  --line:#E8E2D9;--line-2:#F1ECE4;--card-2:#FBF9F6;--saffron-soft:#FFF1E4;
+  --r-sm:8px;--r-md:12px;--r-lg:16px;
+  --sh-1:0 1px 2px rgba(20,20,20,.04),0 1px 8px rgba(20,20,20,.04);
+  --sh-2:0 8px 24px rgba(20,20,20,.09);
+  --ease:cubic-bezier(.2,.7,.2,1);
+}
+html{scroll-behavior:smooth}
+#sec-dashboard main{padding-top:12px}
+#sec-dashboard :focus-visible{outline:none;box-shadow:0 0 0 2px #E65100;border-radius:8px}
+
+/* ---------- filter bar: upar chipki rahe ---------- */
+#sec-dashboard .parties-filter-bar.ui-fbar{position:sticky;top:var(--header-h);z-index:120;
+  margin:0 0 14px;padding:10px 14px;gap:10px;border:1px solid var(--line);border-radius:var(--r-lg);
+  background:rgba(255,255,255,.9);-webkit-backdrop-filter:blur(12px) saturate(1.4);backdrop-filter:blur(12px) saturate(1.4);
+  box-shadow:var(--sh-1);transition:box-shadow .2s var(--ease)}
+#sec-dashboard .parties-filter-bar.ui-fbar.ui-stuck{box-shadow:0 8px 22px rgba(20,20,20,.10)}
+#sec-dashboard .ui-fbar .filter-select{height:34px;border-radius:var(--r-sm);border:1px solid var(--line);font-size:12.5px}
+#sec-dashboard .ui-fbar .filter-select:hover{border-color:#f0c9a3}
+/* QUICK ka dropdown DOM me rehta hai (saara JS use padhta hai), dikhti hain pills */
+#sec-dashboard .ui-fbar #dashPreset.ui-sr{position:absolute!important;width:1px!important;height:1px!important;min-width:0!important;
+  padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0 0 0 0)!important;border:0!important;opacity:0}
+.ui-pills{display:inline-flex;align-items:center;gap:2px;padding:3px;border-radius:999px;background:#F4F0EA;border:1px solid var(--line)}
+.ui-pill{appearance:none;border:0;background:transparent;color:var(--ink-3);font:600 12px 'DM Sans',sans-serif;
+  padding:6px 12px;border-radius:999px;cursor:pointer;white-space:nowrap;transition:background .15s,color .15s,box-shadow .15s;min-height:0}
+.ui-pill:hover{color:#C2410C;background:rgba(255,255,255,.7)}
+.ui-pill[aria-pressed="true"]{background:#fff;color:#C2410C;box-shadow:0 1px 4px rgba(120,60,10,.16)}
+#sec-dashboard #dashRangeNote{font-size:11.5px;font-weight:600;color:var(--ink-2);margin-left:auto}
+
+/* ---------- section headings: ek hi tarah ---------- */
+#sec-dashboard .cat-sec-bar{background:transparent;border:0;border-bottom:1px solid var(--line);border-radius:0;
+  padding:8px 2px 9px;margin:22px 0 12px;box-shadow:none}
+#sec-dashboard .cat-sec-bar:first-child,#sec-dashboard .ui-fbar + .cat-sec-bar{margin-top:6px}
+#sec-dashboard .cat-sec-bar:hover{background:transparent;box-shadow:none;border-color:#f0c9a3}
+#sec-dashboard .cat-sec-bar-title{font-size:16px;letter-spacing:.2px;text-transform:none;color:var(--ink);gap:10px}
+#sec-dashboard .cat-sec-bar-title > span:first-child{position:relative;padding-left:12px}
+#sec-dashboard .cat-sec-bar-title > span:first-child::before{content:'';position:absolute;left:0;top:50%;width:4px;height:16px;
+  margin-top:-8px;border-radius:2px;background:linear-gradient(180deg,#FF8F00,#E65100)}
+#sec-dashboard .cat-sec-bar-badge{font-family:'DM Sans',sans-serif;font-size:10.5px;font-weight:600;letter-spacing:.2px;
+  text-transform:none;color:var(--ink-3);background:#F4F0EA;border-radius:999px;padding:3px 10px}
+#sec-dashboard .cat-sec-bar-chevron{font-size:11.5px;color:var(--ink-4)}
+#sec-dashboard .sec-title{font-size:18px;text-transform:none;letter-spacing:.2px;color:var(--ink);margin:28px 0 6px;gap:10px}
+#sec-dashboard .sec-title::before{content:'';width:4px;height:18px;border-radius:2px;background:linear-gradient(180deg,#FF8F00,#E65100)}
+#sec-dashboard .sec-title::after{background:var(--line)}
+#sec-dashboard .ov-section{margin-bottom:6px}
+#sec-dashboard .ov-section-label{font-size:13px;text-transform:none;letter-spacing:.2px;color:var(--ink-2);
+  border-bottom:0;padding:12px 0 8px;margin-bottom:4px}
+#sec-dashboard .ov-section-num{width:22px;height:22px;font-size:12px;background:var(--saffron-soft);color:#C2410C;
+  box-shadow:inset 0 0 0 1px #FBD7B5}
+#sec-dashboard .ov-section-label::after{background:var(--line-2)}
+
+/* ---------- KPI cards: pehle label, phir number ---------- */
+#sec-dashboard #dashKpis{grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:6px}
+#sec-dashboard #dashKpis .kpi[data-kpi="avgvpt"],#sec-dashboard #dashKpis .kpi[data-kpi="avglpt"]{grid-column:span 2}
+#sec-dashboard #dashRtKpis{grid-template-columns:repeat(3,1fr);gap:12px;padding:12px;margin-bottom:6px;
+  background:var(--card-2);border:1px dashed #E3D9CB;border-radius:var(--r-lg)}
+#sec-dashboard .kpi{display:flex;flex-direction:column;overflow:hidden;background:var(--card);
+  border:1px solid var(--line);border-left:4px solid var(--ka);border-radius:var(--r-md);
+  padding:14px 16px 0;box-shadow:var(--sh-1);transition:transform .18s var(--ease),box-shadow .18s var(--ease),border-color .18s}
+#sec-dashboard .kpi:hover{transform:translateY(-2px);box-shadow:var(--sh-2);border-color:#EBDFD0;border-left-color:var(--ka)}
+#sec-dashboard .kpi.kpi-open{box-shadow:0 0 0 2px var(--ka),var(--sh-2);transform:translateY(-2px)}
+#sec-dashboard .kpi-lbl{order:-1;margin:0 30px 6px 0;font-size:11px;font-weight:700;letter-spacing:.7px;color:var(--ink-3)}
+#sec-dashboard .kpi-val{font-size:30px;line-height:1.05;letter-spacing:-.3px;font-variant-numeric:tabular-nums}
+#sec-dashboard #dashKpis .kpi[data-kpi="avgvpt"] .kpi-val,#sec-dashboard #dashKpis .kpi[data-kpi="avglpt"] .kpi-val,
+#sec-dashboard #dashRtKpis .kpi-val{font-size:25px}
+#sec-dashboard #dashKpis .kpi[data-kpi="avgvpt"],#sec-dashboard #dashKpis .kpi[data-kpi="avglpt"]{background:linear-gradient(180deg,#fff,var(--card-2))}
+#sec-dashboard .kpi-sub{font-size:11px;line-height:1.4;color:var(--ink-4);margin:4px 0 10px}
+/* "Tap for Analysis" ab kone me chhota sa button */
+#sec-dashboard .kpi-action{position:absolute;top:10px;right:10px;margin:0;padding:0;width:24px;height:24px;
+  justify-content:center;border-radius:50%;background:#F4F0EA;color:var(--ink-3);z-index:2}
+#sec-dashboard .kpi-action-txt{position:absolute;right:30px;top:50%;transform:translateY(-50%);white-space:nowrap;
+  font-size:10px;font-weight:700;letter-spacing:.3px;padding:3px 8px;border-radius:999px;background:#141414;color:#fff;
+  opacity:0;pointer-events:none;transition:opacity .15s}
+#sec-dashboard .kpi:hover .kpi-action{background:var(--saffron-soft);color:#C2410C}
+#sec-dashboard .kpi:hover .kpi-action-txt{opacity:1}
+#sec-dashboard .kpi.kpi-open .kpi-action{background:var(--ka);color:#fff}
+#sec-dashboard .kpi.kpi-open .kpi-action-txt{opacity:1;background:var(--ka)}
+#sec-dashboard .kpi-spark{height:40px;margin:auto -16px 0;border-radius:0;flex:0 0 auto}
+
+/* ---------- KPI / category detail panels ---------- */
+#sec-dashboard #kpiDetailPanel,#sec-dashboard #catDetailPanel{border:1px solid var(--line);border-left:4px solid #E65100;
+  border-radius:var(--r-lg);box-shadow:var(--sh-2);margin:4px 0 18px}
+#sec-dashboard #kpiDetailPanel.kpi-dp-open{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr);
+  grid-template-areas:"top top" "chart tbl";column-gap:16px}
+#sec-dashboard .kpi-dp-top{grid-area:top}
+#sec-dashboard .kpi-dp-chart{grid-area:chart;height:240px;margin-bottom:0}
+#sec-dashboard .kpi-dp-tbl{grid-area:tbl;max-height:240px;border:1px solid var(--line)}
+#sec-dashboard .kpi-dp-bigval{font-size:36px}
+#sec-dashboard .kpi-dp-close,#sec-dashboard .cat-dp-close{border-radius:999px;border:1px solid var(--line)}
+#sec-dashboard .cat-dp-kpi,#sec-dashboard .cat-dp-chart-card,#sec-dashboard .cat-dp-tbl-card{border:1px solid var(--line);border-radius:var(--r-md)}
+#sec-dashboard .cat-dp-kpi{background:var(--card-2)}
+
+/* ---------- category cards ---------- */
+#sec-dashboard .level-strip{grid-template-columns:repeat(auto-fit,minmax(168px,1fr))!important;gap:12px;margin-bottom:6px}
+#sec-dashboard .lv-card{display:flex;flex-direction:column;border:1px solid var(--line);border-left:4px solid var(--lc);
+  border-radius:var(--r-md);padding:12px 14px 10px;box-shadow:var(--sh-1)}
+#sec-dashboard .lv-card:hover{border-color:#EBDFD0;border-left-color:var(--lc);box-shadow:var(--sh-2)}
+#sec-dashboard .lv-card.cat-card-open{box-shadow:0 0 0 2px var(--lc),var(--sh-2)}
+#sec-dashboard .lv-lbl{order:-1;display:flex;align-items:center;gap:6px;margin:0 0 6px;font-size:10.5px;font-weight:700;color:var(--ink-3)}
+#sec-dashboard .lv-lbl::before{content:'';width:7px;height:7px;border-radius:50%;background:var(--lc);flex:none}
+#sec-dashboard .lv-val{font-size:24px;line-height:1.05;font-variant-numeric:tabular-nums}
+#sec-dashboard .lv-sub{font-size:10.5px;color:var(--ink-4);margin-top:3px}
+#sec-dashboard .cat-action{border-top:1px solid var(--line-2);margin-top:9px;padding-top:7px;color:var(--ink-4);font-size:10px}
+
+/* ---------- overview charts ---------- */
+#sec-dashboard .ov-grid{gap:14px;margin-bottom:12px}
+#sec-dashboard .ov-card{border:1px solid var(--line);border-radius:var(--r-lg);padding:14px 16px 12px;box-shadow:var(--sh-1);
+  transition:box-shadow .2s var(--ease)}
+#sec-dashboard .ov-card:hover{box-shadow:var(--sh-2)}
+#sec-dashboard .ov-t{font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;letter-spacing:.2px;text-transform:none;
+  color:var(--ink);margin-bottom:10px}
+#sec-dashboard .ov-t .dim{font-family:'DM Sans',sans-serif;font-size:10.5px;font-weight:600;color:var(--ink-3);
+  background:#F4F0EA;border-radius:999px;padding:2px 8px;margin-left:4px}
+#sec-dashboard .ov-box{height:210px}
+#sec-dashboard .ov-s7{grid-column:span 7}#sec-dashboard .ov-s5{grid-column:span 5}
+#sec-dashboard #ov_concStat{font-size:30px!important}
+
+/* ---------- executive summary ---------- */
+#sec-dashboard .summary-grid{gap:14px;align-items:stretch}
+#sec-dashboard .sum-card{border:1px solid var(--line);border-radius:var(--r-lg);padding:16px 18px;box-shadow:var(--sh-1)}
+#sec-dashboard .sum-card-title{display:flex;align-items:center;gap:8px;font-size:15px;text-transform:none;letter-spacing:.2px;
+  color:var(--ink);border-bottom:1px solid var(--line-2);margin-bottom:8px}
+.ui-ico{display:inline-grid;place-items:center;width:26px;height:26px;border-radius:8px;background:var(--saffron-soft);color:#C2410C;flex:none}
+.ui-ico svg{width:15px;height:15px}
+#sec-dashboard .insight-row{padding:9px 0;border-bottom-color:var(--line-2);align-items:center}
+#sec-dashboard .insight-icon{width:30px;height:30px;border-radius:9px}
+#sec-dashboard .insight-text{font-size:12px;line-height:1.5;color:var(--ink-2)}
+#sec-dashboard .insight-text strong,#sec-dashboard .insight-text b{color:var(--ink)}
+
+/* ---------- loading: khaali jagah ki jagah shimmer ---------- */
+#sec-dashboard #dashKpis:empty{min-height:150px;border-radius:var(--r-md);
+  background:linear-gradient(90deg,#F2EEE8 25%,#FAF7F3 50%,#F2EEE8 75%);background-size:200% 100%;animation:uiShim 1.3s linear infinite}
+@keyframes uiShim{from{background-position:200% 0}to{background-position:-200% 0}}
+
+/* ---------- sidebar ---------- */
+#appSidebar .main-nav{gap:2px;-webkit-mask-image:linear-gradient(#000 calc(100% - 22px),transparent);mask-image:linear-gradient(#000 calc(100% - 22px),transparent)}
+#appSidebar .mnav-tab{padding:8px 12px;border-radius:10px}
+#appSidebar .mnav-tab.active{box-shadow:0 4px 12px rgba(230,81,0,.26)}
+#appSidebar .mnav-tab:not(.active):hover{background:var(--saffron-soft)}
+#appSidebar .mnav-grp{padding:12px 12px 3px;font:700 9.5px 'DM Sans',sans-serif;letter-spacing:1.4px;text-transform:uppercase;color:#A89A88;
+  pointer-events:none;user-select:none}
+#appSidebar .mnav-grp:first-child{padding-top:2px}
+#appSidebar .sb-lotus{padding:4px 0 10px}
+#appSidebar .sb-lotus svg.lo{width:56px;height:40px}
+
+/* ---------- motion ---------- */
+@keyframes uiIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+#sec-dashboard .kpi,#sec-dashboard .lv-card,#sec-dashboard .ov-card,#sec-dashboard .sum-card{animation:uiIn .32s var(--ease) both}
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  #sec-dashboard .kpi,#sec-dashboard .lv-card,#sec-dashboard .ov-card,#sec-dashboard .sum-card,#sec-dashboard #dashKpis:empty{animation:none}
+}
+
+/* ---------- responsive ---------- */
+@media(min-width:1400px){
+  #sec-dashboard .summary-grid{grid-template-columns:repeat(4,1fr)}
+  #sec-dashboard #dashKpis .kpi-val{font-size:34px}
+}
+@media(max-width:1200px){
+  #sec-dashboard #dashKpis{grid-template-columns:repeat(2,1fr)}
+  #sec-dashboard .ov-s7,#sec-dashboard .ov-s5{grid-column:span 12}
+  #sec-dashboard #kpiDetailPanel.kpi-dp-open{grid-template-columns:1fr;grid-template-areas:"top" "chart" "tbl"}
+  #sec-dashboard .kpi-dp-chart{margin-bottom:12px}
+}
+@media(max-width:820px){
+  #sec-dashboard .parties-filter-bar.ui-fbar{position:relative;top:auto;border-radius:var(--r-md);padding:10px}
+  #sec-dashboard .ui-pills{display:flex;width:100%;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+  #sec-dashboard .ui-pills::-webkit-scrollbar{display:none}
+  #sec-dashboard .ui-pill{flex:1 0 auto;min-height:36px}
+  #sec-dashboard #dashRangeNote{margin-left:0;width:100%}
+  #sec-dashboard #dashRtKpis{grid-template-columns:repeat(3,1fr);padding:8px;gap:8px}
+  #sec-dashboard .kpi-val{font-size:24px}
+  #sec-dashboard .ov-box{height:190px}
+  #sec-dashboard .level-strip{grid-template-columns:repeat(2,1fr)!important}
+}
+@media(max-width:560px){
+  #sec-dashboard #dashKpis{grid-template-columns:1fr 1fr}
+  #sec-dashboard #dashRtKpis{grid-template-columns:1fr}
+  #sec-dashboard .kpi-val,#sec-dashboard #dashKpis .kpi-val{font-size:22px}
+  #sec-dashboard .kpi-lbl{font-size:10px}
+}
+</style>
+
 <script>
 /* Chart.js ke legend chart config me 'right' set hain -- phone par wo aadhi
  * chaudai kha jaate hain. Chart banne se PEHLE hi bottom kar dete hain. */
@@ -3332,7 +3521,7 @@ a.pe-btn:after{content:"";position:absolute;inset:0;z-index:1;background:linear-
 <div class="page-section active" id="sec-dashboard">
 <div id="pdfCapture">
 <main>
-  <div class="parties-filter-bar" style="margin-bottom:14px">
+  <div class="parties-filter-bar ui-fbar" style="margin-bottom:14px">
     <span class="filter-label">Party</span>
     <select id="dashParty" class="filter-select" style="min-width:130px" onchange="try{window.renderDashDate&&window.renderDashDate();}catch(e){}try{window.ovRefresh&&window.ovRefresh();}catch(e){}"><option value="all">All Parties</option></select>
     <span class="filter-label">Quick</span>
@@ -3468,8 +3657,8 @@ a.pe-btn:after{content:"";position:absolute;inset:0;z-index:1;background:linear-
       Activity &amp; Posting Patterns
     </div>
     <div class="ov-grid">
-      <div class="ov-card ov-s6"><div class="ov-t">Daily Activity — Tweets &amp; Avg Views/Post</div><div class="ov-box"><canvas id="ov_trend"></canvas></div></div>
-      <div class="ov-card ov-s6"><div class="ov-t">Posting-Time Heatmap — Weekday x Hour (IST) <span class="dim">| hour pattern = overall</span></div><div class="ov-box"><div id="ov_heat" style="height:100%;width:100%"></div></div></div>
+      <div class="ov-card ov-s6 ov-s7"><div class="ov-t">Daily Activity — Tweets &amp; Avg Views/Post</div><div class="ov-box"><canvas id="ov_trend"></canvas></div></div>
+      <div class="ov-card ov-s6 ov-s5"><div class="ov-t">Posting-Time Heatmap — Weekday x Hour (IST) <span class="dim">| hour pattern = overall</span></div><div class="ov-box"><div id="ov_heat" style="height:100%;width:100%"></div></div></div>
     </div>
   </div>
 
@@ -3512,7 +3701,7 @@ a.pe-btn:after{content:"";position:absolute;inset:0;z-index:1;background:linear-
   <div class="sec-title" id="execTitle" style="margin-top:8px">Executive Summary — Apr–Jul 2026</div>
   <div class="summary-grid">
     <div class="sum-card" id="khCard">
-      <div class="sum-card-title">🏆 Key Highlights</div>
+      <div class="sum-card-title"><span class="ui-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3"/></svg></span>Key Highlights</div>
       <div class="insight-row"><div class="insight-icon" style="background:#fff3e0">🥇</div><div class="insight-text"><span style="color:var(--muted,#9a9a9a)">Loading…</span></div></div>
       <div class="insight-row"><div class="insight-icon" style="background:#e8f5e9">📈</div><div class="insight-text"><span style="color:var(--muted,#9a9a9a)">Loading…</span></div></div>
       <div class="insight-row"><div class="insight-icon" style="background:#e3f2fd">🔥</div><div class="insight-text"><span style="color:var(--muted,#9a9a9a)">Loading…</span></div></div>
@@ -3523,11 +3712,11 @@ a.pe-btn:after{content:"";position:absolute;inset:0;z-index:1;background:linear-
          list me -- matlab row ke tooltip me. Lines renderSentInsights() se
          banti hain; height Key Highlights ke barabar rehti hai. -->
     <div class="sum-card" id="siCard">
-      <div class="sum-card-title">📊 Sentiment Insights</div>
+      <div class="sum-card-title"><span class="ui-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span>Sentiment Insights</div>
       <div id="siRows"></div>
     </div>
     <div class="sum-card" id="ppCard">
-      <div class="sum-card-title">🏛️ Party Performance</div>
+      <div class="sum-card-title"><span class="ui-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M5 21V10M19 21V10M9 21v-7M15 21v-7M2 10l10-6 10 6z"/></svg></span>Party Performance</div>
       <div class="insight-row"><div class="insight-icon" style="background:#fff3e0">🪷</div><div class="insight-text"><span style="color:var(--muted,#9a9a9a)">Loading…</span></div></div>
       <div class="insight-row"><div class="insight-icon" style="background:#e3f2fd">✋</div><div class="insight-text"><span style="color:var(--muted,#9a9a9a)">Loading…</span></div></div>
       <div class="insight-row"><div class="insight-icon" style="background:#e8f5e9">⚡</div><div class="insight-text"><span style="color:var(--muted,#9a9a9a)">Loading…</span></div></div>
@@ -3535,7 +3724,7 @@ a.pe-btn:after{content:"";position:absolute;inset:0;z-index:1;background:linear-
       <div class="insight-row"><div class="insight-icon" style="background:#eceff1">🏛</div><div class="insight-text"><span style="color:var(--muted,#9a9a9a)">Loading…</span></div></div>
     </div>
     <div class="sum-card">
-      <div class="sum-card-title">📍 Top Performers <span id="execTopSub" style="font-size:10px;font-weight:600;color:var(--muted)"></span></div>
+      <div class="sum-card-title"><span class="ui-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3 6.5 7 .8-5.2 4.7 1.5 7L12 17.5 5.7 21l1.5-7L2 9.3l7-.8z"/></svg></span>Top Performers <span id="execTopSub" style="font-size:10px;font-weight:600;color:var(--muted)"></span></div>
       <div id="execTop">
       <div class="insight-row"><div class="insight-icon" style="background:#fff3e0">1️⃣</div><div class="insight-text"><span style="color:var(--muted,#9a9a9a)">Loading…</span></div></div>
       <div class="insight-row"><div class="insight-icon" style="background:#fff3e0">2️⃣</div><div class="insight-text"><span style="color:var(--muted,#9a9a9a)">Loading…</span></div></div>
@@ -8426,7 +8615,30 @@ const uf=n=>{n=Math.round(n);return n>=1e7?(n/1e7).toFixed(2)+' Cr':n>=1e5?(n/1e
 const PC={BJP:'#E65100',INC:'#0D47A1',SP:'#1B5E20',TVK:'#7B1FA2',DMK:'#C62828',AAP:'#1565C0',SS:'#00838F',TDP:'#FF8F00',AITC:'#1B5E20','JD(U)':'#1A237E',Others:'#a99f92'};
 const pc=p=>PC[p]||'#a99f92';
 const NL={display:false};
-function mk(cv,cfg){var el=document.getElementById(cv);if(!el)return null;cfg.options=cfg.options||{};cfg.options.maintainAspectRatio=false;cfg.options.animation={duration:400};cfg.options.plugins=cfg.options.plugins||{};cfg.options.plugins.datalabels={display:false};if(!('legend' in cfg.options.plugins))cfg.options.plugins.legend={display:false};return new Chart(el,cfg);}
+function mk(cv,cfg){var el=document.getElementById(cv);if(!el)return null;cfg.options=cfg.options||{};cfg.options.maintainAspectRatio=false;cfg.options.animation={duration:400};cfg.options.plugins=cfg.options.plugins||{};cfg.options.plugins.datalabels={display:false};if(!('legend' in cfg.options.plugins))cfg.options.plugins.legend={display:false};uiV2Theme(cfg);return new Chart(el,cfg);}
+/* ui-v2 (29-Oct): overview ke 8 chart ek jaisa dikhen -- sirf font/tooltip/grid.
+   Jo option chart ne khud diya hai (callback, rang, data) wo chhua nahi jaata. */
+function uiV2Theme(cfg){try{
+  var o=cfg.options,P=o.plugins,F="'DM Sans',sans-serif";
+  var tt=P.tooltip=P.tooltip||{};
+  var TD={backgroundColor:'rgba(20,20,20,.92)',titleFont:{family:"'Rajdhani',sans-serif",size:13,weight:'700'},
+    bodyFont:{family:F,size:11.5},padding:10,cornerRadius:8,boxPadding:4,usePointStyle:true};
+  for(var k in TD)if(!(k in tt))tt[k]=TD[k];
+  var L=P.legend;
+  if(L&&L.display){var LL=L.labels=L.labels||{};LL.usePointStyle=true;if(!('padding' in LL))LL.padding=12;
+    LL.font=Object.assign({},LL.font||{},{family:F,size:Math.max(10.5,(LL.font&&LL.font.size)||0)});LL.color=LL.color||'#3B3B3B';}
+  var S=o.scales;
+  if(S)Object.keys(S).forEach(function(a){var s=S[a];if(!s||s.display===false)return;
+    s.border=Object.assign({display:false},s.border||{});
+    s.ticks=s.ticks||{};s.ticks.color=s.ticks.color||'#7A7A7A';
+    s.ticks.font=Object.assign({},s.ticks.font||{},{family:F,size:Math.max(10,(s.ticks.font&&s.ticks.font.size)||0)});
+    if(s.grid&&s.grid.display!==false)s.grid.color='#F1ECE4';});
+  ((cfg.data&&cfg.data.datasets)||[]).forEach(function(ds){
+    var t=ds.type||cfg.type;
+    if(t==='bar'){if(!(ds.borderRadius>=6))ds.borderRadius=6;if(!ds.maxBarThickness)ds.maxBarThickness=24;}
+    if(t==='line'){if(ds.pointHitRadius==null)ds.pointHitRadius=10;if(ds.pointHoverRadius==null)ds.pointHoverRadius=4;}
+    if(t==='doughnut'&&ds.hoverOffset==null)ds.hoverOffset=6;});
+}catch(e){}}
 function z(){return new Array(N).fill(0);}
 const allKeys=Object.keys(D.partyDaily);
 var allDaily={};['t','v','k','r'].forEach(function(m){var a=z();allKeys.forEach(function(k){for(var i=0;i<N;i++)a[i]+=D.partyDaily[k][m][i];});allDaily[m]=a;});
@@ -8449,7 +8661,7 @@ const chState=mk('ov_states',{type:'bar',data:{labels:[],datasets:[{data:[],back
 const chConc=mk('ov_conc',{type:'doughnut',data:{labels:['#1','#2-5','Rest'],datasets:[{data:[0,0,0],backgroundColor:['#E65100','#FF8F00','#d8cfc2'],borderWidth:2,borderColor:'#fff'}]},options:{cutout:'60%',plugins:{legend:{display:true,position:'bottom',labels:{boxWidth:8,usePointStyle:true,font:{size:8.5}}},tooltip:{callbacks:{label:function(c){return c.label+': '+c.raw.toFixed(1)+'%';}}}}}});
 
 function heatColor(t,mx){if(t<=0||mx<=0)return '#f4f0ea';var r=t/mx;var a=[253,232,208],b=[194,65,12];var c=a.map(function(v,i){return Math.round(v+(b[i]-v)*r);});return 'rgb('+c[0]+','+c[1]+','+c[2]+')';}
-function renderHeat(idx){var el=document.getElementById('ov_heat');if(!el)return;var HF=hFiltered();var wdTot=[0,0,0,0,0,0,0];idx.forEach(function(i){var w=D.wd[i];var s=0;HF.forEach(function(h){s+=h.t[i]||0;});wdTot[w]+=s;});var hs=D.HOURLY,hsum=hs.reduce(function(a,b){return a+b;},0);var mx=0,cells=[];for(var w=0;w<7;w++){cells[w]=[];for(var h=0;h<24;h++){var v=wdTot[w]*hs[h]/hsum;cells[w][h]=v;if(v>mx)mx=v;}}var names=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];var html='<div style="display:grid;grid-template-columns:26px repeat(24,1fr);grid-auto-rows:1fr;gap:2px;height:100%">';html+='<div></div>';for(var h=0;h<24;h++)html+='<div style="font-size:7px;color:#b3a89a;text-align:center;align-self:center">'+((h%6===0)?h:'')+'</div>';for(var w=0;w<7;w++){html+='<div style="font-size:8px;color:#888;font-weight:700;align-self:center">'+names[w]+'</div>';for(var h2=0;h2<24;h2++)html+='<div title="'+names[w]+' '+(h2<10?'0'+h2:h2)+':00 IST" style="border-radius:2px;background:'+heatColor(cells[w][h2],mx)+'"></div>';}html+='</div>';el.innerHTML=html;}
+function renderHeat(idx){var el=document.getElementById('ov_heat');if(!el)return;var HF=hFiltered();var wdTot=[0,0,0,0,0,0,0];idx.forEach(function(i){var w=D.wd[i];var s=0;HF.forEach(function(h){s+=h.t[i]||0;});wdTot[w]+=s;});var hs=D.HOURLY,hsum=hs.reduce(function(a,b){return a+b;},0);var mx=0,cells=[];for(var w=0;w<7;w++){cells[w]=[];for(var h=0;h<24;h++){var v=wdTot[w]*hs[h]/hsum;cells[w][h]=v;if(v>mx)mx=v;}}var names=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];var html='<div style="display:grid;grid-template-columns:30px repeat(24,1fr);grid-auto-rows:1fr;gap:2px;height:100%">';html+='<div></div>';for(var h=0;h<24;h++)html+='<div style="font-size:9px;color:#9A9A9A;text-align:center;align-self:center">'+((h%6===0)?h:'')+'</div>';for(var w=0;w<7;w++){html+='<div style="font-size:10px;color:#6B6B6B;font-weight:700;align-self:center">'+names[w]+'</div>';for(var h2=0;h2<24;h2++)html+='<div title="'+names[w]+' '+(h2<10?'0'+h2:h2)+':00 IST" style="border-radius:2px;background:'+heatColor(cells[w][h2],mx)+'"></div>';}html+='</div>';el.innerHTML=html;}
 
 function renderSparks(){return;
   var kk=document.getElementById('dashKpis');if(!kk)return;
@@ -15906,6 +16118,106 @@ function toggleModalLeader(handle) {
   }
   function boot(n){try{if(setup())return;}catch(e){console.warn('[tw-rt-split]',e);return;}if(n<40)setTimeout(function(){boot(n+1);},250);}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){boot(0);});else boot(0);
+})();
+</script>
+<script>
+/* ui-v2 (29-Oct): Dashboard ka naya roop -- sirf dikhawat ka JS.
+   1) sidebar me group ke naam   2) QUICK range ke liye pills
+   3) chipke hue filter bar ki chhaya   4) section collapse yaad rahe
+   Koi number / filter ka hisaab yahan nahi. Pills wahi purana #dashPreset
+   badal kar 'change' bhejti hain -- jo listener pehle chalte the wahi chalte hain. */
+(function(){
+  function $(id){return document.getElementById(id);}
+  function each(list,fn){Array.prototype.forEach.call(list||[],fn);}
+
+  /* ---- 1. sidebar groups (tabs ka kram nahi badla, sirf beech me naam) ---- */
+  var GRP=[['dashboard','Overview'],['hashtags','Analysis'],['reports','Content'],['handle-req','Tools']];
+  function navGroups(){
+    var nav=$('mainNav');if(!nav)return false;if(nav.querySelector('.mnav-grp'))return true;
+    GRP.forEach(function(g){
+      var t=nav.querySelector('.mnav-tab[data-tab="'+g[0]+'"]');if(!t)return;
+      var d=document.createElement('div');d.className='mnav-grp';d.setAttribute('aria-hidden','true');d.textContent=g[1];
+      nav.insertBefore(d,t);
+    });
+    return true;
+  }
+
+  /* ---- 2. QUICK pills ---- */
+  var LBL={all:'Full range',today:'Today',yest:'Yesterday','3':'3 days','7':'7 days',custom:'Custom'};
+  function paintPills(){
+    var sel=$('dashPreset'),box=$('uiPills');if(!sel||!box)return;
+    var vals=[];each(sel.options,function(o){vals.push(o.value);});
+    var sig=vals.join(',');
+    if(box.getAttribute('data-sig')!==sig){
+      box.setAttribute('data-sig',sig);box.innerHTML='';
+      each(sel.options,function(o){
+        var b=document.createElement('button');b.type='button';b.className='ui-pill';
+        b.setAttribute('data-v',o.value);b.textContent=LBL[o.value]||o.textContent;box.appendChild(b);
+      });
+    }
+    each(box.querySelectorAll('.ui-pill'),function(b){
+      b.setAttribute('aria-pressed',b.getAttribute('data-v')===sel.value?'true':'false');
+    });
+  }
+  function pills(){
+    var sel=$('dashPreset');if(!sel)return false;if($('uiPills'))return true;
+    if(sel.options.length<2)return false;
+    var box=document.createElement('div');box.className='ui-pills';box.id='uiPills';
+    box.setAttribute('role','group');box.setAttribute('aria-label','Quick date range');
+    sel.parentNode.insertBefore(box,sel);
+    sel.classList.add('ui-sr');sel.setAttribute('tabindex','-1');sel.setAttribute('aria-hidden','true');
+    box.addEventListener('click',function(e){
+      var b=e.target&&e.target.closest?e.target.closest('.ui-pill'):null;if(!b)return;
+      var v=b.getAttribute('data-v');if(sel.value===v)return;
+      sel.value=v;
+      sel.dispatchEvent(new Event('change',{bubbles:true}));
+      paintPills();
+    });
+    paintPills();
+    return true;
+  }
+
+  /* ---- 3. filter bar chipka ho to halki chhaya ---- */
+  var _raf=0;
+  function stuck(){
+    _raf=0;var b=document.querySelector('#sec-dashboard .ui-fbar');if(!b||!b.offsetParent)return;
+    var hh=parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--header-h'))||66;
+    b.classList.toggle('ui-stuck',b.getBoundingClientRect().top<=hh+1&&window.scrollY>40);
+  }
+
+  /* ---- 4. section collapse yaad rahe (wahi purana toggle chalta hai -- bar.click()) ---- */
+  var KEY='ipp_ui_collapse',BARS=['barTwSum','barRtSum','barMainCat','barOtherCat'],done={};
+  function load(){try{return JSON.parse(localStorage.getItem(KEY)||'{}')||{};}catch(e){return {};}}
+  function save(id,v){try{var m=load();if(v)m[id]=1;else delete m[id];localStorage.setItem(KEY,JSON.stringify(m));}catch(e){}}
+  function isCol(b){return b.classList.contains('cat-sec-collapsed');}
+  function collapseMem(){
+    var m=load(),left=0;
+    BARS.forEach(function(id){
+      if(done[id])return;var b=$(id);if(!b){left++;return;}
+      done[id]=1;
+      if(!b.hasAttribute('tabindex')){
+        b.setAttribute('role','button');b.setAttribute('tabindex','0');
+        b.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();b.click();}});
+      }
+      if(m[id]&&!isCol(b))b.click();
+      b.addEventListener('click',function(){setTimeout(function(){save(id,isCol(b));},0);});
+    });
+    return left===0;
+  }
+
+  function boot(n){
+    var ok=true;
+    try{ok=navGroups()&&ok;}catch(e){console.warn('[ui-v2] nav',e);}
+    try{ok=pills()&&ok;}catch(e){console.warn('[ui-v2] pills',e);}
+    try{ok=collapseMem()&&ok;}catch(e){console.warn('[ui-v2] collapse',e);}
+    if(!ok&&n<40)setTimeout(function(){boot(n+1);},250);
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){boot(0);});else boot(0);
+  /* Reset / date / doosre code se preset badle to pills sahi rahein */
+  document.addEventListener('change',function(){setTimeout(paintPills,0);},true);
+  document.addEventListener('click',function(){setTimeout(paintPills,40);},true);
+  setInterval(paintPills,1500);
+  window.addEventListener('scroll',function(){if(!_raf)_raf=requestAnimationFrame(stuck);},{passive:true});
 })();
 </script>
 </body>
