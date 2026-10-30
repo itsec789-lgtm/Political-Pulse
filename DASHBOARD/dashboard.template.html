@@ -5571,7 +5571,19 @@ a.pe-btn:after{content:"";position:absolute;inset:0;z-index:1;background:linear-
     .htc-lang svg{width:14px;height:14px;margin-right:4px;vertical-align:-2px}
     .htc-txt{font-size:15px;line-height:1.55;margin:10px 0 2px;white-space:pre-wrap;word-break:break-word;overflow:hidden;color:#0F1419}
     .htc-txt.clamp{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical}
-    .htc-txt.loading{opacity:.45}
+    .htc-txt.loading{position:relative;color:transparent;background:linear-gradient(100deg,#8B98A5 20%,#E3E9ED 40%,#8B98A5 60%) 0 0/250% 100%;
+      -webkit-background-clip:text;background-clip:text;animation:htcShine 1.3s linear infinite;filter:blur(.3px)}
+    .htc-txt.loading .ht,.htc-txt.loading a{color:transparent}
+    @keyframes htcShine{to{background-position:-250% 0}}
+    .htc-txt.arrive{animation:htcIn .45s ease-out}
+    @keyframes htcIn{from{opacity:.2;transform:translateY(3px)}to{opacity:1;transform:none}}
+    .htc-msg{display:inline-block;transition:opacity .25s,transform .25s}
+    .htc-msg.out{opacity:0;transform:translateY(-4px)}
+    .htc-dots{display:inline-flex;gap:3px;margin-left:2px}
+    .htc-dots i{width:4px;height:4px;border-radius:50%;background:#1D9BF0;animation:htcDot 1s infinite ease-in-out}
+    .htc-dots i:nth-child(2){animation-delay:.15s}.htc-dots i:nth-child(3){animation-delay:.3s}
+    @keyframes htcDot{0%,80%,100%{opacity:.25;transform:translateY(0)}40%{opacity:1;transform:translateY(-3px)}}
+    @media (prefers-reduced-motion:reduce){.htc-txt.loading,.htc-dots i,.htc-txt.arrive{animation:none}}
     .htc-txt[dir=rtl]{text-align:right}
     .htc-txt .ht{color:#1D9BF0}
     .htc-txt a{color:#1D9BF0;text-decoration:none}.htc-txt a:hover{text-decoration:underline}
@@ -10566,7 +10578,7 @@ setTimeout(hExec,600);
     return '<div class="htc-row"><article class="htc-tw">'
       + '<div class="htc-hd"><img class="htc-av" src="/api/avatar/' + encodeURIComponent(CUR) + '" alt="" loading="lazy" onerror="this.style.visibility=\'hidden\'">'
       + '<div style="min-width:0"><div class="htc-nm">' + esc(nm) + '</div><div class="htc-hn">@' + esc(CUR) + '</div></div>' + TW_I.x + '</div>'
-      + (L ? '<div class="htc-lang" data-i="' + i + '" data-name="' + L.name + '"><button class="on" data-to="orig">' + TW_I.globe + 'Original · ' + L.name
+      + (L ? '<div class="htc-lang" data-i="' + i + '" data-name="' + L.name + '" data-code="' + L.code + '"><button class="on" data-to="orig">' + TW_I.globe + 'Original · ' + L.name
             + '</button><button data-to="en">English</button></div>' : '')
       + '<div class="htc-txt clamp" id="htcT' + i + '"' + (L ? ' lang="' + L.code + '"' + (L.code === 'ur' ? ' dir="rtl"' : '') : '') + '>' + twHtml(t.text) + '</div>'
       + '<div class="htc-trn" id="htcN' + i + '" hidden></div>'
@@ -10584,6 +10596,27 @@ setTimeout(hExec,600);
       t.classList.remove('clamp'); var lines = Math.round(t.getBoundingClientRect().height / lh); t.classList.add('clamp');
       m.hidden = lines <= 3;
     });
+  }
+  /* naya text aate hi akshar thodi der "ghoom" kar sahi jagah baith jaate hain (sirf text nodes, links/hashtags waise hi) */
+  function scramble(root, finalTxt) {
+    if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    var nodes = [], w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null);
+    while (w.nextNode()) { if (!w.currentNode.parentElement.closest('a,.ht')) nodes.push({ n: w.currentNode, s: w.currentNode.nodeValue }); }
+    var total = nodes.reduce(function (a, x) { return a + x.s.length; }, 0);
+    if (!total || total > 700) return;
+    var POOL = /[ऀ-ॿ]/.test(finalTxt) ? 'कखगघचजटडतदनपबमयरलवसह' : 'abcdefghijklmnopqrstuvwxyz', t0 = performance.now(), DUR = 650;
+    (function step(now) {
+      var p = Math.min(1, (now - t0) / DUR), keep = Math.floor(total * p), seen = 0;
+      nodes.forEach(function (x) {
+        var out = '';
+        for (var i = 0; i < x.s.length; i++, seen++) {
+          var ch = x.s[i];
+          out += (seen < keep || /\s|[0-9.,!?…:;'"()\-]/.test(ch)) ? ch : POOL[(Math.random() * POOL.length) | 0];
+        }
+        x.n.nodeValue = out;
+      });
+      if (p < 1) requestAnimationFrame(step); else nodes.forEach(function (x) { x.n.nodeValue = x.s; });
+    })(t0);
   }
   function wireCards(b, list) {
     var HANDLE = CUR;
@@ -10606,19 +10639,31 @@ setTimeout(hExec,600);
           n.className = 'htc-trn'; n.hidden = !note; n.innerHTML = note || ''; cardMore(b);
         }
         if (to === 'orig') { show(orig.html, orig.lang, orig.dir, ''); return; }
-        function done(txt) {
-          got[to] = txt; show(twHtml(txt), to, '', 'Translated from ' + name + ' by AI');
+        var target = to === 'en' ? 'English' : 'Hindi';
+        function done(txt, fresh) {
+          got[to] = txt;
+          show(twHtml(txt), to, '', 'Translated from ' + name + ' by AI');
+          if (fresh) { t.classList.remove('arrive'); void t.offsetWidth; t.classList.add('arrive'); scramble(t, txt); }
           if (to === 'en' && !box.querySelector('[data-to="hi"]')) {
             var hb = document.createElement('button'); hb.setAttribute('data-to', 'hi'); hb.textContent = 'Hindi'; box.appendChild(hb);
           }
         }
-        if (got[to]) { done(got[to]); return; }
+        if (got[to]) { done(got[to], false); return; }
+        /* --- intezaar ka animation: shimmer + badalti line --- */
         busy = true; t.classList.add('loading'); n.className = 'htc-trn'; n.hidden = false;
-        n.innerHTML = '<span class="htc-spin"></span> Translating to ' + (to === 'en' ? 'English' : 'Hindi') + '…';
-        api('/api/translate', { h: HANDLE, id: tw.id, to: to }).then(function (r) {
-          busy = false; t.classList.remove('loading'); done(r.text || '');
+        var MSG = ['Reading ' + name, 'Translating to ' + target, 'Keeping hashtags & names', 'Polishing the wording', 'Almost there'], mi = 0;
+        n.innerHTML = '<span class="htc-spin"></span> <span class="htc-msg">' + MSG[0] + '</span><span class="htc-dots"><i></i><i></i><i></i></span>';
+        var msgEl = n.querySelector('.htc-msg');
+        var tick = setInterval(function () {
+          if (!msgEl) return;
+          msgEl.classList.add('out');
+          setTimeout(function () { mi = Math.min(mi + 1, MSG.length - 1); msgEl.textContent = MSG[mi]; msgEl.classList.remove('out'); }, 250);
+        }, 1400);
+        function stop() { clearInterval(tick); busy = false; t.classList.remove('loading'); }
+        api('/api/translate', { h: HANDLE, id: tw.id, to: to, from: box.getAttribute('data-code') || '' }).then(function (r) {
+          stop(); done(r.text || '', true);
         }).catch(function (err) {
-          busy = false; t.classList.remove('loading'); n.className = 'htc-trn err'; n.textContent = 'Translation failed: ' + err.message;
+          stop(); n.className = 'htc-trn err'; n.textContent = 'Translation failed: ' + err.message;
         });
       });
     });

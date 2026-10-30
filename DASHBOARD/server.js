@@ -5509,6 +5509,7 @@ app.get('/api/ha/tweets', dashGuard, async function (req, res) {
    (Handle + Tweet ID, Handle par index hai) -- client ka bheja text kabhi translate nahi hota.
    Jawab pulse_master.tweet_translations me save: agli baar kisi ke bhi click par AI nahi chalta. */
 var TR_LANG = { en: 'English', hi: 'Hindi' };
+var TL = require('./translate_lib.js');      /* Gemini -> Gemma -> Groq -> Google Translate -> MyMemory */
 var _trBusy = new Map();
 app.get('/api/translate', dashGuard, async function (req, res) {
   res.set('Cache-Control', 'no-store');
@@ -5526,25 +5527,22 @@ app.get('/api/translate', dashGuard, async function (req, res) {
       var sp = await ML.handleSpellings(MP, MASTER_DB, MASTER_COLL, [h]);
       var tw = await db.collection(MASTER_COLL).findOne({ Handle: { $in: sp }, 'Tweet ID': id }, { projection: { 'Tweet Text': 1 } });
       if (!tw || !tw['Tweet Text']) return res.status(404).json({ error: 'Tweet not found.' });
-      var cfg = aiConfig();
-      if (!cfg || !cfg.key) return res.status(503).json({ error: 'AI is not set up (ai_config.json).' });
+      var from = /^(ta|bn|ur|gu|pa|te|kn|ml|or)$/.test(String(req.query.from || '')) ? String(req.query.from) : '';
       /* ek hi tweet par do log ek saath click karein to AI ek hi baar chale */
       var job = _trBusy.get(key);
       if (!job) {
-        job = groqChat(cfg, [
-          { role: 'system', content: 'You translate social media posts from Indian politics. Translate the user\'s post into '
-            + TR_LANG[to] + '. Keep every #hashtag, @mention, URL and emoji exactly as written (you may add the meaning of a non-Latin hashtag in brackets right after it). '
-            + 'Keep names of people, parties and places. Reply with the translation only -- no notes, no quotes.' },
-          { role: 'user', content: String(tw['Tweet Text']) }
-        ], 700).finally(function () { _trBusy.delete(key); });
+        job = TL.translate(String(tw['Tweet Text']), to, from).finally(function () { _trBusy.delete(key); });
         _trBusy.set(key, job);
       }
-      var out = await job;
-      if (out.error) return res.status(502).json({ error: out.error });
-      var text = String(out.text || '').trim();
-      if (!text) return res.status(502).json({ error: 'The AI returned an empty translation.' });
-      await cache.updateOne({ _id: key }, { $set: { text: text, to: to, h: h, at: new Date(), model: _aiModel || cfg.model || '' } }, { upsert: true });
-      res.json({ ok: true, text: text, cached: false });
+      var out;
+      try { out = await job; }
+      catch (te) {
+        console.log('  [/api/translate] ' + te.message + ' | ' + (te.tried || []).join(' '));
+        return res.status(503).json({ error: te.message });
+      }
+      console.log('  [translate] ' + id + ' -> ' + to + ' via ' + out.provider + ' (' + out.ms + ' ms)');
+      await cache.updateOne({ _id: key }, { $set: { text: out.text, to: to, h: h, at: new Date(), provider: out.provider } }, { upsert: true });
+      res.json({ ok: true, text: out.text, cached: false, provider: out.provider });
     } finally { try { await cli.close(); } catch (e) {} }
   } catch (e) {
     console.log('  [/api/translate] ' + e.message);

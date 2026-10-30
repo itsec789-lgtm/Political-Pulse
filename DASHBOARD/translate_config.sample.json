@@ -1,0 +1,4 @@
+{
+  "_note": "Copy to translate_config.json and put your Google AI Studio key. translate_config.json is git-ignored.",
+  "gemini_key": "PUT-YOUR-GOOGLE-AI-STUDIO-KEY-HERE"
+}

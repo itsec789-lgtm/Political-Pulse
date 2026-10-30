@@ -57,5 +57,6 @@ DASHBOARD/auth_secret.json
 DASHBOARD/mail_config.json
 DASHBOARD/ai_config.json
 DASHBOARD/x_config.json
+DASHBOARD/translate_config.json
 PunjabLens/ai_config.json
 *.local.txt
