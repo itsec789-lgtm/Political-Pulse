@@ -3329,6 +3329,35 @@ body.ui-capture #sec-dashboard .kpi{transform:none!important}
 .ui-ex-state path{fill:#FDBA74;stroke:#C2410C;stroke-width:1;vector-effect:non-scaling-stroke;stroke-linejoin:round}
 @keyframes uiExIn{from{opacity:0;transform:scale(.85)}to{opacity:1;transform:none}}
 
+/* ---- ui-exec v2 (30-Oct): koi dabba nahi -- photo / logo / icon apni poori jagah bharte hain ---- */
+#sec-dashboard .sum-card .insight-row{align-items:center;gap:14px;padding:11px 8px;margin:0 -8px}
+#sec-dashboard .sum-card .insight-text{font-size:13px;line-height:1.55;color:#3F3A36;letter-spacing:.05px}
+#sec-dashboard .sum-card .insight-text strong,#sec-dashboard .sum-card .insight-text b{color:#141414;font-weight:700}
+#sec-dashboard .sum-card .insight-icon,
+#sec-dashboard .sum-card .insight-icon.ui-ex-round,
+#sec-dashboard .sum-card .insight-icon.ui-ex-tile{width:44px;height:44px;border-radius:0;background:transparent!important;box-shadow:none;overflow:visible}
+.ui-ex-av{width:44px;height:44px;border-radius:50%;object-fit:cover;object-position:center 30%;box-shadow:0 1px 3px rgba(20,10,0,.18);background:#EFE8E0}
+.ui-ex-ini{width:44px;height:44px;border-radius:50%;box-shadow:0 1px 3px rgba(20,10,0,.18);font-size:15px;letter-spacing:.5px;
+  background:linear-gradient(135deg,var(--ring,#E65100),#2A1608)}
+.ui-ex-logo{width:44px;height:44px;border-radius:50%;object-fit:cover;box-shadow:0 1px 3px rgba(20,10,0,.16)}
+.ui-ex-logo.ui-ex-backup{border-radius:0;object-fit:contain;box-shadow:none}
+.ui-ex-rank{display:none}
+.ui-ex-num{flex:none;width:30px;font:700 16px/1 'Rajdhani',sans-serif;color:#A8A29E;letter-spacing:.2px;font-variant-numeric:tabular-nums}
+.ui-ex-num.n1{color:#D97706}.ui-ex-num.n2{color:#71717A}.ui-ex-num.n3{color:#B45309}
+.ui-ex-calsvg{width:44px;height:44px;display:block;filter:drop-shadow(0 1px 2px rgba(20,10,0,.14))}
+.ui-ex-svg{width:40px;height:40px}
+.ui-ex-state{width:44px;height:44px}
+.ui-ex-state path{fill:#FDBA74;stroke:#C2410C}
+/* sentiment: dabba nahi -- rangeen icon, uske neeche PRO / ANTI */
+#sec-dashboard #siCard .si-r{grid-template-columns:40px minmax(84px,max-content) minmax(40px,1fr) 52px 88px;align-items:center}
+#siCard .ui-si-ic{width:40px;height:auto;min-height:30px;border-radius:0;background:none!important;box-shadow:none;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px}
+#siCard .ui-si-ic svg{width:24px;height:24px}
+#siCard .ui-si-ic img{width:26px;height:26px;border-radius:50%;object-fit:cover;box-shadow:0 1px 3px rgba(20,10,0,.16)}
+#siCard .ui-si-ic img.ui-ex-backup{border-radius:0;object-fit:contain;box-shadow:none}
+#siCard .ui-tag{position:static;left:auto;bottom:auto;transform:none;box-shadow:none;font-size:7.5px;padding:1px 5px;border-radius:999px}
+@media(max-width:620px){#sec-dashboard #siCard .si-r{grid-template-columns:40px 1fr 52px}}
+
 /* ---- Sentiment Insights: dot ki jagah icon ---- */
 #siCard .si-r{grid-template-columns:36px minmax(84px,max-content) minmax(40px,1fr) 52px 88px;gap:12px;padding:9px 0}
 #siCard .si-dot{display:none}
@@ -17284,9 +17313,17 @@ function toggleModalLeader(handle) {
   function calendar(box,txt){
     var m=String(txt||'').toLowerCase().match(/(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)/),d=String(txt||'').match(/\b(\d{1,2})\b/);
     if(!m||!d)return false;
-    box.innerHTML='';box.className='insight-icon ui-ex-tile';
-    var c=D.createElement('div');c.className='ui-ex-cal';c.innerHTML='<b></b><span></span>';
-    c.firstChild.textContent=m[1];c.lastChild.textContent=String(+d[1]);box.appendChild(c);return true;
+    box.className='insight-icon ui-ex-tile';
+    /* poora calendar icon (rings + kesariya patti + mahina + din) -- dabba nahi */
+    box.innerHTML='<svg class="ui-ex-calsvg" viewBox="0 0 44 44" aria-hidden="true">'
+      +'<defs><linearGradient id="uiCalG" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FF8A2B"/><stop offset="1" stop-color="#E65100"/></linearGradient></defs>'
+      +'<rect x="3.5" y="6.5" width="37" height="34" rx="8" fill="#fff" stroke="#E7DCCF"/>'
+      +'<path d="M3.5 14.5a8 8 0 0 1 8-8h21a8 8 0 0 1 8 8v3.5h-37z" fill="url(#uiCalG)"/>'
+      +'<rect x="12" y="2.5" width="3.4" height="8" rx="1.7" fill="#3B2414"/><rect x="28.6" y="2.5" width="3.4" height="8" rx="1.7" fill="#3B2414"/>'
+      +'<text x="22" y="15.9" text-anchor="middle" font-family="DM Sans,sans-serif" font-size="6.6" font-weight="800" letter-spacing=".9" fill="#fff">'+esc(m[1].toUpperCase())+'</text>'
+      +'<text x="22" y="34.6" text-anchor="middle" font-family="Rajdhani,sans-serif" font-size="17" font-weight="700" fill="#141414">'+(+d[1])+'</text>'
+      +'</svg>';
+    return true;
   }
   function clock(box,txt){
     var m=String(txt||'').match(/(\d{1,2})\s*[–\-]\s*(\d{1,2})\s*(AM|PM)/i);if(!m)return false;
@@ -17344,7 +17381,11 @@ function toggleModalLeader(handle) {
       var t=row.querySelector('.insight-text'),box=row.querySelector('.insight-icon'),s=txt(t);
       var h=(s.match(/@([A-Za-z0-9_]{1,30})/)||[])[1];if(!box||!h)return;
       var p=(s.match(/—\s*([^·]+?)\s*·/)||[])[1]||'';
-      setOnce(box,'t:'+h+':'+(i+1),function(){avatar(box,h,col(p),i+1);});
+      /* rank photo par chipka badge nahi -- photo ke baayein alag "#1" */
+      var num=row.querySelector('.ui-ex-num');
+      if(!num){num=D.createElement('span');num.className='ui-ex-num';num.setAttribute('aria-label','Rank');row.insertBefore(num,box);}
+      var rk=i+1;if(num.textContent!=='#'+rk){num.textContent='#'+rk;num.className='ui-ex-num'+(rk<=3?' n'+rk:'');}
+      setOnce(box,'t:'+h+':'+rk,function(){avatar(box,h,col(p));});
     });
   }
   /* ---- Sentiment Insights ---- */

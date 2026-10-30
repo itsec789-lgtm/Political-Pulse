@@ -4512,7 +4512,34 @@ try {
   }
 } catch (e) {}
 
+/* av-src2 (30-Oct): fxtwitter kuch handle par 404 deta hai (jaise @yadavakhilesh),
+   to photo kabhi nahi milti thi. Ab fxtwitter na de to unavatar.io se -- sirf
+   tab maante hain jab wo asli X (pbs.twimg.com) ki photo ho. */
 function scrapeXAvatarLive(handle) {
+  return scrapeXAvatarFx(handle).then(function (u) { return u || scrapeXAvatarUnavatar(handle); });
+}
+function scrapeXAvatarUnavatar(handle) {
+  return new Promise(function (resolve) {
+    var clean = String(handle || '').trim().replace(/^@/, '');
+    if (!clean) return resolve(null);
+    var https = require('https');
+    var req = https.get('https://unavatar.io/x/' + encodeURIComponent(clean) + '?json',
+      { headers: { 'User-Agent': 'Mozilla/5.0' }, timeout: 6000 }, function (res) {
+        var body = '';
+        res.on('data', function (c) { body += c; });
+        res.on('end', function () {
+          try {
+            var u = JSON.parse(body).url;
+            if (u && /^https:\/\/pbs\.twimg\.com\/profile_images\//.test(u)) return resolve(u.replace('_normal.', '_400x400.'));
+          } catch (err) {}
+          resolve(null);
+        });
+      });
+    req.on('error', function () { resolve(null); });
+    req.on('timeout', function () { req.destroy(); resolve(null); });
+  });
+}
+function scrapeXAvatarFx(handle) {
   return new Promise(function (resolve) {
     var clean = String(handle || '').trim().replace(/^@/, '');
     if (!clean) return resolve(null);
