@@ -3439,6 +3439,43 @@ body.ui-capture #sec-dashboard .kpi{transform:none!important}
 #sec-dashboard #dashKpis .kpi:nth-child(n+5){border-color:#D4D8DE!important;box-shadow:0 2px 10px -4px rgba(30,40,60,.12)}
 #sec-dashboard #dashKpis .kpi:nth-child(n+5):hover{border-color:#9CA3AF!important;box-shadow:0 10px 24px -10px rgba(30,40,60,.25)}
 #sec-dashboard #dashKpis .kpi.kpi-open:nth-child(n+5){border-color:#6B7280!important;box-shadow:0 0 0 2px rgba(107,114,128,.2),0 10px 24px -10px rgba(30,40,60,.3)}
+/* ---------- ui-cat-rail (30-Oct): dono category section ek hi line me, left-right smooth slide ----------
+   Strip ko .lv-rail me lapeta jaata hai (neeche ki script), dono taraf gol teer + kinaron par fade.
+   Card par wahi grey ring jo Avg cards par hai. Collapse wala inline display:none waise hi chalta hai. */
+#sec-dashboard .lv-rail{position:relative;margin-bottom:8px}
+#sec-dashboard .lv-rail>.level-strip{display:flex;gap:14px;overflow-x:auto;overflow-y:hidden;padding:8px 4px 14px;margin:0 -4px;
+  scroll-snap-type:x proximity;scroll-padding-inline:4px;scroll-behavior:smooth;scrollbar-width:none;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;
+  -webkit-mask-image:linear-gradient(90deg,transparent 0,#000 var(--fl,0px),#000 calc(100% - var(--fr,0px)),transparent 100%);
+  mask-image:linear-gradient(90deg,transparent 0,#000 var(--fl,0px),#000 calc(100% - var(--fr,0px)),transparent 100%)}
+#sec-dashboard .lv-rail>.level-strip::-webkit-scrollbar{display:none}
+#sec-dashboard .lv-rail>.level-strip.is-drag{scroll-behavior:auto;scroll-snap-type:none;cursor:grabbing;user-select:none}
+#sec-dashboard .lv-rail .lv-card{flex:0 0 max(196px,calc((100% - 56px) / 5));min-height:138px;scroll-snap-align:start;
+  background:#fff;border:1.5px solid #D4D8DE!important;border-radius:16px;padding:15px 16px 12px;
+  box-shadow:0 2px 10px -4px rgba(30,40,60,.12);transition:transform .25s cubic-bezier(.2,.8,.2,1),box-shadow .25s,border-color .2s}
+#sec-dashboard .lv-rail .lv-card:hover{border-color:#9CA3AF!important;transform:translateY(-3px);box-shadow:0 12px 26px -12px rgba(30,40,60,.3)}
+#sec-dashboard .lv-rail .lv-card.cat-card-open{border-color:#6B7280!important;transform:translateY(-3px);
+  box-shadow:0 0 0 2px rgba(107,114,128,.2),0 12px 26px -12px rgba(30,40,60,.3)}
+#sec-dashboard .lv-rail .lv-lbl{font-size:10.5px;letter-spacing:.7px;color:#6B6460;margin-bottom:8px}
+#sec-dashboard .lv-rail .lv-val{font-size:27px;letter-spacing:-.4px}
+#sec-dashboard .lv-rail .lv-sub{font-size:11px;color:#9A938D;margin-top:5px}
+#sec-dashboard .lv-rail .cat-action{margin-top:auto;padding-top:9px;border-top-color:#EEF0F3}
+#sec-dashboard .lv-rail .lv-card .cat-action{transition:color .2s}
+#sec-dashboard .lv-rail .lv-card .cat-action-arrow{transition:transform .3s cubic-bezier(.34,1.56,.64,1)}
+#sec-dashboard .lv-rail .lv-card:hover .cat-action-arrow{transform:translateX(4px)}
+#sec-dashboard .lv-rail .lv-card.cat-card-open .cat-action-arrow{transform:rotate(90deg)}
+#sec-dashboard .lv-nav{position:absolute;top:50%;z-index:3;width:38px;height:38px;margin-top:-22px;border-radius:50%;padding:0;cursor:pointer;
+  display:grid;place-items:center;color:#374151;background:rgba(255,255,255,.94);border:1px solid #E5E7EB;
+  -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);box-shadow:0 8px 20px -8px rgba(30,40,60,.4);
+  transition:opacity .3s,transform .3s cubic-bezier(.34,1.56,.64,1),color .2s,border-color .2s}
+#sec-dashboard .lv-nav svg{width:16px;height:16px}
+#sec-dashboard .lv-nav.prev{left:-17px}
+#sec-dashboard .lv-nav.next{right:-17px}
+#sec-dashboard .lv-nav:hover{color:#E65100;border-color:#F7A25B;transform:scale(1.08)}
+#sec-dashboard .lv-nav:active{transform:scale(.94)}
+#sec-dashboard .lv-nav.off{opacity:0;pointer-events:none;transform:scale(.8)}
+#sec-dashboard .lv-rail:has(>.level-strip[style*="none"]) .lv-nav{display:none}
+@media(max-width:820px){#sec-dashboard .lv-rail .lv-card{flex-basis:180px;min-height:130px}#sec-dashboard .lv-nav{display:none}}
+@media (prefers-reduced-motion:reduce){#sec-dashboard .lv-rail>.level-strip{scroll-behavior:auto}}
 </style>
 
 <style id="uiHdrCss">
@@ -14044,8 +14081,11 @@ W.__pfByParty = byParty; W.__pfMetrics = metrics; W.__pfCATS = CATS; W.__pfDAYS 
      Baaki SAB -- Top Leaders, NOB, Page, Media Houses, Journalist, aur
      aage mapping me koi bhi nayi Category -- neeche "Others" wale apne
      section me chale jaate hain. */
-  var MAIN = ['LS_MP', 'RS_MP', 'MLA', 'MLC', 'Chief Minister', 'Dy CM', 'MLA Contestent'];
-  var ORD = MAIN.slice();
+  /* kram (30-Oct): pad ki taakat ke hisaab se -- CM, Dy CM, LS MP, RS MP, MLA, MLC, Contestant.
+     Others me bhi: party ke neta, NOB, party / official page, phir media, journalist, individual. */
+  var MAIN = ['Chief Minister', 'Dy CM', 'LS_MP', 'RS_MP', 'MLA', 'MLC', 'MLA Contestent'];
+  var OTH = ['Other Party Leaders', 'NOB', 'Party Page', 'Official Page', 'Media House', 'Journalist', 'Individual'];
+  var ORD = MAIN.concat(OTH);
   /* hide (13-Oct): "Top Leaders" ka card kahin nahi dikhana -- us Category ke
      log waise bhi apne asli pad (MP/MLA/Minister) ke card me gine ja chuke
      hote hain, isliye alag card se ginti do baar dikhti thi. Category khud
@@ -14119,6 +14159,74 @@ W.__pfByParty = byParty; W.__pfMetrics = metrics; W.__pfCATS = CATS; W.__pfDAYS 
   if (D.readyState === 'loading') D.addEventListener('DOMContentLoaded', boot);
   else boot();
   setTimeout(boot, 600); setTimeout(boot, 1800);
+})();
+</script>
+<script>
+/* ui-cat-rail (30-Oct): dono category strip ek line me slide hoti hain -- gol teer (prev/next),
+   mouse se pakad ke kheechna, touch / trackpad apne aap. Kinaron ka fade sirf tab jab us taraf aur card hon.
+   Card par click waise hi detail kholta hai; kheechne ke baad wala click roka jaata hai. */
+(function () {
+  var ARR = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg>';
+  function rail(id) {
+    var s = document.getElementById(id);
+    if (!s || s.parentNode.classList.contains('lv-rail')) return;
+    var r = document.createElement('div');
+    r.className = 'lv-rail';
+    s.parentNode.insertBefore(r, s);
+    r.appendChild(s);
+    function btn(dir) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'lv-nav ' + dir + ' off';
+      b.setAttribute('aria-label', dir === 'prev' ? 'Pichhle cards' : 'Agle cards');
+      b.innerHTML = dir === 'prev' ? ARR.replace('<svg ', '<svg style="transform:scaleX(-1)" ') : ARR;
+      b.addEventListener('click', function (e) {
+        e.stopPropagation();
+        s.scrollBy({ left: (dir === 'prev' ? -1 : 1) * Math.max(200, s.clientWidth * 0.8), behavior: 'smooth' });
+      });
+      r.appendChild(b);
+      return b;
+    }
+    var pv = btn('prev'), nx = btn('next');
+    function upd() {
+      var max = s.scrollWidth - s.clientWidth - 6;
+      var atL = s.scrollLeft <= 6, atR = s.scrollLeft >= max;
+      pv.classList.toggle('off', atL);
+      nx.classList.toggle('off', atR || max <= 0);
+      s.style.setProperty('--fl', atL ? '0px' : '36px');
+      s.style.setProperty('--fr', (atR || max <= 0) ? '0px' : '36px');
+    }
+    var raf = 0;
+    s.addEventListener('scroll', function () { if (!raf) raf = requestAnimationFrame(function () { raf = 0; upd(); }); }, { passive: true });
+    window.addEventListener('resize', upd);
+    new MutationObserver(function () { setTimeout(upd, 30); }).observe(s, { childList: true, attributes: true, attributeFilter: ['style'] });
+
+    /* mouse se kheechna */
+    var down = false, moved = false, x0 = 0, l0 = 0;
+    s.addEventListener('pointerdown', function (e) {
+      if (e.pointerType !== 'mouse' || e.button !== 0) return;
+      down = true; moved = false; x0 = e.clientX; l0 = s.scrollLeft;
+    });
+    window.addEventListener('pointermove', function (e) {
+      if (!down) return;
+      var dx = e.clientX - x0;
+      if (!moved && Math.abs(dx) > 5) { moved = true; s.classList.add('is-drag'); }
+      if (moved) s.scrollLeft = l0 - dx;
+    });
+    window.addEventListener('pointerup', function () {
+      if (!down) return;
+      down = false;
+      if (moved) setTimeout(function () { s.classList.remove('is-drag'); }, 0);
+    });
+    s.addEventListener('click', function (e) {
+      if (moved) { e.stopPropagation(); e.preventDefault(); moved = false; }
+    }, true);
+    upd();
+  }
+  function boot() { rail('lvStrip'); rail('lvOtherStrip'); }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+  else boot();
+  setTimeout(boot, 700);
 })();
 </script>
 <script>
