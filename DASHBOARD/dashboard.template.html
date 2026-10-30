@@ -10479,6 +10479,16 @@ setTimeout(hExec,600);
     return loadCats().then(function () {
       var h = PENDING_HANDLE;
       PENDING_HANDLE = null;
+      /* ha-first-open (30-Oct): page load ke baad pehli baar tab khule (koi khaas handle na maanga ho) to
+         Category = Official Page aur Handle = BJP4India -- sirf dropdown se, search box khaali. Uske baad
+         user jo chune wahi rehta hai. */
+      if (!h) {
+        var c = el('haCat');
+        if (c && Array.prototype.some.call(c.options, function (o) { return o.value === 'Official Page'; })) {
+          c.value = 'Official Page';
+          h = 'BJP4India';
+        }
+      }
       return window.haLoadHandles(h);
     }).catch(function (e) {
       var n = el('haNote'); if (n) { n.className = 'ha-note on'; n.textContent = e.message; }
