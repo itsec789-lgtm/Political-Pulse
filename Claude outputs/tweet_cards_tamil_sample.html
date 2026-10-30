@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tweet Cards Tamil</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+Devanagari:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#F6F3EE;--ink:#0F1419;--muted:#536471;--line:#EFF3F4;--acc:#E65100}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);font-family:Inter,'Noto Sans Devanagari',system-ui,sans-serif;color:var(--ink);padding:26px 16px 70px}
+.wrap{max-width:1000px;margin:0 auto}
+.sec{background:#fff;border:1px solid #ECE4D8;border-radius:16px;padding:18px 20px 20px;box-shadow:0 14px 34px -28px rgba(60,30,0,.4)}
+.top{display:flex;align-items:baseline;gap:10px;margin-bottom:12px}
+.ttl{font:700 13px Inter;letter-spacing:.08em;text-transform:uppercase;color:#3A3128}
+.cnt{font-size:12px;color:#8A8074}
+/* row = card + sentiment outside the card */
+.head,.row{display:grid;grid-template-columns:1fr 130px;gap:16px;align-items:center}
+.head{padding:0 2px 8px;border-bottom:1px solid #EFE8DD;margin-bottom:12px;font:700 11px Inter;letter-spacing:.08em;text-transform:uppercase;color:#8A8074}
+.head span:last-child{text-align:left}
+.feed{display:flex;flex-direction:column;gap:12px}
+.tw{border:1px solid #E7E2D9;border-radius:16px;padding:14px 16px 8px;background:#fff;transition:background .2s,box-shadow .2s}
+.tw:hover{background:#FCFAF7;box-shadow:0 10px 24px -18px rgba(0,0,0,.35)}
+.hd{display:flex;align-items:center;gap:10px}
+.av-an{background:#C62828!important;color:#fff;font:800 14px Inter!important;border-color:#C62828!important}
+.av{width:42px;height:42px;border-radius:50%;flex:none;background:#FFF1E6;display:flex;align-items:center;justify-content:center;font-size:22px;border:1px solid #F4DCC7}
+.nm{font-weight:800;font-size:14.5px;display:flex;align-items:center;gap:4px}
+.vf{width:16px;height:16px}
+.hn{font-size:13px;color:var(--muted)}
+.when{margin-left:auto;font-size:12px;color:#9AA4AB;display:flex;align-items:center;gap:10px}
+.x{width:17px;height:17px;opacity:.85}
+.txt{font-size:15px;line-height:1.55;margin:10px 0 2px;white-space:pre-wrap;word-break:break-word;overflow:hidden}
+.txt.clamp{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical}
+.txt .ht{color:#1D9BF0}
+.txt .ln{color:#1D9BF0;text-decoration:none}
+.txt .ln:hover{text-decoration:underline}
+.more{background:none;border:none;padding:0;margin:0 0 8px;font:600 13.5px Inter;color:#1D9BF0;cursor:pointer}
+.more:hover{text-decoration:underline}
+.date{font-size:13px;color:var(--muted);margin:6px 0 10px}
+.acts{display:flex;align-items:center;gap:4px;border-top:1px solid var(--line);padding-top:6px}
+.a{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--muted);padding:5px 8px;border-radius:999px;transition:background .2s,color .2s;font-variant-numeric:tabular-nums;flex:1}
+.a svg{width:18px;height:18px;flex:none}
+.a b{font-weight:600}
+.a .up{font-size:10.5px;font-weight:700;color:#00A35C}
+.a.lk:hover{color:#F91880}.a.cm:hover,.a.vw:hover{color:#1D9BF0}.a.sh:hover{color:#00BA7C}
+.open{flex:none;font-size:13px;font-weight:700;color:var(--acc);text-decoration:none;padding:5px 2px}
+.open:hover{text-decoration:underline}
+/* sentiment -- outside the card */
+.sent{display:flex;align-items:center;gap:8px;font-size:13.5px;font-weight:600}
+.sent i{width:9px;height:9px;border-radius:50%;flex:none}
+.pager{display:flex;align-items:center;justify-content:space-between;margin-top:16px;font-size:12px;color:#8A8074}
+.pager button{border:1px solid #E7E2D9;background:#fff;border-radius:8px;padding:6px 12px;font:600 12px Inter;cursor:pointer;margin-left:6px}
+.note{font-size:12px;color:#8A8074;margin:12px 4px 0}
+/* language tabs -- sirf Hindi / English ke alawa wali bhasha par */
+.lang{display:inline-flex;align-items:center;gap:2px;background:#F2F4F5;border-radius:999px;padding:3px;margin:10px 0 0}
+.lang button{border:none;background:none;font:600 12px Inter;color:#536471;padding:5px 11px;border-radius:999px;cursor:pointer;transition:background .2s,color .2s}
+.lang button.on{background:#fff;color:#0F1419;box-shadow:0 1px 3px rgba(0,0,0,.14)}
+.lang button:hover:not(.on){color:#0F1419}
+.lang .g{width:14px;height:14px;margin-right:4px;vertical-align:-2px}
+.lang button.hin{animation:pop .35s ease-out}
+@keyframes pop{from{opacity:0;transform:scale(.85)}to{opacity:1;transform:none}}
+.trn{font-size:11.5px;color:#8A8074;margin-top:2px;display:flex;align-items:center;gap:6px}
+.spin{width:12px;height:12px;border:2px solid #CFD9DE;border-top-color:#1D9BF0;border-radius:50%;animation:sp .7s linear infinite;display:inline-block}
+@keyframes sp{to{transform:rotate(360deg)}}
+.txt.loading{opacity:.45}
+.txt[lang=ta],.txt[lang=bn],.txt[lang=ur]{font-family:'Noto Sans Tamil','Noto Sans Bengali','Noto Nastaliq Urdu',Inter,sans-serif}
+.txt[dir=rtl]{text-align:right}
+@media (max-width:700px){.head{display:none}.row{grid-template-columns:1fr}.sent{padding:0 6px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="sec">
+    <div class="top"><span class="ttl">Latest Tweets</span><span class="cnt">29 total</span></div>
+    <div class="head"><span>Tweet</span><span>Sentiment</span></div>
+    <div class="feed" id="feed"></div>
+    <div class="pager"><span>1–8 of 29</span><span><button>&larr; Prev</button><button>Next &rarr;</button></span></div>
+  </div>
+  <p class="note">Asli data: @nallathambidmk (A. Nallathambi) ke latest 8 tweets, MongoDB se, asli likes / comments / views / shares / sentiment / link ke saath. English aur Hindi translation sample ke liye pehle se likhi hai; dashboard me click par AI se aayegi.</p>
+</div>
+<script>
+var T=[
+ {t:'நம் #DravidianModel அரசு கட்டியெழுப்பிய கோவை பெரியார் அறிவுலகம் திறப்புவிழா காண்கிறது  யார் திறந்தால் என்ன? திறந்து வைப்பதா பெருமை?  எதையும் திட்டமிட்டு உருவாக்குவதே பெருமை! அப்பெருமை என்றும் கழகத்துக்கே உரித்தானது!  #Kovai  #PeriyarArivulagam @mkstalin @arivalayam @Udhaystalin https://t.co/2TsoCK6PFA',
+  d:'16 Oct 2026 · 10:13 AM',lk:25,cm:0,vw:741,sh:6,s:'Neutral',u:'https://x.com/nallathambidmk/status/2110954713625907207',up:{lk:17},
+  tr:{en:'The Kovai Periyar Arivulagam, built by our #DravidianModel government, is now being inaugurated. What does it matter who opens it? Is opening it the pride? The pride lies in planning and creating something! That pride will always belong to the Kazhagam (DMK)! #Kovai #PeriyarArivulagam @mkstalin @arivalayam @Udhaystalin https://t.co/2TsoCK6PFA',
+      hi:'हमारी #DravidianModel सरकार द्वारा बनाया गया कोवई पेरियार अरिवुलगम अब उद्घाटन देख रहा है। कौन खोले, क्या फ़र्क पड़ता है? क्या खोलना ही गौरव है? किसी चीज़ की योजना बनाकर उसे बनाना ही असली गौरव है! वह गौरव हमेशा कड़गम (DMK) का ही है! #Kovai #PeriyarArivulagam @mkstalin @arivalayam @Udhaystalin https://t.co/2TsoCK6PFA'}},
+ {t:'மறவாது தமிழ் உலகம் என்றும் நம் நெஞ்சில் கலைஞர்!  #KalaignarForever https://t.co/F9velcUQy5',
+  d:'7 Aug 2026 · 7:36 AM',lk:10,cm:1,vw:794,sh:5,s:'Neutral',u:'https://x.com/nallathambidmk/status/2085548048529440895',
+  tr:{en:'The Tamil world will never forget: Kalaignar is forever in our hearts! #KalaignarForever https://t.co/F9velcUQy5',
+      hi:'तमिल दुनिया कभी नहीं भूलेगी: कलैञर हमेशा हमारे दिल में हैं! #KalaignarForever https://t.co/F9velcUQy5'}},
+ {t:'அனைவருக்கும் இனிய உழைப்பாளர் தின நல்வாழ்த்துக்கள்..!  என்றும் #உழைப்பே_உயர்வை தரும்..!  #CMMKSTALIN #DMK  #MKStalinGovernment #MKStalinGovt #DMK4TN  #DMKGovt #ஸ்டாலின்_தொடரட்டும் #தமிழ்நாடு_வெல்லட்டும் https://t.co/7LVRyF7MJT',
+  d:'1 May 2026 · 12:38 PM',lk:4,cm:0,vw:78,sh:3,s:'Neutral',u:'https://x.com/nallathambidmk/status/2050110171981156725',
+  tr:{en:'Happy Labour Day to everyone..! Hard work always brings progress (#உழைப்பே_உயர்வை தரும்)..! #CMMKSTALIN #DMK #MKStalinGovernment #MKStalinGovt #DMK4TN #DMKGovt #ஸ்டாலின்_தொடரட்டும் #தமிழ்நாடு_வெல்லட்டும் https://t.co/7LVRyF7MJT',
+      hi:'सभी को मज़दूर दिवस की हार्दिक शुभकामनाएँ..! मेहनत ही हमेशा तरक्की देती है (#உழைப்பே_உயர்வை தரும்)..! #CMMKSTALIN #DMK #MKStalinGovernment #MKStalinGovt #DMK4TN #DMKGovt #ஸ்டாலின்_தொடரட்டும் #தமிழ்நாடு_வெல்லட்டும் https://t.co/7LVRyF7MJT'}},
+ {t:'அன்பார்ந்த  திருப்பத்தூர் தொகுதி வாக்காள பெருமக்களே, வணக்கம்🙏🏻.  நான் உங்கள் #A_நல்லதம்பி https://t.co/dv8b9UwToo',
+  d:'21 Apr 2026 · 12:17 PM',lk:4,cm:0,vw:80,sh:2,s:'Neutral',u:'https://x.com/nallathambidmk/status/2046480986842763355',
+  tr:{en:'Dear voters of Tiruppattur constituency, greetings 🙏🏻. I am your #A_நல்லதம்பி (A. Nallathambi) https://t.co/dv8b9UwToo',
+      hi:'प्रिय तिरुप्पत्तूर निर्वाचन क्षेत्र के मतदाताओं, नमस्कार 🙏🏻। मैं आपका #A_நல்லதம்பி (ए. नल्लतंबी) https://t.co/dv8b9UwToo'}},
+ {t:'ஸ்டாலின் தொடரட்டும்... தமிழ்நாடு வெல்லட்டும் ! சாதனை பயணம் தொடர வாக்களிப்பீர் உதயசூரியன் 🌅 https://t.co/31y3mglzpp',
+  d:'20 Apr 2026 · 8:07 PM',lk:4,cm:0,vw:49,sh:1,s:'Neutral',u:'https://x.com/nallathambidmk/status/2046236908276289681',
+  tr:{en:'Let Stalin continue... let Tamil Nadu win! Vote for the Rising Sun 🌅 to continue the journey of achievements https://t.co/31y3mglzpp',
+      hi:'स्टालिन जारी रहें... तमिलनाडु जीते! उपलब्धियों की यात्रा जारी रखने के लिए उगते सूरज 🌅 को वोट दें https://t.co/31y3mglzpp'}},
+ {t:'வெற்றி சின்னம் #உதயசூரியன் #Vote4DMK #A_நல்லதம்பி #வாக்களிப்பீர்_உதயசூரியன் https://t.co/cJ1hjvePoO',
+  d:'19 Apr 2026 · 8:11 PM',lk:2,cm:0,vw:40,sh:1,s:'Neutral',u:'https://x.com/nallathambidmk/status/2045875456998879539',
+  tr:{en:'The winning symbol: #உதயசூரியன் (Rising Sun) #Vote4DMK #A_நல்லதம்பி #வாக்களிப்பீர்_உதயசூரியன் (Vote for the Rising Sun) https://t.co/cJ1hjvePoO',
+      hi:'जीत का निशान: #உதயசூரியன் (उगता सूरज) #Vote4DMK #A_நல்லதம்பி #வாக்களிப்பீர்_உதயசூரியன் (उगते सूरज को वोट दें) https://t.co/cJ1hjvePoO'}},
+ {t:'#OraeThalaivanMKS https://t.co/W7kyoNIohl',
+  d:'19 Apr 2026 · 7:59 AM',lk:9,cm:7,vw:146,sh:6,s:'Neutral',u:'https://x.com/nallathambidmk/status/2045691269691891790'},
+ {t:'ஸ்டாலின் தொடரட்டும்... தமிழ்நாடு வெல்லட்டும் ! https://t.co/bNMCwOxJ8P',
+  d:'18 Apr 2026 · 8:09 PM',lk:3,cm:0,vw:37,sh:3,s:'Neutral',u:'https://x.com/nallathambidmk/status/2045512609324232982',
+  tr:{en:'Let Stalin continue... let Tamil Nadu win! https://t.co/bNMCwOxJ8P',
+      hi:'स्टालिन जारी रहें... तमिलनाडु जीते! https://t.co/bNMCwOxJ8P'}}
+];
+/* Bhasha pehchaan -- sirf Unicode script se, browser me hi. Koi AI / network nahi.
+   Devanagari = Hindi, Latin = English: inke liye koi tab nahi. */
+var SCRIPTS=[['Tamil',/[஀-௿]/,'ta'],['Bengali',/[ঀ-৿]/,'bn'],['Urdu',/[؀-ۿ]/,'ur'],['Gujarati',/[઀-૿]/,'gu'],
+  ['Punjabi',/[਀-੿]/,'pa'],['Telugu',/[ఀ-౿]/,'te'],['Kannada',/[ಀ-೿]/,'kn'],['Malayalam',/[ഀ-ൿ]/,'ml'],['Odia',/[଀-୿]/,'or']];
+function detectLang(s){for(var i=0;i<SCRIPTS.length;i++){var m=(s.match(new RegExp(SCRIPTS[i][1].source,'g'))||[]).length;if(m>=3)return {name:SCRIPTS[i][0],code:SCRIPTS[i][2]};}return null;}
+/* Translation: SIRF click par. Sample me pehle se likhi translation (700 ms "AI" delay).
+   Asli dashboard me yahan: fetch('/api/translate',{method:'POST',body:{id,to}}) -> server AI -> cache.
+   Ek baar mila to CACHE me -- dobara click par AI nahi chalta. */
+var CACHE={};
+function translate(i,to){var key=i+'|'+to;if(CACHE[key])return Promise.resolve(CACHE[key]);
+  return new Promise(function(res){setTimeout(function(){CACHE[key]=T[i].tr[to];res(CACHE[key]);},700);});}
+var SC={'Pro-BJP':'#E65100','Anti-Govt':'#AD1457','Pro-Govt':'#1565C0','Positive':'#2E7D32','Neutral':'#B26A00','Anti-BJP':'#6A1B9A','Negative':'#C62828','No-Sentiment':'#78909C'};
+function f(n){if(n>=1e7)return (n/1e7).toFixed(2)+' Cr';if(n>=1e5)return (n/1e5).toFixed(2)+' L';if(n>=1e3)return (n/1e3).toFixed(1)+'K';return String(n);}
+function hl(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;')
+  .replace(/(https?:\/\/\S+)/g,'<a class="ln" href="$1" target="_blank" rel="noopener">$1</a>')
+  .replace(/(^|[\s(])([#@][\w஀-௿ऀ-ॿ]+)/g,'$1<span class="ht">$2</span>');}
+var I={
+ cm:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.4A8 8 0 1 1 21 12z"/></svg>',
+ sh:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17 2l4 4-4 4"/><path d="M3 11V9a3 3 0 0 1 3-3h15"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v2a3 3 0 0 1-3 3H3"/></svg>',
+ lk:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 21s-7-4.4-9.3-8.8C1.2 9.3 2.8 5.5 6.5 5.1c2-.2 3.6.9 4.5 2.4.9-1.5 2.5-2.6 4.5-2.4 3.7.4 5.3 4.2 3.8 7.1C19 16.6 12 21 12 21z"/></svg>',
+ vw:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>',
+ vf:'<svg class="vf" viewBox="0 0 24 24"><path fill="#1D9BF0" d="M22.5 12.5c0-1.6-.9-2.9-2.2-3.6.5-1.4.2-3.1-.9-4.2s-2.8-1.4-4.2-.9C14.5 2.4 13.2 1.5 11.5 1.5S8.6 2.4 7.9 3.8c-1.4-.5-3.1-.2-4.2.9S2.3 7.5 2.8 8.9C1.4 9.6.5 10.9.5 12.5s.9 2.9 2.3 3.6c-.5 1.4-.2 3.1.9 4.2s2.8 1.4 4.2.9c.7 1.3 2 2.3 3.6 2.3s2.9-.9 3.6-2.3c1.4.5 3.1.2 4.2-.9s1.4-2.8.9-4.2c1.4-.7 2.3-2 2.3-3.6z"/><path fill="#fff" d="M10 16.5l-4-4 1.4-1.4 2.6 2.6 6.1-6.1 1.4 1.4z"/></svg>',
+ x:'<svg class="x" viewBox="0 0 24 24"><path fill="#0F1419" d="M18.2 2.3h3.3l-7.2 8.3 8.5 11.1h-6.7l-5.2-6.8-6 6.8H1.7l7.7-8.8L1.3 2.3h6.8l4.7 6.2zm-1.2 17.4h1.8L7.1 4.2H5.1z"/></svg>'
+};
+var NM={cm:'Comments',sh:'Shares',lk:'Likes',vw:'Views'};
+function row(o,i){var u=o.up||{},c=SC[o.s]||'#78909C';
+  function act(k,v){return '<span class="a '+k+'" title="'+NM[k]+': '+v.toLocaleString('en-IN')+'">'+I[k]+'<b>'+f(v)+'</b>'+(u[k]?'<span class="up">&uarr;+'+u[k]+'</span>':'')+'</span>';}
+  return '<div class="row"><article class="tw">'
+   +'<div class="hd"><div class="av av-an">AN</div><div><div class="nm">A. Nallathambi</div><div class="hn">@nallathambidmk</div></div><div class="when">21 hours ago '+I.x+'</div></div>'
+   +(function(){var L=detectLang(o.t);if(!L)return '';
+      return '<div class="lang" data-i="'+i+'" data-name="'+L.name+'">'
+        +'<button class="on" data-to="orig"><svg class="g" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>Original · '+L.name+'</button>'
+        +'<button data-to="en">English</button></div>';})()
+   +'<div class="txt clamp" id="t'+i+'"'+(function(){var L=detectLang(o.t);return L?' lang="'+L.code+'"'+(L.code==='ur'?' dir="rtl"':''):'';})()+'>'+hl(o.t)+'</div>'
+   +'<div class="trn" id="n'+i+'" hidden></div>'
+   +'<button class="more" data-i="'+i+'" hidden>See more</button>'
+   +'<div class="date">'+o.d+'</div>'
+   +'<div class="acts">'+act('cm',o.cm)+act('sh',o.sh)+act('lk',o.lk)+act('vw',o.vw)+'<a class="open" href="'+(o.u||'#')+'" target="_blank" rel="noopener">Open on X &#8599;</a></div>'
+   +'</article><div class="sent" style="color:'+c+'"><i style="background:'+c+'"></i>'+o.s+'</div></div>';}
+var feed=document.getElementById('feed');feed.innerHTML=T.map(row).join('');
+/* "See more" sirf tab dikhe jab text sach me 3 line se lamba ho */
+function checkMore(){feed.querySelectorAll('.more').forEach(function(b){var t=document.getElementById('t'+b.dataset.i);
+  if(b.textContent==='See less')return;
+  var lh=parseFloat(getComputedStyle(t).lineHeight)||23;t.classList.remove('clamp');var lines=Math.round(t.getBoundingClientRect().height/lh);t.classList.add('clamp');
+  b.hidden=lines<=3;});}
+feed.querySelectorAll('.more').forEach(function(b){var t=document.getElementById('t'+b.dataset.i);
+  b.onclick=function(){var open=t.classList.toggle('clamp');b.textContent=open?'See more':'See less';};});
+(document.fonts&&document.fonts.ready?document.fonts.ready:Promise.resolve()).then(checkMore);
+/* language tabs: Original <-> English; English ke baad Hindi tab bhi dikhe */
+feed.querySelectorAll('.lang').forEach(function(box){
+  var i=+box.dataset.i,name=box.dataset.name,t=document.getElementById('t'+i),n=document.getElementById('n'+i),busy=false;
+  var orig={html:t.innerHTML,lang:t.getAttribute('lang'),dir:t.getAttribute('dir')};
+  box.addEventListener('click',function(e){
+    var b=e.target.closest('button');if(!b||busy||b.classList.contains('on'))return;
+    var to=b.dataset.to;
+    function show(html,lang,dir,note){t.innerHTML=html;lang?t.setAttribute('lang',lang):t.removeAttribute('lang');dir?t.setAttribute('dir',dir):t.removeAttribute('dir');
+      box.querySelectorAll('button').forEach(function(x){x.classList.toggle('on',x===b);});
+      n.hidden=!note;n.innerHTML=note||'';checkMore();}
+    if(to==='orig'){show(orig.html,orig.lang,orig.dir,'');return;}
+    busy=true;t.classList.add('loading');n.hidden=false;n.innerHTML='<span class="spin"></span> Translating to '+(to==='en'?'English':'Hindi')+'…';
+    translate(i,to).then(function(txt){
+      busy=false;t.classList.remove('loading');
+      show(hl(txt),to==='en'?'en':'hi','','Translated from '+name+' by AI');
+      if(to==='en'&&!box.querySelector('[data-to="hi"]')){var h=document.createElement('button');h.dataset.to='hi';h.className='hin';h.textContent='Hindi';box.appendChild(h);}
+    });
+  });
+});
+window.addEventListener('resize',checkMore);
+</script>
+</body>
+</html>

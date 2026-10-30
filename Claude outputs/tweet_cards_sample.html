@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tweet Cards Sample</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=Inter:wght@400;500;600;700;800&family=Noto+Sans+Devanagari:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#F6F3EE;--card:#fff;--ink:#0F1419;--muted:#536471;--line:#EFF3F4;--acc:#E65100}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);font-family:Inter,'Noto Sans Devanagari',system-ui,sans-serif;color:var(--ink);padding:26px 16px 70px}
+.wrap{max-width:1100px;margin:0 auto}
+.sec{background:#fff;border:1px solid #ECE4D8;border-radius:16px;padding:18px 20px 20px;box-shadow:0 14px 34px -28px rgba(60,30,0,.4)}
+.top{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+.ttl{font:700 13px Inter;letter-spacing:.08em;text-transform:uppercase;color:#3A3128}
+.cnt{font-size:12px;color:#8A8074}
+.lay{margin-left:auto;display:flex;background:#F4EEE5;border-radius:10px;padding:3px}
+.lay button{border:none;background:none;font:700 11.5px Inter;color:#6B6257;padding:7px 12px;border-radius:8px;cursor:pointer}
+.lay button.on{background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.feed{display:grid;grid-template-columns:1fr;gap:14px}
+.feed.two{grid-template-columns:1fr 1fr}
+.tw{border:1px solid #E7E2D9;border-radius:16px;padding:14px 16px 10px;background:var(--card);transition:background .2s,box-shadow .2s,transform .2s;position:relative}
+.tw:hover{background:#FCFAF7;box-shadow:0 10px 24px -18px rgba(0,0,0,.35);transform:translateY(-1px)}
+.hd{display:flex;align-items:center;gap:10px}
+.av{width:42px;height:42px;border-radius:50%;flex:none;background:#FFF1E6;display:flex;align-items:center;justify-content:center;font-size:22px;border:1px solid #F4DCC7}
+.nm{font-weight:800;font-size:14.5px;display:flex;align-items:center;gap:4px}
+.vf{width:16px;height:16px}
+.hn{font-size:13px;color:var(--muted)}
+.dot{color:var(--muted)}
+.x{margin-left:auto;width:18px;height:18px;opacity:.85}
+.txt{font-size:15px;line-height:1.55;margin:10px 0 10px;white-space:pre-wrap;word-break:break-word}
+.txt .ht{color:#1D9BF0}
+.meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:13px;color:var(--muted);padding-bottom:10px;border-bottom:1px solid var(--line)}
+.sent{font-size:11px;font-weight:700;border-radius:999px;padding:3px 9px;border:1px solid}
+.acts{display:flex;align-items:center;justify-content:space-between;padding-top:8px;gap:4px}
+.a{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--muted);padding:5px 8px;border-radius:999px;transition:background .2s,color .2s;font-variant-numeric:tabular-nums}
+.a svg{width:18px;height:18px}
+.a b{font-weight:600}
+.a .up{font-size:10.5px;font-weight:700;color:#00A35C;margin-left:2px}
+.a.lk:hover{background:#FDEBF2;color:#F91880}.a.cm:hover{background:#E8F5FD;color:#1D9BF0}
+.a.vw:hover{background:#E8F5FD;color:#1D9BF0}.a.sh:hover{background:#E6F6EE;color:#00BA7C}
+.open{font-size:12.5px;font-weight:700;color:var(--acc);text-decoration:none;padding:5px 10px;border-radius:999px;border:1px solid #F6D6BF}
+.open:hover{background:#FFF3EA}
+.upd{position:absolute;top:14px;right:44px;font-size:11px;color:#9AA4AB}
+.pager{display:flex;align-items:center;justify-content:space-between;margin-top:16px;font-size:12px;color:#8A8074}
+.pager button{border:1px solid #E7E2D9;background:#fff;border-radius:8px;padding:6px 12px;font:600 12px Inter;cursor:pointer;margin-left:6px}
+.note{font-size:12px;color:#8A8074;margin:12px 4px 0}
+@media (max-width:820px){.feed.two{grid-template-columns:1fr}.upd{display:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="sec">
+    <div class="top">
+      <span class="ttl">Latest Tweets</span><span class="cnt">4,217 total</span>
+      <div class="lay"><button data-c="1" class="on">1 column</button><button data-c="2">2 columns</button></div>
+    </div>
+    <div class="feed" id="feed"></div>
+    <div class="pager"><span>1–6 of 4,217</span><span><button>&larr; Prev</button><button>Next &rarr;</button></span></div>
+  </div>
+  <p class="note">Sample: numbers BJP4India ke screenshot jaise hain; tweet text sample hai (screenshot mein kata hua tha). Dashboard mein har card ka poora asli text aur asli numbers aayenge.</p>
+</div>
+<script>
+var T=[
+ {t:'Recently, the Congress prince was saying, "Smash the Patriarchy." But when it comes to giving opportunities to women, the party\'s own record tells a different story. #BJP4India',d:'27 Oct 2026 · 4:51 PM',lk:168,cm:7,vw:17000,sh:57,s:'Anti-Govt'},
+ {t:'अभी हाल में कांग्रेस के युवराज कह रहे थे कि \'Smash the Patriarchy\', लेकिन जब जेएनयू की बात आती है तो उनका रुख कुछ और होता है।',d:'27 Oct 2026 · 4:49 PM',lk:220,cm:4,vw:15400,sh:71,s:'Anti-Govt'},
+ {t:'We can proudly say this is the first government in the country to truly understand the aspirations of the youth and act on them. #ViksitBharat',d:'27 Oct 2026 · 4:46 PM',lk:92,cm:4,vw:11400,sh:45,s:'Anti-Govt'},
+ {t:'देश के नेता प्रतिपक्ष के मुंह से आप कभी विकास की बात नहीं सुनते हैं। उनकी आवाज सिर्फ देश को बांटने के लिए उठती है।',d:'27 Oct 2026 · 4:42 PM',lk:223,cm:8,vw:14100,sh:68,s:'Pro-BJP'},
+ {t:'We need to connect and engage directly with the people to apprise them of the work done by the government over the last decade.',d:'27 Oct 2026 · 4:40 PM',lk:84,cm:3,vw:14600,sh:37,s:'Pro-Govt',up:{lk:61,cm:2,sh:35}},
+ {t:'श्रद्धेय मनोहर पर्रिकर ने अपनी सादगी और शुचिता से पूरे देश में गोवा का नाम और सम्मान बढ़ाया।',d:'27 Oct 2026 · 4:40 PM',lk:61,cm:2,vw:10100,sh:39,s:'Negative'}
+];
+var SC={'Pro-BJP':['#FFF1E6','#C2410C','#F9D2B4'],'Anti-Govt':['#FCE7EF','#AD1457','#F5C3D6'],'Pro-Govt':['#E3EEFB','#1565C0','#BFD6F3'],
+  'Positive':['#E7F5EA','#2E7D32','#C2E5C8'],'Neutral':['#FFF6E0','#B26A00','#F3DDA6'],'Anti-BJP':['#F1E6F8','#6A1B9A','#DCC5EC'],'Negative':['#FDEBEB','#C62828','#F5C6C6']};
+function f(n){if(n>=1e7)return (n/1e7).toFixed(2)+' Cr';if(n>=1e5)return (n/1e5).toFixed(2)+' L';if(n>=1e3)return (n/1e3).toFixed(1)+'K';return String(n);}
+function hl(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/(#\w+)/g,'<span class="ht">$1</span>');}
+var I={
+ cm:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.4A8 8 0 1 1 21 12z"/></svg>',
+ sh:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17 2l4 4-4 4"/><path d="M3 11V9a3 3 0 0 1 3-3h15"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v2a3 3 0 0 1-3 3H3"/></svg>',
+ lk:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 21s-7-4.4-9.3-8.8C1.2 9.3 2.8 5.5 6.5 5.1c2-.2 3.6.9 4.5 2.4.9-1.5 2.5-2.6 4.5-2.4 3.7.4 5.3 4.2 3.8 7.1C19 16.6 12 21 12 21z"/></svg>',
+ vw:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>',
+ vf:'<svg class="vf" viewBox="0 0 24 24"><path fill="#1D9BF0" d="M22.5 12.5c0-1.6-.9-2.9-2.2-3.6.5-1.4.2-3.1-.9-4.2s-2.8-1.4-4.2-.9C14.5 2.4 13.2 1.5 11.5 1.5S8.6 2.4 7.9 3.8c-1.4-.5-3.1-.2-4.2.9S2.3 7.5 2.8 8.9C1.4 9.6.5 10.9.5 12.5s.9 2.9 2.3 3.6c-.5 1.4-.2 3.1.9 4.2s2.8 1.4 4.2.9c.7 1.3 2 2.3 3.6 2.3s2.9-.9 3.6-2.3c1.4.5 3.1.2 4.2-.9s1.4-2.8.9-4.2c1.4-.7 2.3-2 2.3-3.6z"/><path fill="#fff" d="M10 16.5l-4-4 1.4-1.4 2.6 2.6 6.1-6.1 1.4 1.4z"/></svg>',
+ x:'<svg class="x" viewBox="0 0 24 24"><path fill="#0F1419" d="M18.2 2.3h3.3l-7.2 8.3 8.5 11.1h-6.7l-5.2-6.8-6 6.8H1.7l7.7-8.8L1.3 2.3h6.8l4.7 6.2zm-1.2 17.4h1.8L7.1 4.2H5.1z"/></svg>'
+};
+function card(o){var c=SC[o.s]||SC.Neutral,u=o.up||{};
+  var NM={cm:'Comments',sh:'Shares',lk:'Likes',vw:'Views'};
+  function act(k,v){return '<span class="a '+k+'" title="'+NM[k]+': '+v.toLocaleString('en-IN')+'">'+I[k]+'<b>'+f(v)+'</b>'+(u[k]?'<span class="up">&uarr;+'+u[k]+'</span>':'')+'</span>';}
+  return '<article class="tw"><span class="upd">21 hours ago</span>'
+   +'<div class="hd"><div class="av">🪷</div><div><div class="nm">BJP4India '+I.vf+'</div><div class="hn">@BJP4India</div></div>'+I.x+'</div>'
+   +'<div class="txt">'+hl(o.t)+'</div>'
+   +'<div class="meta"><span>'+o.d+'</span><span class="dot">·</span><span class="sent" style="background:'+c[0]+';color:'+c[1]+';border-color:'+c[2]+'">'+o.s+'</span></div>'
+   +'<div class="acts">'+act('cm',o.cm)+act('sh',o.sh)+act('lk',o.lk)+act('vw',o.vw)+'<a class="open" href="#">Open on X &#8599;</a></div>'
+   +'</article>';}
+document.getElementById('feed').innerHTML=T.map(card).join('');
+document.querySelectorAll('.lay button').forEach(function(b){b.onclick=function(){document.querySelectorAll('.lay button').forEach(function(x){x.classList.toggle('on',x===b);});document.getElementById('feed').classList.toggle('two',b.dataset.c==='2');};});
+</script>
+</body>
+</html>

@@ -5523,12 +5523,50 @@ a.pe-btn:after{content:"";position:absolute;inset:0;z-index:1;background:linear-
 
   <div class="ha-card">
     <div class="ha-stitle">Latest Tweets <span id="haTwCount"></span></div>
-    <div class="tbl-box" style="border:none;box-shadow:none;padding:0">
-      <table><thead><tr><th>Tweet</th><th>Posted At</th><th class="r">Likes</th>
-      <th class="r">Comments</th><th class="r">Views</th><th class="r">Shares</th>
-      <th>Sentiment</th><th>Link</th></tr></thead>
-      <tbody id="haTwBody"><tr><td colspan="8" class="ha-empty">Ek handle chuno.</td></tr></tbody></table>
-    </div>
+    <!-- tweet-cards (30-Oct): X jaise tweet cards; sentiment card ke bahar; lamba text "See more";
+         Hindi/English ke alawa bhasha par Original / English (+ Hindi) tab -- translation SIRF click par. -->
+    <style>
+    .htc-head,.htc-row{display:grid;grid-template-columns:1fr 130px;gap:16px;align-items:center}
+    .htc-head{padding:0 2px 8px;border-bottom:1px solid #EFE8DD;margin-bottom:12px;font:700 11px Inter,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#8A8074}
+    .htc-feed{display:flex;flex-direction:column;gap:12px}
+    .htc-tw{border:1px solid #E7E2D9;border-radius:16px;padding:14px 16px 8px;background:#fff;transition:background .2s,box-shadow .2s;min-width:0}
+    .htc-tw:hover{background:#FCFAF7;box-shadow:0 10px 24px -18px rgba(0,0,0,.35)}
+    .htc-hd{display:flex;align-items:center;gap:10px}
+    .htc-av{width:42px;height:42px;border-radius:50%;flex:none;object-fit:cover;background:#F3EDE4;border:1px solid #EDE3D6}
+    .htc-nm{font-weight:800;font-size:14.5px;color:#0F1419}
+    .htc-hn{font-size:13px;color:#536471}
+    .htc-x{margin-left:auto;width:17px;height:17px;opacity:.85;flex:none}
+    .htc-lang{display:inline-flex;align-items:center;gap:2px;background:#F2F4F5;border-radius:999px;padding:3px;margin:10px 0 0}
+    .htc-lang button{border:none;background:none;font:600 12px Inter,sans-serif;color:#536471;padding:5px 11px;border-radius:999px;cursor:pointer;transition:background .2s,color .2s}
+    .htc-lang button.on{background:#fff;color:#0F1419;box-shadow:0 1px 3px rgba(0,0,0,.14)}
+    .htc-lang svg{width:14px;height:14px;margin-right:4px;vertical-align:-2px}
+    .htc-txt{font-size:15px;line-height:1.55;margin:10px 0 2px;white-space:pre-wrap;word-break:break-word;overflow:hidden;color:#0F1419}
+    .htc-txt.clamp{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical}
+    .htc-txt.loading{opacity:.45}
+    .htc-txt[dir=rtl]{text-align:right}
+    .htc-txt .ht{color:#1D9BF0}
+    .htc-txt a{color:#1D9BF0;text-decoration:none}.htc-txt a:hover{text-decoration:underline}
+    .htc-trn{font-size:11.5px;color:#8A8074;margin-top:2px;display:flex;align-items:center;gap:6px}
+    .htc-trn.err{color:#C62828}
+    .htc-spin{width:12px;height:12px;border:2px solid #CFD9DE;border-top-color:#1D9BF0;border-radius:50%;animation:htcSp .7s linear infinite;display:inline-block}
+    @keyframes htcSp{to{transform:rotate(360deg)}}
+    .htc-more{background:none;border:none;padding:0;margin:0 0 6px;font:600 13.5px Inter,sans-serif;color:#1D9BF0;cursor:pointer}
+    .htc-more:hover{text-decoration:underline}
+    .htc-date{font-size:13px;color:#536471;margin:6px 0 10px}
+    .htc-acts{display:flex;align-items:center;gap:4px;border-top:1px solid #EFF3F4;padding-top:6px}
+    .htc-a{display:flex;align-items:center;gap:6px;font-size:13px;color:#536471;padding:5px 8px;border-radius:999px;transition:color .2s;font-variant-numeric:tabular-nums;flex:1;min-width:0}
+    .htc-a svg{width:18px;height:18px;flex:none}
+    .htc-a b{font-weight:600}
+    .htc-a.lk:hover{color:#F91880}.htc-a.cm:hover,.htc-a.vw:hover{color:#1D9BF0}.htc-a.sh:hover{color:#00BA7C}
+    .htc-open{flex:none;font-size:13px;font-weight:700;color:#E65100;text-decoration:none;padding:5px 2px}
+    .htc-open:hover{text-decoration:underline}
+    .htc-sent{display:flex;align-items:center;gap:8px;font-size:13.5px;font-weight:600}
+    .htc-sent i{width:9px;height:9px;border-radius:50%;flex:none}
+    .htc-empty{padding:26px;text-align:center;color:#8A8074;font-size:13px}
+    @media (max-width:700px){.htc-head{display:none}.htc-row{grid-template-columns:1fr}.htc-sent{padding:0 6px}}
+    </style>
+    <div class="htc-head"><span>Tweet</span><span>Sentiment</span></div>
+    <div class="htc-feed" id="haTwBody"><div class="htc-empty">Ek handle chuno.</div></div>
     <div class="ha-pg"><span id="haTwInfo"></span>
       <button class="filter-select" id="haPrev" onclick="window.haPrev()">&larr; Prev</button>
       <button class="filter-select" id="haNext" onclick="window.haNext()">Next &rarr;</button></div>
@@ -10439,15 +10477,10 @@ setTimeout(hExec,600);
     api('/api/ha/tweets', { h: CUR, offset: OFFSET, limit: PAGE }).then(function (r) {
       var b = el('haTwBody'); if (!b) return;
       var list = r.items || [];
-      b.innerHTML = list.length ? list.map(function (t) {
-        return '<tr><td><span class="ha-tt" title="' + esc(t.text) + '">' + esc(t.text) + '</span></td>'
-          + '<td style="font-size:10.5px;white-space:nowrap">' + esc(String(t.date).slice(0, 16)) + '</td>'
-          + '<td class="r">' + big(t.likes) + '</td><td class="r">' + big(t.comments) + '</td>'
-          + '<td class="r">' + big(t.views) + '</td><td class="r">' + big(t.shares) + '</td>'
-          + '<td style="font-size:10.5px">' + esc(t.sent || '—') + '</td>'
-          + '<td>' + (t.url ? '<a style="color:#E65100;font-weight:600;text-decoration:none" href="' + esc(t.url)
-              + '" target="_blank" rel="noopener">Open ↗</a>' : '—') + '</td></tr>';
-      }).join('') : '<tr><td colspan="8" class="ha-empty">No tweets.</td></tr>';
+      var who = (LIST || []).find(function (o) { return o.h === CUR; }) || {};
+      b.innerHTML = list.length ? list.map(function (t, i) { return twCard(t, i, who); }).join('')
+                                : '<div class="htc-empty">No tweets.</div>';
+      wireCards(b, list);
       var start = r.total === 0 ? 0 : r.offset + 1;
       var end = Math.min(r.offset + r.pageSize, r.total);
       var inf = el('haTwInfo'); if (inf) inf.textContent = start + '–' + end + ' of ' + nf(r.total);
@@ -10457,7 +10490,108 @@ setTimeout(hExec,600);
       if (nx) nx.disabled = end >= r.total;
     }).catch(function (e) {
       var b = el('haTwBody');
-      if (b) b.innerHTML = '<tr><td colspan="8" class="ha-empty">' + esc(e.message) + '</td></tr>';
+      if (b) b.innerHTML = '<div class="htc-empty">' + esc(e.message) + '</div>';
+    });
+  }
+
+  /* ===== tweet-cards (30-Oct) ===== */
+  var TW_SENT = { 'pro-bjp': '#E65100', 'anti-govt': '#AD1457', 'pro-govt': '#1565C0', 'positive': '#2E7D32',
+                  'neutral': '#B26A00', 'anti-bjp': '#6A1B9A', 'negative': '#C62828' };
+  /* bhasha pehchaan -- sirf Unicode script se, browser me hi (koi AI / network nahi).
+     Devanagari = Hindi aur Latin = English: inke liye koi tab nahi. */
+  var TW_SCRIPTS = [['Tamil', /[஀-௿]/g, 'ta'], ['Bengali', /[ঀ-৿]/g, 'bn'], ['Urdu', /[؀-ۿ]/g, 'ur'],
+    ['Gujarati', /[઀-૿]/g, 'gu'], ['Punjabi', /[਀-੿]/g, 'pa'], ['Telugu', /[ఀ-౿]/g, 'te'],
+    ['Kannada', /[ಀ-೿]/g, 'kn'], ['Malayalam', /[ഀ-ൿ]/g, 'ml'], ['Odia', /[଀-୿]/g, 'or']];
+  function twLang(s) {
+    s = String(s || '');
+    for (var i = 0; i < TW_SCRIPTS.length; i++) { if ((s.match(TW_SCRIPTS[i][1]) || []).length >= 3) return { name: TW_SCRIPTS[i][0], code: TW_SCRIPTS[i][2] }; }
+    return null;
+  }
+  function twHtml(s) {
+    return esc(s)
+      .replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener">$1</a>')
+      .replace(/(^|[\s(])([#@][\wऀ-ൿ]+)/g, '$1<span class="ht">$2</span>');
+  }
+  function twDate(d) {
+    var m = String(d || '').match(/^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})/);
+    if (!m) return esc(String(d || '').slice(0, 16));
+    var MO = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'], hh = +m[4];
+    return (+m[3]) + ' ' + MO[+m[2] - 1] + ' ' + m[1] + ' · ' + ((hh % 12) || 12) + ':' + m[5] + ' ' + (hh < 12 ? 'AM' : 'PM');
+  }
+  var TW_I = {
+    cm: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.4A8 8 0 1 1 21 12z"/></svg>',
+    sh: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17 2l4 4-4 4"/><path d="M3 11V9a3 3 0 0 1 3-3h15"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v2a3 3 0 0 1-3 3H3"/></svg>',
+    lk: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 21s-7-4.4-9.3-8.8C1.2 9.3 2.8 5.5 6.5 5.1c2-.2 3.6.9 4.5 2.4.9-1.5 2.5-2.6 4.5-2.4 3.7.4 5.3 4.2 3.8 7.1C19 16.6 12 21 12 21z"/></svg>',
+    vw: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>',
+    x: '<svg class="htc-x" viewBox="0 0 24 24"><path fill="#0F1419" d="M18.2 2.3h3.3l-7.2 8.3 8.5 11.1h-6.7l-5.2-6.8-6 6.8H1.7l7.7-8.8L1.3 2.3h6.8l4.7 6.2zm-1.2 17.4h1.8L7.1 4.2H5.1z"/></svg>',
+    globe: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>'
+  };
+  function twCard(t, i, who) {
+    var L = twLang(t.text), sk = String(t.sent || '').toLowerCase(), sc = TW_SENT[sk] || '#78909C';
+    var nm = who.name || CUR, hid = 'tw' + (t.id || i);
+    function act(k, v, label) {
+      /* id -> "↑ +17" wala live-delta tracker card ke number bhi pakadta hai */
+      return '<span class="htc-a ' + k + '" title="' + label + ': ' + nf(v) + '">' + TW_I[k]
+        + '<b class="num" id="' + hid + '-' + k + '">' + big(v) + '</b></span>';
+    }
+    return '<div class="htc-row"><article class="htc-tw">'
+      + '<div class="htc-hd"><img class="htc-av" src="/api/avatar/' + encodeURIComponent(CUR) + '" alt="" loading="lazy" onerror="this.style.visibility=\'hidden\'">'
+      + '<div style="min-width:0"><div class="htc-nm">' + esc(nm) + '</div><div class="htc-hn">@' + esc(CUR) + '</div></div>' + TW_I.x + '</div>'
+      + (L ? '<div class="htc-lang" data-i="' + i + '" data-name="' + L.name + '"><button class="on" data-to="orig">' + TW_I.globe + 'Original · ' + L.name
+            + '</button><button data-to="en">English</button></div>' : '')
+      + '<div class="htc-txt clamp" id="htcT' + i + '"' + (L ? ' lang="' + L.code + '"' + (L.code === 'ur' ? ' dir="rtl"' : '') : '') + '>' + twHtml(t.text) + '</div>'
+      + '<div class="htc-trn" id="htcN' + i + '" hidden></div>'
+      + '<button class="htc-more" data-i="' + i + '" hidden>See more</button>'
+      + '<div class="htc-date">' + twDate(t.date) + '</div>'
+      + '<div class="htc-acts">' + act('cm', t.comments, 'Comments') + act('sh', t.shares, 'Shares') + act('lk', t.likes, 'Likes') + act('vw', t.views, 'Views')
+      + (t.url ? '<a class="htc-open" href="' + esc(t.url) + '" target="_blank" rel="noopener">Open on X &#8599;</a>' : '') + '</div>'
+      + '</article><div class="htc-sent" style="color:' + sc + '"><i style="background:' + sc + '"></i>' + esc(t.sent || '—') + '</div></div>';
+  }
+  function cardMore(b) {
+    b.querySelectorAll('.htc-more').forEach(function (m) {
+      if (m.textContent === 'See less') return;
+      var t = el('htcT' + m.getAttribute('data-i')); if (!t) return;
+      var lh = parseFloat(getComputedStyle(t).lineHeight) || 23;
+      t.classList.remove('clamp'); var lines = Math.round(t.getBoundingClientRect().height / lh); t.classList.add('clamp');
+      m.hidden = lines <= 3;
+    });
+  }
+  function wireCards(b, list) {
+    var HANDLE = CUR;
+    cardMore(b);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { cardMore(b); });
+    b.querySelectorAll('.htc-more').forEach(function (m) {
+      m.onclick = function () { var t = el('htcT' + m.getAttribute('data-i')); var c = t.classList.toggle('clamp'); m.textContent = c ? 'See more' : 'See less'; };
+    });
+    /* translation SIRF click par; ek baar aaya to yahin yaad (server bhi save karta hai) */
+    b.querySelectorAll('.htc-lang').forEach(function (box) {
+      var i = +box.getAttribute('data-i'), name = box.getAttribute('data-name'), tw = list[i];
+      var t = el('htcT' + i), n = el('htcN' + i), busy = false, got = {};
+      var orig = { html: t.innerHTML, lang: t.getAttribute('lang'), dir: t.getAttribute('dir') };
+      box.addEventListener('click', function (e) {
+        var btn = e.target.closest('button'); if (!btn || busy || btn.classList.contains('on')) return;
+        var to = btn.getAttribute('data-to');
+        function show(html, lang, dir, note) {
+          t.innerHTML = html; lang ? t.setAttribute('lang', lang) : t.removeAttribute('lang'); dir ? t.setAttribute('dir', dir) : t.removeAttribute('dir');
+          box.querySelectorAll('button').forEach(function (x) { x.classList.toggle('on', x === btn); });
+          n.className = 'htc-trn'; n.hidden = !note; n.innerHTML = note || ''; cardMore(b);
+        }
+        if (to === 'orig') { show(orig.html, orig.lang, orig.dir, ''); return; }
+        function done(txt) {
+          got[to] = txt; show(twHtml(txt), to, '', 'Translated from ' + name + ' by AI');
+          if (to === 'en' && !box.querySelector('[data-to="hi"]')) {
+            var hb = document.createElement('button'); hb.setAttribute('data-to', 'hi'); hb.textContent = 'Hindi'; box.appendChild(hb);
+          }
+        }
+        if (got[to]) { done(got[to]); return; }
+        busy = true; t.classList.add('loading'); n.className = 'htc-trn'; n.hidden = false;
+        n.innerHTML = '<span class="htc-spin"></span> Translating to ' + (to === 'en' ? 'English' : 'Hindi') + '…';
+        api('/api/translate', { h: HANDLE, id: tw.id, to: to }).then(function (r) {
+          busy = false; t.classList.remove('loading'); done(r.text || '');
+        }).catch(function (err) {
+          busy = false; t.classList.remove('loading'); n.className = 'htc-trn err'; n.textContent = 'Translation failed: ' + err.message;
+        });
+      });
     });
   }
   window.haPrev = function () { OFFSET = Math.max(0, OFFSET - PAGE); loadTweets(); };
