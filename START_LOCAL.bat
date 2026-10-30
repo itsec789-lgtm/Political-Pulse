@@ -21,6 +21,10 @@ taskkill /F /FI "WINDOWTITLE eq All-India Dashboard Server*" >nul 2>&1
 for /f "tokens=5" %%p in ('netstat -ano ^| findstr ":3000" ^| findstr LISTENING') do taskkill /F /PID %%p >nul 2>&1
 timeout /t 2 /nobreak >nul
 
+REM 2b. Sync latest dashboard snapshot into local MongoDB if files are newer
+echo Checking local MongoDB data snapshot...
+python "%~dp0SYNC_SNAPSHOT_TO_MONGO.py" --if-newer
+
 REM 3. Launch the dashboard server from DASHBOARD folder
 echo Starting dashboard server -> http://localhost:3000
 if exist "%~dp0DASHBOARD\RUN_SERVER.bat" (

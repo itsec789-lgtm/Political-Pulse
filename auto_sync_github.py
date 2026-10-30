@@ -97,6 +97,12 @@ def sync_loop():
                     _, subject, _ = run_git(['log', '-1', '--pretty=%s'])
                     _, author, _ = run_git(['log', '-1', '--pretty=%an'])
                     log(f"SUCCESS: Synced updates by {author}: '{subject}'")
+                    try:
+                        sync_script = os.path.join(REPO_DIR, 'SYNC_SNAPSHOT_TO_MONGO.py')
+                        if os.path.exists(sync_script):
+                            subprocess.run([sys.executable, sync_script, '--if-newer'], cwd=REPO_DIR)
+                    except Exception as e:
+                        log(f"Note: Snapshot sync to local Mongo: {e}")
                     log("Your local project is now 100% up-to-date!\n")
                 else:
                     problem("ERROR: Sync nahi hua -- kuch nahi badla.\n"
