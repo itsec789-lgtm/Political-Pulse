@@ -1358,9 +1358,10 @@ svg#indiaMap{width:100%;height:100%;max-width:100%;max-height:100%;display:block
 /* ---- HANDLE ANALYTICS (ha v2) ---- */
 .ha-card{background:var(--card);border:1.5px solid var(--border);border-radius:12px;
   padding:16px 18px;margin-bottom:14px}
-.ha-stitle{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;
-  font-weight:700;margin-bottom:12px}
-.ha-stitle span{font-weight:400;text-transform:none;letter-spacing:0;font-size:11px;margin-left:6px}
+/* ha-heads (30-Oct): section ka naam asli heading jaisa -- bada, gehra, bold */
+.ha-stitle{font-size:16px;color:#111827;letter-spacing:-.1px;
+  font-weight:700;margin-bottom:14px;line-height:1.3}
+.ha-stitle span{font-weight:500;text-transform:none;letter-spacing:0;font-size:12.5px;margin-left:6px;color:#6B7280}
 .ha-controls{display:flex;gap:18px;flex-wrap:wrap;align-items:flex-end}
 .ha-cg{display:flex;flex-direction:column;gap:6px}
 .ha-cg label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px}
@@ -5900,7 +5901,7 @@ a.pe-btn:after{content:"";position:absolute;inset:0;z-index:1;background:linear-
   <div class="ha-card" id="haTopCard" style="display:none">
     <div class="ha-stitle">&#127942; Top Performing Tweet <span>this period</span></div>
     <!-- top-card (30-Oct): Latest Tweets jaisa X card + translate tabs (twCard / wireCards) -->
-    <div class="htc-head"><span>Tweet</span><span>Sentiment</span></div>
+    <div class="htc-head"><span class="htc-x"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>Tweet</span><span>Sentiment</span></div>
     <div class="htc-feed" id="haTopFeed"></div>
   </div>
 
@@ -5914,6 +5915,8 @@ a.pe-btn:after{content:"";position:absolute;inset:0;z-index:1;background:linear-
   .ha-cchev svg{width:14px;height:14px;color:#E65100}
   .ha-coll.closed .ha-cchev{transform:rotate(-90deg)}
   .ha-chint{font-size:11px;font-weight:600;color:#9A9085;text-transform:none;letter-spacing:0}
+  .ha-stitle .ha-chint{font-size:11.5px;font-weight:500;color:#9CA3AF}
+  .ha-stitle .ha-cchev{margin-left:auto}
   .ha-cbody{display:grid;grid-template-rows:1fr;transition:grid-template-rows .4s cubic-bezier(.2,.8,.2,1),opacity .3s}
   .ha-coll.closed .ha-cbody{grid-template-rows:0fr;opacity:0}
   .ha-cin{overflow:hidden;min-height:0}
@@ -5998,7 +6001,9 @@ a.pe-btn:after{content:"";position:absolute;inset:0;z-index:1;background:linear-
          Hindi/English ke alawa bhasha par Original / English (+ Hindi) tab -- translation SIRF click par. -->
     <style>
     .htc-head,.htc-row{display:grid;grid-template-columns:1fr 130px;gap:16px;align-items:center}
-    .htc-head{padding:0 2px 8px;border-bottom:1px solid #EFE8DD;margin-bottom:12px;font:700 11px Inter,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#8A8074}
+    .htc-head{padding:0 2px 8px;border-bottom:1px solid #EFE8DD;margin-bottom:12px;font:700 11.5px Inter,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#111827}
+    .htc-head .htc-x{display:inline-flex;align-items:center;gap:7px}
+    .htc-head .htc-x svg{width:13px;height:13px}
     .htc-feed{display:flex;flex-direction:column;gap:12px}
     .htc-tw{border:1px solid #E7E2D9;border-radius:16px;padding:14px 16px 8px;background:#fff;transition:background .2s,box-shadow .2s;min-width:0}
     .htc-tw:hover{background:#FCFAF7;box-shadow:0 10px 24px -18px rgba(0,0,0,.35)}
@@ -6048,7 +6053,7 @@ a.pe-btn:after{content:"";position:absolute;inset:0;z-index:1;background:linear-
     .htc-empty{padding:26px;text-align:center;color:#8A8074;font-size:13px}
     @media (max-width:700px){.htc-head{display:none}.htc-row{grid-template-columns:1fr}.htc-sent{padding:0 6px}}
     </style>
-    <div class="htc-head"><span>Tweet</span><span>Sentiment</span></div>
+    <div class="htc-head"><span class="htc-x"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>Tweet</span><span>Sentiment</span></div>
     <div class="htc-feed" id="haTwBody"><div class="htc-empty">Ek handle chuno.</div></div>
     <div class="ha-pg"><span id="haTwInfo"></span>
       <button class="filter-select" id="haPrev" onclick="window.haPrev()">&larr; Prev</button>
