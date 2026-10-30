@@ -52,7 +52,11 @@ def sync_loop():
             _, counts, _ = run_git(['rev-list', '--left-right', '--count', 'HEAD...origin/main'])
             ahead, behind = (int(x) for x in counts.split())
 
-            if behind == 0 and ahead == 0:
+            if behind == 0:
+                # GitHub par kuch naya nahi. Local commit ho (ahead > 0) to wo
+                # push ka intezaar kar raha hai -- use chhuna nahi. Pehle yahan
+                # use backup branch me hata kar reset ho jaata tha, to commit aur
+                # push ke beech wala commit "gayab" ho jaata tha.
                 last_problem = None
             else:
                 # This folder is a mirror of GitHub main. Anything local that
@@ -73,16 +77,33 @@ def sync_loop():
                         continue
                     log(f"Local edits stash me rakhe ('git stash list'): {', '.join(blocking)}")
 
-                # 4. Local-only commits -> keep them on a backup branch
-                if ahead:
-                    backup = f'backup/auto-sync-{stamp}'
-                    run_git(['branch', backup, 'HEAD'])
-                    log(f"{ahead} local-only commit backup branch me rakhe: {backup}")
-
-                # 5. Move to origin/main; --keep leaves other uncommitted edits alone
                 _, old_head, _ = run_git(['rev-parse', 'HEAD'])
                 _, gone, _ = run_git(['diff', '--name-only', '--diff-filter=D', 'HEAD', 'origin/main'])
-                rc_sync, _, err_sync = run_git(['reset', '--keep', 'origin/main'])
+                rc_sync, err_sync = 1, ''
+
+                # 4. Local commits bhi hain -> pehle unhe GitHub ke naye commits ke
+                #    UPAR rakhne ki koshish (rebase). Kuch nahi khota; push baad me.
+                if ahead:
+                    # pehle hamesha backup -- naam unique (ek hi minute me do baar bhi)
+                    backup = f'backup/auto-sync-{datetime.datetime.now().strftime("%Y-%m-%d_%H%M%S")}'
+                    n = 1
+                    while run_git(['rev-parse', '--verify', '--quiet', backup])[0] == 0:
+                        n += 1
+                        backup = backup.rsplit('-v', 1)[0] + f'-v{n}'
+                    run_git(['branch', backup, 'HEAD'])
+                    rc_rb, _, err_rb = run_git(['rebase', '--autostash', 'origin/main'])
+                    if rc_rb == 0:
+                        rc_sync = 0
+                        log(f"{ahead} local commit GitHub ke naye commits ke upar rakhe (rebase). "
+                            f"Backup: {backup}. Push karna baaki hai.")
+                    else:
+                        run_git(['rebase', '--abort'])
+                        log(f"Rebase me conflict -- {ahead} local commit backup branch me: {backup}")
+
+                # 5. Rebase nahi hua (ya local commit the hi nahi) -> GitHub jaisa;
+                #    --keep baaki uncommitted edits ko nahi chhedta
+                if rc_sync != 0:
+                    rc_sync, _, err_sync = run_git(['reset', '--keep', 'origin/main'])
 
                 # GitHub "stopped tracking" a file (secrets moved to .gitignore):
                 # git deletes it here too, so put the local copy back.
