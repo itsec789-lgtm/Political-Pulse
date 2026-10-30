@@ -5999,9 +5999,6 @@ a.pe-btn:after{content:"";position:absolute;inset:0;z-index:1;background:linear-
   .db-hd{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px}
   .db-hd .ha-stitle{margin:0}
   #haDailyNote{display:block;font-size:11px;color:var(--muted);margin-top:3px}
-  .db-chips{display:flex;gap:7px;flex-wrap:wrap}
-  .db-chip{background:#FFF6EE;border:1px solid #F6DCC6;border-radius:999px;padding:4px 10px;font-size:11.5px;color:#7A4A20;white-space:nowrap}
-  .db-chip b{color:#E65100}
   .db-wrap{overflow-x:auto}
   .db-t{width:100%;border-collapse:separate;border-spacing:0;font-size:13px}
   .db-t th{font-size:10.5px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);font-weight:700;text-align:left;padding:10px 12px;background:#FAF7F3;border-bottom:1px solid #EFE7DE;white-space:nowrap}
@@ -6010,9 +6007,9 @@ a.pe-btn:after{content:"";position:absolute;inset:0;z-index:1;background:linear-
   .db-t tr:hover td{background:#FFFBF7}
   .db-t tr.best td{background:#FFF4EA}
   .db-dt b{display:block;font-size:13px}.db-dt span{font-size:11px;color:var(--muted)}
+  .db-dt .db-badge{color:#fff}   /* .db-dt span ka grey rang badge par na lage */
+  .db-t td.db-p{font-weight:600}
   .db-badge{display:inline-block;font-size:9.5px;font-weight:700;color:#fff;background:#E65100;border-radius:6px;padding:2px 6px;margin-left:6px;vertical-align:1px;letter-spacing:.4px}
-  .db-pb{display:flex;align-items:center;gap:8px}
-  .db-pb i{display:block;height:6px;border-radius:4px;background:linear-gradient(90deg,#F59320,#E65100);min-width:3px}
   .db-d{font-size:11px;font-weight:700;margin-left:6px}.db-d.u{color:#1E8E5A}.db-d.n{color:#C62828}
   .db-eng{min-width:150px}
   .db-bar{height:8px;border-radius:5px;background:#F3ECE4;overflow:hidden;margin-top:5px}
@@ -6022,7 +6019,6 @@ a.pe-btn:after{content:"";position:absolute;inset:0;z-index:1;background:linear-
   <div class="ha-card">
     <div class="db-hd">
       <div><div class="ha-stitle">Daily Breakdown</div><span id="haDailyNote"></span></div>
-      <div class="db-chips" id="haDailyChips"></div>
     </div>
     <div class="db-wrap">
       <table class="db-t"><thead><tr><th>Date</th><th>Posts</th><th>Likes</th><th>Comments</th>
@@ -11262,18 +11258,8 @@ setTimeout(hExec,600);
     if (lbl) lbl.textContent = d7.length ? ('Last ' + d7.length
       + (d7.length === 1 ? ' day' : ' days') + (d.length > d7.length
         ? '  ·  ' + d.length + ' days in charts above' : '')) : '';
-    /* db-smart : chips -- followers/following ka sabse naya non-null, aur 7 din ka jod */
-    var lastOf = function (k) { for (var i = d7.length - 1; i >= 0; i--) if (d7[i][k] !== null && d7[i][k] !== undefined) return d7[i][k]; return null; };
-    var tot = function (k) { return d7.reduce(function (a, x) { return a + (Number(x[k]) || 0); }, 0); };
-    var fo = lastOf('followers'), fg = lastOf('following');
-    var chips = el('haDailyChips');
-    if (chips) chips.innerHTML = d7.length
-      ? (fo === null ? '' : '<span class="db-chip">Followers <b>' + big(fo) + '</b></span>')
-        + (fg === null ? '' : '<span class="db-chip">Following <b>' + big(fg) + '</b></span>')
-        + '<span class="db-chip">' + d7.length + '-day posts <b>' + nf(tot('posts')) + '</b></span>'
-        + '<span class="db-chip">' + d7.length + '-day engagement <b>' + big(tot('engagement')) + '</b></span>'
-      : '';
-    var pMax = Math.max.apply(null, d7.map(function (x) { return Number(x.posts) || 0; }).concat([1]));
+    /* db-v2 (30-Oct): chips (Followers / Following / 7-day ...) aur posts ka bar hata diye --
+       ye numbers upar Profile & activity me pehle se hain */
     var eMax = Math.max.apply(null, d7.map(function (x) { return Number(x.engagement) || 0; }).concat([1]));
     var best = null;
     d7.forEach(function (x) { if ((Number(x.engagement) || 0) > 0 && (!best || x.engagement > best.engagement)) best = x; });
@@ -11292,7 +11278,7 @@ setTimeout(hExec,600);
       }
       return '<tr' + (b ? ' class="best"' : '') + '><td class="db-dt"><b>' + day
           + (b ? '<span class="db-badge">BEST</span>' : '') + '</b><span>' + (ok ? WD[dt.getDay()] : '') + '</span></td>'
-        + '<td><div class="db-pb"><i style="width:' + Math.round(p / pMax * 60) + 'px"></i><span>' + nf(p) + '</span></div></td>'
+        + '<td class="db-p">' + nf(p) + '</td>'
         + '<td>' + big(x.likes) + '</td><td>' + big(x.comments) + '</td>'
         + '<td>' + big(x.views) + '</td><td>' + big(x.shares) + '</td>'
         + '<td class="db-eng"><b>' + big(e) + '</b>' + dl
