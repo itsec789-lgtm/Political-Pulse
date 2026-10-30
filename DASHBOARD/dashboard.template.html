@@ -3294,6 +3294,58 @@ body.ui-capture #sec-dashboard .kpi{transform:none!important}
 @media(max-width:560px){.ui-hero-title{font-size:21px}.ui-hero-map{display:none}}
 </style>
 
+<style id="uiExecCss">
+/* ===== ui-exec (30-Oct): Executive Summary -- emoji ki jagah asli tasveerein =====
+   Leader / party ki photo X se LIVE (/api/avatar), na mile to ECI ka official logo ya
+   initials. Sentiment ke icon yahin bane hain. Sirf dikhawat -- koi number nahi badla. */
+#sec-dashboard .summary-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+@media(min-width:1400px){#sec-dashboard .summary-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:900px){#sec-dashboard .summary-grid{grid-template-columns:1fr}}
+#sec-dashboard .sum-card{padding:18px 20px 14px}
+#sec-dashboard .sum-card-title{font-size:16px;padding-bottom:12px;margin-bottom:6px}
+#sec-dashboard .sum-card .insight-row{gap:14px;padding:10px 6px;margin:0 -6px;border-radius:12px;border-bottom:1px solid var(--line-2);transition:background .2s}
+#sec-dashboard .sum-card .insight-row:last-child{border-bottom:0}
+#sec-dashboard .sum-card .insight-row:hover{background:#FBF7F2}
+#sec-dashboard .sum-card .insight-text{font-size:12.5px;line-height:1.5;color:var(--ink-2);min-width:0}
+#sec-dashboard .sum-card .insight-icon{position:relative;width:42px;height:42px;border-radius:12px;flex:none;display:grid;place-items:center;
+  font-size:17px;background:#F6F1EA!important;box-shadow:inset 0 0 0 1px rgba(60,30,0,.05)}
+#sec-dashboard .sum-card .insight-icon.ui-ex-round{border-radius:50%;background:transparent!important;box-shadow:none}
+#sec-dashboard .sum-card .insight-icon.ui-ex-tile{background:#fff!important;box-shadow:inset 0 0 0 1px #EFE6DA,0 2px 8px rgba(80,40,0,.06)}
+.ui-ex-av{width:100%;height:100%;border-radius:50%;object-fit:cover;display:block;background:#F3EDE5;
+  box-shadow:0 0 0 2px #fff,0 0 0 4px var(--ring,#E65100);animation:uiExIn .4s ease both}
+.ui-ex-ini{width:100%;height:100%;border-radius:50%;display:grid;place-items:center;font:700 14px 'Rajdhani',sans-serif;color:#fff;
+  background:linear-gradient(135deg,var(--ring,#E65100),#3B2414);box-shadow:0 0 0 2px #fff,0 0 0 4px var(--ring,#E65100)}
+.ui-ex-rank{position:absolute;right:-5px;bottom:-5px;min-width:19px;height:19px;padding:0 5px;border-radius:10px;display:grid;place-items:center;
+  font:700 11px/1 'Rajdhani',sans-serif;color:#fff;background:#6B7280;box-shadow:0 0 0 2px #fff;z-index:2}
+.ui-ex-rank.r1{background:linear-gradient(135deg,#FCD34D,#D97706)}
+.ui-ex-rank.r2{background:linear-gradient(135deg,#E5E7EB,#6B7280)}
+.ui-ex-rank.r3{background:linear-gradient(135deg,#FDBA74,#9A3412)}
+.ui-ex-logo{width:30px;height:30px;object-fit:contain;border-radius:50%;animation:uiExIn .4s ease both}
+.ui-ex-cal{display:flex;flex-direction:column;width:100%;height:100%;border-radius:12px;overflow:hidden;background:#fff;box-shadow:inset 0 0 0 1px #EFE6DA}
+.ui-ex-cal b{display:block;background:linear-gradient(135deg,#FF7A18,#E65100);color:#fff;font:800 8.5px/1 'DM Sans',sans-serif;letter-spacing:1.2px;text-transform:uppercase;text-align:center;padding:3px 0 2px}
+.ui-ex-cal span{flex:1;display:grid;place-items:center;font:700 19px/1 'Rajdhani',sans-serif;color:#141414}
+.ui-ex-svg{width:26px;height:26px;display:block}
+.ui-ex-state{width:36px;height:36px;display:block;overflow:visible}
+.ui-ex-state path{fill:#FDBA74;stroke:#C2410C;stroke-width:1;vector-effect:non-scaling-stroke;stroke-linejoin:round}
+@keyframes uiExIn{from{opacity:0;transform:scale(.85)}to{opacity:1;transform:none}}
+
+/* ---- Sentiment Insights: dot ki jagah icon ---- */
+#siCard .si-r{grid-template-columns:36px minmax(84px,max-content) minmax(40px,1fr) 52px 88px;gap:12px;padding:9px 0}
+#siCard .si-dot{display:none}
+#siCard .si-lb{font-size:12px}
+#siCard .si-trk{height:7px;border-radius:4px}
+#siCard .si-pc{font-size:14px}
+.ui-si-ic{position:relative;width:36px;height:36px;border-radius:11px;display:grid;place-items:center;color:var(--c);
+  background:color-mix(in srgb,var(--c) 11%,#fff);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--c) 22%,transparent)}
+.ui-si-ic svg{width:19px;height:19px;display:block}
+.ui-si-ic img{width:24px;height:24px;object-fit:contain;border-radius:50%;display:block}
+.ui-tag{position:absolute;left:50%;bottom:-7px;transform:translateX(-50%);padding:1px 4px;border-radius:4px;white-space:nowrap;
+  font:800 7.5px/1.25 'DM Sans',sans-serif;letter-spacing:.6px;color:#fff;box-shadow:0 0 0 1.5px #fff}
+.ui-tag.pro{background:#15803D}.ui-tag.anti{background:#B91C1C}
+.ui-si-ic.anti img,.ui-si-ic.anti svg{opacity:.85}
+@media(max-width:620px){#siCard .si-r{grid-template-columns:36px 1fr 52px}}
+</style>
+
 <script>
 /* Chart.js ke legend chart config me 'right' set hain -- phone par wo aadhi
  * chaudai kha jaate hain. Chart banne se PEHLE hi bottom kar dete hain. */
@@ -17138,6 +17190,203 @@ function toggleModalLeader(handle) {
     setTimeout(function(){try{reveal();spy();}catch(e){}},900);
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){boot(0);});else boot(0);
+})();
+</script>
+<script>
+/* ui-exec (30-Oct): Executive Summary ke icon -- emoji ki jagah asli tasveerein.
+   - Leader ki photo:  /api/avatar/<handle>  (server X se LIVE laata hai, 3 din cache)
+   - Party ka logo:    party ke official X handle ki LIVE photo; na mile to ECI ka
+                       official symbol (/assets/party_logos, manifest.json se)
+   - Sentiment / din / ghanta / state: yahin bane icon (state = hero map ka wahi naksha)
+   Icon har row ke LIKHE hue text se tay hota hai, isliye party ka kram badle to bhi
+   sahi logo aata hai. Sirf .insight-icon / naya span badalta hai -- text, number,
+   hisaab kuch nahi. Ashoka emblem jaan-boojh kar nahi: State Emblem Act, 2005. */
+(function(){
+  var D=document;function $(id){return D.getElementById(id);}
+  function each(l,f){Array.prototype.forEach.call(l||[],f);}
+  var PCOL={BJP:'#E65100',INC:'#0D47A1',SP:'#1B5E20',TDP:'#F9A825',AAP:'#1565C0',DMK:'#C62828',TMC:'#1B5E20',AITC:'#1B5E20',
+            TVK:'#7B1FA2',SS:'#00838F','JD(U)':'#1A237E',BSP:'#1565C0',RJD:'#2E7D32','CPI(M)':'#C62828',NCP:'#0277BD'};
+  var ALIAS={AITC:'TMC'};
+  var MAN=null;
+  try{
+    fetch('/assets/party_logos/manifest.json',{credentials:'same-origin'})
+      .then(function(r){return r.ok?r.json():[];})
+      .then(function(j){MAN={};(j||[]).forEach(function(m){if(m&&m.party)MAN[String(m.party).toUpperCase()]=m;});later();})
+      .catch(function(){MAN={};});
+  }catch(e){MAN={};}
+  function man(p){if(!MAN)return null;var k=String(p||'').toUpperCase();return MAN[ALIAS[k]||k]||null;}
+  function col(p){var k=String(p||'').toUpperCase();return PCOL[k]||PCOL[ALIAS[k]]||'#9A7B5B';}
+  function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+
+  function img(src,cls,fb){
+    var i=D.createElement('img');i.className=cls;i.alt='';i.decoding='async';i.loading='lazy';
+    try{i.referrerPolicy='no-referrer';}catch(e){}
+    i.onerror=function(){i.onerror=null;if(typeof fb==='function')fb(i);else if(fb)i.src=fb;else if(i.parentNode)i.parentNode.removeChild(i);};
+    i.src=src;return i;
+  }
+  /* LIVE photo: server X se laata hai (?json=1 batata hai mila ya nahi). Har handle ki
+     ek hi request; na mile to ek baar dobara. Mile to url, warna null. */
+  var _live={};
+  function liveUrl(h){
+    var k=String(h||'').toLowerCase();if(!k)return Promise.resolve(null);
+    if(_live[k])return _live[k];
+    function ask(){return fetch('/api/avatar/'+encodeURIComponent(h)+'?json=1',{credentials:'same-origin'})
+      .then(function(r){return r.ok?r.json():null;}).then(function(j){return j&&j.ok&&j.avatar?j.avatar:null;}).catch(function(){return null;});}
+    _live[k]=ask().then(function(u){return u||new Promise(function(res){setTimeout(function(){ask().then(res);},2500);});});
+    return _live[k];
+  }
+  /* live photo aaye to purani (backup) ki jagah lagao; X seedha na de to server proxy */
+  function swapLive(holder,h,cls){
+    liveUrl(h).then(function(u){
+      if(!u||!holder.isConnected)return;
+      var tried=false,i=img(u,cls,function(el){
+        if(tried||!/^https:\/\/pbs\.twimg\.com\//.test(u))return;tried=true;
+        el.onerror=null;el.src='/api/ximg?u='+encodeURIComponent(u);
+      });
+      i.loading='eager';
+      i.addEventListener('load',function(){
+        if(!holder.isConnected)return;
+        each(holder.querySelectorAll('.ui-ex-backup'),function(b){b.parentNode.removeChild(b);});
+        i.style.display='';
+      });
+      i.style.display='none';holder.insertBefore(i,holder.firstChild);
+    });
+  }
+  function initials(h,size){var d=D.createElement('div');d.className='ui-ex-ini ui-ex-backup';d.textContent=String(h||'?').replace(/[^A-Za-z0-9]/g,'').slice(0,2).toUpperCase();if(size){d.style.width=d.style.height=size;}return d;}
+  /* leader: turant initials, phir live X photo */
+  function avatar(box,h,ring,rank){
+    box.innerHTML='';box.className='insight-icon ui-ex-round';box.style.setProperty('--ring',ring||'#E65100');
+    box.appendChild(initials(h));
+    if(rank){var b=D.createElement('span');b.className='ui-ex-rank'+(rank<=3?' r'+rank:'');b.textContent=rank;box.appendChild(b);}
+    swapLive(box,h,'ui-ex-av');
+  }
+  var SVG={
+    others:'<svg class="ui-ex-svg" viewBox="0 0 24 24" fill="none" stroke="#8A6A4A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="9" r="3"/><circle cx="17" cy="9" r="3"/><circle cx="12" cy="7" r="3.2"/><path d="M2 19c.6-3 2.6-5 5-5M22 19c-.6-3-2.6-5-5-5M6.5 20c.8-3.4 3-5.5 5.5-5.5s4.7 2.1 5.5 5.5"/></svg>',
+    pin:'<svg class="ui-ex-svg" viewBox="0 0 24 24" fill="none" stroke="#E65100" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s7-6.1 7-11.5A7 7 0 0 0 5 9.5C5 14.9 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>',
+    neu:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v17M7 21h10M4 7h16M12 4.5l-1 1.5h2z"/><path d="M6 7l-3 6.5a3 3 0 0 0 6 0L6 7zM18 7l-3 6.5a3 3 0 0 0 6 0L18 7z"/></svg>',
+    pos:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 14.5s1.5 2.2 4 2.2 4-2.2 4-2.2"/><circle cx="9" cy="10" r=".6" fill="currentColor"/><circle cx="15" cy="10" r=".6" fill="currentColor"/></svg>',
+    neg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 16.5s1.5-2.2 4-2.2 4 2.2 4 2.2"/><circle cx="9" cy="10" r=".6" fill="currentColor"/><circle cx="15" cy="10" r=".6" fill="currentColor"/></svg>',
+    /* sarkar = Sansad jaisi imarat (gumbad + khambhe) */
+    govt:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M4.5 18.5h15"/><path d="M6 18.5v-6M9.5 18.5v-6M14.5 18.5v-6M18 18.5v-6"/><path d="M4 12.5h16"/><path d="M7.5 12.5a4.5 4.5 0 0 1 9 0"/><path d="M12 8V5.5M12 5.5l2-.8-2-.8"/></svg>'
+  };
+  function partyLogo(box,p){
+    var k=String(p||'').trim();
+    box.innerHTML='';box.className='insight-icon ui-ex-tile';
+    if(!k||/^others?$/i.test(k)){box.innerHTML=SVG.others;return;}
+    var m=man(k),stat=m&&m.logoUrl?m.logoUrl:null;
+    box.style.setProperty('--ring',col(k));
+    /* turant: official ECI symbol (ya initials) -- phir party ke X handle ki LIVE photo */
+    if(stat){var s=img(stat,'ui-ex-logo ui-ex-backup');s.loading='eager';box.appendChild(s);}
+    else{var d=initials(k,'34px');d.textContent=k.slice(0,3);box.appendChild(d);}
+    if(m&&m.handle)swapLive(box,m.handle,'ui-ex-logo');
+  }
+  var MON=['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'];
+  function calendar(box,txt){
+    var m=String(txt||'').toLowerCase().match(/(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)/),d=String(txt||'').match(/\b(\d{1,2})\b/);
+    if(!m||!d)return false;
+    box.innerHTML='';box.className='insight-icon ui-ex-tile';
+    var c=D.createElement('div');c.className='ui-ex-cal';c.innerHTML='<b></b><span></span>';
+    c.firstChild.textContent=m[1];c.lastChild.textContent=String(+d[1]);box.appendChild(c);return true;
+  }
+  function clock(box,txt){
+    var m=String(txt||'').match(/(\d{1,2})\s*[–\-]\s*(\d{1,2})\s*(AM|PM)/i);if(!m)return false;
+    var h=(+m[1])%12,ang=h*30;
+    box.innerHTML='<svg class="ui-ex-svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#fff" stroke="#E65100" stroke-width="1.6"/>'
+      +[0,90,180,270].map(function(a){return '<line x1="12" y1="3.6" x2="12" y2="5.2" stroke="#C9B8A6" stroke-width="1.2" stroke-linecap="round" transform="rotate('+a+' 12 12)"/>';}).join('')
+      +'<line x1="12" y1="12" x2="12" y2="6.6" stroke="#141414" stroke-width="2.2" stroke-linecap="round" transform="rotate('+ang+' 12 12)"/>'
+      +'<line x1="12" y1="12" x2="12" y2="4.6" stroke="#E65100" stroke-width="1.4" stroke-linecap="round"/>'
+      +'<circle cx="12" cy="12" r="1.4" fill="#141414"/></svg>';
+    box.className='insight-icon ui-ex-tile';return true;
+  }
+  function stateShape(box,name){
+    var key=String(name||'').toUpperCase().replace(/&/g,'AND').replace(/\s+/g,' ').trim();
+    var p=null;each(D.querySelectorAll('#uiHeroMap path.ui-st'),function(x){if(!p&&String(x.getAttribute('data-st')||'').toUpperCase()===key)p=x;});
+    box.className='insight-icon ui-ex-tile';
+    if(!p){box.innerHTML=SVG.pin;return;}
+    /* size path ke numbers se -- getBBox chhupe naksha (phone) par 0 deta hai */
+    var nums=String(p.getAttribute('d')||'').match(/-?\d+(\.\d+)?/g)||[],x0=1e9,y0=1e9,x1=-1e9,y1=-1e9;
+    for(var q=0;q+1<nums.length;q+=2){var X=+nums[q],Y=+nums[q+1];if(X<x0)x0=X;if(X>x1)x1=X;if(Y<y0)y0=Y;if(Y>y1)y1=Y;}
+    var b={x:x0,y:y0,width:x1-x0,height:y1-y0};
+    if(!(b.width>0)||!(b.height>0)){box.innerHTML=SVG.pin;return;}
+    var pad=Math.max(b.width,b.height)*.08;
+    box.innerHTML='<svg class="ui-ex-state" viewBox="'+(b.x-pad).toFixed(2)+' '+(b.y-pad).toFixed(2)+' '+(b.width+2*pad).toFixed(2)+' '+(b.height+2*pad).toFixed(2)+'" preserveAspectRatio="xMidYMid meet"><path d="'+esc(p.getAttribute('d'))+'"/></svg>';
+  }
+  function strong(el){var s=el&&el.querySelector('strong,b');return s?s.textContent.trim():'';}
+  function txt(el){return el?(el.textContent||'').replace(/\s+/g,' ').trim():'';}
+  function setOnce(box,key,fn){if(!box||box.getAttribute('data-uk')===key)return;if(fn()!==false)box.setAttribute('data-uk',key);}
+
+  /* ---- Key Highlights ---- */
+  function keyHighlights(){
+    var card=$('khCard');if(!card)return;
+    each(card.querySelectorAll('.insight-row'),function(row,i){
+      var t=row.querySelector('.insight-text'),box=row.querySelector('.insight-icon'),s=txt(t);
+      if(!t||!box||!s||/^loading/i.test(s))return;
+      if(i===0){var h=(s.match(/@([A-Za-z0-9_]{1,30})/)||[])[1];if(h)setOnce(box,'av:'+h,function(){avatar(box,h,'#E65100');});}
+      else if(i===1){var p=strong(t);if(p)setOnce(box,'p:'+p+':'+(MAN?1:0),function(){partyLogo(box,p);});}
+      else if(i===2){var d=strong(t);if(d)setOnce(box,'d:'+d,function(){return calendar(box,d);});}
+      else if(i===3){setOnce(box,'h:'+strong(t),function(){return clock(box,s);});}
+      else if(i===4){var st=strong(t).replace(/\s+leads$/i,'');if(st)setOnce(box,'s:'+st,function(){stateShape(box,st);});}
+    });
+  }
+  /* ---- Party Performance ---- */
+  function partyPerf(){
+    var card=$('ppCard');if(!card)return;
+    each(card.querySelectorAll('.insight-row'),function(row){
+      var t=row.querySelector('.insight-text'),box=row.querySelector('.insight-icon'),p=strong(t);
+      if(!box||!p||p==='—')return;
+      setOnce(box,'p:'+p+':'+(MAN?1:0),function(){partyLogo(box,p);});
+    });
+  }
+  /* ---- Top Performers ---- */
+  function topPerf(){
+    var card=$('execTop');if(!card)return;
+    each(card.querySelectorAll('.insight-row'),function(row,i){
+      var t=row.querySelector('.insight-text'),box=row.querySelector('.insight-icon'),s=txt(t);
+      var h=(s.match(/@([A-Za-z0-9_]{1,30})/)||[])[1];if(!box||!h)return;
+      var p=(s.match(/—\s*([^·]+?)\s*·/)||[])[1]||'';
+      setOnce(box,'t:'+h+':'+(i+1),function(){avatar(box,h,col(p),i+1);});
+    });
+  }
+  /* ---- Sentiment Insights ---- */
+  function sentiment(){
+    var box=$('siRows'),X=window.SENTX;if(!box||!X)return;
+    var BY={};(X.CATS||[]).forEach(function(c){BY[c.label.toLowerCase()]=c;});
+    each(box.querySelectorAll('.si-r'),function(r){
+      if(r.querySelector('.ui-si-ic'))return;
+      var lb=r.querySelector('.si-lb'),c=lb&&BY[(lb.textContent||'').trim().toLowerCase()];if(!c)return;
+      var ic=D.createElement('span');ic.className='ui-si-ic';ic.style.setProperty('--c',c.c);ic.setAttribute('aria-hidden','true');
+      var k=c.k,tag='';
+      if(k==='neu'||k==='pos'||k==='neg')ic.innerHTML=SVG[k];
+      else if(k==='progovt'||k==='antigovt'){ic.innerHTML=SVG.govt;tag=k==='progovt'?'pro':'anti';}
+      else if(k==='probjp'||k==='antibjp'){
+        var m=man('BJP'),stat=m&&m.logoUrl;
+        if(stat){var s=img(stat,'ui-ex-backup');s.loading='eager';ic.appendChild(s);}
+        else ic.innerHTML=SVG.govt;
+        if(m&&m.handle)swapLive(ic,m.handle,'');
+        tag=k==='probjp'?'pro':'anti';
+      }
+      if(tag){ic.classList.add(tag);var tg=D.createElement('span');tg.className='ui-tag '+tag;tg.textContent=tag.toUpperCase();ic.appendChild(tg);}
+      r.insertBefore(ic,r.firstChild);
+    });
+  }
+
+  function paint(){
+    try{keyHighlights();}catch(e){console.warn('[ui-exec] kh',e);}
+    try{partyPerf();}catch(e){console.warn('[ui-exec] pp',e);}
+    try{topPerf();}catch(e){console.warn('[ui-exec] top',e);}
+    if(MAN)try{sentiment();}catch(e){console.warn('[ui-exec] si',e);}
+  }
+  var _q=0;function later(){if(_q)return;_q=setTimeout(function(){_q=0;paint();},80);}
+  function boot(n){
+    var ids=['khCard','ppCard','execTop','siRows'],ok=ids.every(function(id){return !!$(id);});
+    if(!ok){if(n<40)setTimeout(function(){boot(n+1);},250);return;}
+    if(window.MutationObserver){
+      var mo=new MutationObserver(later);
+      ids.forEach(function(id){mo.observe($(id),{childList:true,subtree:true,characterData:true});});
+    }
+    paint();setTimeout(paint,1200);setTimeout(paint,3000);
+  }
+  if(D.readyState==='loading')D.addEventListener('DOMContentLoaded',function(){boot(0);});else boot(0);
 })();
 </script>
 </body>
