@@ -5754,52 +5754,104 @@ a.pe-btn:after{content:"";position:absolute;inset:0;z-index:1;background:linear-
         <p class="ha-bio" id="haBio"></p>
       </div>
     </div>
-    <!-- ha-stats (30-Oct): upar Profile & activity, neeche "Per-tweet averages" -- click par khule / band ho -->
+    <!-- pa (30-Oct): Profile & activity -- "Design 1".
+         4 KPI tab: ek click = us KPI ka graph, doosra KPI = graph badle, double click = band.
+         Right me Analysis button: AI Summary (English / हिंदी, sirf click par) + har KPI ka chhota graph.
+         "Per tweet average" line par click = 4 cards. Sab kuch chune hue Period (7 / 30 / All) ka. -->
     <style>
-    .hs-wrap{padding:14px 16px 16px;border-top:1px solid var(--border)}
-    .hs-kh{font:700 11px Inter,sans-serif;letter-spacing:.09em;text-transform:uppercase;color:#8A8074;margin:0 0 10px;display:flex;align-items:center;gap:8px}
-    .hs-kh::after{content:"";flex:1;height:1px;background:#EFE8DD}
-    .hs-prof{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
-    .hs-st{border:1px solid #EFE8DD;border-radius:14px;padding:14px 16px 12px;background:#fff;min-width:0;transition:transform .2s,box-shadow .2s}
-    .hs-st:hover{transform:translateY(-2px);box-shadow:0 10px 22px -16px rgba(0,0,0,.35)}
-    .hs-ic{width:30px;height:30px;border-radius:9px;display:flex;align-items:center;justify-content:center;margin-bottom:10px}
-    .hs-ic svg{width:17px;height:17px}
-    .hs-v{font:700 26px Rajdhani,sans-serif;line-height:1;font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-    .hs-l{font-size:11.5px;color:#7A7166;margin-top:5px;font-weight:600}
-    .hs-sub{font-size:11px;color:#9A9085;margin-top:3px}
-    .hs-avg{margin-top:14px;border:1px solid #F1D7C2;border-radius:14px;background:linear-gradient(180deg,#FFF8F2,#fff);overflow:hidden}
-    .hs-hd{width:100%;display:flex;align-items:center;gap:14px;padding:13px 16px;border:none;background:none;cursor:pointer;text-align:left;font:inherit;color:inherit}
-    .hs-hd:hover{background:#FFF3EA}
-    .hs-aic{width:36px;height:36px;border-radius:11px;background:#E65100;color:#fff;display:flex;align-items:center;justify-content:center;flex:none;box-shadow:0 6px 14px -8px #E65100}
-    .hs-aic svg{width:19px;height:19px}
-    .hs-t{font-weight:800;font-size:14.5px;color:#1E1B16}
-    .hs-s{font-size:12px;color:#7A7166;margin-top:2px}
-    .hs-chips{display:flex;gap:8px;margin-left:auto;flex-wrap:wrap;justify-content:flex-end;transition:opacity .25s}
-    .hs-chip{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:700;background:#fff;border:1px solid #F1E2D3;border-radius:999px;padding:5px 10px;font-variant-numeric:tabular-nums;color:#1E1B16}
-    .hs-chip i{width:7px;height:7px;border-radius:50%}
-    .hs-avg.open .hs-chips{opacity:0;pointer-events:none}
-    .hs-chev{width:30px;height:30px;border-radius:50%;border:1px solid #F1D7C2;display:flex;align-items:center;justify-content:center;flex:none;background:#fff;transition:transform .35s cubic-bezier(.2,.8,.2,1),background .2s}
-    .hs-chev svg{width:15px;height:15px;color:#E65100}
-    .hs-avg.open .hs-chev{transform:rotate(180deg);background:#FFF1E6}
-    .hs-body{display:grid;grid-template-rows:0fr;transition:grid-template-rows .4s cubic-bezier(.2,.8,.2,1)}
-    .hs-avg.open .hs-body{grid-template-rows:1fr}
-    .hs-in{overflow:hidden}
-    .hs-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;padding:4px 16px 16px}
-    .hs-ac{border:1px solid #EFE8DD;border-radius:14px;padding:14px 16px;background:#fff;opacity:0;transform:translateY(8px);transition:opacity .35s,transform .35s}
-    .hs-avg.open .hs-ac{opacity:1;transform:none}
-    .hs-avg.open .hs-ac:nth-child(2){transition-delay:.06s}.hs-avg.open .hs-ac:nth-child(3){transition-delay:.12s}.hs-avg.open .hs-ac:nth-child(4){transition-delay:.18s}
-    .hs-acl{font-size:12px;font-weight:700;display:flex;align-items:center;gap:6px}
-    .hs-acl svg{width:15px;height:15px}
-    .hs-acv{font:700 30px Rajdhani,sans-serif;line-height:1;margin-top:10px;font-variant-numeric:tabular-nums;color:#1E1B16}
-    .hs-acu{font-size:11.5px;color:#9A9085;margin-top:4px}
-    .hs-bar{height:6px;border-radius:3px;background:#F3EEE6;margin-top:12px;overflow:hidden}
-    .hs-bar i{display:block;height:100%;border-radius:3px;width:0;transition:width .9s cubic-bezier(.2,.8,.2,1) .15s}
-    .hs-avg.open .hs-bar i{width:var(--w)}
-    .hs-acn{font-size:11px;color:#9A9085;margin-top:6px}
-    @media (max-width:900px){.hs-prof{grid-template-columns:repeat(2,1fr)}.hs-grid{grid-template-columns:1fr 1fr}.hs-chips{display:none}}
-    @media (prefers-reduced-motion:reduce){.hs-wrap *{transition:none!important}}
+    .pa-wrap{border-top:1px solid #ECE6DC;font-family:Inter,"Segoe UI",system-ui,sans-serif;color:#111827}
+    .pa-num{font-variant-numeric:tabular-nums}
+    .pa-id{display:flex;align-items:center;gap:18px;padding:16px 22px;flex-wrap:wrap}
+    .pa-fol b{font-size:24px;font-weight:700;letter-spacing:-.4px}
+    .pa-fol span{font-size:13px;color:#6B7280;margin-left:6px}
+    .pa-fol em{font-style:normal;color:#111827;font-weight:600}
+    .pa-per{margin-left:auto;font-size:12.5px;color:#6B7280}
+    .pa-per b{color:#374151;font-weight:600}
+    .pa-abtn{display:inline-flex;align-items:center;gap:7px;border:1px solid #E5E7EB;background:#fff;border-radius:9px;padding:7px 12px;font:inherit;font-size:13px;font-weight:500;color:#374151;cursor:pointer;transition:all .15s;touch-action:manipulation}
+    .pa-abtn svg{width:15px;height:15px}
+    .pa-abtn:hover{border-color:#D1D5DB;background:#FAFAF9}
+    .pa-abtn.on{background:#111827;border-color:#111827;color:#fff}
+    .pa-abtn:focus-visible,.pa-tab:focus-visible,.pa-pt:focus-visible{outline:2px solid #E65100;outline-offset:-2px}
+    .pa-tabs{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid #E5E7EB}
+    .pa-tab{padding:14px 22px 12px;cursor:pointer;border:none;border-right:1px solid #E5E7EB;background:none;text-align:left;font:inherit;color:inherit;position:relative;transition:background .15s;touch-action:manipulation;user-select:none;-webkit-tap-highlight-color:transparent;min-width:0}
+    .pa-tab:last-child{border-right:none}
+    .pa-tab:hover{background:#FAFAF9}
+    .pa-tab .t{font-size:12.5px;color:#6B7280;font-weight:500;display:flex;align-items:center;justify-content:space-between}
+    .pa-tab .t svg{width:14px;height:14px;color:#9CA3AF;transition:transform .3s,color .2s}
+    .pa-tab .v{font-size:23px;font-weight:600;letter-spacing:-.5px;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .pa-tab .d{font-size:12px;color:#6B7280;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .pa-tab.act{background:#FFFBF7}
+    .pa-tab.act:after{content:"";position:absolute;left:0;right:0;bottom:0;height:2px;background:#E65100}
+    .pa-tab.act .t{color:#111827}
+    .pa-tab.act .t svg{transform:rotate(180deg);color:#E65100}
+    .pa-up{color:#067647;font-weight:600}.pa-dn{color:#B42318;font-weight:600}
+    .pa-col{display:grid;grid-template-rows:0fr;border-top:1px solid #E5E7EB;transition:grid-template-rows .38s cubic-bezier(.2,.8,.2,1)}
+    .pa-col.open{grid-template-rows:1fr}
+    .pa-col > div{overflow:hidden;min-height:0}
+    .pa-col .in{padding:16px 22px 10px;opacity:0;transition:opacity .25s}
+    .pa-col.open .in{opacity:1;transition-delay:.08s}
+    .pa-col.pa-pts{border-top:none}
+    .pa-col.pa-pts .in{padding-top:2px;padding-bottom:18px}
+    .pa-cap{display:flex;justify-content:space-between;font-size:12.5px;color:#6B7280;margin-bottom:6px}
+    .pa-cap b{color:#111827;font-weight:600}
+    .pa-hint{font-size:12px;color:#9CA3AF;text-align:center;padding:8px 0 4px}
+    .pa-ch{position:relative}
+    .pa-ch svg{display:block;width:100%;overflow:visible}
+    .pa-tt{position:absolute;pointer-events:none;background:#111827;color:#fff;border-radius:8px;padding:7px 10px;font-size:12px;line-height:1.35;white-space:nowrap;box-shadow:0 6px 18px rgba(17,24,39,.18);opacity:0;transform:translate(-50%,-100%);transition:opacity .12s;z-index:5}
+    .pa-tt small{display:block;color:#9CA3AF;font-size:11px}
+    .pa-tt b{font-size:13px}
+    .pa-ch.on .pa-tt{opacity:1}
+    .pa-sum{background:#F9FAFB;border:1px solid #E5E7EB;border-radius:10px;padding:13px 16px;margin-bottom:16px}
+    .pa-sk{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:6px}
+    .pa-st{font-size:12px;font-weight:700;letter-spacing:.7px;text-transform:uppercase;color:#111827}
+    .pa-sr{display:inline-flex;align-items:center;gap:12px}
+    .pa-ai{font-size:11px;color:#9CA3AF;display:inline-flex;align-items:center;gap:5px}
+    .pa-ai svg{width:11px;height:11px;color:#111827}
+    .pa-ai b{color:#374151;font-weight:600}
+    .pa-ai.busy{animation:paPl 1s ease-in-out infinite}
+    @keyframes paPl{50%{opacity:.35}}
+    .pa-lng{display:inline-flex;background:#ECEDEF;border-radius:8px;padding:2px}
+    .pa-lng button{border:none;background:none;font:inherit;font-size:12px;font-weight:500;padding:3px 10px;border-radius:6px;color:#6B7280;cursor:pointer;touch-action:manipulation}
+    .pa-lng button.on{background:#fff;color:#111827;box-shadow:0 1px 2px rgba(0,0,0,.08)}
+    .pa-sum ul{margin:0;padding-left:18px;color:#374151;font-size:13.5px;line-height:1.7}
+    .pa-sum ul.hi{font-size:14.5px;line-height:1.75}
+    .pa-sum li{opacity:0;transform:translateY(3px);animation:paLi .35s forwards}
+    .pa-sum b{color:#111827;font-weight:600}
+    .pa-sum .pa-err{color:#6B7280;font-size:13px}
+    .pa-sum .pa-err button{margin-left:8px;border:1px solid #E5E7EB;background:#fff;border-radius:6px;padding:2px 9px;font:inherit;font-size:12px;cursor:pointer}
+    @keyframes paLi{to{opacity:1;transform:none}}
+    .pa-skl{height:12px;border-radius:6px;margin:9px 0;background:linear-gradient(90deg,#EEF0F2 0%,#F7F8F9 40%,#EEF0F2 80%);background-size:200% 100%;animation:paSk 1.1s linear infinite}
+    @keyframes paSk{to{background-position:-200% 0}}
+    .pa-mh{font-size:12px;font-weight:700;letter-spacing:.7px;text-transform:uppercase;color:#111827;margin:0 0 10px}
+    .pa-mg{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:8px}
+    .pa-pg{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+    .pa-mc{border:1px solid #E5E7EB;border-radius:10px;padding:13px 15px 10px;background:#fff;min-width:0}
+    .pa-mc .t{font-size:12.5px;color:#6B7280;font-weight:500}
+    .pa-mc .v{font-size:20px;font-weight:600;letter-spacing:-.4px;margin-top:2px;white-space:nowrap}
+    .pa-mc .v small{font-size:12px;font-weight:500;color:#6B7280;margin-left:5px;letter-spacing:0}
+    .pa-mc .s{font-size:12px;color:#6B7280}
+    .pa-mc .pa-ch{margin-top:8px}
+    .pa-mc .n{font-size:12px;color:#6B7280;margin-top:6px;border-top:1px dashed #E5E7EB;padding-top:7px}
+    .pa-mc .n b{color:#374151;font-weight:600}
+    .pa-pt{display:grid;grid-template-columns:auto repeat(4,1fr);align-items:center;border-top:1px solid #E5E7EB;padding:13px 22px;cursor:pointer;transition:background .15s;user-select:none;touch-action:manipulation}
+    .pa-pt:hover{background:#FAFAF9}
+    .pa-pt .k{font-size:12px;color:#6B7280;font-weight:500;padding-right:22px;display:inline-flex;align-items:center;gap:6px}
+    .pa-pt .k svg{width:14px;height:14px;color:#9CA3AF;transition:transform .3s}
+    .pa-pt.open .k{color:#111827}
+    .pa-pt.open .k svg{transform:rotate(180deg);color:#E65100}
+    .pa-pt .m{padding:0 18px;border-left:1px solid #E5E7EB;transition:opacity .2s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .pa-pt.open .m{opacity:0}
+    .pa-pt .m b{font-size:16px;font-weight:600}
+    .pa-pt .m span{font-size:12px;color:#6B7280;margin-left:6px}
+    @media (max-width:900px){
+      .pa-tabs{grid-template-columns:1fr 1fr}.pa-tab:nth-child(2){border-right:none}.pa-tab:nth-child(-n+2){border-bottom:1px solid #E5E7EB}
+      .pa-mg,.pa-pg{grid-template-columns:1fr 1fr}
+      .pa-pt{grid-template-columns:1fr 1fr;row-gap:10px}.pa-pt .k{grid-column:span 2}.pa-pt .m{border-left:none;padding:0}
+      .pa-per{margin-left:0;width:100%;order:3}.pa-abtn span{display:none}
+    }
+    @media (prefers-reduced-motion:reduce){.pa-wrap *{transition:none!important;animation:none!important}.pa-sum li{opacity:1;transform:none}}
     </style>
-    <div class="hs-wrap" id="haCells"></div>
+    <div class="pa-wrap" id="haCells"></div>
     <div class="ha-note" id="haNote"></div>
   </div>
 
@@ -10784,6 +10836,306 @@ setTimeout(hExec,600);
     nEl.className = note.length ? 'ha-note on' : 'ha-note';
   }
 
+  /* ================= pa (30-Oct): Profile & activity -- "Design 1" =================
+     Upar followers + Period; 4 KPI tab (click = graph, doosra KPI = graph badle, double click = band);
+     Analysis button = AI Summary (English / हिंदी) + 6 chhote graph; "Per tweet average" line = 4 cards.
+     Sab haPeriod (7 / 30 / All) ke data se. Lamba range (62+ din) ho to graph hafte-wise.
+     AI Summary SIRF click par /api/ha/summary se (server hisaab karta hai, Gemini likhta hai). */
+  var PA = { r: null, h: null, tab: -1, ov: false, pt: false, lang: 'en', sum: {} };
+  var PA_WD = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  var PA_MO = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  var PA_I = {
+    chev: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M6 9l6 6 6-6"/></svg>',
+    grid: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>',
+    x: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>'
+  };
+  function paDt(iso) { var t = new Date(String(iso) + 'T00:00:00'); return isNaN(t) ? null : t; }
+  function paDay(iso, yr) { var t = paDt(iso); return t ? PA_WD[t.getDay()] + ' ' + t.getDate() + ' ' + PA_MO[t.getMonth()] + (yr ? ' ' + t.getFullYear() : '') : esc(iso); }
+  function paShort(iso, yr) { var t = paDt(iso); return t ? t.getDate() + ' ' + PA_MO[t.getMonth()] + (yr ? ' ' + t.getFullYear() : '') : esc(iso); }
+  function paF(v) {
+    if (v === null || v === undefined || isNaN(v)) return '—';
+    if (v >= 1000) return big(v);
+    return String(v % 1 ? Math.round(v * 10) / 10 : v);
+  }
+  function paPerLabel(v) { return v === '7' ? 'Last 7 days' : v === '30' ? 'Last 30 days' : 'All time'; }
+  function paCmp(now, old, v) {
+    if (!(old > 0) || now === null || now === undefined) return '';
+    var pc = Math.round((now - old) / old * 100);
+    if (!pc) return '';
+    return ' <span class="' + (pc > 0 ? 'pa-up' : 'pa-dn') + '" title="vs previous ' + v + ' days">'
+      + (pc > 0 ? '↑' : '↓') + Math.abs(pc) + '%</span>';
+  }
+
+  /* din-wise (ya 62+ din par hafte-wise) series. den diya ho to sum(num)/sum(den), jaise views/tweet */
+  function paSeries(d, num, den) {
+    var act = d.filter(function (x) { return x.posts > 0; });
+    var yr = act.length && act[0].date.slice(0, 4) !== act[act.length - 1].date.slice(0, 4);
+    function val(a, b) { return den ? (b > 0 ? a / b : null) : a; }
+    if (act.length <= 62) {
+      return { wk: false, lab: act.map(function (x) { return paShort(x.date); }),
+        tip: act.map(function (x) { return paDay(x.date, yr); }),
+        v: act.map(function (x) { return val(num(x), den ? den(x) : 0); }) };
+    }
+    var B = [], cur = null;
+    act.forEach(function (x) {
+      var t = paDt(x.date), mon = new Date(t); mon.setDate(t.getDate() - ((t.getDay() + 6) % 7));
+      var k = mon.toDateString();
+      if (!cur || cur.k !== k) { cur = { k: k, s: mon, a: 0, b: 0, c: 0 }; B.push(cur); }
+      cur.a += num(x); cur.b += den ? den(x) : 0; cur.c += 1;
+    });
+    return { wk: true,
+      lab: B.map(function (b) { return b.s.getDate() + ' ' + PA_MO[b.s.getMonth()]; }),
+      tip: B.map(function (b) { return 'Week of ' + b.s.getDate() + ' ' + PA_MO[b.s.getMonth()] + (yr ? ' ' + b.s.getFullYear() : ''); }),
+      /* hafte ka jod nahi, roz ka ausat -- warna aakhri adhoora hafta neeche gira dikhta */
+      v: B.map(function (b) { return den ? val(b.a, b.b) : b.a / b.c; }) };
+  }
+
+  /* line chart + hover tooltip. o.mini = bina axis ke chhota */
+  function paChart(id, S, o) {
+    var box = el(id); if (!box) return;
+    o = o || {}; box._pa = [id, S, o];
+    var data = S.v.map(function (v) { return v === null ? 0 : v; }), n = data.length;
+    if (!n) { box.innerHTML = '<div class="pa-hint">No data in this period.</div>'; return; }
+    var W = Math.max(120, box.clientWidth || 600), H = o.h || 220, mini = !!o.mini,
+        pl = mini ? 2 : 44, pr = mini ? 2 : 6, pt = mini ? 6 : 8, pb = mini ? 4 : 22, C = '#E65100';
+    var mx = Math.max.apply(null, data) || 1, st = 0;
+    if (mini) mx = mx * 1.08;
+    else {
+      var raw = mx / 4, p10 = Math.pow(10, Math.floor(Math.log10(raw)));
+      st = [1, 2, 2.5, 5, 10].map(function (k) { return k * p10; }).filter(function (v) { return v >= raw; })[0];
+      mx = st * 4;
+    }
+    var iw = W - pl - pr, ih = H - pt - pb;
+    function X(i) { return n === 1 ? pl + iw / 2 : pl + iw * i / (n - 1); }
+    function Y(v) { return pt + ih - v / mx * ih; }
+    var s = '<svg viewBox="0 0 ' + W + ' ' + H + '" height="' + H + '">';
+    if (!mini) {
+      for (var g = 0; g <= 4; g++) {
+        var gy = Y(st * g);
+        s += '<line x1="' + pl + '" x2="' + (W - pr) + '" y1="' + gy + '" y2="' + gy + '" stroke="#EEF0F2"/>'
+          + '<text x="' + (pl - 8) + '" y="' + (gy + 4) + '" text-anchor="end" font-size="11" fill="#9CA3AF">' + paF(st * g) + '</text>';
+      }
+      var every = Math.max(1, Math.ceil(n / 8));
+      S.lab.forEach(function (l, i) {
+        if (i !== n - 1 && (i % every || (n - 1 - i) < every * 0.6)) return;   // aakhri label se na takraye
+        s += '<text x="' + X(i) + '" y="' + (H - 4) + '" text-anchor="' + (n > 1 && i === n - 1 ? 'end' : i === 0 && n > 1 ? 'start' : 'middle') + '" font-size="11" fill="#9CA3AF">' + esc(l) + '</text>';
+      });
+    }
+    var path = data.map(function (v, i) { return (i ? 'L' : 'M') + X(i).toFixed(1) + ' ' + Y(v).toFixed(1); }).join(' ');
+    s += '<defs><linearGradient id="g' + id + '" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="' + C + '" stop-opacity=".16"/><stop offset="1" stop-color="' + C + '" stop-opacity="0"/></linearGradient></defs>'
+      + '<path d="' + path + ' L' + X(n - 1) + ' ' + Y(0) + ' L' + X(0) + ' ' + Y(0) + ' Z" fill="url(#g' + id + ')"/>'
+      + '<path d="' + path + '" fill="none" stroke="' + C + '" stroke-width="' + (mini ? 1.8 : 2.2) + '" stroke-linejoin="round" stroke-linecap="round"/>'
+      + '<line class="gl" y1="' + pt + '" y2="' + (pt + ih) + '" stroke="#111827" stroke-opacity=".18" stroke-dasharray="3 3" style="display:none"/>'
+      + '<circle class="dt" r="4" fill="#fff" stroke="' + C + '" stroke-width="2" style="display:none"/></svg><div class="pa-tt"></div>';
+    box.innerHTML = s;
+    var svg = box.querySelector('svg'), tt = box.querySelector('.pa-tt'), gl = box.querySelector('.gl'), dt = box.querySelector('.dt');
+    function show(i) {
+      var x = X(i), y = Y(data[i]);
+      gl.setAttribute('x1', x); gl.setAttribute('x2', x); gl.style.display = '';
+      dt.setAttribute('cx', x); dt.setAttribute('cy', y); dt.style.display = '';
+      tt.innerHTML = '<small>' + esc(S.tip[i]) + '</small><b>' + paF(S.v[i]) + '</b> ' + esc(o.unit || '');
+      tt.style.left = Math.max(60, Math.min(W - 60, x)) + 'px'; tt.style.top = (y - 10) + 'px';
+      box.classList.add('on');
+    }
+    box.onmousemove = function (e) {
+      var b = svg.getBoundingClientRect();
+      show(Math.max(0, Math.min(n - 1, Math.round(((e.clientX - b.left) - pl) / iw * (n - 1)))));
+    };
+    box.onmouseleave = function () { box.classList.remove('on'); gl.style.display = 'none'; dt.style.display = 'none'; };
+  }
+
+  function paRender(r) {
+    var p = r.profile, s = r.summary, d = r.daily || [], pv = r.prev, per = (el('haPeriod') || {}).value || 'all';
+    if (PA.h !== CUR) { PA.tab = -1; PA.ov = false; PA.pt = false; }
+    PA.r = r; PA.h = CUR; PA.per = per;
+    var act = d.filter(function (x) { return x.posts > 0; }), nAct = act.length || 1;
+    var yr = act.length && act[0].date.slice(0, 4) !== act[act.length - 1].date.slice(0, 4);
+    var range = !act.length ? '' : act.length === 1 ? paShort(act[0].date, true)
+      : paShort(act[0].date, yr) + ' – ' + paShort(act[act.length - 1].date, true);
+    PA.range = range;
+    function tot(k) { return d.reduce(function (a, x) { return a + (Number(x[k]) || 0); }, 0); }
+
+    PA.tabs = [
+      { t: 'Posts', v: paF(s.postsPerDay) + ' / day', d: nf(s.tweets) + ' posts' + paCmp(s.postsPerDay, pv && pv.postsPerDay, per),
+        S: function () { return paSeries(d, function (x) { return x.posts; }); }, u: 'posts', c: 'Posts' },
+      { t: 'Engagement', v: big(s.totalEngagement), d: big(s.totalEngagement / nAct) + ' / day' + paCmp(s.totalEngagement, pv && pv.totalEngagement, per),
+        S: function () { return paSeries(d, function (x) { return x.engagement; }); }, u: 'likes + replies + reposts', c: 'Engagement (likes + replies + reposts)' },
+      { t: 'Views', v: paF(s.avgViews) + ' / tweet', d: big(s.totalViews) + ' total' + paCmp(s.avgViews, pv && pv.avgViews, per),
+        S: function () { return paSeries(d, function (x) { return x.views; }); }, u: 'views', c: 'Views' },
+      { t: 'Likes', v: paF(s.avgLikes) + ' / tweet', d: big(s.totalLikes) + ' total' + paCmp(s.avgLikes, pv && pv.avgLikes, per),
+        S: function () { return paSeries(d, function (x) { return x.likes; }); }, u: 'likes', c: 'Likes' }
+    ];
+    var pts = [
+      { t: 'Views', v: s.avgViews, k: 'views', u: 'views / tweet' },
+      { t: 'Likes', v: s.avgLikes, k: 'likes', u: 'likes / tweet' },
+      { t: 'Reposts', v: s.avgShares, k: 'shares', u: 'reposts / tweet' },
+      { t: 'Comments', v: s.avgComments, k: 'comments', u: 'comments / tweet' }
+    ];
+    PA.pts = pts;
+    function ofViews(v) { return (s.avgViews > 0 && v !== null && v !== undefined) ? (Math.round(v * 1000 / s.avgViews) / 10) + '%' : ''; }
+
+    var fol = p.xFollowers || s.followers, fing = p.xFollowing || s.following, tp = p.xPosts || s.totalPosts;
+    el('haCells').innerHTML =
+        '<div class="pa-id">'
+      + '<div class="pa-fol pa-num"><b>' + (fol ? big(fol) : '—') + '</b><span>followers'
+      + (fing ? ' &middot; following <em>' + big(fing) + '</em>' : '') + (tp ? ' &middot; <em>' + big(tp) + '</em> total posts' : '') + '</span></div>'
+      + '<div class="pa-per"><b>' + paPerLabel(per) + '</b>' + (range ? ' &middot; ' + range : '') + '</div>'
+      + '<button type="button" class="pa-abtn' + (PA.ov ? ' on' : '') + '" id="paAbtn" aria-expanded="' + PA.ov + '" aria-controls="paOv" title="All KPI graphs and an AI summary">' + PA_I.grid + '<span>Analysis</span></button>'
+      + '</div>'
+      + '<div class="pa-tabs" id="paTabs" role="tablist">' + PA.tabs.map(function (m, i) {
+          return '<button type="button" class="pa-tab' + (i === PA.tab ? ' act' : '') + '" role="tab" aria-selected="' + (i === PA.tab) + '" aria-controls="paPanel" data-i="' + i + '">'
+            + '<div class="t">' + m.t + PA_I.chev + '</div><div class="v pa-num">' + m.v + '</div><div class="d pa-num">' + m.d + '</div></button>';
+        }).join('') + '</div>'
+      + '<div class="pa-col' + (PA.tab >= 0 ? ' open' : '') + '" id="paPanel"><div><div class="in">'
+      + '<div class="pa-cap"><span id="paCap"></span><span>' + range + '</span></div><div class="pa-ch" id="paChart"></div>'
+      + '<div class="pa-hint">Double click any KPI to close the graph</div></div></div></div>'
+      + '<div class="pa-col' + (PA.ov ? ' open' : '') + '" id="paOv"><div><div class="in">'
+      + '<div class="pa-sum"><div class="pa-sk"><span class="pa-st">' + paPerLabel(per) + ' at a glance' + (range ? ' &middot; ' + range : '') + '</span>'
+      + '<span class="pa-sr"><span class="pa-ai" id="paAiTag"></span><span class="pa-lng" id="paLng" role="group" aria-label="Summary language">'
+      + '<button type="button" data-l="en"' + (PA.lang === 'en' ? ' class="on"' : '') + '>English</button>'
+      + '<button type="button" data-l="hi"' + (PA.lang === 'hi' ? ' class="on"' : '') + '>हिंदी</button></span></span></div>'
+      + '<ul id="paSum"></ul></div>'
+      + '<div class="pa-mh">Daily trend &middot; ' + paPerLabel(per).toLowerCase() + '</div><div class="pa-mg" id="paMg"></div>'
+      + '</div></div></div>'
+      + '<div class="pa-pt' + (PA.pt ? ' open' : '') + '" id="paPt" role="button" tabindex="0" aria-expanded="' + PA.pt + '" aria-controls="paPtb" title="Click to see per-tweet cards">'
+      + '<span class="k">Per tweet average' + PA_I.chev + '</span>'
+      + pts.map(function (m) {
+          var ov = m.k === 'views' ? '' : ofViews(m.v);
+          return '<div class="m pa-num"><b>' + paF(m.v) + '</b><span>' + m.t.toLowerCase() + (ov ? ' &middot; ' + ov : '') + '</span></div>';
+        }).join('') + '</div>'
+      + '<div class="pa-col pa-pts' + (PA.pt ? ' open' : '') + '" id="paPtb"><div><div class="in"><div class="pa-pg" id="paPg"></div></div></div></div>';
+
+    /* ---- events ---- */
+    var tabs = el('paTabs');
+    tabs.onclick = function (e) { var b = e.target.closest('.pa-tab'); if (!b) return; var i = +b.getAttribute('data-i'); if (i !== PA.tab) paOpenTab(i); };
+    tabs.ondblclick = function (e) { if (e.target.closest('.pa-tab')) { e.preventDefault(); paCloseTab(); } };
+    tabs.onkeydown = function (e) { if (e.key === 'Escape') paCloseTab(); };
+    el('paAbtn').onclick = function () { PA.ov ? paCloseOv() : paOpenOv(); };
+    el('paLng').onclick = function (e) { var b = e.target.closest('button'); if (b && b.getAttribute('data-l') !== PA.lang) { PA.lang = b.getAttribute('data-l'); paSum(); } };
+    var ptRow = el('paPt');
+    ptRow.onclick = paTogglePt;
+    ptRow.onkeydown = function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); paTogglePt(); } };
+
+    /* jo pehle khula tha (Period badla) wo naye data se dobara bharo */
+    if (PA.tab >= 0) paDrawTab();
+    if (PA.ov) paDrawOv();
+    if (PA.pt) paDrawPt();
+  }
+
+  function paDrawTab() {
+    var m = PA.tabs[PA.tab], S = m.S();
+    el('paCap').innerHTML = '<b>' + m.c + '</b> per day' + (S.wk ? ' &middot; weekly average' : '');
+    paChart('paChart', S, { unit: m.u + (S.wk ? ' / day' : '') });
+  }
+  function paOpenTab(i) {
+    if (PA.ov) paCloseOv();
+    PA.tab = i;
+    [].forEach.call(el('paTabs').children, function (b, j) { b.classList.toggle('act', j === i); b.setAttribute('aria-selected', String(j === i)); });
+    el('paPanel').classList.add('open');
+    paDrawTab();
+  }
+  function paCloseTab() {
+    PA.tab = -1;
+    var pn = el('paPanel'); if (pn) pn.classList.remove('open');
+    var t = el('paTabs'); if (t) [].forEach.call(t.children, function (b) { b.classList.remove('act'); b.setAttribute('aria-selected', 'false'); });
+  }
+
+  /* ---- Analysis: 6 chhote graph + AI Summary ---- */
+  function paDrawOv() {
+    var d = (PA.r && PA.r.daily) || [], act = d.filter(function (x) { return x.posts > 0; });
+    var yr = act.length && act[0].date.slice(0, 4) !== act[act.length - 1].date.slice(0, 4);
+    var M = [['Posts', 'posts'], ['Engagement', 'engagement'], ['Views', 'views'], ['Likes', 'likes'], ['Reposts', 'shares'], ['Comments', 'comments']];
+    el('paMg').innerHTML = M.map(function (m, i) {
+      if (!act.length) return '';
+      var vals = act.map(function (x) { return Number(x[m[1]]) || 0; }), total = vals.reduce(function (a, b) { return a + b; }, 0),
+          avg = total / act.length, hi = vals.indexOf(Math.max.apply(null, vals)), lo = vals.indexOf(Math.min.apply(null, vals)),
+          last = vals[vals.length - 1], vs = avg ? Math.round((last - avg) / avg * 100) : 0;
+      return '<div class="pa-mc"><div class="t">' + m[0] + '</div><div class="v pa-num">' + paF(total) + '<small>total &middot; ' + paF(avg) + ' / day</small></div>'
+        + '<div class="pa-ch" id="paMini' + i + '"></div>'
+        + '<div class="n">Best <b>' + paShort(act[hi].date, yr) + '</b> (' + paF(vals[hi]) + ') &middot; Lowest <b>' + paShort(act[lo].date, yr) + '</b> (' + paF(vals[lo]) + ')<br>'
+        + paShort(act[act.length - 1].date, yr) + ': ' + (vs ? '<span class="' + (vs > 0 ? 'pa-up' : 'pa-dn') + '">' + (vs > 0 ? '↑' : '↓') + Math.abs(vs) + '%</span> vs average' : 'at the average') + '</div></div>';
+    }).join('') || '<div class="pa-hint">No posts in this period.</div>';
+    M.forEach(function (m, i) { paChart('paMini' + i, paSeries(d, function (x) { return Number(x[m[1]]) || 0; }), { h: 60, mini: true, unit: m[0].toLowerCase() }); });
+    paSum();
+  }
+  function paOpenOv() {
+    paCloseTab();
+    PA.ov = true;
+    var b = el('paAbtn'); b.classList.add('on'); b.setAttribute('aria-expanded', 'true');
+    el('paOv').classList.add('open');
+    paDrawOv();
+  }
+  function paCloseOv() {
+    PA.ov = false;
+    var b = el('paAbtn'); if (b) { b.classList.remove('on'); b.setAttribute('aria-expanded', 'false'); }
+    var o = el('paOv'); if (o) o.classList.remove('open');
+  }
+
+  function paBold(x) {
+    return esc(x).replace(/\*\*(.+?)\*\*/g, function (_, t) {
+      return '<b' + (/fewer|कम/.test(t) ? ' class="pa-dn"' : /more|ज़्यादा/.test(t) ? ' class="pa-up"' : '') + '>' + t + '</b>';
+    });
+  }
+  /* AI Summary -- har handle + period + bhasha ek baar; server bhi cache rakhta hai */
+  function paSum() {
+    var ul = el('paSum'), tag = el('paAiTag'); if (!ul || !CUR) return;
+    var l = PA.lang, k = CUR + '|' + PA.per + '|' + l;
+    [].forEach.call(el('paLng').children, function (b) { b.classList.toggle('on', b.getAttribute('data-l') === l); });
+    function paint(list) {
+      if (k !== CUR + '|' + PA.per + '|' + PA.lang) return;    // beech me kuch badal gaya
+      ul.className = l; ul.setAttribute('lang', l);
+      ul.innerHTML = list.length ? list.map(function (x, i) { return '<li style="animation-delay:' + (i * 70) + 'ms">' + paBold(x) + '</li>'; }).join('')
+        : '<li>' + (l === 'hi' ? 'इस समय में सारांश के लिए पर्याप्त पोस्ट नहीं हैं।' : 'Not enough posts in this period for a summary.') + '</li>';
+      tag.className = 'pa-ai'; tag.innerHTML = PA_I.x + '<b>AI Summary</b>';
+    }
+    if (PA.sum[k]) return paint(PA.sum[k]);
+    tag.className = 'pa-ai busy';
+    tag.innerHTML = PA_I.x + (l === 'hi' ? 'हिंदी में लिख रहे हैं&hellip;' : 'Writing summary&hellip;');
+    ul.className = '';
+    ul.innerHTML = [92, 84, 88, 76, 81].map(function (w) { return '<div class="pa-skl" style="width:' + w + '%"></div>'; }).join('');
+    api('/api/ha/summary', { h: CUR, days: PA.per, lang: l }).then(function (j) {
+      PA.sum[k] = j.bullets || []; paint(PA.sum[k]);
+    }).catch(function (e) {
+      if (k !== CUR + '|' + PA.per + '|' + PA.lang) return;
+      tag.className = 'pa-ai'; tag.innerHTML = PA_I.x + '<b>AI Summary</b>';
+      ul.className = '';
+      ul.innerHTML = '<div class="pa-err">' + esc(e.message || 'AI summary is not available right now.') + '<button type="button" id="paRetry">Try again</button></div>';
+      el('paRetry').onclick = paSum;
+    });
+  }
+
+  /* ---- Per tweet average: 4 cards ---- */
+  function paDrawPt() {
+    var d = (PA.r && PA.r.daily) || [], s = PA.r.summary, act = d.filter(function (x) { return x.posts > 0; });
+    var yr = act.length && act[0].date.slice(0, 4) !== act[act.length - 1].date.slice(0, 4);
+    el('paPg').innerHTML = PA.pts.map(function (m, i) {
+      var per = act.map(function (x) { return (Number(x[m.k]) || 0) / x.posts; }), hi = per.length ? per.indexOf(Math.max.apply(null, per)) : -1;
+      var sub = m.k === 'views' ? 'reach of an average tweet'
+        : (s.avgViews > 0 && m.v !== null && m.v !== undefined ? (Math.round(m.v * 1000 / s.avgViews) / 10) + '% of views' : 'per tweet');
+      return '<div class="pa-mc"><div class="t">' + m.t + ' per tweet</div><div class="v pa-num">' + paF(m.v) + '</div><div class="s">' + sub + '</div>'
+        + '<div class="pa-ch" id="paPtc' + i + '"></div>'
+        + '<div class="n">' + (hi >= 0 ? 'Best day <b>' + paShort(act[hi].date, yr) + '</b> (' + paF(Math.round(per[hi])) + ' / tweet)' : 'No posts in this period') + '</div></div>';
+    }).join('');
+    PA.pts.forEach(function (m, i) {
+      paChart('paPtc' + i, paSeries(d, function (x) { return Number(x[m.k]) || 0; }, function (x) { return x.posts; }), { h: 52, mini: true, unit: m.u });
+    });
+  }
+  function paTogglePt() {
+    PA.pt = !PA.pt;
+    var row = el('paPt'); row.classList.toggle('open', PA.pt); row.setAttribute('aria-expanded', String(PA.pt));
+    el('paPtb').classList.toggle('open', PA.pt);
+    if (PA.pt) paDrawPt();
+  }
+
+  /* window chauda / patla ho to khule graph dobara (text khinche nahi) */
+  var paRz;
+  window.addEventListener('resize', function () {
+    clearTimeout(paRz);
+    paRz = setTimeout(function () {
+      document.querySelectorAll('#haCells .pa-ch').forEach(function (b) { if (b._pa && b.offsetParent) paChart.apply(null, b._pa); });
+    }, 150);
+  });
+
   function render(r) {
     var p = r.profile, s = r.summary, d = r.daily || [], c = col(p.party);
 
@@ -10791,67 +11143,8 @@ setTimeout(hExec,600);
     PROF = p;
     fillProfile(p, c);
 
-    /* ---- stat cells  (no-er : Engagement Rate tile hata di) ---- */
-    /* ha-stats (30-Oct): upar Profile & activity; averages alag section me (click par khule / band).
-       avg-fix front waisa hi: jis column ka data hi nahi, wahan "--" (bigN), 0 nahi. */
-    var HSI = {
-      fol: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>',
-      fing: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6M22 11h-6"/></svg>',
-      post: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v12H5.17L4 17.17z"/><path d="M8 9h8M8 12h5"/></svg>',
-      day: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>',
-      eng: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>',
-      avg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/></svg>',
-      chev: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>',
-      vw: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>',
-      lk: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-4.4-9.3-8.8C1.2 9.3 2.8 5.5 6.5 5.1c2-.2 3.6.9 4.5 2.4.9-1.5 2.5-2.6 4.5-2.4 3.7.4 5.3 4.2 3.8 7.1C19 16.6 12 21 12 21z"/></svg>',
-      sh: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 2l4 4-4 4"/><path d="M3 11V9a3 3 0 0 1 3-3h15"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v2a3 3 0 0 1-3 3H3"/></svg>',
-      cm: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.4A8 8 0 1 1 21 12z"/></svg>'
-    };
-    function hsSt(ic, bg, fg, v, l, sub) {
-      return '<div class="hs-st"><div class="hs-ic" style="background:' + bg + ';color:' + fg + '">' + ic + '</div>'
-        + '<div class="hs-v">' + esc(String(v)) + '</div><div class="hs-l">' + l + '</div>' + (sub ? '<div class="hs-sub">' + sub + '</div>' : '') + '</div>';
-    }
-    var aV = s.avgViews, aL = s.avgLikes, aS = s.avgShares, aC = s.avgComments;
-    function pctOfViews(x) { return (aV > 0 && x != null) ? (x * 100 / aV) : null; }
-    function hsAc(ic, col, label, v, unit, x) {
-      var pc = (label === 'Avg views') ? (aV ? 100 : 0) : pctOfViews(x);
-      var note = label === 'Avg views' ? (aV ? 'reach ka base' : 'views ka data nahi')
-        : (pc == null ? 'views ke bina % nahi' : (x ? pc.toFixed(1) + '% of views' : 'abhi koi nahi'));
-      return '<div class="hs-ac"><div class="hs-acl" style="color:' + col + '">' + ic + label + '</div>'
-        + '<div class="hs-acv">' + esc(String(v)) + '</div><div class="hs-acu">' + unit + '</div>'
-        + '<div class="hs-bar"><i style="background:' + col + ';--w:' + (pc == null ? 0 : Math.max(pc ? .5 : 0, Math.min(100, pc))) + '%"></i></div>'
-        + '<div class="hs-acn">' + note + '</div></div>';
-    }
-    var hsOpen = !!(el('haAvgBox') && el('haAvgBox').classList.contains('open'));
-    el('haCells').innerHTML =
-        '<div class="hs-kh">Profile &amp; activity</div><div class="hs-prof">'
-      + hsSt(HSI.fol, '#FFF1E6', '#E65100', big(p.xFollowers || s.followers), 'Followers')
-      + hsSt(HSI.fing, '#FDF3E3', '#B45309', big(p.xFollowing || s.following), 'Following')
-      + hsSt(HSI.post, '#E8F3FD', '#1D9BF0', big(p.xPosts || s.totalPosts), 'Total posts')
-      + hsSt(HSI.day, '#EEF6EE', '#2E7D32', s.postsPerDay, 'Posts / day')
-      + hsSt(HSI.eng, '#F3E8FF', '#7E22CE', big(s.totalEngagement), 'Total engagement', 'likes + comments + shares')
-      + '</div>'
-      + '<div class="hs-avg' + (hsOpen ? ' open' : '') + '" id="haAvgBox">'
-      + '<button type="button" class="hs-hd" id="haAvgBtn" aria-expanded="' + hsOpen + '">'
-      + '<span class="hs-aic">' + HSI.avg + '</span>'
-      + '<span><div class="hs-t">Per-tweet averages</div><div class="hs-s">Har tweet par ausatan kitna response mila &middot; click to ' + (hsOpen ? 'collapse' : 'expand') + '</div></span>'
-      + '<span class="hs-chips">'
-      + '<span class="hs-chip"><i style="background:#6A1B9A"></i>' + bigN(aV) + ' views</span>'
-      + '<span class="hs-chip"><i style="background:#E0245E"></i>' + bigN(aL) + ' likes</span>'
-      + '<span class="hs-chip"><i style="background:#17BF63"></i>' + bigN(aS) + ' shares</span>'
-      + '<span class="hs-chip"><i style="background:#1D9BF0"></i>' + bigN(aC) + ' comments</span></span>'
-      + '<span class="hs-chev">' + HSI.chev + '</span></button>'
-      + '<div class="hs-body"><div class="hs-in"><div class="hs-grid">'
-      + hsAc(HSI.vw, '#6A1B9A', 'Avg views', bigN(aV), 'views per tweet', aV)
-      + hsAc(HSI.lk, '#E0245E', 'Avg likes', bigN(aL), 'likes per tweet', aL)
-      + hsAc(HSI.sh, '#17BF63', 'Avg shares', bigN(aS), 'reposts per tweet', aS)
-      + hsAc(HSI.cm, '#1D9BF0', 'Avg comments', bigN(aC), 'comments per tweet', aC)
-      + '</div></div></div></div>';
-    el('haAvgBtn').onclick = function () {
-      var box = el('haAvgBox'), o = box.classList.toggle('open');
-      this.setAttribute('aria-expanded', o);
-      this.querySelector('.hs-s').innerHTML = 'Har tweet par ausatan kitna response mila &middot; click to ' + (o ? 'collapse' : 'expand');
-    };
+    /* ---- Profile & activity  (pa, 30-Oct) -- dekho paRender ---- */
+    paRender(r);
 
     /* ---- neeche ki note  (xlive-front) ---- */
     LASTCOV = s.coverage || {};

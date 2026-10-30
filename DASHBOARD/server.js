@@ -5528,6 +5528,7 @@ app.get('/api/ha/analytics', dashGuard, async function (req, res) {
       },
       summary: out.summary,
       daily: out.daily,
+      prev: HA.prevWindow(rows, String(req.query.days || 'all')),   /* pichhle 7 / 30 din (all me null) */
       topTweet: out.topTweet,
       sent: HA.SENT_KEYS.reduce(function (o, k) { o[k] = meta[k] || 0; return o; }, {})
     });
@@ -5593,6 +5594,55 @@ app.get('/api/translate', dashGuard, async function (req, res) {
     } finally { try { await cli.close(); } catch (e) {} }
   } catch (e) {
     console.log('  [/api/translate] ' + e.message);
+    res.status(500).json({ error: String(e.message || e).slice(0, 200) });
+  }
+});
+
+/* ---- ha-summary (30-Oct): Handle Analytics "AI Summary" (English / Hindi) ----
+   SIRF Analysis button / bhasha button ke click par (koi background job nahi).
+   Data hamesha DB se -- client ka bheja kuch nahi. Hisaab summary_lib.buildFacts karta
+   hai, Gemini sirf likhta hai. Jawab pulse_master.ha_summaries me: _id me facts ka
+   hash hai, isliye naya data aaye to hi naya AI call; warna sabke liye cache. */
+var SL = require('./summary_lib.js');
+var _sumBusy = new Map();
+app.get('/api/ha/summary', dashGuard, async function (req, res) {
+  res.set('Cache-Control', 'no-store');
+  var h = String(req.query.h || '').trim();
+  var days = String(req.query.days || 'all');
+  var lang = String(req.query.lang || 'en');
+  if (!h || !/^(7|30|all)$/.test(days) || !/^(en|hi)$/.test(lang)) return res.status(400).json({ error: 'bad request' });
+  try {
+    var meta = await haOwns(req, h);
+    if (!meta) return res.status(404).json({ error: 'This handle is not part of this dashboard.' });
+    var rows = await haRows(h);
+    var out = HA.analyse(rows, days);
+    var facts = SL.buildFacts(h, days, out.daily, out.summary, HA.prevWindow(rows, days), lang);
+    if (!facts) return res.json({ ok: true, bullets: [], empty: true });
+    var key = h.toLowerCase() + '|' + days + '|' + lang + '|'
+      + require('crypto').createHash('sha1').update(JSON.stringify(facts)).digest('hex').slice(0, 16);
+    var cli = MP.client(); await cli.connect();
+    try {
+      var cache = cli.db(MASTER_DB).collection('ha_summaries');
+      var hit = await cache.findOne({ _id: key });
+      if (hit && hit.bullets && hit.bullets.length) return res.json({ ok: true, bullets: hit.bullets, cached: true });
+      /* ek hi handle par do log ek saath click karein to AI ek hi baar chale */
+      var job = _sumBusy.get(key);
+      if (!job) {
+        job = SL.write(facts, lang).finally(function () { _sumBusy.delete(key); });
+        _sumBusy.set(key, job);
+      }
+      var r;
+      try { r = await job; }
+      catch (se) {
+        console.log('  [/api/ha/summary] ' + se.message + ' | ' + (se.tried || []).join(' '));
+        return res.status(503).json({ error: se.message });
+      }
+      console.log('  [ha-summary] ' + h + ' ' + days + ' ' + lang + ' via ' + r.model + ' (' + r.ms + ' ms)');
+      await cache.updateOne({ _id: key }, { $set: { bullets: r.bullets, h: h, days: days, lang: lang, at: new Date(), model: r.model } }, { upsert: true });
+      res.json({ ok: true, bullets: r.bullets, cached: false });
+    } finally { try { await cli.close(); } catch (e) {} }
+  } catch (e) {
+    console.log('  [/api/ha/summary] ' + e.message);
     res.status(500).json({ error: String(e.message || e).slice(0, 200) });
   }
 });

@@ -71,9 +71,12 @@ function rawRate(eng, views) {
   return isFinite(v) ? Math.round(v * 100) / 100 : null;
 }
 
-function analyse(rows, days) {
+/* opt.from / opt.to (YYYY-MM-DD) diye hon to wahi range -- AI Summary ki
+   "pichhle 7 / 30 din se tulna" ke liye (prevWindow). */
+function analyse(rows, days, opt) {
   rows = rows || [];
-  var from = cutoffDay(rows, days);
+  var from = (opt && opt.from) || cutoffDay(rows, days);
+  var to = (opt && opt.to) || '';
 
   var byDay = {};        // date -> counts
   var folByDay = {};     // date -> aakhri dekha gaya followers/following
@@ -85,6 +88,7 @@ function analyse(rows, days) {
     var d = dayOf(r['Tweet Date']);
     if (!d) continue;
     if (from && d < from) continue;
+    if (to && d > to) continue;
     used++;
 
     var m = byDay[d];
@@ -213,7 +217,7 @@ function analyse(rows, days) {
   for (var ci = 0; ci < rows.length; ci++) {
     var rr = rows[ci];
     var dd2 = dayOf(rr['Tweet Date']);
-    if (!dd2 || (from && dd2 < from)) continue;
+    if (!dd2 || (from && dd2 < from) || (to && dd2 > to)) continue;
     if (has(rr['Total Likes']))    { cov.likes++;    sumL += num(rr['Total Likes']); }
     if (has(rr['Total Comments'])) { cov.comments++; sumC += num(rr['Total Comments']); }
     if (has(rr['Total Views']))    { cov.views++;    sumV += num(rr['Total Views']); }
@@ -314,8 +318,24 @@ function tweetPage(rows, offset, limit) {
   };
 }
 
+/* pichhla barabar samay: '7' -> chuni range se theek pehle ke 7 din ('all' me null).
+   Wahi chhota summary jo AI Summary ki tulna me lagta hai. */
+function prevWindow(rows, days) {
+  var n = Number(days);
+  if (!n || days === 'all') return null;
+  var from = cutoffDay(rows, days);
+  if (!from) return null;
+  var t = new Date(from + 'T00:00:00Z').getTime();
+  var pTo = new Date(t - 86400000).toISOString().slice(0, 10);
+  var pFrom = new Date(t - n * 86400000).toISOString().slice(0, 10);
+  var s = analyse(rows, 'all', { from: pFrom, to: pTo }).summary;
+  if (!s.tweets) return null;
+  return { from: pFrom, to: pTo, tweets: s.tweets, postsPerDay: s.postsPerDay, avgViews: s.avgViews,
+           avgLikes: s.avgLikes, avgShares: s.avgShares, avgComments: s.avgComments, totalEngagement: s.totalEngagement };
+}
+
 module.exports = {
   SENT_KEYS: SENT_KEYS,
   num: num, dayOf: dayOf, cutoffDay: cutoffDay, isRetweet: isRetweet,
-  analyse: analyse, tweetPage: tweetPage, slimTweet: slimTweet
+  analyse: analyse, prevWindow: prevWindow, tweetPage: tweetPage, slimTweet: slimTweet
 };
