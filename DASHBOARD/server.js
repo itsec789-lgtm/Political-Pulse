@@ -4762,6 +4762,26 @@ app.get('/api/parties/comparison', async function (req, res) {
   }
 });
 
+/* x-img proxy (30-Oct): X ki photo/cover server se laakar dena. X (pbs.twimg.com) doosri site ka Referer
+   dekh kar image nahi deta (HTTP 351); server bina Referer maangta hai to milti hai. Browser me seedha
+   load fail ho to Handle Analytics yahi use karta hai. Sirf X ki profile photo / cover -- aur kuch nahi. */
+var _ximg = new Map();
+app.get('/api/ximg', dashGuard, async function (req, res) {
+  var u = String(req.query.u || '');
+  if (!/^https:\/\/pbs\.twimg\.com\/(profile_images|profile_banners)\/[\w\/.\-]+$/.test(u)) return res.status(400).end();
+  try {
+    var hit = _ximg.get(u);
+    if (!hit || hit.exp < Date.now()) {
+      var r = await fetch(u, { headers: { 'User-Agent': 'Mozilla/5.0' } });
+      var ct = r.headers.get('content-type') || '';
+      if (!r.ok || !/^image\//.test(ct)) return res.status(404).end();
+      hit = { buf: Buffer.from(await r.arrayBuffer()), ct: ct, exp: Date.now() + 6 * 3600e3 };
+      if (hit.buf.length < 3e6) { _ximg.set(u, hit); if (_ximg.size > 400) _ximg.delete(_ximg.keys().next().value); }
+    }
+    res.set('Content-Type', hit.ct).set('Cache-Control', 'private, max-age=604800').send(hit.buf);
+  } catch (e) { res.status(502).end(); }
+});
+
 app.get('/api/avatar/:handle', async function (req, res) {
   var handle = String(req.params.handle || '').trim().replace(/^@/, '');
   var lk = handle.toLowerCase();

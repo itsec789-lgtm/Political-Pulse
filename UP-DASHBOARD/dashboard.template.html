@@ -6725,22 +6725,39 @@ setTimeout(hExec,600);
     if (!b) return;
     b.classList.remove('has-cover');
     b.style.background = 'linear-gradient(135deg,' + c + ',#FFC266)';
+    /* x-img (30-Oct): pehle seedha X se; browser me fail ho (X Referer par 351 deta hai) to apne
+       server ke /api/ximg se. Dono fail -> photo ki jagah initials, cover ki jagah rang. */
+    function xload(url, ok, bad) {
+      var t = new Image(); t.referrerPolicy = 'no-referrer';
+      t.onload = function () { ok(url); };
+      t.onerror = function () {
+        var px = '/api/ximg?scope=up&u=' + encodeURIComponent(url), t2 = new Image();
+        t2.onload = function () { ok(px); }; t2.onerror = function () { if (bad) bad(); };
+        t2.src = px;
+      };
+      t.src = url;
+    }
     if (p.cover) {
-      var probe = new Image();
       b.dataset.cover = p.cover;
-      probe.onload = function () {
+      xload(p.cover, function (src) {
         if (b.dataset.cover !== p.cover) return;      // beech me handle badal gaya
-        cv.style.backgroundImage = 'url("' + p.cover + '")';
+        cv.style.backgroundImage = 'url("' + src + '")';
         b.classList.add('has-cover');
         b.style.background = c;
-      };
-      probe.src = p.cover;
+      });
     } else { b.dataset.cover = ''; cv.style.backgroundImage = ''; }
 
     if (p.image) {
-      av.style.backgroundImage = 'url("' + p.image + '")';
-      av.textContent = '';
+      av.dataset.img = p.image;
+      av.style.backgroundImage = '';
+      av.textContent = ini(p.name);
+      xload(p.image, function (src) {
+        if (av.dataset.img !== p.image) return;
+        av.style.backgroundImage = 'url("' + src + '")';
+        av.textContent = '';
+      });
     } else {
+      av.dataset.img = '';
       av.style.backgroundImage = '';
       av.textContent = ini(p.name);
     }
