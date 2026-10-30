@@ -3429,6 +3429,12 @@ body.ui-capture #sec-dashboard .kpi{transform:none!important}
 .ui-dv i{position:absolute;right:12px;bottom:4px;height:2px;border-radius:2px;background:rgba(230,81,0,.45);max-width:calc(100% - 24px)}
 @media(max-width:1200px){#sec-dashboard #kpiDetailPanel.kpi-dp-open{grid-template-columns:1fr;grid-template-areas:"top" "stats" "chart" "tbl"}}
 @media(max-width:900px){.ui-dp-stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+/* ---------- ui-min: KPI cards par patli orange ring (Handle Analytics ke cards jaisi) ---------- */
+#sec-dashboard #dashKpis .kpi,#sec-dashboard #dashRtKpis .kpi{border:1.5px solid #F7A25B!important;border-radius:14px;
+  box-shadow:0 2px 10px -4px rgba(230,81,0,.18)}
+#sec-dashboard #dashKpis .kpi:hover,#sec-dashboard #dashRtKpis .kpi:hover{border-color:#EA580C!important;box-shadow:0 10px 24px -10px rgba(230,81,0,.35)}
+#sec-dashboard #dashKpis .kpi.kpi-open,#sec-dashboard #dashRtKpis .kpi.kpi-open{border-color:#E65100!important;box-shadow:0 0 0 2px rgba(230,81,0,.25),0 10px 24px -10px rgba(230,81,0,.35)}
 </style>
 
 <style id="uiHdrCss">
@@ -3439,7 +3445,7 @@ body.ui-capture #sec-dashboard .kpi{transform:none!important}
 header.ui-hdr{overflow:hidden;isolation:isolate;padding:11px 22px 13px;border-bottom:0;color:#fff;
   background:linear-gradient(100deg,#5F1C0A 0%,#8F2F10 16%,#C2410C 40%,#E8590C 66%,#F59E0B 100%);
   box-shadow:0 14px 30px -16px rgba(110,40,10,.7)}
-header.ui-hdr .hdr-wh{display:none}
+/* ui-hdr v4: purani lehar wapas -- photo uske paar dikhti hai (neeche v4 block) */
 /* behti silk roshni */
 header.ui-hdr::before{content:'';position:absolute;inset:-80% -15%;z-index:-1;pointer-events:none;
   background:
@@ -3605,6 +3611,26 @@ body .hp-menu .hp-sep{height:1px;background:#F1EAE1;margin:6px 4px}
 @media(max-width:820px){header.ui-hdr .hp-btn{flex-direction:row;gap:6px;padding:3px 8px 3px 4px;min-width:0}
   header.ui-hdr .hp-car{position:static}header.ui-hdr .hp-av{width:28px;height:28px}}
 @media (prefers-reduced-motion:reduce){body .hp-menu.open{animation:none}}
+
+/* ---------- ui-hdr v4 (30-Oct): purani kesariya lehar (swoosh) + photo ----------
+   Kesariya hissa mudi hui lehar par khatam hota hai, lehar ke paar Sansad ki photo.
+   Sunahri lakeer + uspar chalti chamak + halki drift -- purane header-anim CSS se hi. */
+header.ui-hdr .hdr-wh{display:block;position:absolute;inset:0;width:100%;height:100%;z-index:-1;pointer-events:none;
+  filter:drop-shadow(6px 0 14px rgba(60,15,0,.35))}
+header.ui-hdr .hdr-wh path[fill="url(#hdwa)"]{opacity:.96}
+header.ui-hdr .hdr-wh path[fill="#ffffff"]{opacity:.08}
+/* lehar ke peeche photo poori dikhe -- photo layer chaudi, apna fade kam */
+header.ui-hdr .ui-hdr-photo{width:66%;-webkit-mask-image:linear-gradient(90deg,transparent 0%,#000 26%);mask-image:linear-gradient(90deg,transparent 0%,#000 26%)}
+header.ui-hdr .ui-hdr-photo::after{background:linear-gradient(90deg,rgba(150,50,10,.35) 0%,rgba(120,40,10,.12) 45%,rgba(60,20,5,.4) 100%),
+  linear-gradient(0deg,rgba(60,20,5,.45) 0%,transparent 55%)}
+/* ---------- avatar ka teer: smooth animation ---------- */
+header.ui-hdr .hp-btn{background:transparent!important}
+header.ui-hdr .hp-car{opacity:.95;transition:transform .45s cubic-bezier(.34,1.56,.64,1);animation:uiCarFloat 2.6s ease-in-out infinite}
+@keyframes uiCarFloat{0%,100%{translate:0 0}50%{translate:0 2px}}
+header.ui-hdr .hp-btn:hover .hp-car{transform:translateY(2px)}
+header.ui-hdr .hp-wrap.open .hp-car{transform:rotate(180deg);animation-play-state:paused}
+header.ui-hdr .hp-btn:hover .hp-av{transform:translateY(-1px);transition:transform .25s cubic-bezier(.2,.8,.2,1)}
+@media (prefers-reduced-motion:reduce){header.ui-hdr .hp-car{animation:none}}
 </style>
 
 <script>
