@@ -5995,22 +5995,31 @@ a.pe-btn:after{content:"";position:absolute;inset:0;z-index:1;background:linear-
 
     /* pa-rail: Analysis panel -- gehra AI saaransh, rangeen ring wale chhote graph, ek-ek karke ubharte */
     #paOv,#haBanner{scroll-margin-top:96px}
-    #paOv .in{padding-top:18px}
-    #paOv .pa-sum{position:relative;overflow:hidden;border:0;border-radius:16px;padding:16px 18px 14px;color:#F5E9DF;
-      background:radial-gradient(120% 160% at 0% 0%,#3A1C0B 0%,#1E0F07 55%,#120904 100%);box-shadow:0 18px 40px -24px rgba(43,20,7,.8)}
-    #paOv .pa-sum::after{content:'';position:absolute;inset:-40% -10% auto auto;width:60%;height:160%;pointer-events:none;
-      background:radial-gradient(closest-side,rgba(232,89,12,.28),transparent);animation:paGlow 6s ease-in-out infinite alternate}
-    @keyframes paGlow{to{transform:translate(-14%,10%)}}
-    #paOv .pa-sum > *{position:relative;z-index:1}
-    #paOv .pa-st{color:#fff;letter-spacing:.9px}
-    #paOv .pa-ai{color:#D6C3B4}#paOv .pa-ai b{color:#FFB37A}#paOv .pa-ai svg{color:#fff}
-    #paOv .pa-lng{background:rgba(255,255,255,.1)}
-    #paOv .pa-lng button{color:#E8D9CC}#paOv .pa-lng button.on{background:#fff;color:#2B1407}
-    #paOv .pa-sum ul{color:#EADBCF}
-    #paOv .pa-sum li::marker{color:#FF8A3D}
-    #paOv .pa-sum b{color:#fff}
-    #paOv .pa-sum b.pa-up{color:#5EE29A}#paOv .pa-sum b.pa-dn{color:#FF8A80}
-    #paOv .pa-skl{background:linear-gradient(90deg,rgba(255,255,255,.08) 0%,rgba(255,255,255,.2) 40%,rgba(255,255,255,.08) 80%);background-size:200% 100%}
+    #paOv .in{padding-top:14px}
+    /* pa-v3 (31-Oct): panel ki apni patti -- naam + "Hide analysis" (upar scroll kiye bina band) */
+    .pa-ovh{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px;flex-wrap:wrap}
+    .pa-ovh .k{font:700 12px 'DM Sans',Inter,sans-serif;letter-spacing:.9px;text-transform:uppercase;color:#141414;display:flex;align-items:center;gap:8px}
+    .pa-ovh .k::before{content:'';width:4px;height:16px;border-radius:2px;background:linear-gradient(#2B1407,#E8590C)}
+    .pa-ovh .k em{font-style:normal;font-weight:500;text-transform:none;letter-spacing:0;color:#78716C}
+    .pa-hide{display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 14px;border-radius:999px;cursor:pointer;
+      font:600 12.5px Inter,sans-serif;color:#2B1407;background:#fff;border:1.5px solid #F7A25B;box-shadow:0 4px 12px -6px rgba(230,81,0,.4);
+      transition:background .2s,transform .2s}
+    .pa-hide svg{width:14px;height:14px;transform:rotate(180deg);color:#E65100}
+    .pa-hide:hover{background:#FFF3E8;transform:translateY(-1px)}
+    .pa-hide:focus-visible{outline:2px solid #E65100;outline-offset:2px}
+    .pa-hide.bot{margin:14px auto 2px;display:flex}
+    /* pa-v3: AI saaransh halka -- kreem par kesariya kinara (Dashboard ke insight box jaisa), gehra bhoora nahi */
+    #paOv .pa-sum{position:relative;border:1px solid #F3E3D3;border-left:4px solid #E8590C;border-radius:14px;padding:14px 18px 12px;color:#3F3A36;
+      background:linear-gradient(135deg,#FFFBF6 0%,#FFF4E8 100%);box-shadow:0 10px 26px -20px rgba(230,81,0,.5)}
+    #paOv .pa-st{color:#141414;letter-spacing:.9px}
+    #paOv .pa-ai{color:#8A817A}#paOv .pa-ai b{color:#C2410C}#paOv .pa-ai svg{color:#141414}
+    #paOv .pa-lng{background:#F1E7DC}
+    #paOv .pa-lng button{color:#78716C}#paOv .pa-lng button.on{background:#fff;color:#2B1407}
+    #paOv .pa-sum ul{color:#3F3A36}
+    #paOv .pa-sum li::marker{color:#E8590C}
+    #paOv .pa-sum b{color:#141414}
+    #paOv .pa-sum b.pa-up{color:#067647}#paOv .pa-sum b.pa-dn{color:#B42318}
+    #paOv .pa-sum .pa-err{color:#78716C}
     #paOv .pa-mh{display:flex;align-items:center;gap:8px;margin-top:4px}
     #paOv .pa-mh::before{content:'';width:4px;height:14px;border-radius:2px;background:linear-gradient(#2B1407,#E8590C)}
     #paOv .pa-mc{border:1.5px solid transparent;border-radius:14px;
@@ -6023,7 +6032,7 @@ a.pe-btn:after{content:"";position:absolute;inset:0;z-index:1;background:linear-
     #paOv.open .pa-mc:nth-child(1){animation-delay:.16s}#paOv.open .pa-mc:nth-child(2){animation-delay:.22s}#paOv.open .pa-mc:nth-child(3){animation-delay:.28s}
     #paOv.open .pa-mc:nth-child(4){animation-delay:.34s}#paOv.open .pa-mc:nth-child(5){animation-delay:.40s}#paOv.open .pa-mc:nth-child(6){animation-delay:.46s}
     @keyframes paRise{from{opacity:0;transform:translateY(14px) scale(.98)}to{opacity:1;transform:none}}
-    @media (prefers-reduced-motion:reduce){.ha-bnact .pa-abtn,.pa-shine,#paOv .pa-sum::after,#paOv.open .pa-sum,#paOv.open .pa-mh,#paOv.open .pa-mc{animation:none}.pa-rail .pa-tabs{scroll-behavior:auto}}
+    @media (prefers-reduced-motion:reduce){.ha-bnact .pa-abtn,.pa-shine,#paOv.open .pa-sum,#paOv.open .pa-mh,#paOv.open .pa-mc{animation:none}.pa-rail .pa-tabs{scroll-behavior:auto}}
     @media (max-width:700px){.ha-banner > .ha-bnact{position:static;width:100%;justify-content:flex-end;flex-wrap:wrap}}
     /* KPI card: kesariya outline + halki kesariya chhaya; chuna hua card gehra kesariya */
     .pa-tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;padding:14px 22px 16px;border-top:1px solid #E5E7EB}
@@ -6252,18 +6261,41 @@ a.pe-btn:after{content:"";position:absolute;inset:0;z-index:1;background:linear-
     @media (max-width:700px){.htc-head{display:none}.htc-row{grid-template-columns:1fr}.htc-sent{padding:0 6px}}
     /* tweet-table (31-Oct): Latest Tweets ab table -- upar "Best of last 7 days", phir latest 6,
        neeche Newer / Older. "View full" par usi row ke neeche wahi X card khulta hai (page nahi badalta). */
-    .htb-wrap{overflow-x:auto;border:1px solid #EFE8DD;border-radius:14px}
-    .htb{width:100%;min-width:940px;border-collapse:collapse;font:13px Inter,sans-serif;color:#0F1419}
-    .htb th{position:sticky;top:0;background:#FBF8F4;text-align:right;padding:10px 12px;font:700 10.5px Inter,sans-serif;letter-spacing:.07em;text-transform:uppercase;color:#6B5E50;border-bottom:1px solid #EFE8DD;white-space:nowrap}
+    /* htb-v2 (31-Oct): 6 column, poori chaudai me fit -- daayein scroll nahi. Likes / comments / RT
+       Engagement ke andar chhoti line me; sentiment pill. Phone par har row ek card. */
+    .htb-wrap{border:1px solid #EFE8DD;border-radius:14px;overflow:hidden;background:#fff}
+    .htb{width:100%;table-layout:fixed;border-collapse:collapse;font:13px Inter,sans-serif;color:#0F1419}
+    .htb col.c-tw{width:35%}.htb col.c-dt{width:12%}.htb col.c-en{width:19%}.htb col.c-vw{width:9%}.htb col.c-fo{width:14%}.htb col.c-st{width:11%}
+    .htb th{background:#FBF8F4;text-align:right;padding:11px 12px;font:700 10.5px Inter,sans-serif;letter-spacing:.07em;text-transform:uppercase;color:#6B5E50;border-bottom:1px solid #EFE8DD;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     .htb th:first-child,.htb td:first-child{text-align:left}
     .htb th.htb-l,.htb td.htb-l{text-align:left}
     .htb th .htb-i{display:inline-flex;align-items:center;gap:5px}
     .htb th svg{width:13px;height:13px}
-    .htb td{padding:12px;border-bottom:1px solid #F3EEE7;text-align:right;vertical-align:top;font-variant-numeric:tabular-nums;white-space:nowrap}
+    .htb td{padding:14px 12px;border-bottom:1px solid #F3EEE7;text-align:right;vertical-align:top;font-variant-numeric:tabular-nums;overflow:hidden}
     .htb tr.htb-r{cursor:pointer;transition:background .15s}
     .htb tr.htb-r:hover{background:#FCFAF7}
     .htb tr.htb-r.open{background:#FFF8F0}
-    .htb td.htb-tw{white-space:normal;min-width:300px;max-width:420px}
+    .htb td.htb-tw{white-space:normal}
+    .htb-en b{display:block;font:700 15px Inter,sans-serif;color:#141414}
+    .htb-bd{display:flex;justify-content:flex-end;flex-wrap:wrap;gap:4px 10px;margin-top:5px;font-size:11.5px;color:#6B5E50}
+    .htb-bd span{display:inline-flex;align-items:center;gap:3px;white-space:nowrap}
+    .htb-bd svg{width:12px;height:12px;flex:none}
+    .htb-bd .l{color:#BE185D}.htb-bd .c{color:#1D4ED8}.htb-bd .s{color:#047857}
+    .htb-vw b{font-weight:600}
+    .htb-pill{display:inline-flex;align-items:center;gap:6px;max-width:100%;font:600 12px Inter,sans-serif;color:var(--sc);white-space:nowrap;
+      background:color-mix(in srgb,var(--sc) 9%,#fff);border:1px solid color-mix(in srgb,var(--sc) 28%,#fff);border-radius:999px;padding:3px 10px}
+    .htb-pill i{width:7px;height:7px;border-radius:50%;background:var(--sc);flex:none}
+    .htb-pill span{overflow:hidden;text-overflow:ellipsis}
+    @media (max-width:760px){
+      .htb,.htb tbody,.htb tr,.htb td{display:block;width:100%}
+      .htb thead,.htb colgroup{display:none}
+      .htb tr.htb-r{display:grid;grid-template-columns:1fr 1fr;gap:6px 12px;padding:12px 14px;border-bottom:1px solid #F3EEE7}
+      .htb tr.htb-r td{padding:0;border:0;text-align:left}
+      .htb tr.htb-r td.htb-tw{grid-column:1 / -1}
+      .htb tr.htb-r td[data-l]::before{content:attr(data-l);display:block;font:700 9.5px Inter,sans-serif;letter-spacing:.07em;text-transform:uppercase;color:#9A8F84;margin-bottom:2px}
+      .htb-bd{justify-content:flex-start}
+      .htb tr.htb-sec td,.htb tr.htb-exp td{display:block}
+    }
     .htb-txt{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:1.5;font-size:13.5px;word-break:break-word}
     .htb-txt .ht,.htb-txt a{color:#1D9BF0;text-decoration:none}
     .htb-vf{background:none;border:0;padding:0;margin-top:4px;font:600 12.5px Inter,sans-serif;color:#1D9BF0;cursor:pointer;display:inline-flex;align-items:center;gap:4px}
@@ -6295,11 +6327,12 @@ a.pe-btn:after{content:"";position:absolute;inset:0;z-index:1;background:linear-
     .htb-pg div{display:flex;gap:8px}
     </style>
     <div class="htb-wrap"><table class="htb">
+      <colgroup><col class="c-tw"><col class="c-dt"><col class="c-en"><col class="c-vw"><col class="c-fo"><col class="c-st"></colgroup>
       <thead><tr><th class="htb-l"><span class="htb-i"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>Tweet</span></th>
-        <th class="htb-l">Posted</th><th>Likes</th><th>Comments</th><th>Retweets</th><th>Views</th><th>Engagement</th>
-        <th title="X gives the follower count once a day. The big number is this post's estimated share of that day's gain (split by engagement); the line below is the day's real gain.">Followers gained</th>
+        <th class="htb-l">Posted</th><th title="Likes + Comments + Retweets">Engagement</th><th>Views</th>
+        <th title="X gives the follower count once a day. The big number is this post's estimated share of that day's gain (split by engagement); the line below is the day's real gain.">Followers</th>
         <th class="htb-l">Sentiment</th></tr></thead>
-      <tbody id="haTwBody"><tr><td colspan="9" class="htc-empty">Ek handle chuno.</td></tr></tbody>
+      <tbody id="haTwBody"><tr><td colspan="6" class="htc-empty">Ek handle chuno.</td></tr></tbody>
     </table></div>
     <div class="htb-pg"><span id="haTwInfo"></span><div>
       <button class="filter-select" id="haPrev" onclick="window.haPrev()">&larr; Newer</button>
@@ -11393,12 +11426,15 @@ setTimeout(hExec,600);
       + '<div class="pa-cap"><span id="paCap"></span><span>' + range + '</span></div><div class="pa-ch" id="paChart"></div>'
       + '<div class="pa-hint">Double click any KPI to close the graph</div></div></div></div>'
       + '<div class="pa-col' + (PA.ov ? ' open' : '') + '" id="paOv"><div><div class="in">'
+      + '<div class="pa-ovh"><span class="k">Analysis<em>' + paPerLabel(per) + (range ? ' &middot; ' + range : '') + '</em></span>'
+      + '<button type="button" class="pa-hide" data-hide="1">' + PA_I.chev + 'Hide analysis</button></div>'
       + '<div class="pa-sum"><div class="pa-sk"><span class="pa-st">' + paPerLabel(per) + ' at a glance' + (range ? ' &middot; ' + range : '') + '</span>'
       + '<span class="pa-sr"><span class="pa-ai" id="paAiTag"></span><span class="pa-lng" id="paLng" role="group" aria-label="Summary language">'
       + '<button type="button" data-l="en"' + (PA.lang === 'en' ? ' class="on"' : '') + '>English</button>'
       + '<button type="button" data-l="hi"' + (PA.lang === 'hi' ? ' class="on"' : '') + '>हिंदी</button></span></span></div>'
       + '<ul id="paSum"></ul></div>'
       + '<div class="pa-mh">Daily trend &middot; ' + paPerLabel(per).toLowerCase() + '</div><div class="pa-mg" id="paMg"></div>'
+      + '<button type="button" class="pa-hide bot" data-hide="1">' + PA_I.chev + 'Hide analysis</button>'
       + '</div></div></div>'
       + '<div class="pa-pt' + (PA.pt ? ' open' : '') + '" id="paPt" role="button" tabindex="0" aria-expanded="' + PA.pt + '" aria-controls="paPtb" title="Click to see per-tweet cards">'
       + '<span class="k">Per tweet average' + PA_I.chev + '</span>'
@@ -11437,6 +11473,7 @@ setTimeout(hExec,600);
     if (!PA.rz) { PA.rz = 1; window.addEventListener('resize', function () { var t = el('paTabs'); if (t && t.onscroll) t.onscroll(); }); }
     tabs.onkeydown = function (e) { if (e.key === 'Escape') paCloseTab(); };
     el('paAbtn').onclick = function () { PA.ov ? paCloseOv() : paOpenOv(); };
+    [].forEach.call(el('paOv').querySelectorAll('[data-hide]'), function (b) { b.onclick = function () { paCloseOv(); }; });
     el('paLng').onclick = function (e) { var b = e.target.closest('button'); if (b && b.getAttribute('data-l') !== PA.lang) { PA.lang = b.getAttribute('data-l'); paSum(); } };
     var ptRow = el('paPt');
     ptRow.onclick = paTogglePt;
@@ -11765,13 +11802,9 @@ setTimeout(hExec,600);
     noteNow(p, LASTCOV);
 
     /* ---- top tweet ---- */
-    var t = r.topTweet, tc = el('haTopCard');
-    if (t) {
-      tc.style.display = '';
-      var tf = el('haTopFeed'), who = (LIST || []).find(function (o) { return o.h === CUR; }) || { name: p.name };
-      tf.innerHTML = twCard(t, 'top', who);
-      wireCards(tf, { top: t });
-    } else { tc.style.display = 'none'; }
+    /* pa-v3 (31-Oct): alag "Top Performing Tweet" card band -- wahi kaam tweets table ki
+       pehli row "Best of last 7 days" karti hai; do jagah ek hi cheez dikhti thi */
+    var tc = el('haTopCard'); if (tc) tc.style.display = 'none';
 
     /* ---- charts ---- */
     var L = d.map(function (x) { return x.date; });
@@ -11882,9 +11915,9 @@ setTimeout(hExec,600);
     else if (t.folEst !== null && t.folEst !== undefined && t.dayPosts > 1)
       /* kai post wala din: bada number = is post ka andaazan hissa, neeche poore din ki asli badhat */
       fg = '<span class="htb-up">~+' + nf(t.folEst) + '</span><span class="htb-est">est.</span>'
-        + '<span class="htb-sub">of +' + nf(g) + ' on ' + twShort(t.date) + ' · ' + nf(t.dayPosts) + ' posts</span>';
+        + '<span class="htb-sub">of +' + nf(g) + ' that day</span>';
     else fg = '<span class="' + (g > 0 ? 'htb-up' : (g < 0 ? 'htb-dn' : 'htb-na')) + '">' + (g > 0 ? '+' : (g < 0 ? '−' : '')) + nf(Math.abs(g)) + '</span>'
-      + '<span class="htb-sub">' + twShort(t.date) + ' · ' + nf(t.dayPosts) + ' post' + (t.dayPosts === 1 ? '' : 's') + '</span>';
+      + '<span class="htb-sub">that day</span>';
     var tip = g === null || g === undefined ? '' : ' title="Followers on ' + twShort(t.date) + ' minus followers on ' + twShort(t.folFrom) + ' = ' + (g < 0 ? '−' : '+') + nf(Math.abs(g))
       + '. X gives the follower count once a day.' + (t.folEst !== null && t.folEst !== undefined && t.dayPosts > 1
         ? ' This post\'s share (~+' + nf(t.folEst) + ') is an estimate: the day\'s gain split across its ' + nf(t.dayPosts) + ' posts by engagement.' : '') + '"';
@@ -11892,15 +11925,15 @@ setTimeout(hExec,600);
       + '<td class="htb-tw">' + (best ? '<span class="htb-badge">&#9733; Best of last 7 days</span>' : '')
       + '<div class="htb-txt">' + twHtml(t.text) + '</div>'
       + '<button class="htb-vf" type="button" aria-expanded="false">View full <i>&#9662;</i></button></td>'
-      + '<td class="htb-l htb-dt"><b>' + esc(parts[0] || '') + '</b><span>' + esc(parts[1] || '') + '</span>'
+      + '<td class="htb-l htb-dt" data-l="Posted"><b>' + esc(parts[0] || '') + '</b><span>' + esc(parts[1] || '') + '</span>'
       + (t.gapMin !== null && t.gapMin !== undefined ? '<span>' + twGap(t.gapMin) + '</span>' : '') + '</td>'
-      + '<td title="' + nf(t.likes) + '">' + big(t.likes) + '</td>'
-      + '<td title="' + nf(t.comments) + '">' + big(t.comments) + '</td>'
-      + '<td title="' + nf(t.shares) + '">' + big(t.shares) + '</td>'
-      + '<td title="' + nf(t.views) + '">' + big(t.views) + '</td>'
-      + '<td class="htb-eng" title="Likes + Comments + Retweets = ' + nf(t.eng) + '"><b>' + big(t.eng) + '</b></td>'
-      + '<td' + tip + '>' + fg + '</td>'
-      + '<td class="htb-l"><span class="htb-st" style="color:' + sc + '"><i style="background:' + sc + '"></i>' + esc(t.sent || '—') + '</span></td></tr>';
+      + '<td class="htb-en htb-eng" data-l="Engagement" title="Likes + Comments + Retweets = ' + nf(t.eng) + '"><b>' + big(t.eng) + '</b><div class="htb-bd">'
+      + '<span class="l" title="Likes ' + nf(t.likes) + '">' + TW_I.lk + big(t.likes) + '</span>'
+      + '<span class="c" title="Comments ' + nf(t.comments) + '">' + TW_I.cm + big(t.comments) + '</span>'
+      + '<span class="s" title="Retweets ' + nf(t.shares) + '">' + TW_I.sh + big(t.shares) + '</span></div></td>'
+      + '<td class="htb-vw" data-l="Views" title="' + nf(t.views) + '"><b>' + big(t.views) + '</b></td>'
+      + '<td data-l="Followers"' + tip + '>' + fg + '</td>'
+      + '<td class="htb-l" data-l="Sentiment"><span class="htb-pill" style="--sc:' + sc + '" title="' + esc(t.sent || '—') + '"><i></i><span>' + esc(t.sent || '—') + '</span></span></td></tr>';
   }
   function loadTweets() {
     if (!CUR) return;
@@ -11910,13 +11943,13 @@ setTimeout(hExec,600);
       var who = (LIST || []).find(function (o) { return o.h === CUR; }) || {};
       if (r.offset === 0 && r.best) {
         ROWS.b = r.best;
-        html += '<tr class="htb-sec"><td colspan="9">Best of last 7 days<em>' + esc(twShort(r.bestFrom)) + ' – ' + esc(twShort(r.bestTo))
+        html += '<tr class="htb-sec"><td colspan="6">Best of last 7 days<em>' + esc(twShort(r.bestFrom)) + ' – ' + esc(twShort(r.bestTo))
           + ' · highest engagement of ' + nf(r.bestPool) + ' tweets</em></td></tr>' + twRow(r.best, 'b', true);
       }
-      if (list.length) html += '<tr class="htb-sec"><td colspan="9">Last 3 days<em>' + esc(twShort(r.recentFrom)) + ' – ' + esc(twShort(r.bestTo))
+      if (list.length) html += '<tr class="htb-sec"><td colspan="6">Last 3 days<em>' + esc(twShort(r.recentFrom)) + ' – ' + esc(twShort(r.bestTo))
         + ' · ' + nf(r.total) + ' tweet' + (r.total === 1 ? '' : 's') + '</em></td></tr>';
       list.forEach(function (t, i) { ROWS['r' + i] = t; html += twRow(t, 'r' + i, false); });
-      b.innerHTML = html || '<tr><td colspan="9" class="htc-empty">No tweets in the last 3 days.</td></tr>';
+      b.innerHTML = html || '<tr><td colspan="6" class="htc-empty">No tweets in the last 3 days.</td></tr>';
       b.onclick = function (e) {
         if (e.target.closest('a')) return;
         var tr = e.target.closest('tr.htb-r'); if (!tr) return;
@@ -11927,7 +11960,7 @@ setTimeout(hExec,600);
           return;
         }
         var ex = document.createElement('tr'); ex.className = 'htb-exp';
-        ex.innerHTML = '<td colspan="9">' + twCard(ROWS[k], k, who) + '</td>';
+        ex.innerHTML = '<td colspan="6">' + twCard(ROWS[k], k, who) + '</td>';
         tr.after(ex); tr.classList.add('open');
         btn.innerHTML = 'Hide <i>&#9662;</i>'; btn.setAttribute('aria-expanded', 'true');
         wireCards(ex, ROWS);
@@ -11941,7 +11974,7 @@ setTimeout(hExec,600);
       if (nx) nx.disabled = end >= r.total;
     }).catch(function (e) {
       var b = el('haTwBody');
-      if (b) b.innerHTML = '<tr><td colspan="9" class="htc-empty">' + esc(e.message) + '</td></tr>';
+      if (b) b.innerHTML = '<tr><td colspan="6" class="htc-empty">' + esc(e.message) + '</td></tr>';
     });
   }
 
