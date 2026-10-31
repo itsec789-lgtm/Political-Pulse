@@ -1,0 +1,17 @@
+.gitignore
+DASHBOARD/RUN_SERVER.bat
+DASHBOARD/UIUX_PLAN_ALL_INDIA.md
+DASHBOARD/assets/sansad.webp
+DASHBOARD/dashboard.template.html
+DASHBOARD/ha_lib.js
+DASHBOARD/mongo_pool.js
+DASHBOARD/server.js
+DASHBOARD/summary_lib.js
+DASHBOARD/translate_config.sample.json
+DASHBOARD/translate_lib.js
+HOT_COLD_PLAN_LAPTOP1.md
+START_LOCAL.bat
+SYNC_SNAPSHOT_TO_MONGO.py
+UP-DASHBOARD/dashboard.template.html
+auto_sync_github.py
+tools/build_hero_map.js

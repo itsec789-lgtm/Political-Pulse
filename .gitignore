@@ -62,3 +62,8 @@ PunjabLens/ai_config.json
 *.local.txt
 # server audit report -- keep on this machine only (may list IPs / ports / weak spots)
 server audit political pulse.pdf
+
+# update folders: keys + Mongo export kabhi git me nahi (31-Oct)
+UPDATE_*/config/
+UPDATE_*/mongo/
+UPDATE_*/update_log.txt

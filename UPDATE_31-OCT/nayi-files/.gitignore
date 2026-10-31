@@ -1,0 +1,69 @@
+# Dependencies
+node_modules/
+*/node_modules/
+*/*/node_modules/
+
+# Python cache & environments
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+env/
+
+# Large database & tweet dumps (>100MB exceeds GitHub limits)
+DASHBOARD/data/master_tweets.csv
+DASHBOARD/data/master_tweets_OLD_base.csv
+REPORT_INPUT/Export_2026-08-13_2026-08.csv
+mongo_dump_py/**/*.gz
+*.gz
+*.zip
+
+# Logs & scratch
+*.log
+*.log.*
+*.bak_*
+mj_daily.json
+scratch/
+.temp/
+*.lock
+.pipeline.lock
+.push_pending
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# hot/cold plan: Atlas connection string + hot settings (NEVER commit)
+db_config.local.json
+tools/_cmp/
+.summary_verify
+.hot_resync
+.hot_resync_done
+.hot_state.json
+# Dependencies
+
+# Python cache & environments
+
+# Large database & tweet dumps (>100MB exceeds GitHub limits)
+
+# Logs & scratch
+
+# OS files
+
+# secrets -- NEVER commit (real files stay on each machine; copy *.sample.json to start)
+DASHBOARD/auth_secret.json
+DASHBOARD/mail_config.json
+DASHBOARD/ai_config.json
+DASHBOARD/x_config.json
+DASHBOARD/translate_config.json
+PunjabLens/ai_config.json
+*.local.txt
+# server audit report -- keep on this machine only (may list IPs / ports / weak spots)
+server audit political pulse.pdf
+
+# update folders: keys + Mongo export kabhi git me nahi (31-Oct)
+UPDATE_*/config/
+UPDATE_*/mongo/
+UPDATE_*/update_log.txt
