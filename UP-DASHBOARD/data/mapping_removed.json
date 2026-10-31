@@ -3,7 +3,7 @@
   "_kyun": "Bahut se handle aise hain jinke tweets to hain par wo kabhi Mapping.xlsx me aaye hi nahi (Narendra Modi jaise). Unhe hatana galat hota -- isliye gate sirf is list ko dekhta hai, 'mapping me nahi hai' ko nahi.",
   "_kaise_bharti_hai": "rebuild_mapping.py --apply har baar purani aur nayi mapping ka farak dekh kar yahan likh deta hai. Haath se bhi handle jod/hata sakte ho.",
   "_wapas_kaise": "Handle ko Mapping.xlsx me dobara jodo aur RUN_MAPPING_UPDATE.bat chalao -- wo apne aap is list se nikal jaayega.",
-  "at": "2026-10-30 12:25:12",
+  "at": "2026-10-31 15:25:19",
   "handles": [],
   "_note": "08-Oct (2): nayi Mapping.xlsx me 79 purane handle (Rajnath Singh, Smriti Irani jaise) nahi hain. Wo jaan-boojhkar hataye nahi gaye the, isliye list khaali. Ab rebuild_mapping KABHI khud se is list me kuch nahi jodta -- sirf data/mapping_removed_candidates.json me dikha deta hai."
 }

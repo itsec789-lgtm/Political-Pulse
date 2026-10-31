@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "nazar-local",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["C:\\Users\\dell\\AppData\\Local\\Temp\\claude\\C--Users-dell-Desktop-Political-Pulse\\9de67722-89ee-4b59-b241-5ba2d22ce2d3\\scratchpad\\localnazar.js"],
+      "port": 3311
+    },
+    {
+      "name": "nazar-atlas-readonly",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["C:\\Users\\dell\\AppData\\Local\\Temp\\claude\\C--Users-dell-Desktop-Political-Pulse\\9de67722-89ee-4b59-b241-5ba2d22ce2d3\\scratchpad\\localatlas.js"],
+      "port": 3312
+    }
+  ]
+}
