@@ -455,6 +455,11 @@ th.cf-open .cf-btn{opacity:1;background:rgba(0,0,0,.07)}
 #pfCards .pstat-val{font-size:21px;line-height:1.1;margin-top:4px;color:#141414!important;font-variant-numeric:tabular-nums}
 #pfCards .pcard-action-bar,#pfCards .pcard:hover .pcard-action-bar{color:#3B3B3B;font-weight:600;font-size:12px;border-top:1px solid #F1ECE4}
 #pfCards .pcard:hover .pcard-action-bar svg{color:#C2410C}
+/* pc-logo (31-Oct): logo gola poora bhare; poora party naam gehra; insaan avatar */
+#pfCards .pcard-logo{padding:0!important;background:#fff!important}
+#pfCards .pcard-logo img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+#pfCards .pcard-person,#pfCards .pcard-person svg{display:block;width:100%;height:100%}
+#pfCards .pcard-full{color:#4B5563!important;font-weight:500}
 
 @media (prefers-reduced-motion: reduce){
   .pf-busy,.pf-ready{transition:none}
@@ -14142,6 +14147,17 @@ function cascade() {
 }
 
 /* ---------- 8. KPI card ---------- */
+/* pc-logo (31-Oct): party logo -- server /api/party-logo (official X handle ki photo, warna Wikipedia);
+   wo na mile to purana static logo (data-fb); wo bhi na ho to insaan wala avatar (header ke profile jaisa) */
+var PC_NOLOGO = { IND: 1, '-': 1, OTHERS: 1, UNKNOWN: 1, NONE: 1, NOMINATED: 1 };
+var PC_PERSON = '<svg viewBox="0 0 48 48" aria-hidden="true"><defs><linearGradient id="pcPg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#E5E7EB"/><stop offset="1" stop-color="#CBD0D6"/></linearGradient></defs>' +
+  '<circle cx="24" cy="24" r="24" fill="url(#pcPg)"/><circle cx="24" cy="19" r="8" fill="#8C939D"/><path d="M9.5 40.5c2.6-7 8.2-10.5 14.5-10.5s11.9 3.5 14.5 10.5A23.9 23.9 0 0 1 24 48a23.9 23.9 0 0 1-14.5-7.5z" fill="#8C939D"/></svg>';
+window.pcLogoErr = function (img) {
+  var fb = img.getAttribute('data-fb');
+  if (fb) { img.removeAttribute('data-fb'); img.src = fb; return; }
+  img.onerror = null; img.style.display = 'none';
+  if (img.nextElementSibling) img.nextElementSibling.style.display = 'block';
+};
 /* pc-kpi (31-Oct): party card ke count label ke chhote icon (Dashboard KPI jaise) */
 var PC_ICO = (function () {
   function i(d) { return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="' + d + '"/></svg>'; }
@@ -14176,10 +14192,11 @@ function card(d, active) {
   }
   var logoUrl = partyLogoUrl(d.p);
   var watermarkHtml = '';   /* no-wm (31-Oct): card ke peeche logo ka watermark nahi */
-  var logoHtml = logoUrl
-    ? ('<img src="' + logoUrl + '" alt="' + esc(d.p) + '" loading="lazy" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'inline\'">' +
-       '<span style="display:none;font-weight:900;color:' + c + ';font-size:12px">' + esc(d.p).slice(0, 4) + '</span>')
-    : ('<span style="font-weight:900;color:' + c + ';font-size:12px">' + esc(d.p).slice(0, 4) + '</span>');
+  var logoHtml = PC_NOLOGO[String(d.p).toUpperCase()]
+    ? '<span class="pcard-person">' + PC_PERSON + '</span>'   /* pc-logo (31-Oct): IND waghaira -- insaan avatar */
+    : ('<img src="/api/party-logo?p=' + encodeURIComponent(d.p) + '&n=' + encodeURIComponent(PFULL[d.p] || '') + '"'
+       + (logoUrl ? ' data-fb="' + logoUrl + '"' : '') + ' alt="' + esc(d.p) + '" loading="lazy" onerror="pcLogoErr(this)">'
+       + '<span class="pcard-person" style="display:none">' + PC_PERSON + '</span>');
   return '<div class="pcard' + (active ? ' active-party' : '') + '" data-p="' + esc(d.p) + '"' +
     ' tabindex="0" role="button" aria-pressed="' + (active ? 'true' : 'false') + '"' +
     ' style="--pc:' + c + ';--pc-tint:' + c + '12;border-top-color:' + c + ';cursor:pointer">' +

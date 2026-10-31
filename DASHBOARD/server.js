@@ -4809,6 +4809,106 @@ app.get('/api/ximg', dashGuard, async function (req, res) {
   } catch (e) { res.status(502).end(); }
 });
 
+/* ---- party-logo (31-Oct): Parties ke party card ka logo ----
+   Kram: 1) party ka official X handle (mapping ki "Official Page", warna PL_KNOWN) -> X profile photo
+         2) Wikipedia page ki image   3) kuch nahi -> 404 (card insaan wala avatar dikhata hai)
+   Image server ek baar laata hai aur pulse_master.party_logos me rakhta hai (7 din taaza);
+   na mile to 1 din tak dobara nahi dhoondhta. Browser ko hamesha apne server se milti hai --
+   X / Wikimedia doosri site par seedha dikhane nahi dete. */
+var PL_KNOWN = { INC: 'INCIndia', AAP: 'AamAadmiParty', SP: 'samajwadiparty', AITC: 'AITCofficial', TMC: 'AITCofficial',
+  TDP: 'JaiTDP', DMK: 'arivalayam', 'JD(U)': 'Jduonline', RJD: 'RJDforIndia', 'SS(UBT)': 'ShivSenaUBT_', YSRCP: 'YSRCParty' };
+var PL_WIKI = { BJP: 'Bharatiya Janata Party', INC: 'Indian National Congress', AAP: 'Aam Aadmi Party', SP: 'Samajwadi Party',
+  AITC: 'All India Trinamool Congress', TMC: 'All India Trinamool Congress', TDP: 'Telugu Desam Party', DMK: 'Dravida Munnetra Kazhagam',
+  'JD(U)': 'Janata Dal (United)', RJD: 'Rashtriya Janata Dal', BSP: 'Bahujan Samaj Party', TVK: 'Tamilaga Vettri Kazhagam',
+  NISHAD: 'Nirbal Indian Shoshit Hamara Aam Dal', 'SS(UBT)': 'Shiv Sena (Uddhav Balasaheb Thackeray)', YSRCP: 'YSR Congress Party',
+  BJD: 'Biju Janata Dal', JMM: 'Jharkhand Mukti Morcha', AIADMK: 'All India Anna Dravida Munnetra Kazhagam', BRS: 'Bharat Rashtra Samithi',
+  'CPI(M)': 'Communist Party of India (Marxist)', CPI: 'Communist Party of India', 'JD(S)': 'Janata Dal (Secular)', AIMIM: 'All India Majlis-e-Ittehadul Muslimeen',
+  JKNC: 'Jammu & Kashmir National Conference', IUML: 'Indian Union Muslim League', NPP: 'National People\'s Party (India)', SKM: 'Sikkim Krantikari Morcha',
+  RLD: 'Rashtriya Lok Dal', 'NCP(SP)': 'Nationalist Congress Party (Sharadchandra Pawar)', 'NCP(AP)': 'Nationalist Congress Party', JSP: 'Janasena Party',
+  'AD(S)': 'Apna Dal (Soneylal)', ZPM: 'Zoram People\'s Movement', 'SS(ES)': 'Shiv Sena (2022–present)', NPF: 'Naga People\'s Front' };
+var PL_NONE = { IND: 1, '-': 1, OTHERS: 1, UNKNOWN: 1, NONE: 1, NOMINATED: 1 };
+var _plOff = null, _plOffAt = 0, _plBusy = new Map();
+function plOfficial(p) {
+  if (!_plOff || Date.now() - _plOffAt > 600e3) {
+    _plOff = {}; _plOffAt = Date.now();
+    try {
+      JSON.parse(fs.readFileSync(path.join(__dirname, 'data', 'all_mapping_handles.json'), 'utf8')).forEach(function (r) {
+        if (r.category !== 'Official Page') return;
+        var h = String(r.url || '').replace(/^https?:\/\/(www\.)?(x|twitter)\.com\//i, '').replace(/[/?#].*$/, '');
+        var k = String(r.party || '').toUpperCase();
+        if (h && /^\w{1,15}$/.test(h) && (!_plOff[k] || r.state === 'National')) _plOff[k] = h;
+      });
+    } catch (e) {}
+  }
+  return _plOff[p] || PL_KNOWN[p] || '';
+}
+async function plGet(u) {
+  var r = await fetch(u, { headers: { 'User-Agent': 'IndiaPoliticalPulse/1.0 (party logo cache)' }, signal: AbortSignal.timeout(15000) });
+  var ct = r.headers.get('content-type') || '';
+  if (!r.ok || !/^image\//.test(ct)) return null;
+  var buf = Buffer.from(await r.arrayBuffer());
+  return buf.length && buf.length < 2e6 ? { buf: buf, ct: ct } : null;
+}
+async function plResolve(p, full) {
+  var h = plOfficial(p);
+  if (h && XL.ready()) {
+    try {
+      var x = await XL.fetchProfile(h);
+      if (x && x.ok && x.prof && x.prof.image) {
+        var im = await plGet(String(x.prof.image).replace('_normal', '_400x400'));
+        if (im) return { buf: im.buf, ct: im.ct, how: 'x', src: '@' + h };
+      }
+    } catch (e) {}
+  }
+  var title = PL_WIKI[p] || full;
+  if (title) {
+    try {
+      var w = await fetch('https://en.wikipedia.org/w/api.php?action=query&format=json&prop=pageimages&piprop=thumbnail&pithumbsize=400&redirects=1&titles='
+        + encodeURIComponent(title), { headers: { 'User-Agent': 'IndiaPoliticalPulse/1.0 (party logo cache)' }, signal: AbortSignal.timeout(15000) });
+      var pg = Object.values(((await w.json()).query || {}).pages || {})[0] || {};
+      if (pg.thumbnail && pg.thumbnail.source) {
+        var wi = await plGet(pg.thumbnail.source);
+        if (wi) return { buf: wi.buf, ct: wi.ct, how: 'wiki', src: title };
+      }
+    } catch (e) {}
+  }
+  return null;
+}
+app.get('/api/party-logo', dashGuard, async function (req, res) {
+  var p = String(req.query.p || '').trim().toUpperCase().slice(0, 40);
+  var full = String(req.query.n || '').trim().slice(0, 120);
+  if (!p || PL_NONE[p]) return res.status(404).end();
+  try {
+    var cli = MP.client(); await cli.connect();
+    try {
+      var coll = cli.db(MASTER_DB).collection('party_logos');
+      var doc = await coll.findOne({ _id: p });
+      var age = doc ? Date.now() - new Date(doc.at).getTime() : Infinity;
+      var fresh = doc && (doc.none ? age < 86400e3 : age < 7 * 86400e3);
+      if (!fresh) {
+        var job = _plBusy.get(p);
+        if (!job) { job = plResolve(p, full).finally(function () { _plBusy.delete(p); }); _plBusy.set(p, job); }
+        var got = await job;
+        if (got) {
+          doc = { _id: p, ct: got.ct, data: got.buf, how: got.how, src: got.src, at: new Date() };
+          console.log('  [party-logo] ' + p + ' <- ' + got.how + ' ' + got.src);
+        } else if (doc && doc.data) {
+          doc.at = new Date();            /* naya nahi mila -- purana hi chalne do */
+        } else {
+          doc = { _id: p, none: true, at: new Date() };
+        }
+        await coll.replaceOne({ _id: p }, doc, { upsert: true });
+      }
+      if (!doc || doc.none || !doc.data) return res.status(404).set('Cache-Control', 'private, max-age=3600').end();
+      var buf = Buffer.isBuffer(doc.data) ? doc.data : Buffer.from(doc.data.buffer || doc.data);
+      res.set('Content-Type', doc.ct || 'image/jpeg').set('Cache-Control', 'private, max-age=86400').send(buf);
+    } finally { try { await cli.close(); } catch (e) {} }
+  } catch (e) {
+    console.log('  [/api/party-logo] ' + e.message);
+    res.status(502).end();
+  }
+});
+
 app.get('/api/avatar/:handle', async function (req, res) {
   var handle = String(req.params.handle || '').trim().replace(/^@/, '');
   var lk = handle.toLowerCase();
