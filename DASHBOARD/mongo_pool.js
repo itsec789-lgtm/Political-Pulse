@@ -61,6 +61,74 @@ function raw() {
   return _raw;
 }
 
+/* ---- mongo-heal (31-Oct) ------------------------------------------------
+   Dikkat: is laptop par MongoDB ek console window me chalta tha (START_LOCAL.bat).
+   Window band hui -> "consoleTerminate" -> Mongo band -> Handle Analytics par
+   "connect ECONNREFUSED 127.0.0.1:27017" aur har request 6 s latakti thi.
+   Ab: LOCAL Mongo se connect na ho (ECONNREFUSED) to server khud mongod.exe ko
+   CHUPKE (bina window) chala deta hai -- START_LOCAL.bat wale hi path / data folder.
+   Suraksha: sirf localhost URL, data folder pehle se bhara ho (khaali naya DB kabhi
+   nahi), "MongoDB" Windows service na ho, 60 s me ek hi koshish.
+   Band karna ho: env PULSE_NO_MONGO_AUTOSTART=1 */
+const fs = require('fs');
+const path = require('path');
+let _healAt = 0;
+function _isLocal() { return /^mongodb:\/\/(localhost|127\.0\.0\.1|\[::1\])(:27017)?(\/|$|\?)/i.test(String(MONGO_URL)); }
+function _findMongod() {
+  const cands = [];
+  (process.env.PATH || '').split(path.delimiter).forEach(function (d) { if (d) cands.push(path.join(d, 'mongod.exe')); });
+  if (process.env.LOCALAPPDATA) cands.push(path.join(process.env.LOCALAPPDATA, 'Programs', 'MongoDB', 'bin', 'mongod.exe'));
+  const pf = process.env.ProgramFiles || 'C:\\Program Files';
+  try {
+    fs.readdirSync(path.join(pf, 'MongoDB', 'Server')).sort().reverse()
+      .forEach(function (v) { cands.push(path.join(pf, 'MongoDB', 'Server', v, 'bin', 'mongod.exe')); });
+  } catch (e) { }
+  for (const c of cands) { try { if (fs.statSync(c).isFile()) return c; } catch (e) { } }
+  return '';
+}
+function _heal(err) {
+  if (process.platform !== 'win32' || process.env.PULSE_NO_MONGO_AUTOSTART === '1') return;
+  if (!/ECONNREFUSED/.test(String(err && err.message || err)) || !_isLocal()) return;
+  if (Date.now() - _healAt < 60000) return;
+  _healAt = Date.now();
+  const cp = require('child_process');
+  /* "MongoDB" service lagi ho to wahi sahi tareeka hai -- khud mongod mat chalao */
+  cp.execFile('sc', ['query', 'MongoDB'], { windowsHide: true, timeout: 5000 }, function (scErr, out) {
+    if (!scErr && /SERVICE_NAME/i.test(out || '')) {
+      console.log('  [mongo-heal] MongoDB service hai par band hai -- admin se "net start MongoDB" chalao.');
+      return;
+    }
+    const exe = _findMongod();
+    if (!exe) { console.log('  [mongo-heal] mongod.exe nahi mila -- MongoDB install / START_LOCAL.bat dekho.'); return; }
+    const root = path.resolve(path.dirname(exe), '..');
+    let data = path.join(root, 'data'), log = path.join(root, 'mongod.log');
+    if (!fs.existsSync(data)) { data = 'C:\\data\\db'; log = 'C:\\data\\mongod.log'; }
+    /* sirf pehle se bhara data folder -- khaali folder par naya (khaali) DB kabhi nahi */
+    let filled = false;
+    try { filled = fs.readdirSync(data).some(function (f) { return /^WiredTiger|\.wt$/i.test(f); }); } catch (e) { }
+    if (!filled) { console.log('  [mongo-heal] data folder khaali / nahi mila (' + data + ') -- khud nahi chalaya.'); return; }
+    try {
+      const ch = cp.spawn(exe, ['--dbpath', data, '--bind_ip', '127.0.0.1,::1', '--logpath', log, '--logappend'],
+        { detached: true, stdio: 'ignore', windowsHide: true });
+      ch.on('error', function (e) { console.log('  [mongo-heal] start fail: ' + e.message); });
+      ch.unref();
+      console.log('  [mongo-heal] MongoDB band tha -- bina window chala diya (' + exe + ')');
+    } catch (e) { console.log('  [mongo-heal] start fail: ' + e.message); }
+  });
+}
+
+/* Server chalte-chalte bhi Mongo gir sakta hai (window band) -- tab connect() dobara nahi
+   hota, isliye har 30 s port 27017 ko halka sa chhoo kar dekh lo. */
+if (process.platform === 'win32' && _isLocal() && process.env.PULSE_NO_MONGO_AUTOSTART !== '1') {
+  setInterval(function () {
+    const s = require('net').connect({ host: '127.0.0.1', port: 27017 });
+    s.setTimeout(2000);
+    s.on('connect', function () { s.destroy(); });
+    s.on('timeout', function () { s.destroy(); });
+    s.on('error', function (e) { s.destroy(); if (e && e.code === 'ECONNREFUSED') _heal(new Error('ECONNREFUSED (watchdog)')); });
+  }, 30000).unref();
+}
+
 /* connect() kai jagah se bulaaya jaata hai -- ek hi baar asli connect ho. */
 function ensure() {
   if (_ready) return _ready;
@@ -70,6 +138,7 @@ function ensure() {
   }).catch(function (e) {
     _ready = null;                 // agli request dobara koshish kar sake
     _fail = e;
+    _heal(e);                      // mongo-heal: local Mongo band ho to chupke se chala do
     throw e;
   });
   return _ready;

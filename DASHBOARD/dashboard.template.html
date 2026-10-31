@@ -11241,7 +11241,9 @@ setTimeout(hExec,600);
     if (TW_FOR !== CUR) { TW_FOR = CUR; OFFSET = 0; loadTweets(); }
     var h = CUR;
     api('/api/ha/analytics', { h: CUR, days: days }).then(function (r) {
-      LOADING = false; render(r);
+      LOADING = false;
+      DBW.n = 0; var dn = el('haNote'); if (dn && /Connecting to the database/.test(dn.textContent)) { dn.className = 'ha-note'; dn.textContent = ''; }
+      render(r);
       if (r.profile && r.profile.stale && r.profile.canLive) {
         api('/api/ha/profile', { h: h }).then(function (p) {
           if (!p || p.h !== CUR || !(p.image || p.cover)) return;
@@ -11252,9 +11254,27 @@ setTimeout(hExec,600);
       }
     }).catch(function (e) {
       LOADING = false;
+      if (haDbDown(e)) { haDbWait(function () { window.haReload(); }); return; }
       var n = el('haNote'); if (n) { n.className = 'ha-note on'; n.textContent = e.message; }
     });
   };
+
+  /* db-retry (31-Oct): MongoDB band / chalu ho raha ho to kachcha "connect ECONNREFUSED ..." nahi --
+     saaf line, aur har 4 s me khud dobara (server use chupke se chala deta hai, dekho mongo_pool mongo-heal).
+     ~2 min baad bhi na mile to ruk kar saaf bata do. */
+  var DBW = { n: 0, t: null };
+  function haDbDown(e) { return /ECONNREFUSED|Server selection timed out|MongoServerSelectionError|ECONNRESET.*27017|not connected/i.test(String(e && e.message || e)); }
+  function haDbWait(again) {
+    var n = el('haNote');
+    clearTimeout(DBW.t);
+    if (++DBW.n > 30) {
+      DBW.n = 0;
+      if (n) { n.className = 'ha-note on'; n.textContent = 'Database is not running. Start START_LOCAL.bat (or the MongoDB service) and refresh this page.'; }
+      return;
+    }
+    if (n) { n.className = 'ha-note on'; n.textContent = 'Connecting to the database… it is starting, this page will load by itself in a few seconds.'; }
+    DBW.t = setTimeout(function () { again(); }, 4000);
+  }
 
   /* ---- xlive-front : profile alag se bharte hain ----------------
      render() aur refresh button dono yahi bulate hain, taaki refresh par
@@ -12345,6 +12365,9 @@ setTimeout(hExec,600);
       }
       return window.haLoadHandles(h);
     }).catch(function (e) {
+      /* db-retry (31-Oct): pehli baar khulte waqt DB band tha to pehle yahin atak jaata tha
+         (booted = true, dobara koshish kabhi nahi). Ab saaf sandesh + kuch second me khud dobara. */
+      if (haDbDown(e)) { booted = false; haDbWait(function () { boot(); }); return; }
       var n = el('haNote'); if (n) { n.className = 'ha-note on'; n.textContent = e.message; }
     });
   }
