@@ -323,7 +323,7 @@ function tweetPage(rows, offset, limit) {
  *   best  = pichhle 7 din (sabse naye tweet se peeche) ka sabse zyada engagement
  *           wala tweet (likes + comments + retweets; barabar ho to views) --
  *           har load par naye sire se, isliye naya tweet aage nikle to khud badalta hai.
- *   items = baaki tweets newest-first, page by page (best ko dobara nahi).
+ *   items = pichhle 3 din ke baaki tweets newest-first, page by page (best ko dobara nahi).
  *   folGain = us din followers kitne badhe. Followers har tweet par nahi, din me
  *           ek baar (scrape ke waqt) milte hain -- isliye ek din ke saare posts ka
  *           ek hi number: us din ka count - pichhle snapshot wale din ka count.
@@ -386,10 +386,13 @@ function tweetTable(rows, offset, limit) {
     pool++;
     if (!best || eng(r) > eng(best) || (eng(r) === eng(best) && num(r['Total Views']) > num(best['Total Views']))) best = r;
   });
-  var rest = sorted.filter(function (r) { return r !== best; });
+  /* ha-fast (31-Oct): list me sirf pichhle 3 din ke tweets (best upar alag) -- page halka */
+  var from3 = cutoffDay(sorted, 3);
+  var rest = sorted.filter(function (r) { return r !== best && (!from3 || dayOf(r['Tweet Date']) >= from3); });
   return {
     best: best ? row(best) : null,
     bestPool: pool, bestFrom: from, bestTo: sorted.length ? dayOf(sorted[0]['Tweet Date']) : '',
+    recentFrom: from3,
     items: rest.slice(offset, offset + limit).map(row),
     total: rest.length, all: sorted.length, offset: offset, pageSize: limit
   };

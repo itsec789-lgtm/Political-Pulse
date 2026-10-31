@@ -6244,7 +6244,7 @@ a.pe-btn:after{content:"";position:absolute;inset:0;z-index:1;background:linear-
     </table></div>
     <div class="htb-pg"><span id="haTwInfo"></span><div>
       <button class="filter-select" id="haPrev" onclick="window.haPrev()">&larr; Newer</button>
-      <button class="filter-select" id="haNext" onclick="window.haNext()">Older tweets &rarr;</button></div></div>
+      <button class="filter-select" id="haNext" onclick="window.haNext()">More &rarr;</button></div></div>
   </div>
 
   <!-- cp-v2 (31-Oct): Content Performance -- Dashboard ke analysis panel jaisa. Upar 5 metric card
@@ -10974,12 +10974,26 @@ setTimeout(hExec,600);
     CUR = v; OFFSET = 0; window.haReload();
   };
 
+  /* ha-fast (31-Oct): tweets analytics ke saath hi (pehle analytics ke BAAD aate the);
+     period badalne par tweets dobara nahi -- wo period par nirbhar nahi. Profile purani ho
+     to page pehle saved photo se banta hai, phir chupchaap X se taaza. */
+  var TW_FOR = null;
   window.haReload = function () {
     if (!CUR || LOADING) return;
     LOADING = true;
     var days = (el('haPeriod') || {}).value || 'all';
+    if (TW_FOR !== CUR) { TW_FOR = CUR; OFFSET = 0; loadTweets(); }
+    var h = CUR;
     api('/api/ha/analytics', { h: CUR, days: days }).then(function (r) {
-      LOADING = false; render(r); OFFSET = 0; loadTweets();
+      LOADING = false; render(r);
+      if (r.profile && r.profile.stale && r.profile.canLive) {
+        api('/api/ha/profile', { h: h }).then(function (p) {
+          if (!p || p.h !== CUR || !(p.image || p.cover)) return;
+          var keep = PROF || {};
+          p.party = keep.party; p.cat = keep.cat; p.state = keep.state;
+          PROF = p; fillProfile(p, col(p.party)); noteNow(p, LASTCOV);
+        }).catch(function () {});
+      }
     }).catch(function (e) {
       LOADING = false;
       var n = el('haNote'); if (n) { n.className = 'ha-note on'; n.textContent = e.message; }
@@ -11804,9 +11818,10 @@ setTimeout(hExec,600);
         html += '<tr class="htb-sec"><td colspan="9">Best of last 7 days<em>' + esc(twShort(r.bestFrom)) + ' – ' + esc(twShort(r.bestTo))
           + ' · highest engagement of ' + nf(r.bestPool) + ' tweets</em></td></tr>' + twRow(r.best, 'b', true);
       }
-      if (list.length) html += '<tr class="htb-sec"><td colspan="9">' + (r.offset === 0 ? 'Latest tweets' : 'Older tweets') + '</td></tr>';
+      if (list.length) html += '<tr class="htb-sec"><td colspan="9">Last 3 days<em>' + esc(twShort(r.recentFrom)) + ' – ' + esc(twShort(r.bestTo))
+        + ' · ' + nf(r.total) + ' tweet' + (r.total === 1 ? '' : 's') + '</em></td></tr>';
       list.forEach(function (t, i) { ROWS['r' + i] = t; html += twRow(t, 'r' + i, false); });
-      b.innerHTML = html || '<tr><td colspan="9" class="htc-empty">No tweets.</td></tr>';
+      b.innerHTML = html || '<tr><td colspan="9" class="htc-empty">No tweets in the last 3 days.</td></tr>';
       b.onclick = function (e) {
         if (e.target.closest('a')) return;
         var tr = e.target.closest('tr.htb-r'); if (!tr) return;
@@ -11824,7 +11839,7 @@ setTimeout(hExec,600);
       };
       var start = r.total === 0 ? 0 : r.offset + 1;
       var end = Math.min(r.offset + r.pageSize, r.total);
-      var inf = el('haTwInfo'); if (inf) inf.textContent = 'Latest ' + start + '–' + end + ' of ' + nf(r.total) + (r.best && r.offset === 0 ? ' + best of 7 days' : '');
+      var inf = el('haTwInfo'); if (inf) inf.textContent = start + '–' + end + ' of ' + nf(r.total) + ' from the last 3 days' + (r.best && r.offset === 0 ? ' + best of 7 days' : '');
       var cnt = el('haTwCount'); if (cnt) cnt.textContent = nf(r.all || r.total) + ' total';
       var pv = el('haPrev'), nx = el('haNext');
       if (pv) pv.disabled = r.offset <= 0;

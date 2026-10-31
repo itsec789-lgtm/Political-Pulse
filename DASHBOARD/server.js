@@ -5176,7 +5176,7 @@ function profAgeDays(p) {
   return (Date.now() - t) / 86400000;
 }
 
-async function haProfile(handle, force) {
+async function haProfile(handle, force, cacheOnly) {
   var out = { prof: null, live: false, why: '' };
   var cli = MP.client();
   var coll = null;
@@ -5188,6 +5188,9 @@ async function haProfile(handle, force) {
     var stale = !out.prof || profAgeDays(out.prof) > PROF_STALE_DAYS
                 || !(out.prof.image || out.prof.cover);
     if (!force && !stale) { out.why = 'CACHE'; return out; }
+    /* ha-fast (31-Oct): analytics X ka intezaar nahi karta (20s tak latakta tha) --
+       jo save hai wahi turant; page baad me /api/ha/profile se taaza kar leta hai */
+    if (cacheOnly) { out.why = 'CACHE'; out.stale = true; return out; }
 
     var r = await XL.fetchProfile(handle);
     if (!r.ok) {
@@ -5222,11 +5225,19 @@ var _haIdxDone = false;
 
 /* Ek handle ke saare tweets -- 60 second cache, taaki analytics aur tweets
    dono route ek hi query par chalein. */
-async function haRows(handle) {
+/* ha-fast (31-Oct): ek handle ke rows 5 min yaad (data pipeline chalne par hi badalta hai),
+   aur ek saath aaye analytics + tweets do baar Mongo na jaayein -- chalti query hi baant do */
+var _haBusy = {};
+function haRows(handle) {
   var key = String(handle).toLowerCase();
   var hit = _haCache[key];
-  if (hit && (Date.now() - hit.at) < 60000) return hit.rows;
-
+  if (hit && (Date.now() - hit.at) < 300000) return Promise.resolve(hit.rows);
+  if (_haBusy[key]) return _haBusy[key];
+  _haBusy[key] = haRowsLoad(handle).finally(function () { delete _haBusy[key]; });
+  return _haBusy[key];
+}
+async function haRowsLoad(handle) {
+  var key = String(handle).toLowerCase();
   var cli = MP.client();
   try {
     await cli.connect();
@@ -5493,15 +5504,18 @@ app.get('/api/ha/analytics', dashGuard, async function (req, res) {
   var h = String(req.query.h || '').trim();
   if (!h) return res.status(400).json({ error: 'no handle supplied' });
   try {
-    var meta = await haOwns(req, h);
+    /* ha-fast (31-Oct): teeno kaam ek saath; profile sirf saved (X ka intezaar nahi) */
+    var fresh = String(req.query.fresh || '') === '1';
+    var got = await Promise.all([haOwns(req, h), haRows(h), haProfile(h, fresh, !fresh)]);
+    var meta = got[0];
     if (!meta) return res.status(404).json({ error: 'This handle is not part of this dashboard.' });
 
-    var rows = await haRows(h);
+    var rows = got[1];
     var out = HA.analyse(rows, req.query.days || 'all');
 
-    /* photo/cover/bio -- cache me taaza ho to wahi, warna X se LIVE
-       (dekho: X LIVE PROFILE (xlive)) */
-    var pr = await haProfile(h, String(req.query.fresh || '') === '1');
+    /* photo/cover/bio -- jo save hai wahi; purani ho to stale:true aur page
+       /api/ha/profile se baad me taaza karta hai (dekho: X LIVE PROFILE (xlive)) */
+    var pr = got[2];
     var prof = pr.prof;
     /* mapping ki value upar -- pipeline purana data de raha ho to bhi sahi dikhe */
     var _haM = haMap({ h: h, name: meta.name || '', party: meta.party || '',
@@ -5524,6 +5538,7 @@ app.get('/api/ha/analytics', dashGuard, async function (req, res) {
         fetchedAt: (prof && prof.fetchedAt) || '',
         live: !!pr.live,          /* abhi X se aayi? */
         why: pr.why || '',        /* CACHE | LIVE | NOCFG | RATE | AUTH | ... */
+        stale: !!pr.stale,        /* ha-fast: purani/khaali -- page background me taaza kare */
         canLive: XL.ready()       /* cookie lagi hui hai ya nahi */
       },
       summary: out.summary,
@@ -5543,9 +5558,10 @@ app.get('/api/ha/tweets', dashGuard, async function (req, res) {
   var h = String(req.query.h || '').trim();
   if (!h) return res.status(400).json({ error: 'no handle supplied' });
   try {
-    var meta = await haOwns(req, h);
+    var got = await Promise.all([haOwns(req, h), haRows(h)]);
+    var meta = got[0];
     if (!meta) return res.status(404).json({ error: 'This handle is not part of this dashboard.' });
-    var rows = await haRows(h);
+    var rows = got[1];
     /* tweet-table (31-Oct): view=table -> best-of-7-days + follower gain + post gap */
     res.json(req.query.view === 'table'
       ? HA.tweetTable(rows, req.query.offset, req.query.limit)
