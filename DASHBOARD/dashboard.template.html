@@ -230,6 +230,7 @@ body.sb-open .page-section{padding-left:var(--sb-w)}
 
 .party-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
 .pcard{background:var(--card);border:1.5px solid var(--border);border-radius:14px;padding:16px;border-top:4px solid var(--pc);transition:.2s;cursor:pointer;box-shadow:0 1px 8px rgba(0,0,0,.04);position:relative;overflow:hidden}
+.pcard-watermark,.ph-watermark{display:none!important}   /* no-wm (31-Oct) */
 .pcard-watermark{position:absolute;top:54%;left:50%;transform:translate(-50%,-50%);width:260px;height:260px;opacity:.14;pointer-events:none;z-index:1;transition:opacity .25s ease,transform .25s ease;display:flex;align-items:center;justify-content:center}
 .pcard:hover .pcard-watermark{opacity:.20;transform:translate(-50%,-50%) scale(1.05)}
 .pcard-watermark img{width:100%;height:100%;object-fit:contain}
@@ -13465,7 +13466,7 @@ function card(d, active) {
            '</div><div class="pstat-lbl">' + lbl + '</div></div>';
   }
   var logoUrl = partyLogoUrl(d.p);
-  var watermarkHtml = logoUrl ? ('<div class="pcard-watermark"><img src="' + logoUrl + '" alt="" loading="lazy" onerror="this.parentElement.style.display=\'none\'"></div>') : '';
+  var watermarkHtml = '';   /* no-wm (31-Oct): card ke peeche logo ka watermark nahi */
   var logoHtml = logoUrl
     ? ('<img src="' + logoUrl + '" alt="' + esc(d.p) + '" loading="lazy" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'inline\'">' +
        '<span style="display:none;font-weight:900;color:' + c + ';font-size:12px">' + esc(d.p).slice(0, 4) + '</span>')
@@ -16476,13 +16477,9 @@ function openPartyDetail(partyName) {
   }
   var wm = document.getElementById('partyHeroWatermark');
   if (wm) {
-    if (logoUrl) {
-      wm.innerHTML = '<img src="' + logoUrl + '" alt="" loading="lazy">';
-      wm.style.display = 'flex';
-    } else {
-      wm.innerHTML = '';
-      wm.style.display = 'none';
-    }
+    /* no-wm (31-Oct): banner ke peeche logo ka watermark nahi */
+    wm.innerHTML = '';
+    wm.style.display = 'none';
   }
 
   var _hc = document.getElementById('partyHeroCard'); if (_hc) _hc.style.setProperty('--pc', cfg.color);
