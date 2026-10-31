@@ -6232,14 +6232,18 @@ a.pe-btn:after{content:"";position:absolute;inset:0;z-index:1;background:linear-
        ka analysis: tiles, roz ke bar + 7 din ki average line, hafte ke din ka pattern, roz ki table. -->
   <style>
   .cp-cards{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin-top:4px}
-  .cp-card{--mc:#E65100;position:relative;text-align:left;font:inherit;color:inherit;cursor:pointer;background:#fff;border:1.5px solid color-mix(in srgb,var(--mc) 30%,#fff);
-    border-radius:14px;padding:12px 14px 8px;min-width:0;overflow:hidden;transition:transform .18s,box-shadow .18s,border-color .18s,background .18s;touch-action:manipulation}
-  .cp-card::before{content:'';position:absolute;left:0;right:0;top:0;height:3px;background:var(--mc)}
-  .cp-card:hover{transform:translateY(-2px);box-shadow:0 10px 22px -12px color-mix(in srgb,var(--mc) 60%,transparent);border-color:color-mix(in srgb,var(--mc) 55%,#fff)}
-  .cp-card.on{background:color-mix(in srgb,var(--mc) 7%,#fff);border-color:var(--mc);box-shadow:0 0 0 3px color-mix(in srgb,var(--mc) 16%,transparent),0 10px 22px -12px color-mix(in srgb,var(--mc) 60%,transparent)}
-  .cp-card:focus-visible{outline:2px solid var(--mc);outline-offset:2px}
+  /* cp-v3 (31-Oct): Dashboard KPI card jaisa -- gehra bhoora -> kesariya gradient ring, ek hi kesariya rang */
+  .cp-card{position:relative;text-align:left;font:inherit;color:inherit;cursor:pointer;border:1.5px solid transparent;
+    background:linear-gradient(#fff,#fff) padding-box,linear-gradient(110deg,#2B1407 0%,#5A2A0E 45%,#E8590C 100%) border-box;
+    box-shadow:0 2px 12px -4px rgba(43,20,7,.3);
+    border-radius:14px;padding:12px 14px 8px;min-width:0;overflow:hidden;transition:transform .18s,box-shadow .18s;touch-action:manipulation}
+  .cp-card:hover{transform:translateY(-2px);box-shadow:0 10px 24px -10px rgba(43,20,7,.45)}
+  .cp-card.on{background:linear-gradient(#FFF6EC,#FFF6EC) padding-box,linear-gradient(110deg,#2B1407 0%,#5A2A0E 45%,#E8590C 100%) border-box;
+    box-shadow:0 0 0 2px rgba(230,81,0,.25),0 10px 24px -10px rgba(43,20,7,.45)}
+  .cp-card:focus-visible{outline:2px solid #E65100;outline-offset:2px}
   .cp-t{display:flex;align-items:center;gap:7px;font:700 10.5px 'DM Sans',sans-serif;letter-spacing:.8px;text-transform:uppercase;color:#57534E}
-  .cp-t i{width:8px;height:8px;border-radius:50%;background:var(--mc);flex:none}
+  .cp-t svg{width:14px;height:14px;flex:none;color:#8A817A}
+  .cp-card.on .cp-t svg{color:#E65100}
   .cp-t .cp-tr{margin-left:auto}
   .cp-v{font:700 24px/1.1 'Rajdhani',sans-serif;color:#141414;margin-top:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .cp-v small{font:500 11px 'DM Sans',sans-serif;color:#8A817A;margin-left:4px}
@@ -6247,19 +6251,25 @@ a.pe-btn:after{content:"";position:absolute;inset:0;z-index:1;background:linear-
   .cp-sp{display:block;width:100%;height:34px;margin-top:6px}
   .cp-tr{display:inline-flex;align-items:center;gap:2px;font:700 10.5px 'DM Sans',sans-serif;border-radius:999px;padding:2px 7px;letter-spacing:0;text-transform:none}
   .cp-tr.u{color:#067647;background:#E7F6EC}.cp-tr.d{color:#B42318;background:#FDECEA}.cp-tr.f{color:#78716C;background:#F1EEEA}
-  .cp-panel{--mc:#E65100;margin-top:14px;border:1px solid #EFE8DD;border-top:3px solid var(--mc);border-radius:16px;padding:18px 20px 16px;background:#fff;animation:cpIn .3s ease-out}
+  .cp-panel{margin-top:14px;border:1px solid #EFE8DD;border-top:3px solid #E65100;border-radius:16px;padding:18px 20px 16px;background:#fff;
+    box-shadow:0 18px 40px -28px rgba(43,20,7,.35);animation:cpIn .3s ease-out}
   @keyframes cpIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
   .cp-ph{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap}
-  .cp-pl{font:700 11px 'DM Sans',sans-serif;letter-spacing:1px;text-transform:uppercase;color:var(--mc)}
+  .cp-pl{font:700 11px 'DM Sans',sans-serif;letter-spacing:1px;text-transform:uppercase;color:#78716C}
   .cp-pv{font:700 34px/1.05 'Rajdhani',sans-serif;color:#141414;margin-top:3px}
   .cp-pv small{font:500 13px 'DM Sans',sans-serif;color:#78716C;margin-left:6px}
-  .cp-pr{font-size:12px;color:#78716C;margin-top:4px}
-  .cp-ins{margin:12px 0 14px;padding:11px 14px;border-radius:12px;background:color-mix(in srgb,var(--mc) 6%,#FBF9F6);border:1px solid color-mix(in srgb,var(--mc) 18%,#EFE8DD);
+  .cp-pr{font-size:12px;color:#78716C;margin-top:4px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .cp-gap{font-size:11px;font-weight:600;color:#9A3412;background:#FFF1E6;border:1px solid #FED7AA;border-radius:999px;padding:1px 8px;cursor:help}
+  .cp-ins{margin:12px 0 14px;padding:11px 14px;border-radius:12px;background:#FBF9F6;border:1px solid #EFE8DD;
     font-size:13.5px;line-height:1.6;color:#3F3A36}
   .cp-ins b{color:#141414}
+  .cp-ins b.cp-up{color:#067647}.cp-ins b.cp-dn{color:#B42318}
   .cp-ins ul{margin:0;padding-left:18px}
+  .cp-ins li::marker{color:#E65100}
   .cp-tiles{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin-bottom:16px}
-  .cp-tiles .ui-dps{border-left:3px solid color-mix(in srgb,var(--mc) 70%,#fff)}
+  .cp-tiles .ui-dps{border:1.5px solid #F7A25B;border-radius:14px;box-shadow:0 2px 10px -4px rgba(230,81,0,.18);transition:border-color .2s,box-shadow .2s}
+  .cp-tiles .ui-dps:hover{border-color:#EA580C;box-shadow:0 8px 20px -10px rgba(230,81,0,.32)}
+  .cp-tiles .ui-dps b small{font:500 12px 'DM Sans',sans-serif;color:#8A817A}
   .cp-body{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr);gap:16px}
   .cp-ch{position:relative;height:300px}
   .cp-side{display:flex;flex-direction:column;gap:12px;min-width:0}
@@ -6268,14 +6278,14 @@ a.pe-btn:after{content:"";position:absolute;inset:0;z-index:1;background:linear-
   .cp-wd{display:grid;grid-template-columns:34px 1fr auto;align-items:center;gap:8px;font-size:12px;margin:5px 0}
   .cp-wd span{color:#57534E}
   .cp-wd em{display:block;height:8px;border-radius:5px;background:#F3EEE7;overflow:hidden}
-  .cp-wd em i{display:block;height:100%;border-radius:5px;background:color-mix(in srgb,var(--mc) 55%,#fff)}
-  .cp-wd.top em i{background:var(--mc)}
+  .cp-wd em i{display:block;height:100%;border-radius:5px;background:linear-gradient(90deg,#FFD3AE,#F7A25B)}
+  .cp-wd.top em i{background:linear-gradient(90deg,#FFB06A,#E65100)}
   .cp-wd b{font:600 12px 'DM Sans',sans-serif;font-variant-numeric:tabular-nums;color:#141414}
-  .cp-wd.top span,.cp-wd.top b{color:var(--mc);font-weight:700}
+  .cp-wd.top span,.cp-wd.top b{color:#C2410C;font-weight:700}
   .cp-tb{max-height:176px;overflow-y:auto;margin:0 -4px}
   .cp-tb table{width:100%;border-collapse:collapse}
   .cp-tb td{padding:6px 4px;border-bottom:1px solid #F3EEE7}
-  .cp-tb .ui-dv i{background:color-mix(in srgb,var(--mc) 60%,transparent)}
+  .cp-tb .ui-dv i{background:rgba(230,81,0,.45)}
   @media (max-width:1200px){.cp-cards{grid-template-columns:repeat(3,minmax(0,1fr))}.cp-body{grid-template-columns:1fr}.cp-tiles{grid-template-columns:repeat(3,minmax(0,1fr))}}
   @media (max-width:700px){.cp-cards,.cp-tiles{grid-template-columns:repeat(2,minmax(0,1fr))}.cp-ch{height:240px}.cp-panel{padding:14px}}
   @media (prefers-reduced-motion:reduce){.cp-panel{animation:none}.cp-card{transition:none}}
@@ -11430,46 +11440,76 @@ setTimeout(hExec,600);
      ho to doosra aadha vs pehla aadha), chhota graph. Click -> neeche panel: saaransh ki 2-3
      lines, tiles, roz ke bar + 7 din ki average line (Chart.js), hafte ke din ka pattern, roz ki table. */
   var CP = { k: 'views', d: [] };
+  /* cp-v3 (31-Oct): ek hi kesariya rang (Dashboard jaisa) -- har metric ka alag rang hataya */
   var CP_M = [
-    { k: 'posts',    t: 'Posts',    c: '#2E7D32', u: 'posts' },
-    { k: 'likes',    t: 'Likes',    c: '#E11D48', u: 'likes' },
-    { k: 'comments', t: 'Comments', c: '#D97706', u: 'comments' },
-    { k: 'views',    t: 'Views',    c: '#7C3AED', u: 'views' },
-    { k: 'shares',   t: 'Shares',   c: '#1D4ED8', u: 'shares' }
+    { k: 'posts',    t: 'Posts',    u: 'posts' },
+    { k: 'likes',    t: 'Likes',    u: 'likes' },
+    { k: 'comments', t: 'Comments', u: 'comments' },
+    { k: 'views',    t: 'Views',    u: 'views' },
+    { k: 'shares',   t: 'Shares',   u: 'shares' }
   ];
   var CP_DOW = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   function cpU() { return window.uiDetail || { cmp: big, full: nf, long: function (x) { return x; }, nice: function (x) { return x; }, range: function () { return ''; } }; }
+  function cpT(s) { var q = String(s).split('-'); return Date.UTC(+q[0], +q[1] - 1, +q[2]); }
+  function cpD(t) { return new Date(t).toISOString().slice(0, 10); }
+  /* cp-v3 HISAAB -- sach wala:
+     daily me sirf wahi din hote hain jinke tweets DB me hain. Jo din bich me gayab hai wo
+     "0 post" nahi, us din is handle ka data aaya hi nahi (us din baaki handles ke hazaaron
+     tweets hote hain). Isliye gayab din ko KABHI 0 nahi maante:
+       - aausat = jod / data wale din
+       - rujhaan = asli calendar ke aakhri 7 din vs usse pehle ke 7 din, dono me "data wale
+         din ka aausat"; kisi taraf 4 se kam din ka data ho to tulna nahi (—)
+       - graph me calendar ke saare din, gayab din khaali (bar nahi), 7 din ki line bhi
+         sirf data wale din se (7 din me kam se kam 3) */
   function cpStat(d, m) {
     var V = d.map(function (x) { return Number(x[m.k]) || 0; }), n = V.length;
     var tot = V.reduce(function (a, v) { return a + v; }, 0);
     var posts = d.reduce(function (a, x) { return a + (Number(x.posts) || 0); }, 0);
     var mi = 0; V.forEach(function (v, i) { if (v > V[mi]) mi = i; });
-    /* rujhaan: 14+ din ho to aakhri 7 vs usse pehle ke 7, warna doosra aadha vs pehla aadha */
-    var w = n >= 14 ? 7 : Math.floor(n / 2), a = 0, b = 0;
-    for (var i = n - w; i < n; i++) a += V[i];
-    for (var j = n - 2 * w; j < n - w; j++) b += V[j];
-    var tr = (w >= 2 && b > 0) ? Math.round((a - b) / b * 100) : null;
-    /* hafte ke din: us din ka aausat (sirf jo din range me aaye) */
+    var t0 = n ? cpT(d[0].date) : 0, tN = n ? cpT(d[n - 1].date) : 0, span = n ? Math.round((tN - t0) / 864e5) + 1 : 0;
+    var w = span >= 14 ? 7 : Math.floor(span / 2), A = [0, 0], B = [0, 0];
+    d.forEach(function (x, i) {
+      var back = Math.round((tN - cpT(x.date)) / 864e5);
+      if (back < w) { A[0] += V[i]; A[1]++; } else if (back < 2 * w) { B[0] += V[i]; B[1]++; }
+    });
+    var need = Math.max(2, Math.ceil(w * 4 / 7));
+    var aAvg = A[1] ? A[0] / A[1] : null, bAvg = B[1] ? B[0] / B[1] : null;
+    var tr = (w >= 2 && A[1] >= need && B[1] >= need && bAvg > 0) ? Math.round((aAvg - bAvg) / bAvg * 100) : null;
+    /* hafte ke din: sirf data wale din ka aausat */
     var ws = [0, 0, 0, 0, 0, 0, 0], wc = [0, 0, 0, 0, 0, 0, 0];
-    d.forEach(function (x, i) { var q = String(x.date).split('-'), dw = new Date(+q[0], +q[1] - 1, +q[2]).getDay(); if (!isNaN(dw)) { ws[dw] += V[i]; wc[dw]++; } });
-    var wd = ws.map(function (v, i) { return wc[i] ? v / wc[i] : 0; }), wb = wd.indexOf(Math.max.apply(null, wd));
+    d.forEach(function (x, i) { var dw = new Date(cpT(x.date)).getUTCDay(); ws[dw] += V[i]; wc[dw]++; });
+    var wd = ws.map(function (v, i) { return wc[i] ? v / wc[i] : null; });
+    var wb = -1; wd.forEach(function (v, i) { if (v !== null && (wb < 0 || v > wd[wb])) wb = i; });
+    /* graph ke liye poora calendar (gayab din = null) */
+    var CL = [], CV = [], map = {};
+    d.forEach(function (x, i) { map[x.date] = V[i]; });
+    for (var t = t0; n && t <= tN; t += 864e5) { var ds = cpD(t); CL.push(ds); CV.push(map.hasOwnProperty(ds) ? map[ds] : null); }
     var act = V.filter(function (v) { return v > 0; }).length;
-    return { V: V, n: n, tot: tot, avg: n ? tot / n : 0, per: (m.k !== 'posts' && posts) ? tot / posts : null, posts: posts,
-             mi: mi, peak: V[mi] || 0, last: n ? V[n - 1] : 0, tr: tr, w: w, a: a, b: b, wd: wd, wb: wb, act: act };
+    return { V: V, n: n, span: span, gap: span - n, tot: tot, avg: n ? tot / n : 0, per: (m.k !== 'posts' && posts) ? tot / posts : null, posts: posts,
+             mi: mi, peak: V[mi] || 0, last: n ? V[n - 1] : 0, tr: tr, w: w, A: A, B: B, aAvg: aAvg, bAvg: bAvg, need: need,
+             wd: wd, wc: wc, wb: wb, act: act, CL: CL, CV: CV };
   }
-  function cpTrend(tr) {
-    if (tr === null) return '<span class="cp-tr f">—</span>';
-    return '<span class="cp-tr ' + (tr > 0 ? 'u' : (tr < 0 ? 'd' : 'f')) + '" title="Last 7 days vs the 7 before">' + (tr > 0 ? '▲' : (tr < 0 ? '▼' : '')) + Math.abs(tr) + '%</span>';
+  function cpTrend(tr, w) {
+    var tip = ' title="Average per day: last ' + (w || 7) + ' days vs the ' + (w || 7) + ' days before (days with data only)"';
+    if (tr === null) return '<span class="cp-tr f" title="Not enough days with data to compare">—</span>';
+    return '<span class="cp-tr ' + (tr > 0 ? 'u' : (tr < 0 ? 'd' : 'f')) + '"' + tip + '>' + (tr > 0 ? '▲' : (tr < 0 ? '▼' : '')) + Math.abs(tr) + '%</span>';
   }
-  function cpSpark(V, c) {
+  function cpSpark(V) {
     if (V.length < 2) return '';
     var mx = Math.max.apply(null, V) || 1, W = 200, H = 34, st = W / (V.length - 1);
     var p = V.map(function (v, i) { return (i ? 'L' : 'M') + (i * st).toFixed(1) + ',' + (H - 2 - v / mx * (H - 4)).toFixed(1); }).join(' ');
     var g = 'cpg' + Math.random().toString(36).slice(2, 7);
     return '<svg class="cp-sp" viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="' + g + '" x1="0" y1="0" x2="0" y2="1">'
-      + '<stop offset="0" stop-color="' + c + '" stop-opacity=".28"/><stop offset="1" stop-color="' + c + '" stop-opacity="0"/></linearGradient></defs>'
-      + '<path d="' + p + ' L' + W + ',' + H + ' L0,' + H + ' Z" fill="url(#' + g + ')"/><path d="' + p + '" fill="none" stroke="' + c + '" stroke-width="1.8" vector-effect="non-scaling-stroke" stroke-linejoin="round"/></svg>';
+      + '<stop offset="0" stop-color="#E65100" stop-opacity=".22"/><stop offset="1" stop-color="#E65100" stop-opacity="0"/></linearGradient></defs>'
+      + '<path d="' + p + ' L' + W + ',' + H + ' L0,' + H + ' Z" fill="url(#' + g + ')"/><path d="' + p + '" fill="none" stroke="#E65100" stroke-width="1.8" vector-effect="non-scaling-stroke" stroke-linejoin="round"/></svg>';
   }
+  var CP_IC = {
+    posts: '<path d="M4 20h16M7 16V9M12 16V5M17 16v-4"/>',
+    likes: '<path d="M12 21s-7-4.4-9.3-8.8C1.2 9.3 2.8 5.5 6.5 5.1c2-.2 3.6.9 4.5 2.4.9-1.5 2.5-2.6 4.5-2.4 3.7.4 5.3 4.2 3.8 7.1C19 16.6 12 21 12 21z"/>',
+    comments: '<path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.4A8 8 0 1 1 21 12z"/>',
+    views: '<path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
+    shares: '<path d="M17 2l4 4-4 4"/><path d="M3 11V9a3 3 0 0 1 3-3h15"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v2a3 3 0 0 1-3 3H3"/>'
+  };
   function cpRender(d) {
     CP.d = d || [];
     var box = el('haContent'); if (!box) return;
@@ -11477,11 +11517,12 @@ setTimeout(hExec,600);
     var U = cpU();
     box.innerHTML = '<div class="cp-cards">' + CP_M.map(function (m) {
       var st = cpStat(CP.d, m);
-      return '<button type="button" class="cp-card' + (m.k === CP.k ? ' on' : '') + '" data-k="' + m.k + '" style="--mc:' + m.c + '" aria-pressed="' + (m.k === CP.k) + '">'
-        + '<div class="cp-t"><i></i>' + m.t + ' / day' + cpTrend(st.tr) + '</div>'
+      return '<button type="button" class="cp-card' + (m.k === CP.k ? ' on' : '') + '" data-k="' + m.k + '" aria-pressed="' + (m.k === CP.k) + '">'
+        + '<div class="cp-t"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + CP_IC[m.k] + '</svg>'
+        + m.t + ' / day' + cpTrend(st.tr, st.w) + '</div>'
         + '<div class="cp-v">' + U.cmp(st.avg) + '<small>avg</small></div>'
-        + '<div class="cp-s">' + (st.per !== null ? U.cmp(st.per) + ' per tweet' : U.cmp(st.tot) + ' in ' + st.n + ' days') + '</div>'
-        + cpSpark(st.V, m.c) + '</button>';
+        + '<div class="cp-s">' + (st.per !== null ? U.cmp(st.per) + ' per tweet' : U.full(st.tot) + ' tweets') + '</div>'
+        + cpSpark(st.V) + '</button>';
     }).join('') + '</div><div id="cpPanel"></div>';
     box.querySelectorAll('.cp-card').forEach(function (b) {
       b.onclick = function () {
@@ -11496,52 +11537,64 @@ setTimeout(hExec,600);
     var p = el('cpPanel'); if (!p) return;
     var m = CP_M.filter(function (x) { return x.k === CP.k; })[0] || CP_M[0], d = CP.d, st = cpStat(d, m), U = cpU();
     var L = d.map(function (x) { return x.date; });
-    var lw = st.n >= 14 ? 'last 7 days' : 'second half of the period', pw = st.n >= 14 ? 'the 7 days before' : 'the first half';
-    /* saaransh: sirf data se banti 2-3 seedhi lines */
+    var DAYS = ['Sundays', 'Mondays', 'Tuesdays', 'Wednesdays', 'Thursdays', 'Fridays', 'Saturdays'];
+    var dd = function (k) { return k + (k === 1 ? ' day' : ' days'); };
+    /* saaransh: sirf data se banti seedhi lines */
     var ins = [];
-    if (st.tr !== null) ins.push(m.t + ' are <b style="color:' + (st.tr >= 0 ? '#067647' : '#B42318') + '">' + (st.tr >= 0 ? 'up ' : 'down ') + Math.abs(st.tr) + '%</b> in the ' + lw
-      + ' (' + U.cmp(st.a) + ') compared with ' + pw + ' (' + U.cmp(st.b) + ').');
+    if (st.tr !== null) ins.push(m.t + ' are <b class="' + (st.tr >= 0 ? 'cp-up' : 'cp-dn') + '">' + (st.tr >= 0 ? 'up ' : 'down ') + Math.abs(st.tr) + '%</b>: '
+      + U.cmp(st.aAvg) + ' a day in the last ' + st.w + ' days vs ' + U.cmp(st.bAvg) + ' a day in the ' + st.w + ' days before.');
+    else ins.push('Not enough days with data to compare the last ' + st.w + ' days with the ' + st.w + ' before (' + dd(st.A[1]) + ' and ' + dd(st.B[1]) + ' with data).');
     ins.push('Best day was <b>' + U.long(L[st.mi]) + '</b> with <b>' + U.full(st.peak) + '</b> ' + m.u + (st.avg > 0 ? ', ' + (Math.round(st.peak / st.avg * 10) / 10) + '× the daily average.' : '.'));
-    if (st.wd[st.wb] > 0) ins.push('<b>' + ['Sundays','Mondays','Tuesdays','Wednesdays','Thursdays','Fridays','Saturdays'][st.wb] + '</b> perform best on average (' + U.cmp(st.wd[st.wb]) + ' ' + m.u + ' a day).');
-    if (st.per !== null) ins.push('An average tweet gets <b>' + U.cmp(st.per) + '</b> ' + m.u + ' (' + U.full(st.posts) + ' tweets in this period).');
+    if (st.wb >= 0 && st.wd[st.wb] > 0) ins.push('<b>' + DAYS[st.wb] + '</b> do best on average (' + U.cmp(st.wd[st.wb]) + ' ' + m.u + ' a day, from ' + dd(st.wc[st.wb]) + ').');
+    if (st.per !== null) ins.push('An average tweet gets <b>' + U.cmp(st.per) + '</b> ' + m.u + ' (' + U.full(st.tot) + ' ' + m.u + ' from ' + U.full(st.posts) + ' tweets).');
     function tile(k, v, s) { return '<div class="ui-dps"><span class="k">' + k + '</span><b>' + v + '</b>' + (s ? '<span class="s">' + s + '</span>' : '') + '</div>'; }
-    var wmax = Math.max.apply(null, st.wd) || 1;
+    var wmax = Math.max.apply(null, st.wd.map(function (v) { return v || 0; })) || 1;
     var rows = '';
     for (var i = st.n - 1; i >= 0; i--) {
       var v = st.V[i], wv = st.peak ? Math.max(1.5, v / st.peak * 100) : 0;
       rows += '<tr><td class="ui-dt">' + esc(U.long(L[i])) + '</td><td class="ui-dv"><span>' + U.full(v) + '</span><i style="width:' + wv.toFixed(1) + '%"></i></td></tr>';
     }
-    p.innerHTML = '<div class="cp-panel" style="--mc:' + m.c + '">'
+    var rng = st.span ? (U.nice(L[0], L[0].slice(0, 4) !== L[st.n - 1].slice(0, 4)) + ' – ' + U.nice(L[st.n - 1], true)) : '—';
+    p.innerHTML = '<div class="cp-panel">'
       + '<div class="cp-ph"><div><div class="cp-pl">' + m.t + ' · daily analysis</div>'
       + '<div class="cp-pv">' + U.full(st.tot) + '<small>total ' + m.u + '</small></div>'
-      + '<div class="cp-pr">' + esc(U.range(L)) + '</div></div>' + cpTrend(st.tr) + '</div>'
+      + '<div class="cp-pr">' + esc(rng) + ' · ' + dd(st.n) + ' with data'
+      + (st.gap > 0 ? '<span class="cp-gap" title="No tweets of this handle were collected on these days, so they are left out of every average (not counted as zero).">' + dd(st.gap) + ' not collected</span>' : '') + '</div></div>'
+      + cpTrend(st.tr, st.w) + '</div>'
       + '<div class="cp-ins"><ul>' + ins.map(function (x) { return '<li>' + x + '</li>'; }).join('') + '</ul></div>'
       + '<div class="cp-tiles">'
-      + tile('Daily average', U.cmp(st.avg), 'over ' + st.n + (st.n === 1 ? ' day' : ' days'))
-      + (st.per !== null ? tile('Per tweet', U.cmp(st.per), 'from ' + U.full(st.posts) + ' tweets') : tile('Active days', st.act + ' / ' + st.n, 'days with at least 1 post'))
+      + tile('Daily average', U.cmp(st.avg), 'over ' + dd(st.n) + ' with data')
+      + (st.per !== null ? tile('Per tweet', U.cmp(st.per), 'from ' + U.full(st.posts) + ' tweets') : tile('Active days', st.act + ' / ' + st.n, 'days with data that had a post'))
       + tile('Peak day', U.cmp(st.peak), esc(U.nice(L[st.mi], true)))
       + tile('Latest day', U.cmp(st.last), esc(U.nice(L[st.n - 1], true)))
-      + tile(st.n >= 14 ? 'Last 7 days' : 'Recent half', U.cmp(st.a), 'vs ' + U.cmp(st.b) + ' before')
+      + tile('Last ' + st.w + ' days', st.aAvg === null ? '—' : U.cmp(st.aAvg) + '<small> /day</small>',
+             (st.bAvg === null ? 'no data the ' + st.w + ' days before'
+               : 'vs ' + U.cmp(st.bAvg) + (st.A[1] < st.w || st.B[1] < st.w ? ' · ' + st.A[1] + 'd & ' + st.B[1] + 'd data' : ' /day before')))
       + '</div>'
       + '<div class="cp-body"><div class="cp-ch"><canvas id="cpCv" aria-label="' + m.t + ' per day"></canvas></div>'
       + '<div class="cp-side"><div class="cp-box"><div class="cp-bh"><span>By weekday</span><span>avg / day</span></div>'
       + [1, 2, 3, 4, 5, 6, 0].map(function (k) {
-          return '<div class="cp-wd' + (k === st.wb && st.wd[k] > 0 ? ' top' : '') + '"><span>' + CP_DOW[k] + '</span><em><i style="width:' + (st.wd[k] / wmax * 100).toFixed(1) + '%"></i></em><b>' + U.cmp(st.wd[k]) + '</b></div>';
+          var v = st.wd[k];
+          return '<div class="cp-wd' + (k === st.wb && v > 0 ? ' top' : '') + '" title="' + dd(st.wc[k]) + ' with data"><span>' + CP_DOW[k] + '</span><em><i style="width:' + ((v || 0) / wmax * 100).toFixed(1) + '%"></i></em><b>' + (v === null ? '—' : U.cmp(v)) + '</b></div>';
         }).join('') + '</div>'
       + '<div class="cp-box"><div class="cp-bh"><span>Day by day</span><span>' + m.t + '</span></div><div class="cp-tb"><table><tbody>' + rows + '</tbody></table></div></div></div></div>'
       + '</div>';
-    cpChart(el('cpCv'), L, st.V, m);
+    cpChart(el('cpCv'), st.CL, st.CV, m);
   }
   function cpChart(cv, L, V, m) {
     if (!cv || !window.Chart) return;
     try { var old = Chart.getChart(cv); if (old) old.destroy(); } catch (e) {}
-    var U = cpU(), n = L.length, h = m.c.replace('#', ''), rgb = 'rgba(' + parseInt(h.slice(0, 2), 16) + ',' + parseInt(h.slice(2, 4), 16) + ',' + parseInt(h.slice(4, 6), 16) + ',';
-    var avg = [], s = 0;
-    for (var i = 0; i < n; i++) { s += V[i]; if (i >= 7) s -= V[i - 7]; avg.push(i >= 6 ? s / 7 : null); }
-    var ds = [{ type: 'bar', label: 'Daily', data: V, order: 2, backgroundColor: rgb + '.30)', hoverBackgroundColor: rgb + '.75)',
-                borderRadius: 3, borderSkipped: false, barPercentage: .92, categoryPercentage: 1, maxBarThickness: 28 }];
-    if (n >= 10) ds.push({ type: 'line', label: '7-day average', data: avg, order: 1, borderColor: m.c, backgroundColor: m.c, borderWidth: 2.4,
-                           pointRadius: 0, pointHoverRadius: 4, pointHitRadius: 8, tension: .35, fill: false, spanGaps: true });
+    var U = cpU(), n = L.length, avg = [];
+    /* 7 din ki line: us khidki me jitne din ka data ho unka aausat (kam se kam 3 din) */
+    for (var i = 0; i < n; i++) {
+      var s = 0, c = 0;
+      for (var j = Math.max(0, i - 6); j <= i; j++) if (V[j] !== null) { s += V[j]; c++; }
+      avg.push(i >= 6 && c >= 3 ? s / c : null);
+    }
+    var ds = [{ type: 'bar', label: 'Daily', data: V, order: 2, backgroundColor: 'rgba(230,81,0,.26)', hoverBackgroundColor: 'rgba(230,81,0,.6)',
+                borderRadius: 2, borderSkipped: false, barPercentage: .92, categoryPercentage: 1, maxBarThickness: 28 }];
+    if (n >= 10) ds.push({ type: 'line', label: '7-day average', data: avg, order: 1, borderColor: '#2B211B', backgroundColor: '#2B211B', borderWidth: 2,
+                           pointRadius: 0, pointHoverRadius: 4, pointHitRadius: 8, tension: .35, fill: false, spanGaps: false });
     new Chart(cv, { data: { labels: L, datasets: ds }, options: {
       maintainAspectRatio: false, animation: { duration: 550, easing: 'easeOutQuart' }, interaction: { mode: 'index', intersect: false },
       plugins: { datalabels: { display: false },
@@ -11549,7 +11602,10 @@ setTimeout(hExec,600);
         tooltip: { backgroundColor: 'rgba(20,16,13,.94)', padding: 11, cornerRadius: 9, usePointStyle: true, boxPadding: 4,
           titleFont: { family: "'DM Sans',sans-serif", size: 12, weight: '700' }, bodyFont: { family: "'DM Sans',sans-serif", size: 12 },
           callbacks: { title: function (it) { return it && it[0] ? U.long(L[it[0].dataIndex]) : ''; },
-            label: function (c) { if (c.raw == null) return null; return ' ' + c.dataset.label + ': ' + (c.datasetIndex === 0 ? U.full(c.raw) : U.cmp(c.raw)) + ' ' + m.u; } } } },
+            label: function (c) {
+              if (c.datasetIndex === 0 && c.raw == null) return ' No data collected this day';
+              if (c.raw == null) return null;
+              return ' ' + c.dataset.label + ': ' + (c.datasetIndex === 0 ? U.full(c.raw) : U.cmp(c.raw)) + ' ' + m.u; } } } },
       scales: {
         x: { grid: { display: false }, border: { display: false }, ticks: { autoSkip: true, maxTicksLimit: 8, maxRotation: 0, color: '#78716C', font: { family: "'DM Sans',sans-serif", size: 11 },
              callback: function (v, i) { return U.nice(L[i]); } } },
