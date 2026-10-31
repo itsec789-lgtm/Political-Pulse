@@ -6224,13 +6224,12 @@ a.pe-btn:after{content:"";position:absolute;inset:0;z-index:1;background:linear-
   .db-t tr.d:hover td{background:#FCFAF7}
   .db-t tr.best td{background:#FFF6EC}
   .db-t tr.best td:first-child{box-shadow:inset 3px 0 0 #E8590C}
-  .db-day{display:flex;align-items:center;gap:10px}
-  .db-day .n{width:38px;height:38px;flex:none;border-radius:10px;display:grid;place-items:center;font:700 17px 'Rajdhani',sans-serif;color:#141414;background:#F6F1EB}
-  .db-t tr.best .db-day .n{background:linear-gradient(135deg,#2B1407,#E8590C);color:#fff}
-  .db-day .w{font-weight:700;color:#141414;line-height:1.2}
-  .db-day .w span{display:block;font-weight:500;font-size:11.5px;color:#8A817A}
-  .db-bt{display:inline-flex;align-items:center;gap:4px;margin-left:6px;font:700 10px Inter,sans-serif;color:#C2410C;vertical-align:1px}
-  .db-bt svg{width:11px;height:11px;color:#F59E0B}
+  /* db-day v2 (31-Oct): dibba nahi -- saaf do line text */
+  .db-day b{display:flex;align-items:center;gap:8px;font:700 14px Inter,sans-serif;color:#141414;white-space:nowrap}
+  .db-day > span{display:block;font-size:12px;color:#8A817A;margin-top:2px}
+  .db-bt{display:inline-flex;align-items:center;gap:3px;padding:1px 7px 1px 5px;border-radius:999px;font:700 10px Inter,sans-serif;letter-spacing:.02em;
+    color:#C2410C;background:#FFF0E2;border:1px solid #F7C9A0}
+  .db-bt svg{width:10px;height:10px;color:#F59E0B}
   .db-p{font-weight:700;font-size:14px}
   .db-e{text-align:left!important}
   .db-et{display:flex;align-items:baseline;gap:8px}
@@ -6245,11 +6244,10 @@ a.pe-btn:after{content:"";position:absolute;inset:0;z-index:1;background:linear-
   .db-bd svg{width:12px;height:12px}
   .db-bd .l{color:#BE185D}.db-bd .c{color:#1D4ED8}.db-bd .s{color:#047857}
   .db-v{font-weight:600}
-  .db-pp b{display:block;font-weight:600}
-  .db-pp span{display:block;font-size:11.5px;color:#8A817A;margin-top:2px}
-  .db-t tr.gap td{padding:8px 14px;background:#FCFBF9;color:#A39A90;font-size:12px}
-  .db-t tr.gap .db-day .n{width:30px;height:30px;font-size:14px;background:#F3EFEA;color:#A39A90}
-  .db-t tr.gap .db-day .w{color:#A39A90}
+  .db-pp b{font-weight:600}
+  .db-t tr.gap td{padding:9px 14px;background:#FCFBF9;color:#A39A90;font-size:12px}
+  .db-t tr.gap .db-day b{color:#A39A90;font-weight:600;font-size:13px}
+  .db-t tr.gap .db-day > span{color:#B8AFA6}
   .db-t tr.gap td.msg{text-align:left;font-style:italic}
   @media (max-width:900px){.db-sum{grid-template-columns:repeat(2,minmax(0,1fr))}}
   @media (max-width:760px){
@@ -6271,7 +6269,7 @@ a.pe-btn:after{content:"";position:absolute;inset:0;z-index:1;background:linear-
     <div class="db-sum" id="haDailySum"></div>
     <div class="db-wrap">
       <table class="db-t"><colgroup><col class="c-d"><col class="c-p"><col class="c-e"><col class="c-v"><col class="c-pp"></colgroup>
-      <thead><tr><th>Day</th><th>Posts</th><th class="l">Engagement</th><th>Views</th><th>Per post</th></tr></thead>
+      <thead><tr><th>Day</th><th>Posts</th><th class="l">Engagement</th><th>Views</th><th title="Engagement ÷ posts">Eng / post</th></tr></thead>
       <tbody id="haDaily"><tr><td colspan="5" class="ha-empty">Ek handle chuno.</td></tr></tbody></table>
     </div>
   </div>
@@ -11941,13 +11939,14 @@ setTimeout(hExec,600);
       ? tile('Best day', nice(best, true), big(map[best].engagement) + ' engagement', 'best')
         + tile('Week engagement', big(tot), nf(posts) + ' posts · ' + big(views) + ' views')
         + tile('Average day', big(tot / have.length), 'engagement, over ' + have.length + ' active day' + (have.length === 1 ? '' : 's'))
-        + tile('Per post', posts ? big(tot / posts) : '—', 'engagement · ' + (posts ? big(views / posts) : '—') + ' views')
+        + tile('Eng / post', posts ? big(tot / posts) : '—', 'engagement per post this week')
       : '';
     var STAR = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l2.9 6.6 7.1.6-5.4 4.7 1.6 7L12 17.3 5.8 21l1.6-7L2 9.2l7.1-.6z"/></svg>';
+    var WDL = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
     function dayCell(s, extra) {
       var x = new Date(T(s));
-      /* db-yr (31-Oct): row me sirf din + mahina; saal upar title ke paas ek baar */
-      return '<div class="db-day"><span class="n">' + x.getUTCDate() + '</span><span class="w">' + WD[x.getUTCDay()] + (extra || '') + '<span>' + MO[x.getUTCMonth()] + '</span></span></div>';
+      /* db-day v2 (31-Oct): dibba hataya -- saaf text: "4 Sep" bold, neeche "Friday"; saal upar title me */
+      return '<div class="db-day"><b>' + x.getUTCDate() + ' ' + MO[x.getUTCMonth()] + (extra || '') + '</b><span>' + WDL[x.getUTCDay()] + '</span></div>';
     }
     box.innerHTML = days.map(function (s) {
       var x = map[s];
@@ -11961,9 +11960,9 @@ setTimeout(hExec,600);
         var pc = Math.round((e - prev.engagement) / prev.engagement * 100);
         if (pc) dl = '<span class="db-dl ' + (pc > 0 ? 'u' : 'n') + '" title="vs ' + nice(D(T(s) - 864e5), true) + '">' + (pc > 0 ? '↑' : '↓') + Math.abs(pc) + '% vs previous day</span>';
       }
-      var share = '<span class="db-sh">' + (b ? 'Best day' : Math.round(e / eMax * 100) + '% of best') + '</span>';
+      var share = b ? '' : '<span class="db-sh">' + Math.round(e / eMax * 100) + '% of best</span>';
       return '<tr class="d' + (b ? ' best' : '') + '">'
-        + '<td>' + dayCell(s, b ? '<span class="db-bt" title="Best day of the week">' + STAR + '</span>' : '') + '</td>'
+        + '<td>' + dayCell(s, b ? '<span class="db-bt" title="Best day of the week">' + STAR + 'Best</span>' : '') + '</td>'
         + '<td class="db-p" data-l="Posts">' + nf(p) + '</td>'
         /* db-nobar (31-Oct): bar hataya -- sirf number: kul engagement, pichhle din se badlav, best ka kitna % */
         + '<td class="db-e" data-l="Engagement"><div class="db-et"><b title="' + nf(e) + '">' + big(e) + '</b>' + dl + share + '</div>'
@@ -11971,7 +11970,7 @@ setTimeout(hExec,600);
         + '<span class="c" title="Comments ' + nf(x.comments) + '">' + TW_I.cm + big(x.comments) + '</span>'
         + '<span class="s" title="Retweets ' + nf(x.shares) + '">' + TW_I.sh + big(x.shares) + '</span></div></td>'
         + '<td class="db-v" data-l="Views" title="' + nf(x.views) + '">' + big(x.views) + '</td>'
-        + '<td class="db-pp" data-l="Per post"><b>' + (p ? big(e / p) : '—') + '</b><span>' + (p ? big((Number(x.views) || 0) / p) + ' views' : '') + '</span></td></tr>';
+        + '<td class="db-pp" data-l="Eng / post" title="Engagement ÷ posts = ' + (p ? nf(e / p) : '—') + '"><b>' + (p ? big(e / p) : '—') + '</b></td></tr>';
     }).join('');
   }
 
