@@ -5506,7 +5506,7 @@ app.get('/api/ha/analytics', dashGuard, async function (req, res) {
   try {
     /* ha-fast (31-Oct): teeno kaam ek saath; profile sirf saved (X ka intezaar nahi) */
     var fresh = String(req.query.fresh || '') === '1';
-    var got = await Promise.all([haOwns(req, h), haRows(h), haProfile(h, fresh, !fresh)]);
+    var got = await Promise.all([haOwns(req, h), haRows(h), haProfile(h, fresh, !fresh), haLatestDay()]);
     var meta = got[0];
     if (!meta) return res.status(404).json({ error: 'This handle is not part of this dashboard.' });
 
@@ -5544,6 +5544,15 @@ app.get('/api/ha/analytics', dashGuard, async function (req, res) {
       summary: out.summary,
       daily: out.daily,
       prev: HA.prevWindow(rows, String(req.query.days || 'all')),   /* pichhle 7 / 30 din (all me null) */
+      /* db-v3 (31-Oct): Daily Breakdown ke asli 7 calendar din -- Latest Tweets wali tareekh tak */
+      week: (function (to) {
+        if (!to) return null;
+        var from = new Date(Date.parse(to + 'T00:00:00Z') - 6 * 86400000).toISOString().slice(0, 10);
+        return { from: from, to: to, daily: HA.analyse(rows, 'all', { from: from, to: to }).daily,
+                 /* in dino me poore data ka collection theek tha -- handle ka din khaali ho to
+                    "post nahi kiya"; baaki din "collect nahi hua" */
+                 collected: (_haLatest.ok || []).filter(function (x) { return x >= from && x <= to; }) };
+      })(got[3]),
       topTweet: out.topTweet,
       sent: HA.SENT_KEYS.reduce(function (o, k) { o[k] = meta[k] || 0; return o; }, {})
     });
@@ -5557,7 +5566,7 @@ app.get('/api/ha/analytics', dashGuard, async function (req, res) {
    (is laptop par 7 Sep = 9 tweet / 4 handle, jabki 4 Sep = 21K). Isliye pichhle 10 din me jis din
    sabse zyada tweet aaye, uske kam se kam 25% wala SABSE NAYA din. Galat future tareekh nahi
    (kal tak hi). 5 min yaad. */
-var _haLatest = { at: 0, v: '' };
+var _haLatest = { at: 0, v: '', ok: [] };   /* ok = pichhle 10 din me jo din theek se aaye */
 async function haLatestDay() {
   if (_haLatest.v && Date.now() - _haLatest.at < 300000) return _haLatest.v;
   var tmr = new Date(Date.now() + 86400000 + 19800000).toISOString().slice(0, 10);   /* IST kal */
@@ -5577,7 +5586,7 @@ async function haLatestDay() {
     var mx = per.reduce(function (a, x) { return Math.max(a, x.n); }, 0), day = top;
     var ok = per.filter(function (x) { return x.n >= mx * 0.25; }).map(function (x) { return x._id; }).sort();
     if (ok.length) day = ok[ok.length - 1];
-    _haLatest = { at: Date.now(), v: day };
+    _haLatest = { at: Date.now(), v: day, ok: ok };
     return day;
   } catch (e) { return _haLatest.v; }
   finally { try { await cli.close(); } catch (e) {} }

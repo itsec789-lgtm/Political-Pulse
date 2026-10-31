@@ -6164,35 +6164,80 @@ a.pe-btn:after{content:"";position:absolute;inset:0;z-index:1;background:linear-
        engagement bar + pichhle din se ↑↓ %, Eng / post. Followers / Following har din
        same rehte the, isliye upar chips me ek baar. tbl-box nahi -- warna har row me
        "LAST UPDATED" column aur column-filter patti lag jaati. -->
+  <!-- db-v3 (31-Oct): Daily Breakdown naye sire se -- asli 7 calendar din (Latest Tweets wali tareekh tak),
+       upar 4 tile saaransh, 5 column (Engagement bada bar + ♥ 💬 🔁), gayab din saaf likha ("No posts" /
+       "Not collected"), ↑↓ sirf asli pichhle din se. Phone par har din ek card. -->
   <style>
-  .db-hd{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+  .db-hd{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px}
   .db-hd .ha-stitle{margin:0}
-  #haDailyNote{display:block;font-size:11px;color:var(--muted);margin-top:3px}
-  .db-wrap{overflow-x:auto}
-  .db-t{width:100%;border-collapse:separate;border-spacing:0;font-size:13px}
-  .db-t th{font-size:10.5px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);font-weight:700;text-align:left;padding:10px 12px;background:#FAF7F3;border-bottom:1px solid #EFE7DE;white-space:nowrap}
-  .db-t th:first-child{border-radius:10px 0 0 10px}.db-t th:last-child{border-radius:0 10px 10px 0}
-  .db-t td{padding:10px 12px;border-bottom:1px solid #F5EFE8;vertical-align:middle;font-variant-numeric:tabular-nums;white-space:nowrap}
-  .db-t tr:hover td{background:#FFFBF7}
-  .db-t tr.best td{background:#FFF4EA}
-  .db-dt b{display:block;font-size:13px}.db-dt span{font-size:11px;color:var(--muted)}
-  .db-dt .db-badge{color:#fff}   /* .db-dt span ka grey rang badge par na lage */
-  .db-t td.db-p{font-weight:600}
-  .db-badge{display:inline-block;font-size:9.5px;font-weight:700;color:#fff;background:#E65100;border-radius:6px;padding:2px 6px;margin-left:6px;vertical-align:1px;letter-spacing:.4px}
-  .db-d{font-size:11px;font-weight:700;margin-left:6px}.db-d.u{color:#1E8E5A}.db-d.n{color:#C62828}
-  .db-eng{min-width:150px}
-  .db-bar{height:8px;border-radius:5px;background:#F3ECE4;overflow:hidden;margin-top:5px}
-  .db-bar i{display:block;height:100%;background:linear-gradient(90deg,#FFB06A,#E65100)}
-  .db-mut{color:var(--muted)}
+  #haDailyNote{display:block;font-size:12px;color:#78716C;margin-top:4px}
+  .db-sum{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:14px}
+  .db-sum:empty{display:none}
+  .db-tile{border:1.5px solid transparent;border-radius:14px;padding:11px 14px;min-width:0;
+    background:linear-gradient(#fff,#fff) padding-box,linear-gradient(110deg,#2B1407 0%,#5A2A0E 45%,#E8590C 100%) border-box;box-shadow:0 2px 12px -4px rgba(43,20,7,.22)}
+  .db-tile .k{display:block;font:700 10px 'DM Sans',Inter,sans-serif;letter-spacing:.8px;text-transform:uppercase;color:#8A817A}
+  .db-tile b{display:block;font:700 21px/1.15 'Rajdhani',sans-serif;color:#141414;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .db-tile .s{display:block;font-size:11.5px;color:#8A817A;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .db-tile.best{background:linear-gradient(#FFF6EC,#FFF6EC) padding-box,linear-gradient(110deg,#2B1407 0%,#5A2A0E 45%,#E8590C 100%) border-box}
+  .db-tile.best b{color:#C2410C}
+  .db-wrap{border:1px solid #EFE8DD;border-radius:14px;overflow:hidden;background:#fff}
+  .db-t{width:100%;table-layout:fixed;border-collapse:collapse;font:13px Inter,sans-serif;color:#0F1419}
+  .db-t col.c-d{width:17%}.db-t col.c-p{width:9%}.db-t col.c-e{width:42%}.db-t col.c-v{width:14%}.db-t col.c-pp{width:18%}
+  .db-t th{background:#FBF8F4;text-align:right;padding:11px 14px;font:700 10.5px Inter,sans-serif;letter-spacing:.07em;text-transform:uppercase;color:#6B5E50;border-bottom:1px solid #EFE8DD;white-space:nowrap}
+  .db-t th:first-child,.db-t td:first-child,.db-t th.l,.db-t td.l{text-align:left}
+  .db-t td{padding:13px 14px;border-bottom:1px solid #F3EEE7;text-align:right;vertical-align:middle;font-variant-numeric:tabular-nums}
+  .db-t tr:last-child td{border-bottom:0}
+  .db-t tr.d:hover td{background:#FCFAF7}
+  .db-t tr.best td{background:#FFF6EC}
+  .db-t tr.best td:first-child{box-shadow:inset 3px 0 0 #E8590C}
+  .db-day{display:flex;align-items:center;gap:10px}
+  .db-day .n{width:38px;height:38px;flex:none;border-radius:10px;display:grid;place-items:center;font:700 17px 'Rajdhani',sans-serif;color:#141414;background:#F6F1EB}
+  .db-t tr.best .db-day .n{background:linear-gradient(135deg,#2B1407,#E8590C);color:#fff}
+  .db-day .w{font-weight:700;color:#141414;line-height:1.2}
+  .db-day .w span{display:block;font-weight:500;font-size:11.5px;color:#8A817A}
+  .db-bt{display:inline-flex;align-items:center;gap:4px;margin-left:6px;font:700 10px Inter,sans-serif;color:#C2410C;vertical-align:1px}
+  .db-bt svg{width:11px;height:11px;color:#F59E0B}
+  .db-p{font-weight:700;font-size:14px}
+  .db-e{text-align:left!important}
+  .db-et{display:flex;align-items:baseline;gap:8px}
+  .db-et b{font:700 15px Inter,sans-serif;color:#141414}
+  .db-dl{font-size:11.5px;font-weight:700}.db-dl.u{color:#067647}.db-dl.n{color:#B42318}
+  .db-bar{height:8px;border-radius:5px;background:#F3ECE4;overflow:hidden;margin:6px 0 6px}
+  .db-bar i{display:block;height:100%;border-radius:5px;background:linear-gradient(90deg,#FFC48F,#F08A3C)}
+  .db-t tr.best .db-bar i{background:linear-gradient(90deg,#FFB06A,#E65100)}
+  .db-bd{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:11.5px;color:#6B5E50}
+  .db-bd span{display:inline-flex;align-items:center;gap:3px;white-space:nowrap}
+  .db-bd svg{width:12px;height:12px}
+  .db-bd .l{color:#BE185D}.db-bd .c{color:#1D4ED8}.db-bd .s{color:#047857}
+  .db-v{font-weight:600}
+  .db-pp b{display:block;font-weight:600}
+  .db-pp span{display:block;font-size:11.5px;color:#8A817A;margin-top:2px}
+  .db-t tr.gap td{padding:8px 14px;background:#FCFBF9;color:#A39A90;font-size:12px}
+  .db-t tr.gap .db-day .n{width:30px;height:30px;font-size:14px;background:#F3EFEA;color:#A39A90}
+  .db-t tr.gap .db-day .w{color:#A39A90}
+  .db-t tr.gap td.msg{text-align:left;font-style:italic}
+  @media (max-width:900px){.db-sum{grid-template-columns:repeat(2,minmax(0,1fr))}}
+  @media (max-width:760px){
+    .db-t,.db-t tbody,.db-t tr,.db-t td{display:block;width:100%}
+    .db-t thead,.db-t colgroup{display:none}
+    .db-t tr.d{display:grid;grid-template-columns:1fr 1fr;gap:8px 12px;padding:12px 14px;border-bottom:1px solid #F3EEE7}
+    .db-t tr.d td{padding:0;border:0;text-align:left;background:none!important;box-shadow:none!important}
+    .db-t tr.d.best{background:#FFF6EC;box-shadow:inset 3px 0 0 #E8590C}
+    .db-t tr.d td.db-e,.db-t tr.d td:first-child{grid-column:1 / -1}
+    .db-t tr.d td[data-l]::before{content:attr(data-l);display:block;font:700 9.5px Inter,sans-serif;letter-spacing:.07em;text-transform:uppercase;color:#9A8F84;margin-bottom:2px}
+    .db-t tr.gap{display:flex;gap:10px;align-items:center;padding:8px 14px;border-bottom:1px solid #F3EEE7}
+    .db-t tr.gap td{padding:0;border:0;background:none}
+  }
   </style>
   <div class="ha-card">
     <div class="db-hd">
       <div><div class="ha-stitle">Daily Breakdown</div><span id="haDailyNote"></span></div>
     </div>
+    <div class="db-sum" id="haDailySum"></div>
     <div class="db-wrap">
-      <table class="db-t"><thead><tr><th>Date</th><th>Posts</th><th>Likes</th><th>Comments</th>
-      <th>Views</th><th>Shares</th><th>Engagement</th><th>Eng / post</th></tr></thead>
-      <tbody id="haDaily"><tr><td colspan="8" class="ha-empty">Ek handle chuno.</td></tr></tbody></table>
+      <table class="db-t"><colgroup><col class="c-d"><col class="c-p"><col class="c-e"><col class="c-v"><col class="c-pp"></colgroup>
+      <thead><tr><th>Day</th><th>Posts</th><th class="l">Engagement</th><th>Views</th><th>Per post</th></tr></thead>
+      <tbody id="haDaily"><tr><td colspan="5" class="ha-empty">Ek handle chuno.</td></tr></tbody></table>
     </div>
   </div>
 
@@ -11828,39 +11873,67 @@ setTimeout(hExec,600);
     cpRender(d);
     /* no-er : Engagement Rate chart hata diya gaya */
 
-    /* ---- daily breakdown -- sirf pichhle 7 din  (kpi-tiles) ---- */
-    var d7 = d.slice(-7);                       // aakhri 7 din
-    var lbl = el('haDailyNote');
-    if (lbl) lbl.textContent = d7.length ? ('Last ' + d7.length
-      + (d7.length === 1 ? ' day' : ' days') + (d.length > d7.length
-        ? '  ·  ' + d.length + ' days in charts above' : '')) : '';
-    /* db-v2 (30-Oct): chips (Followers / Following / 7-day ...) aur posts ka bar hata diye --
-       ye numbers upar Profile & activity me pehle se hain */
-    var eMax = Math.max.apply(null, d7.map(function (x) { return Number(x.engagement) || 0; }).concat([1]));
-    var best = null;
-    d7.forEach(function (x) { if ((Number(x.engagement) || 0) > 0 && (!best || x.engagement > best.engagement)) best = x; });
-    var WD = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-    var MO = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    var rev = d7.slice().reverse();
-    el('haDaily').innerHTML = rev.length ? rev.map(function (x, i) {
-      var dt = new Date(String(x.date) + 'T00:00:00'), ok = !isNaN(dt);
-      var day = ok ? (dt.getDate() + ' ' + MO[dt.getMonth()]) : esc(x.date);
-      var b = x === best, p = Number(x.posts) || 0, e = Number(x.engagement) || 0;
-      var prev = rev[i + 1], dl = '';
+    dbRender(r.week, d);
+  }
+
+  /* ===== db-v3 (31-Oct): Daily Breakdown -- asli 7 calendar din =====
+     wk = server ka { from, to, daily, collected } (Latest Tweets wali tareekh tak). Na mile to period ke
+     aakhri din tak 7 din. Gayab din: us din baaki data aaya tha to "No posts", warna "Not collected".
+     ↑↓ sirf jab theek pichhla calendar din bhi data wala ho. */
+  function dbRender(wk, dAll) {
+    var WD = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'], MO = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    function T(s) { var q = String(s).split('-'); return Date.UTC(+q[0], +q[1] - 1, +q[2]); }
+    function D(t) { return new Date(t).toISOString().slice(0, 10); }
+    function nice(s, w) { var x = new Date(T(s)); return (w ? WD[x.getUTCDay()] + ', ' : '') + x.getUTCDate() + ' ' + MO[x.getUTCMonth()]; }
+    var to = wk && wk.to ? wk.to : (dAll.length ? dAll[dAll.length - 1].date : '');
+    var box = el('haDaily'), sum = el('haDailySum'), note = el('haDailyNote');
+    if (!to) { box.innerHTML = '<tr><td colspan="5" class="ha-empty">No data in this period.</td></tr>'; sum.innerHTML = ''; if (note) note.textContent = ''; return; }
+    var from = D(T(to) - 6 * 864e5), src = (wk && wk.daily) || dAll, map = {};
+    src.forEach(function (x) { if (x.date >= from && x.date <= to && (Number(x.posts) || 0) > 0) map[x.date] = x; });
+    var coll = {}; ((wk && wk.collected) || []).forEach(function (x) { coll[x] = 1; });
+    var days = []; for (var t = T(to); t >= T(from); t -= 864e5) days.push(D(t));
+    var have = days.filter(function (x) { return map[x]; });
+    var eMax = Math.max.apply(null, have.map(function (x) { return Number(map[x].engagement) || 0; }).concat([1]));
+    var best = null; have.forEach(function (x) { if (!best || map[x].engagement > map[best].engagement) best = x; });
+    var tot = have.reduce(function (a, x) { return a + (Number(map[x].engagement) || 0); }, 0);
+    var posts = have.reduce(function (a, x) { return a + (Number(map[x].posts) || 0); }, 0);
+    var views = have.reduce(function (a, x) { return a + (Number(map[x].views) || 0); }, 0);
+    if (note) note.textContent = nice(from) + ' – ' + nice(to) + ' ' + to.slice(0, 4) + ' · last 7 days of collected data';
+    function tile(k, v, s, c) { return '<div class="db-tile' + (c ? ' ' + c : '') + '"><span class="k">' + k + '</span><b>' + v + '</b><span class="s">' + s + '</span></div>'; }
+    sum.innerHTML = have.length
+      ? tile('Best day', nice(best, true), big(map[best].engagement) + ' engagement', 'best')
+        + tile('Week engagement', big(tot), nf(posts) + ' posts · ' + big(views) + ' views')
+        + tile('Average day', big(tot / have.length), 'engagement, over ' + have.length + ' active day' + (have.length === 1 ? '' : 's'))
+        + tile('Per post', posts ? big(tot / posts) : '—', 'engagement · ' + (posts ? big(views / posts) : '—') + ' views')
+      : '';
+    var STAR = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l2.9 6.6 7.1.6-5.4 4.7 1.6 7L12 17.3 5.8 21l1.6-7L2 9.2l7.1-.6z"/></svg>';
+    function dayCell(s, extra) {
+      var x = new Date(T(s));
+      return '<div class="db-day"><span class="n">' + x.getUTCDate() + '</span><span class="w">' + WD[x.getUTCDay()] + (extra || '') + '<span>' + MO[x.getUTCMonth()] + ' ' + x.getUTCFullYear() + '</span></span></div>';
+    }
+    box.innerHTML = days.map(function (s) {
+      var x = map[s];
+      if (!x) {
+        var why = coll[s] ? 'No posts this day' : 'Data for this day was not fully collected';
+        return '<tr class="gap"><td>' + dayCell(s) + '</td><td colspan="4" class="msg">' + why + '</td></tr>';
+      }
+      var e = Number(x.engagement) || 0, p = Number(x.posts) || 0, b = s === best;
+      var prev = map[D(T(s) - 864e5)], dl = '';
       if (prev && Number(prev.engagement) > 0) {
         var pc = Math.round((e - prev.engagement) / prev.engagement * 100);
-        if (pc) dl = '<span class="db-d ' + (pc > 0 ? 'u' : 'n') + '" title="vs pichhla din">'
-          + (pc > 0 ? '↑' : '↓') + Math.abs(pc) + '%</span>';
+        if (pc) dl = '<span class="db-dl ' + (pc > 0 ? 'u' : 'n') + '" title="vs ' + nice(D(T(s) - 864e5), true) + '">' + (pc > 0 ? '↑' : '↓') + Math.abs(pc) + '% vs previous day</span>';
       }
-      return '<tr' + (b ? ' class="best"' : '') + '><td class="db-dt"><b>' + day
-          + (b ? '<span class="db-badge">BEST</span>' : '') + '</b><span>' + (ok ? WD[dt.getDay()] : '') + '</span></td>'
-        + '<td class="db-p">' + nf(p) + '</td>'
-        + '<td>' + big(x.likes) + '</td><td>' + big(x.comments) + '</td>'
-        + '<td>' + big(x.views) + '</td><td>' + big(x.shares) + '</td>'
-        + '<td class="db-eng"><b>' + big(e) + '</b>' + dl
-        + '<div class="db-bar"><i style="width:' + Math.round(e / eMax * 100) + '%"></i></div></td>'
-        + '<td class="db-mut">' + (p ? nf(e / p) : '—') + '</td></tr>';
-    }).join('') : '<tr><td colspan="8" class="ha-empty">No data in this period.</td></tr>';
+      return '<tr class="d' + (b ? ' best' : '') + '">'
+        + '<td>' + dayCell(s, b ? '<span class="db-bt" title="Best day of the week">' + STAR + '</span>' : '') + '</td>'
+        + '<td class="db-p" data-l="Posts">' + nf(p) + '</td>'
+        + '<td class="db-e" data-l="Engagement"><div class="db-et"><b title="' + nf(e) + '">' + big(e) + '</b>' + dl + '</div>'
+        + '<div class="db-bar"><i style="width:' + Math.max(2, Math.round(e / eMax * 100)) + '%"></i></div>'
+        + '<div class="db-bd"><span class="l" title="Likes ' + nf(x.likes) + '">' + TW_I.lk + big(x.likes) + '</span>'
+        + '<span class="c" title="Comments ' + nf(x.comments) + '">' + TW_I.cm + big(x.comments) + '</span>'
+        + '<span class="s" title="Retweets ' + nf(x.shares) + '">' + TW_I.sh + big(x.shares) + '</span></div></td>'
+        + '<td class="db-v" data-l="Views" title="' + nf(x.views) + '">' + big(x.views) + '</td>'
+        + '<td class="db-pp" data-l="Per post"><b>' + (p ? big(e / p) : '—') + '</b><span>' + (p ? big((Number(x.views) || 0) / p) + ' views' : '') + '</span></td></tr>';
+    }).join('');
   }
 
   function chart(label, labels, data, c, zoom, bottom) {
