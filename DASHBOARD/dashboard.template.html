@@ -2232,9 +2232,12 @@ svg#indiaMap{width:100%;height:100%;max-width:100%;max-height:100%;display:block
 #pdesigSection #partyDesigTop5Grid .pdtile-lbl{order:0;margin:0;font-size:11px;color:#4B4B4B}
 #pdesigSection #partyDesigTop5Grid .pdtile-val{font-size:30px;margin-top:8px}
 #pdesigSection .pdtile-sub{font-size:12px;color:#8A8A8A;margin-top:4px}
-#pdesigSection .pd-nav{position:absolute;top:50%;margin-top:-22px;width:38px;height:38px;border-radius:50%;border:1px solid #E5E7EB;background:rgba(255,255,255,.95);
+#pdesigSection .pd-nav{position:absolute;top:50%;margin-top:-22px;width:38px;height:38px;border:none!important;background:none!important;box-shadow:none!important;color:#E65100!important;font-size:34px!important;font-weight:700;
   display:grid;place-items:center;cursor:pointer;color:#374151;font-size:20px;line-height:1;box-shadow:0 4px 12px -4px rgba(0,0,0,.2);z-index:3}
-#pdesigSection .pd-nav:hover{color:#E65100;border-color:#F7A25B}
+#pdesigSection .pd-nav:hover{color:#9A3412!important}
+#pdesigSection .pd-next{animation:pdNx 1.4s ease-in-out infinite}#pdesigSection .pd-prev{animation:pdPv 1.4s ease-in-out infinite}
+@keyframes pdNx{0%,100%{transform:translateX(-3px)}50%{transform:translateX(3px)}}@keyframes pdPv{0%,100%{transform:translateX(3px)}50%{transform:translateX(-3px)}}
+@media (prefers-reduced-motion:reduce){#pdesigSection .pd-nav{animation:none}}
 #pdesigSection .pd-prev{left:-14px}#pdesigSection .pd-next{right:-14px}#pdesigSection .pd-nav[hidden]{display:none}
 @media (max-width:900px){#pdesigSection #partyDesigTop5Grid .pdtile{flex-basis:calc((100% - 14px)/2)}}
 /* pd-kpi (31-Oct): Designation cards -- Dashboard KPI jaisi gradient ring, ek rang ek font */
@@ -4865,6 +4868,17 @@ a.pe-btn:after{content:"";position:absolute;inset:0;z-index:1;background:linear-
     .pd-card.pd-main .pd-val{color:var(--pc)}
     .pd-per{font-size:12px;color:#7A7166;margin-top:7px}
     .pd-per b{color:#1E1B16;font-weight:700}
+    /* hero-v3 (31-Oct): chips aur KPI cards na takraayein; logo gola bhare; badge chip me; KPI cards Dashboard jaise */
+    .pd-band{padding-bottom:84px!important}
+    #partyHeroLogo{padding:0!important}
+    #partyHeroLogo img{object-fit:cover!important;border-radius:50%!important}
+    #partyHeroBadge{display:none!important}
+    .pd-info .ph-badge-pill{text-transform:uppercase;letter-spacing:.04em;font-weight:700}
+    .pd-card{border:1.5px solid transparent!important;background:linear-gradient(#fff,#fff) padding-box,linear-gradient(110deg,#2B1407 0%,#5A2A0E 45%,#E8590C 100%) border-box!important;
+      box-shadow:0 2px 12px -4px rgba(43,20,7,.3)!important;transition:transform .25s,box-shadow .25s}
+    .pd-card:hover{transform:translateY(-3px);box-shadow:0 10px 24px -10px rgba(43,20,7,.45)!important}
+    .pd-lbl{color:#6B6B6B}.pd-val,.pd-card.pd-main .pd-val{color:#141414!important}.pd-per{color:#8A8A8A}.pd-per b{color:#141414}
+    @media (max-width:820px){.pd-band{padding-bottom:76px!important}}
     @media (max-width:820px){.pd-stats{grid-template-columns:1fr 1fr}.pd-band{padding:20px 18px 60px}.pd-band .ph-watermark{display:none!important}}
     </style>
     <div class="pd-hero" id="partyHeroCard">
@@ -4919,7 +4933,7 @@ a.pe-btn:after{content:"";position:absolute;inset:0;z-index:1;background:linear-
           </div>
           <div class="pdesig-title-right">
             <span class="pdesig-count-pill" id="desigTotalBadge">1,978 Total Handles</span>
-            <span style="font-size:10.5px;color:#94A3B8;font-style:italic">multi-role enabled</span>
+            
             <button class="pdesig-sec-collapse-btn" id="desigSecCollapseBtn" onclick="toggleDesigSectionFull()" title="Collapse or Expand Section">
               <svg id="desigSecCollapseIcon" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg>
               <span id="desigSecCollapseText">Collapse</span>
@@ -17218,17 +17232,15 @@ function openPartyDetail(partyName) {
   if (crumb) crumb.textContent = cfg.name + ' (' + cfg.fullName + ')';
 
   var logoUrl = (typeof window.partyLogoUrl === 'function') ? window.partyLogoUrl(partyName) : ((window.PARTY_LOGOS && window.PARTY_LOGOS[partyName]) || '/assets/party_logos/' + partyName + '.png');
+  /* hero-logo (31-Oct): party card jaisa -- /api/party-logo (official X / Wikipedia), phir purana logo, phir naam */
   var logo = document.getElementById('partyHeroLogo');
   if (logo) {
-    if (logoUrl) {
-      logo.style.background = '#FFFFFF';
-      logo.style.padding = '8px';
-      logo.innerHTML = '<img src="' + logoUrl + '" alt="' + (cfg.name || partyName) + '" loading="lazy" style="width:100%;height:100%;object-fit:contain;border-radius:50%" onerror="this.parentElement.style.background=\'' + cfg.color + '\';this.parentElement.style.padding=\'0\';this.parentElement.textContent=\'' + (cfg.name || partyName).slice(0, 4) + '\'">';
-    } else {
-      logo.style.background = cfg.color;
-      logo.style.padding = '0';
-      logo.textContent = (cfg.name || partyName).slice(0, 4);
-    }
+    logo.style.background = '#FFFFFF'; logo.style.padding = '0';
+    var _fb = function () { logo.style.background = cfg.color; logo.style.color = '#fff'; logo.textContent = (cfg.name || partyName).slice(0, 4); };
+    var _im = new Image(); _im.alt = cfg.name || partyName;
+    _im.onload = function () { logo.innerHTML = ''; logo.appendChild(_im); };
+    _im.onerror = function () { if (logoUrl && _im.src.indexOf('/api/party-logo') >= 0) _im.src = logoUrl; else _fb(); };
+    _im.src = '/api/party-logo?p=' + encodeURIComponent(partyName) + '&n=' + encodeURIComponent(cfg.fullName || '');
   }
   var wm = document.getElementById('partyHeroWatermark');
   if (wm) {
@@ -17252,11 +17264,12 @@ function openPartyDetail(partyName) {
 
   var linksBox = document.getElementById('partyHeroLinks');
   if (linksBox) {
-    linksBox.innerHTML = (cfg.links || []).map(function(l) {
+    /* hero-chips (31-Oct): sirf pehla handle + party badge chip (naam ke bagal wala badge chhupa) */
+    linksBox.innerHTML = (cfg.links || []).slice(0, 1).map(function(l) {
       return '<a href="' + l.url + '" target="_blank" class="ph-link-pill">'
         + '<svg viewBox="0 0 24 24" width="11" height="11" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 22.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>'
         + l.label + '</a>';
-    }).join('');
+    }).join('') + (cfg.badge ? '<span class="ph-link-pill ph-badge-pill">' + cfg.badge + '</span>' : '');
   }
 
   // Calculate live party metrics from window.HS or data
@@ -17374,8 +17387,7 @@ function renderPartyOverview() {
     rosterList.innerHTML = '';
     var topList = pinnedFirst(handles, PARTY_PINNED[pName]).slice(0, 15);
     topList.forEach(function(l) {
-      var _pin = isPinnedLeader(pName, l.handle)
-        ? ' <span style="font-size:9px;font-weight:800;color:#fff;background:' + cfg.color + ';border-radius:6px;padding:1px 6px;margin-left:4px;vertical-align:middle">Key Leader</span>' : '';
+      var _pin = '';   /* 31-Oct: 'Key Leader' badge hata diya */
       var item = document.createElement('div');
       item.className = 'roster-item';
       item.innerHTML = '<div class="roster-left">'
