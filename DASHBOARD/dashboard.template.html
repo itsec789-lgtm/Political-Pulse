@@ -2222,6 +2222,21 @@ svg#indiaMap{width:100%;height:100%;max-width:100%;max-height:100%;display:block
   text-overflow: ellipsis;
   margin-top: 4px;
 }
+/* pd-rail (31-Oct): Designation cards -- Dashboard category cards jaisa slide + grey ring */
+#pdesigSection .pd-rail{position:relative}
+#partyDesigTop5Grid{display:flex!important;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;padding:6px 2px 10px;scrollbar-width:none;grid-template-columns:none!important}
+#partyDesigTop5Grid::-webkit-scrollbar{display:none}
+#pdesigSection #partyDesigTop5Grid .pdtile{flex:0 0 calc((100% - 56px)/5);min-width:180px;scroll-snap-align:start;min-height:0;justify-content:flex-start;
+  background:#fff!important;border:1.5px solid #D4D8DE!important;border-radius:16px;padding:15px 16px 14px;box-shadow:0 2px 10px -4px rgba(30,40,60,.12)}
+#pdesigSection #partyDesigTop5Grid .pdtile:hover{border-color:#9CA3AF!important;transform:translateY(-3px);box-shadow:0 12px 26px -12px rgba(30,40,60,.3)}
+#pdesigSection #partyDesigTop5Grid .pdtile-lbl{order:0;margin:0;font-size:11px;color:#4B4B4B}
+#pdesigSection #partyDesigTop5Grid .pdtile-val{font-size:30px;margin-top:8px}
+#pdesigSection .pdtile-sub{font-size:12px;color:#8A8A8A;margin-top:4px}
+#pdesigSection .pd-nav{position:absolute;top:50%;margin-top:-22px;width:38px;height:38px;border-radius:50%;border:1px solid #E5E7EB;background:rgba(255,255,255,.95);
+  display:grid;place-items:center;cursor:pointer;color:#374151;font-size:20px;line-height:1;box-shadow:0 4px 12px -4px rgba(0,0,0,.2);z-index:3}
+#pdesigSection .pd-nav:hover{color:#E65100;border-color:#F7A25B}
+#pdesigSection .pd-prev{left:-14px}#pdesigSection .pd-next{right:-14px}#pdesigSection .pd-nav[hidden]{display:none}
+@media (max-width:900px){#pdesigSection #partyDesigTop5Grid .pdtile{flex-basis:calc((100% - 14px)/2)}}
 /* pd-kpi (31-Oct): Designation cards -- Dashboard KPI jaisi gradient ring, ek rang ek font */
 #pdesigSection .pdtile{border:1.5px solid transparent!important;border-radius:14px;padding:14px 16px;
   background:linear-gradient(#fff,#fff) padding-box,linear-gradient(110deg,#2B1407 0%,#5A2A0E 45%,#E8590C 100%) border-box!important;
@@ -17322,6 +17337,26 @@ function getPartyHandlesList(partyName) {
   return list;
 }
 
+/* pd-rail (31-Oct): designation cards ek line me, dono taraf gol teer se slide */
+function pdRail(g) {
+  var w = g.parentNode;
+  if (!w.classList.contains('pd-rail')) {
+    var r = document.createElement('div'); r.className = 'pd-rail'; w.insertBefore(r, g); r.appendChild(g);
+    r.insertAdjacentHTML('beforeend', '<button type="button" class="pd-nav pd-prev" aria-label="Previous">&#8249;</button><button type="button" class="pd-nav pd-next" aria-label="Next">&#8250;</button>');
+    var pv = r.querySelector('.pd-prev'), nx = r.querySelector('.pd-next');
+    pv.onclick = function () { g.scrollBy({ left: -g.clientWidth * 0.8, behavior: 'smooth' }); };
+    nx.onclick = function () { g.scrollBy({ left: g.clientWidth * 0.8, behavior: 'smooth' }); };
+    g.addEventListener('scroll', function () { pdRailUpd(g); });
+    window.addEventListener('resize', function () { pdRailUpd(g); });
+    w = r;
+  }
+  g.scrollLeft = 0; setTimeout(function () { pdRailUpd(g); }, 50);
+}
+function pdRailUpd(g) {
+  var r = g.parentNode; if (!r || !r.classList.contains('pd-rail')) return;
+  r.querySelector('.pd-prev').hidden = g.scrollLeft < 5;
+  r.querySelector('.pd-next').hidden = g.scrollLeft + g.clientWidth >= g.scrollWidth - 5;
+}
 function renderPartyOverview() {
   var pName = _activePartyKey;
   var cfg = PARTY_CONFIGS[pName] || { color: partyColorOf(pName) };
@@ -17362,7 +17397,10 @@ function renderPartyOverview() {
     desigCounts[role] = (desigCounts[role] || 0) + 1;
   });
 
-  var roles = Object.keys(desigCounts).sort(function(a, b) { return desigCounts[b] - desigCounts[a]; });
+  /* pd-rail (31-Oct): power order -- CM, Dy CM, LS MP, RS MP, MLA ... baaki count se */
+  var PD_ORDER = [/chief minister|^cm$/i, /dy\.? ?cm|deputy chief/i, /ls ?mp|lok sabha/i, /rs ?mp|rajya sabha/i, /^mla$|legislative assembly/i, /mlc/i];
+  function pdRank(r) { for (var q = 0; q < PD_ORDER.length; q++) if (PD_ORDER[q].test(r)) return q; return 99; }
+  var roles = Object.keys(desigCounts).sort(function(a, b) { return pdRank(a) - pdRank(b) || desigCounts[b] - desigCounts[a]; });
   var top5Grid = document.getElementById('partyDesigTop5Grid');
   var moreGrid = document.getElementById('partyDesigMoreGrid');
   var drawer = document.getElementById('partyDesigMoreDrawer');
@@ -17385,24 +17423,21 @@ function renderPartyOverview() {
       var pct = ((count / Math.max(1, totalHandles)) * 100).toFixed(1);
       var tile = document.createElement('div');
       tile.className = 'pdtile';
-      tile.innerHTML = '<div class="pdtile-top">'
-        + '<span class="pdtile-rank">#' + (idx + 1) + ' Role</span>'
-        + '<span class="pdtile-pct">' + pct + '%</span></div>'
-        + '<div><div class="pdtile-val">' + count.toLocaleString('en-IN') + '</div>'
-        + '<div class="pdtile-lbl" title="' + role + '">' + role + '</div></div>'
-        + '<div class="pdtile-bar"><i style="width:' + Math.max(2, Math.min(100, +pct)) + '%"></i></div>';   /* pd-kpi: hissa */
+      tile.innerHTML = '<div class="pdtile-lbl" title="' + role + '">' + role + '</div>'
+        + '<div class="pdtile-val">' + count.toLocaleString('en-IN') + '</div>'
+        + '<div class="pdtile-sub">' + pct + '% of handles</div>';
 
-      if (idx < 5) top5Grid.appendChild(tile);
-      else moreGrid.appendChild(tile);
+      top5Grid.appendChild(tile);   /* pd-rail: sab ek line me, slide se */
     });
 
-    var rem = roles.length - 5;
+    var rem = 0;   /* pd-rail: 'Show more' ki zaroorat nahi */
     if (rem > 0) {
       if (toggleWrap) toggleWrap.style.display = 'flex';
       if (toggleText) toggleText.textContent = 'Show More Roles (+' + rem + ')';
     } else {
       if (toggleWrap) toggleWrap.style.display = 'none';
     }
+    pdRail(top5Grid);
   }
 
   // Overview Donut Chart
