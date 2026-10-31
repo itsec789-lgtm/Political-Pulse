@@ -6202,6 +6202,9 @@ a.pe-btn:after{content:"";position:absolute;inset:0;z-index:1;background:linear-
   .db-hd{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px}
   .db-hd .ha-stitle{margin:0}
   #haDailyNote{display:block;font-size:12px;color:#78716C;margin-top:4px}
+  .db-yr{display:inline-block;margin-left:8px;padding:2px 10px;border-radius:999px;font:700 12px Inter,sans-serif;color:#C2410C;
+    background:#FFF3E8;border:1px solid #F7C9A0;vertical-align:3px}
+  .db-yr:empty{display:none}
   .db-sum{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:14px}
   .db-sum:empty{display:none}
   .db-tile{border:1.5px solid transparent;border-radius:14px;padding:11px 14px;min-width:0;
@@ -6263,7 +6266,7 @@ a.pe-btn:after{content:"";position:absolute;inset:0;z-index:1;background:linear-
   </style>
   <div class="ha-card">
     <div class="db-hd">
-      <div><div class="ha-stitle">Daily Breakdown</div><span id="haDailyNote"></span></div>
+      <div><div class="ha-stitle">Daily Breakdown <span class="db-yr" id="haDailyYr"></span></div><span id="haDailyNote"></span></div>
     </div>
     <div class="db-sum" id="haDailySum"></div>
     <div class="db-wrap">
@@ -11930,7 +11933,9 @@ setTimeout(hExec,600);
     var tot = have.reduce(function (a, x) { return a + (Number(map[x].engagement) || 0); }, 0);
     var posts = have.reduce(function (a, x) { return a + (Number(map[x].posts) || 0); }, 0);
     var views = have.reduce(function (a, x) { return a + (Number(map[x].views) || 0); }, 0);
-    if (note) note.textContent = nice(from) + ' – ' + nice(to) + ' ' + to.slice(0, 4) + ' · last 7 days of collected data';
+    if (note) note.textContent = nice(from) + ' – ' + nice(to) + ' · last 7 days of collected data';
+    var yr = el('haDailyYr'), y0 = from.slice(0, 4), y1 = to.slice(0, 4);
+    if (yr) yr.textContent = y0 === y1 ? y1 : y0 + ' – ' + y1;
     function tile(k, v, s, c) { return '<div class="db-tile' + (c ? ' ' + c : '') + '"><span class="k">' + k + '</span><b>' + v + '</b><span class="s">' + s + '</span></div>'; }
     sum.innerHTML = have.length
       ? tile('Best day', nice(best, true), big(map[best].engagement) + ' engagement', 'best')
@@ -11941,7 +11946,8 @@ setTimeout(hExec,600);
     var STAR = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l2.9 6.6 7.1.6-5.4 4.7 1.6 7L12 17.3 5.8 21l1.6-7L2 9.2l7.1-.6z"/></svg>';
     function dayCell(s, extra) {
       var x = new Date(T(s));
-      return '<div class="db-day"><span class="n">' + x.getUTCDate() + '</span><span class="w">' + WD[x.getUTCDay()] + (extra || '') + '<span>' + MO[x.getUTCMonth()] + ' ' + x.getUTCFullYear() + '</span></span></div>';
+      /* db-yr (31-Oct): row me sirf din + mahina; saal upar title ke paas ek baar */
+      return '<div class="db-day"><span class="n">' + x.getUTCDate() + '</span><span class="w">' + WD[x.getUTCDay()] + (extra || '') + '<span>' + MO[x.getUTCMonth()] + '</span></span></div>';
     }
     box.innerHTML = days.map(function (s) {
       var x = map[s];
