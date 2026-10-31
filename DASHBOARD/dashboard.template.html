@@ -11,9 +11,33 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-datalabels/2.2.0/chartjs-plugin-datalabels.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script>
+/* ui-scale (31-Oct): seniors -- "sab zoom-zoom lagta hai". Laptop / desktop par poora dashboard 90%
+   (CSS zoom, html par; phone par 100%). Browser ka Ctrl - jaisa hi asar, sab ek anupaat me.
+   uiZ() = abhi ka zoom -- jo code maus / getBoundingClientRect se left/top/height LIKHTA hai
+   wo isse bhaag deta hai (padhe gaye number screen ke px me hote hain, likhe gaye CSS px me).
+   html2canvas zoom nahi samajhta -- isliye PDF / screenshot banate waqt zoom kuch der band. */
+window.uiZ = function () { var z = parseFloat(getComputedStyle(document.documentElement).zoom); return z > 0 ? z : 1; };
+(function () {
+  var f = window.html2canvas; if (typeof f !== 'function') return;
+  var busy = 0, R = document.documentElement, back = null;
+  window.html2canvas = function () {
+    busy++; clearTimeout(back); R.classList.add('uiz-off');
+    /* PDF code capture ke turant baad rows naapta hai, aur kai block ek ke baad ek -- isliye zoom
+       aakhri capture ke ~1.2 s baad hi wapas */
+    var done = function () { if (--busy <= 0) { busy = 0; clearTimeout(back); back = setTimeout(function () { if (!busy) R.classList.remove('uiz-off'); }, 1200); } };
+    var p;
+    try { p = f.apply(this, arguments); } catch (e) { done(); throw e; }
+    Promise.resolve(p).then(done, done);
+    return p;
+  };
+})();
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=DM+Sans:wght@400;500;600;700&family=Tiro+Devanagari+Hindi&display=swap" rel="stylesheet">
 <style>
+/* ui-scale (31-Oct): laptop / desktop par 90% (dekho upar uiZ). Phone par 100%. */
+@media (min-width:1100px){html:not(.uiz-off){zoom:.9}}
 *{margin:0;padding:0;box-sizing:border-box}
 :root{--header-h:66px;--sb-w:196px;--saffron:#E65100;--saffron2:#FF8F00;--green:#1B5E20;--navy:#0D1B6E;--bg:#F7F5F2;--card:#FFFFFF;--border:#E5E0D8;--text:#1A1A1A;--muted:#666;--muted2:#999}
 body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh}
@@ -3928,6 +3952,22 @@ window.uiDetail=(function(){
   return {chart:chart,stats:stats,table:table,range:range,cmp:cmp,full:full,long:long,nice:nice};
 })();
 </script>
+<style>
+/* ui-scale (31-Oct): 90% zoom ke saath sabse bade dibbon ki faltu jagah bhi thodi kam -- sirf laptop/desktop.
+   "html body" = taaki neeche (baad me) likhe asli rules par bhi ye jeete. Wapas lena ho to ye block hata do. */
+@media (min-width:1100px){
+  html body main{padding:14px 20px}
+  html body .ui-hero{min-height:150px;padding:22px 26px 20px}
+  html body #sec-dashboard .kpi{padding:12px 14px 0}
+  html body #sec-dashboard .lv-rail .lv-card{min-height:124px;padding:13px 15px 10px}
+  html body #sec-dashboard .kpi-dp-chart{height:260px}
+  html body #sec-dashboard .kpi-dp-tbl{max-height:260px}
+  html body .ha-card{padding:14px 16px;margin-bottom:12px}
+  html body .ha-banner{min-height:196px;padding:22px 26px}
+  html body .pa-rail .pa-tabs{padding:12px 20px 14px}
+  html body .cp-ch{height:260px}
+}
+</style>
 </head>
 <body>
 <script>/* up-terms (12-Oct): kaun sa field "location" hai -- yahi ek
@@ -8232,10 +8272,11 @@ function showTT(e,s){
   else h+=`<div style="font-size:10px;color:rgba(255,255,255,.4);margin-top:4px">No CM/DCM data</div>`;
   h+=`<div class="tt-hint">Click for full details &rarr;</div>`;
   tt.innerHTML=h;tt.style.display='block';
-  tt.style.left=(e.clientX+16)+'px';tt.style.top=(e.clientY-8)+'px';
+  const z=window.uiZ?uiZ():1;   /* ui-scale: screen px -> CSS px */
+  tt.style.left=((e.clientX+16)/z)+'px';tt.style.top=((e.clientY-8)/z)+'px';
   const r=tt.getBoundingClientRect();
-  if(r.right>window.innerWidth-10)tt.style.left=(e.clientX-r.width-12)+'px';
-  if(r.bottom>window.innerHeight-10)tt.style.top=(e.clientY-r.height-8)+'px';
+  if(r.right>window.innerWidth-10)tt.style.left=((e.clientX-r.width-12)/z)+'px';
+  if(r.bottom>window.innerHeight-10)tt.style.top=((e.clientY-r.height-8)/z)+'px';
 }
 function hideTT(){document.getElementById('mapTooltip').style.display='none'}
 function selectState(s){
@@ -8763,7 +8804,7 @@ function upLegend(){const el=document.getElementById('upLegend');if(!el)return;l
  else h='<span class="lg"><span class="sw" style="background:#43A047"></span>More positive</span><span class="lg"><span class="sw" style="background:#FB8C00"></span>Mostly neutral</span><span class="lg"><span class="sw" style="background:#E53935"></span>Higher negative</span>';el.innerHTML=h}
 let upTip;function upTT(e,nm){if(!upTip){upTip=document.createElement('div');upTip.className='map-tooltip';document.body.appendChild(upTip)}const d=UD[nm];let h='<div class="tt-state">'+nm+'</div>';
  if(d)h+='<div class="tt-cm">'+d.top_party+' leads · '+d.tw+' tweets</div><div class="tt-row"><span class="tt-lbl">Views</span><span class="tt-val">'+uf(d.vw)+'</span></div><div class="tt-row"><span class="tt-lbl">Pos / Neg</span><span class="tt-val">'+d.pos+' / '+d.neg+'</span></div>';else h+='<div style="font-size:10px;color:rgba(255,255,255,.5);margin-top:4px">No mapped data</div>';
- h+='<div class="tt-hint">Click to drill down →</div>';upTip.innerHTML=h;upTip.style.display='block';upTip.style.left=(e.clientX+15)+'px';upTip.style.top=(e.clientY-10)+'px';const r=upTip.getBoundingClientRect();if(r.right>window.innerWidth-8)upTip.style.left=(e.clientX-r.width-12)+'px';if(r.bottom>window.innerHeight-8)upTip.style.top=(e.clientY-r.height-8)+'px'}
+ h+='<div class="tt-hint">Click to drill down →</div>';upTip.innerHTML=h;upTip.style.display='block';const z=window.uiZ?uiZ():1;upTip.style.left=((e.clientX+15)/z)+'px';upTip.style.top=((e.clientY-10)/z)+'px';const r=upTip.getBoundingClientRect();if(r.right>window.innerWidth-8)upTip.style.left=((e.clientX-r.width-12)/z)+'px';if(r.bottom>window.innerHeight-8)upTip.style.top=((e.clientY-r.height-8)/z)+'px'}
 function upHideTT(){if(upTip)upTip.style.display='none'}
 window.upSelect=function(nm){upScope=nm;document.querySelectorAll('.up-path').forEach(p=>{const on=p.getAttribute('data-d')===nm;p.classList.toggle('sel',on);p.style.opacity=on?'1':'0.35'});upPanel(nm);upRenderCharts(nm);upScopeBar()}
 window.upResetScope=function(){upScope=null;document.querySelectorAll('.up-path').forEach(p=>{p.classList.remove('sel');p.style.opacity='1'});upDefaultPanel();upRenderCharts(null);upScopeBar()}
@@ -10069,7 +10110,7 @@ setTimeout(ovRefresh,80);
 
 </script>
 <script>window.addEventListener("load",function(){function go(){try{window.renderDashDate&&window.renderDashDate();}catch(e){}try{window.ovRefresh&&window.ovRefresh();}catch(e){}try{typeof renderLeaders==="function"&&renderLeaders();}catch(e){}try{window.mlaOpts&&window.mlaOpts();}catch(e){}try{window.renderMLA&&window.renderMLA();}catch(e){}try{window.filterTable&&window.filterTable();}catch(e){}try{window.upBarRefresh&&window.upBarRefresh();}catch(e){}try{window.updateLevelStrip&&window.updateLevelStrip();}catch(e){}try{window.hashFillParty&&window.hashFillParty();}catch(e){}try{window.profFillParty&&window.profFillParty();}catch(e){}try{window.hydrateExec&&window.hydrateExec();}catch(e){}try{window.hMore&&window.hMore();}catch(e){}try{window.hCM&&window.hCM();}catch(e){}}go();setTimeout(go,250);setTimeout(go,700);});</script>
-<script>(function(){function al(){var wh=document.querySelector('.hdr-wh'),hd=document.querySelector('header');var H=0;if(wh)H=wh.getBoundingClientRect().height;if(!H&&hd)H=hd.offsetHeight;if(!H)return;var b=document.getElementById('sbBand'),g=document.getElementById('sbBright');if(b)b.setAttribute('height',H.toFixed(2));if(g){g.setAttribute('y',(H-2.0).toFixed(2));}}window.addEventListener('load',al);window.addEventListener('resize',al);setTimeout(al,300);setTimeout(al,800);})();</script>
+<script>(function(){function al(){var wh=document.querySelector('.hdr-wh'),hd=document.querySelector('header');var H=0;if(wh)H=wh.getBoundingClientRect().height/(window.uiZ?uiZ():1);if(!H&&hd)H=hd.offsetHeight;if(!H)return;var b=document.getElementById('sbBand'),g=document.getElementById('sbBright');if(b)b.setAttribute('height',H.toFixed(2));if(g){g.setAttribute('y',(H-2.0).toFixed(2));}}window.addEventListener('load',al);window.addEventListener('resize',al);setTimeout(al,300);setTimeout(al,800);})();</script>
 <script>(function(){var sb=document.querySelector("#mainNav")||document.querySelector(".sidebar");if(!sb)return;sb.addEventListener("wheel",function(e){var can=sb.scrollHeight>sb.clientHeight+1;if(!can){e.preventDefault();return;}var up=e.deltaY<0&&sb.scrollTop<=0;var dn=e.deltaY>0&&(sb.scrollTop+sb.clientHeight)>=(sb.scrollHeight-1);if(up||dn){e.preventDefault();}},{passive:false});sb.addEventListener("touchmove",function(e){var can=sb.scrollHeight>sb.clientHeight+1;if(!can)e.preventDefault();},{passive:false});})();</script>
 <script>
 (function(){
@@ -11621,7 +11662,8 @@ setTimeout(hExec,600);
     }
     box.onmousemove = function (e) {
       var b = svg.getBoundingClientRect();
-      show(Math.max(0, Math.min(n - 1, Math.round(((e.clientX - b.left) - pl) / iw * (n - 1)))));
+      /* ui-scale: maus screen px me, graph ki ganit viewBox (CSS px) me -- b.width se barabar karo */
+      show(Math.max(0, Math.min(n - 1, Math.round(((e.clientX - b.left) * (W / (b.width || W)) - pl) / iw * (n - 1)))));
     };
     box.onmouseleave = function () { box.classList.remove('on'); gl.style.display = 'none'; dt.style.display = 'none'; };
   }
@@ -13003,7 +13045,7 @@ setTimeout(hExec,600);
   function syncH(){
     try{
       var h=document.querySelector('header'); if(!h)return;
-      var v=Math.round(h.getBoundingClientRect().height);
+      var v=Math.round(h.getBoundingClientRect().height/(window.uiZ?uiZ():1));   /* ui-scale: CSS px me */
       if(v>0)document.documentElement.style.setProperty('--header-h',v+'px');
     }catch(e){}
   }
@@ -13378,14 +13420,14 @@ setTimeout(hExec,600);
     OPEN = null;
   }
   function place(anchor) {
-    var r = anchor.getBoundingClientRect();
+    var r = anchor.getBoundingClientRect(), z = W.uiZ ? W.uiZ() : 1;   /* ui-scale: sab screen px me, likhte waqt CSS px */
     POP.style.left = '0px'; POP.style.top = '0px';
-    var w = POP.offsetWidth, h = POP.offsetHeight;
+    var w = POP.offsetWidth * z, h = POP.offsetHeight * z;
     var L = Math.min(Math.max(8, r.left), W.innerWidth - w - 8);
     var T = r.bottom + 5;
     if (T + h > W.innerHeight - 8) T = Math.max(8, r.top - h - 5);
-    POP.style.left = L + 'px';
-    POP.style.top = T + 'px';
+    POP.style.left = (L / z) + 'px';
+    POP.style.top = (T / z) + 'px';
   }
 
   /* ---------- helper ---------- */
@@ -15127,7 +15169,7 @@ W.__pfByParty = byParty; W.__pfMetrics = metrics; W.__pfCATS = CATS; W.__pfDAYS 
       if (!down) return;
       var dx = e.clientX - x0;
       if (!moved && Math.abs(dx) > 5) { moved = true; s.classList.add('is-drag'); }
-      if (moved) s.scrollLeft = l0 - dx;
+      if (moved) s.scrollLeft = l0 - dx / (window.uiZ ? uiZ() : 1);   /* ui-scale: ungli ke saath barabar chale */
     });
     window.addEventListener('pointerup', function () {
       if (!down) return;
@@ -16954,7 +16996,7 @@ function renderNgComparisonChart() {
             var canvasRect = chart.canvas.getBoundingClientRect();
             var left = tooltip.caretX + 15;
             var top = tooltip.caretY - 20;
-            if (left + 180 > canvasRect.width) left = tooltip.caretX - 195;
+            if (left + 180 > (chart.width || canvasRect.width)) left = tooltip.caretX - 195;   /* ui-scale: CSS px */
             if (top < 0) top = 10;
 
             tooltipEl.style.display = 'block';
@@ -18706,8 +18748,8 @@ function toggleModalLeader(handle) {
   var CARD='.kpi,.lv-card,.ov-card,.sum-card';
   function onMove(e){
     var c=e.target&&e.target.closest?e.target.closest(CARD):null;if(!c||!SEC.contains(c))return;
-    var r=c.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top;
-    c.style.setProperty('--mx',x+'px');c.style.setProperty('--my',y+'px');
+    var r=c.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top,z=window.uiZ?uiZ():1;
+    c.style.setProperty('--mx',(x/z)+'px');c.style.setProperty('--my',(y/z)+'px');   /* ui-scale: CSS px */
     if(!RM&&c.classList.contains('kpi')&&!c.classList.contains('kpi-open')){
       c.style.setProperty('--ry',((x/r.width-.5)*5).toFixed(2)+'deg');
       c.style.setProperty('--rx',((.5-y/r.height)*5).toFixed(2)+'deg');
