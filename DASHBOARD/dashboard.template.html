@@ -5953,18 +5953,77 @@ a.pe-btn:after{content:"";position:absolute;inset:0;z-index:1;background:linear-
     /* bn-act (31-Oct): banner ke neeche-daayein kone me -- gehra kaanch pill + safed button, photo par bhi saaf padhe */
     .ha-banner > .ha-bnact{position:absolute;right:16px;bottom:14px;z-index:3;display:flex;align-items:center;gap:8px}
     .ha-bnact:empty{display:none}
-    .ha-bnact .pa-per{margin:0;display:inline-flex;align-items:center;height:34px;padding:0 14px;border-radius:999px;font-size:12.5px;color:rgba(255,255,255,.88);
-      background:rgba(20,10,4,.62);border:1px solid rgba(255,255,255,.18);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);
-      box-shadow:0 8px 20px -10px rgba(0,0,0,.6);white-space:nowrap}
-    .ha-bnact .pa-per b{color:#fff;font-weight:700;margin-right:2px}
-    .ha-bnact .pa-abtn{height:34px;border-radius:999px;padding:0 15px;border:0;background:#fff;color:#141414;font-weight:600;
-      box-shadow:0 8px 20px -10px rgba(0,0,0,.6)}
-    .ha-bnact .pa-abtn svg{color:#E65100}
-    .ha-bnact .pa-abtn:hover{background:#FFF3E8}
-    .ha-bnact .pa-abtn.on{background:linear-gradient(110deg,#2B1407,#E8590C);color:#fff}
-    .ha-bnact .pa-abtn.on svg{color:#fff}
-    .ha-bnact .pa-abtn:focus-visible{outline:2px solid #fff;outline-offset:2px}
-    .ha-bnact .pa-per{width:auto;order:0}
+    /* pa-rail (31-Oct): Analysis button -- gehra bhoora -> kesariya, safed kinara, chamak ki lakeer, halki saans */
+    .ha-bnact .pa-abtn{position:relative;overflow:hidden;height:40px;border-radius:999px;padding:0 18px 0 14px;gap:8px;
+      border:1.5px solid rgba(255,255,255,.75);color:#fff;font-weight:700;font-size:13.5px;letter-spacing:.2px;
+      background:linear-gradient(110deg,#2B1407 0%,#5A2A0E 45%,#E8590C 100%);
+      box-shadow:0 10px 24px -10px rgba(0,0,0,.7),0 0 0 0 rgba(255,153,51,.55);animation:paBreath 2.8s ease-in-out infinite;
+      transition:transform .25s cubic-bezier(.34,1.56,.64,1),box-shadow .25s}
+    .ha-bnact .pa-abtn svg{width:16px;height:16px;color:#FFB37A;transition:transform .45s cubic-bezier(.34,1.56,.64,1)}
+    .ha-bnact .pa-abtn:hover{transform:translateY(-2px);background:linear-gradient(110deg,#2B1407 0%,#6B300E 40%,#F26B1D 100%)}
+    .ha-bnact .pa-abtn:hover svg{transform:rotate(90deg)}
+    .ha-bnact .pa-abtn:active{transform:scale(.96)}
+    .ha-bnact .pa-abtn.on{background:#fff;color:#2B1407;border-color:#fff;animation:none}
+    .ha-bnact .pa-abtn.on svg{color:#E65100;transform:rotate(45deg)}
+    .ha-bnact .pa-abtn:focus-visible{outline:2px solid #fff;outline-offset:3px}
+    .pa-shine{position:absolute;top:-20%;bottom:-20%;left:-40%;width:30%;transform:skewX(-20deg);pointer-events:none;
+      background:linear-gradient(90deg,transparent,rgba(255,255,255,.45),transparent);animation:paShine 3.6s ease-in-out 1s infinite}
+    .pa-abtn.on .pa-shine{display:none}
+    @keyframes paShine{0%{left:-40%}40%,100%{left:130%}}
+    @keyframes paBreath{0%,100%{box-shadow:0 10px 24px -10px rgba(0,0,0,.7),0 0 0 0 rgba(255,153,51,.5)}50%{box-shadow:0 10px 24px -10px rgba(0,0,0,.7),0 0 0 6px rgba(255,153,51,0)}}
+
+    /* pa-rail: KPI cards ek line me, left-right slide (Dashboard ki category row jaisa) */
+    .pa-rail{position:relative;border-top:1px solid #E5E7EB}
+    .pa-rail .pa-tabs{display:flex;grid-template-columns:none;border-top:0;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x proximity;scroll-behavior:smooth;
+      scrollbar-width:none;overscroll-behavior-x:contain;padding:14px 22px 16px;scroll-padding-inline:22px;
+      -webkit-mask-image:linear-gradient(90deg,transparent 0,#000 var(--fl,0px),#000 calc(100% - var(--fr,0px)),transparent 100%);
+      mask-image:linear-gradient(90deg,transparent 0,#000 var(--fl,0px),#000 calc(100% - var(--fr,0px)),transparent 100%)}
+    .pa-rail .pa-tabs::-webkit-scrollbar{display:none}
+    .pa-rail .pa-tab{flex:0 0 max(200px,calc((100% - 36px) / 4));scroll-snap-align:start}
+    .pa-tab.pa-info{cursor:default;background:linear-gradient(#FBF9F6,#FBF9F6) padding-box,linear-gradient(110deg,#2B1407 0%,#5A2A0E 45%,#E8590C 100%) border-box}
+    .pa-tab.pa-info:hover{transform:none;box-shadow:0 2px 12px -4px rgba(43,20,7,.3)}
+    .pa-nav{position:absolute;top:50%;z-index:3;width:36px;height:36px;margin-top:-18px;border-radius:50%;padding:0;cursor:pointer;display:grid;place-items:center;
+      color:#374151;background:rgba(255,255,255,.95);border:1px solid #E5E7EB;box-shadow:0 8px 20px -8px rgba(30,40,60,.4);
+      transition:opacity .3s,transform .3s cubic-bezier(.34,1.56,.64,1),color .2s,border-color .2s}
+    .pa-nav svg{width:16px;height:16px}
+    .pa-nav.prev{left:4px}.pa-nav.prev svg{transform:rotate(90deg)}
+    .pa-nav.next{right:4px}.pa-nav.next svg{transform:rotate(-90deg)}
+    .pa-nav:hover{color:#E65100;border-color:#F7A25B;transform:scale(1.08)}
+    .pa-nav:active{transform:scale(.94)}
+    .pa-nav.off{opacity:0;pointer-events:none;transform:scale(.8)}
+    @media(max-width:820px){.pa-rail .pa-tab{flex-basis:170px}.pa-nav{display:none}.pa-rail .pa-tabs{padding:12px 14px 14px}}
+
+    /* pa-rail: Analysis panel -- gehra AI saaransh, rangeen ring wale chhote graph, ek-ek karke ubharte */
+    #paOv,#haBanner{scroll-margin-top:96px}
+    #paOv .in{padding-top:18px}
+    #paOv .pa-sum{position:relative;overflow:hidden;border:0;border-radius:16px;padding:16px 18px 14px;color:#F5E9DF;
+      background:radial-gradient(120% 160% at 0% 0%,#3A1C0B 0%,#1E0F07 55%,#120904 100%);box-shadow:0 18px 40px -24px rgba(43,20,7,.8)}
+    #paOv .pa-sum::after{content:'';position:absolute;inset:-40% -10% auto auto;width:60%;height:160%;pointer-events:none;
+      background:radial-gradient(closest-side,rgba(232,89,12,.28),transparent);animation:paGlow 6s ease-in-out infinite alternate}
+    @keyframes paGlow{to{transform:translate(-14%,10%)}}
+    #paOv .pa-sum > *{position:relative;z-index:1}
+    #paOv .pa-st{color:#fff;letter-spacing:.9px}
+    #paOv .pa-ai{color:#D6C3B4}#paOv .pa-ai b{color:#FFB37A}#paOv .pa-ai svg{color:#fff}
+    #paOv .pa-lng{background:rgba(255,255,255,.1)}
+    #paOv .pa-lng button{color:#E8D9CC}#paOv .pa-lng button.on{background:#fff;color:#2B1407}
+    #paOv .pa-sum ul{color:#EADBCF}
+    #paOv .pa-sum li::marker{color:#FF8A3D}
+    #paOv .pa-sum b{color:#fff}
+    #paOv .pa-sum b.pa-up{color:#5EE29A}#paOv .pa-sum b.pa-dn{color:#FF8A80}
+    #paOv .pa-skl{background:linear-gradient(90deg,rgba(255,255,255,.08) 0%,rgba(255,255,255,.2) 40%,rgba(255,255,255,.08) 80%);background-size:200% 100%}
+    #paOv .pa-mh{display:flex;align-items:center;gap:8px;margin-top:4px}
+    #paOv .pa-mh::before{content:'';width:4px;height:14px;border-radius:2px;background:linear-gradient(#2B1407,#E8590C)}
+    #paOv .pa-mc{border:1.5px solid transparent;border-radius:14px;
+      background:linear-gradient(#fff,#fff) padding-box,linear-gradient(110deg,#2B1407 0%,#5A2A0E 45%,#E8590C 100%) border-box;
+      box-shadow:0 2px 12px -4px rgba(43,20,7,.25);transition:transform .25s cubic-bezier(.2,.8,.2,1),box-shadow .25s}
+    #paOv .pa-mc:hover{transform:translateY(-3px);box-shadow:0 14px 28px -14px rgba(43,20,7,.45)}
+    #paOv.open .pa-sum{animation:paRise .55s cubic-bezier(.2,.8,.2,1) both}
+    #paOv.open .pa-mh{animation:paRise .5s cubic-bezier(.2,.8,.2,1) .12s both}
+    #paOv.open .pa-mc{animation:paRise .55s cubic-bezier(.2,.8,.2,1) both}
+    #paOv.open .pa-mc:nth-child(1){animation-delay:.16s}#paOv.open .pa-mc:nth-child(2){animation-delay:.22s}#paOv.open .pa-mc:nth-child(3){animation-delay:.28s}
+    #paOv.open .pa-mc:nth-child(4){animation-delay:.34s}#paOv.open .pa-mc:nth-child(5){animation-delay:.40s}#paOv.open .pa-mc:nth-child(6){animation-delay:.46s}
+    @keyframes paRise{from{opacity:0;transform:translateY(14px) scale(.98)}to{opacity:1;transform:none}}
+    @media (prefers-reduced-motion:reduce){.ha-bnact .pa-abtn,.pa-shine,#paOv .pa-sum::after,#paOv.open .pa-sum,#paOv.open .pa-mh,#paOv.open .pa-mc{animation:none}.pa-rail .pa-tabs{scroll-behavior:auto}}
     @media (max-width:700px){.ha-banner > .ha-bnact{position:static;width:100%;justify-content:flex-end;flex-wrap:wrap}}
     /* KPI card: kesariya outline + halki kesariya chhaya; chuna hua card gehra kesariya */
     .pa-tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;padding:14px 22px 16px;border-top:1px solid #E5E7EB}
@@ -11307,18 +11366,29 @@ setTimeout(hExec,600);
     PA.pts = pts;
     function ofViews(v) { return (s.avgViews > 0 && v !== null && v !== undefined) ? (Math.round(v * 1000 / s.avgViews) / 10) + '%' : ''; }
 
+    /* pa-rail (31-Oct): followers / following / total posts ki alag line hata kar KPI card bana diye.
+       Followers par graph = roz kitne followers bade (pichhle data wale din se); Following / Total posts sirf jaankari. */
     var fol = p.xFollowers || s.followers, fing = p.xFollowing || s.following, tp = p.xPosts || s.totalPosts;
+    var fd = d.filter(function (x) { return x.followers > 0; });
+    var fGain = fd.length > 1 ? fd[fd.length - 1].followers - fd[0].followers : null;
+    PA.tabs.unshift({ t: 'Followers', v: fol ? big(fol) : '—',
+      d: fGain === null ? 'on X' : '<span class="' + (fGain >= 0 ? 'pa-up' : 'pa-dn') + '">' + (fGain >= 0 ? '+' : '−') + big(Math.abs(fGain)) + '</span> in this period',
+      S: function () {
+        var prev = null, lab = [], tip = [], v = [];
+        fd.forEach(function (x) { if (prev !== null) { lab.push(paShort(x.date)); tip.push(paDay(x.date, yr)); v.push(Math.max(0, x.followers - prev)); } prev = x.followers; });
+        return { wk: false, lab: lab, tip: tip, v: v };
+      }, u: 'followers gained', c: 'Followers gained', per: 'per day' });
+    PA.tabs.push({ t: 'Following', v: fing ? big(fing) : '—', d: 'accounts followed', info: true });
+    PA.tabs.push({ t: 'Total posts', v: tp ? big(tp) : '—', d: 'all-time on X', info: true });
     el('haCells').innerHTML =
-        '<div class="pa-id">'
-      + '<div class="pa-fol pa-num"><b>' + (fol ? big(fol) : '—') + '</b><span>followers'
-      + (fing ? ' &middot; following <em>' + big(fing) + '</em>' : '') + (tp ? ' &middot; <em>' + big(tp) + '</em> total posts' : '') + '</span></div>'
-      + '<div class="pa-per"><b>' + paPerLabel(per) + '</b>' + (range ? ' &middot; ' + range : '') + '</div>'
-      + '<button type="button" class="pa-abtn' + (PA.ov ? ' on' : '') + '" id="paAbtn" aria-expanded="' + PA.ov + '" aria-controls="paOv" title="All KPI graphs and an AI summary">' + PA_I.grid + '<span>Analysis</span></button>'
-      + '</div>'
+        '<div class="pa-id"><button type="button" class="pa-abtn' + (PA.ov ? ' on' : '') + '" id="paAbtn" aria-expanded="' + PA.ov + '" aria-controls="paOv" title="All KPI graphs and an AI summary">'
+      + '<i class="pa-shine"></i>' + PA_I.grid + '<span class="pa-al">' + (PA.ov ? 'Hide analysis' : 'Analysis') + '</span></button></div>'
+      + '<div class="pa-rail"><button type="button" class="pa-nav prev off" aria-label="Previous cards">' + PA_I.chev + '</button>'
       + '<div class="pa-tabs" id="paTabs" role="tablist">' + PA.tabs.map(function (m, i) {
+          if (m.info) return '<div class="pa-tab pa-info" data-i="' + i + '"><div class="t">' + m.t + '</div><div class="v pa-num">' + m.v + '</div><div class="d">' + m.d + '</div></div>';
           return '<button type="button" class="pa-tab' + (i === PA.tab ? ' act' : '') + '" role="tab" aria-selected="' + (i === PA.tab) + '" aria-controls="paPanel" data-i="' + i + '">'
             + '<div class="t">' + m.t + PA_I.chev + '</div><div class="v pa-num">' + m.v + '</div><div class="d pa-num">' + m.d + '</div></button>';
-        }).join('') + '</div>'
+        }).join('') + '</div><button type="button" class="pa-nav next off" aria-label="More cards">' + PA_I.chev + '</button></div>'
       + '<div class="pa-col' + (PA.tab >= 0 ? ' open' : '') + '" id="paPanel"><div><div class="in">'
       + '<div class="pa-cap"><span id="paCap"></span><span>' + range + '</span></div><div class="pa-ch" id="paChart"></div>'
       + '<div class="pa-hint">Double click any KPI to close the graph</div></div></div></div>'
@@ -11339,17 +11409,32 @@ setTimeout(hExec,600);
       + '<div class="pa-col pa-pts' + (PA.pt ? ' open' : '') + '" id="paPtb"><div><div class="in"><div class="pa-pg" id="paPg"></div></div></div></div>';
 
     /* bn-act (31-Oct): "All time · range" + Analysis button banner ke neeche-daayein kone me */
+    /* pa-rail (31-Oct): period wali pill hata di -- banner par sirf Analysis button */
     var bnAct = el('haBnAct'), paId = el('haCells').querySelector('.pa-id');
     if (bnAct && paId) {
       bnAct.innerHTML = '';
-      bnAct.appendChild(paId.querySelector('.pa-per'));
       bnAct.appendChild(el('paAbtn'));
+      paId.remove();
     }
 
     /* ---- events ---- */
     var tabs = el('paTabs');
-    tabs.onclick = function (e) { var b = e.target.closest('.pa-tab'); if (!b) return; var i = +b.getAttribute('data-i'); if (i !== PA.tab) paOpenTab(i); };
-    tabs.ondblclick = function (e) { if (e.target.closest('.pa-tab')) { e.preventDefault(); paCloseTab(); } };
+    tabs.onclick = function (e) { var b = e.target.closest('button.pa-tab'); if (!b) return; var i = +b.getAttribute('data-i'); if (i !== PA.tab) paOpenTab(i); };
+    tabs.ondblclick = function (e) { if (e.target.closest('button.pa-tab')) { e.preventDefault(); paCloseTab(); } };
+    /* slide: gol teer, kinaron par fade sirf jab us taraf aur card hon */
+    var rail = tabs.parentNode, nPrev = rail.querySelector('.pa-nav.prev'), nNext = rail.querySelector('.pa-nav.next');
+    function railUpd() {
+      var max = tabs.scrollWidth - tabs.clientWidth - 2;
+      nPrev.classList.toggle('off', tabs.scrollLeft <= 2);
+      nNext.classList.toggle('off', tabs.scrollLeft >= max);
+      rail.style.setProperty('--fl', tabs.scrollLeft > 2 ? '28px' : '0px');
+      rail.style.setProperty('--fr', tabs.scrollLeft < max ? '28px' : '0px');
+    }
+    nPrev.onclick = function () { tabs.scrollBy({ left: -Math.max(200, tabs.clientWidth * 0.8), behavior: 'smooth' }); };
+    nNext.onclick = function () { tabs.scrollBy({ left: Math.max(200, tabs.clientWidth * 0.8), behavior: 'smooth' }); };
+    tabs.onscroll = railUpd;
+    railUpd(); setTimeout(railUpd, 300);
+    if (!PA.rz) { PA.rz = 1; window.addEventListener('resize', function () { var t = el('paTabs'); if (t && t.onscroll) t.onscroll(); }); }
     tabs.onkeydown = function (e) { if (e.key === 'Escape') paCloseTab(); };
     el('paAbtn').onclick = function () { PA.ov ? paCloseOv() : paOpenOv(); };
     el('paLng').onclick = function (e) { var b = e.target.closest('button'); if (b && b.getAttribute('data-l') !== PA.lang) { PA.lang = b.getAttribute('data-l'); paSum(); } };
@@ -11369,7 +11454,7 @@ setTimeout(hExec,600);
     paChart('paChart', S, { unit: m.u + (S.wk ? ' / day' : '') });
   }
   function paOpenTab(i) {
-    if (PA.ov) paCloseOv();
+    if (PA.ov) paCloseOv(true);
     PA.tab = i;
     [].forEach.call(el('paTabs').children, function (b, j) { b.classList.toggle('act', j === i); b.setAttribute('aria-selected', String(j === i)); });
     el('paPanel').classList.add('open');
@@ -11399,17 +11484,27 @@ setTimeout(hExec,600);
     M.forEach(function (m, i) { paChart('paMini' + i, paSeries(d, function (x) { return Number(x[m[1]]) || 0; }), { h: 60, mini: true, unit: m[0].toLowerCase() }); });
     paSum();
   }
+  /* pa-rail (31-Oct): Analysis kholne par neeche tak smooth scroll; band karne par wapas banner tak */
+  function paScroll(node) {
+    if (!node || !node.scrollIntoView) return;
+    var rm = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+    node.scrollIntoView({ behavior: rm ? 'auto' : 'smooth', block: 'start' });
+  }
   function paOpenOv() {
     paCloseTab();
     PA.ov = true;
     var b = el('paAbtn'); b.classList.add('on'); b.setAttribute('aria-expanded', 'true');
+    var lb = b.querySelector('.pa-al'); if (lb) lb.textContent = 'Hide analysis';
     el('paOv').classList.add('open');
     paDrawOv();
+    setTimeout(function () { paScroll(el('paOv')); }, 60);
   }
-  function paCloseOv() {
+  function paCloseOv(noScroll) {
+    var was = PA.ov;
     PA.ov = false;
-    var b = el('paAbtn'); if (b) { b.classList.remove('on'); b.setAttribute('aria-expanded', 'false'); }
+    var b = el('paAbtn'); if (b) { b.classList.remove('on'); b.setAttribute('aria-expanded', 'false'); var lb = b.querySelector('.pa-al'); if (lb) lb.textContent = 'Analysis'; }
     var o = el('paOv'); if (o) o.classList.remove('open');
+    if (was && noScroll !== true) paScroll(el('haBanner'));
   }
 
   function paBold(x) {
