@@ -424,6 +424,37 @@ th.cf-open .cf-btn{opacity:1;background:rgba(0,0,0,.07)}
 
 /* tile/stat par click bhi card hi chune -- koi alag behaviour nahi */
 .pcard .pstat,.pcard .pdtile{-webkit-tap-highlight-color:transparent}
+/* ---------- pc-kpi (31-Oct): Parties ke party card -- Dashboard tab ke KPI card jaisa ----------
+   Ring: wahi gradient (baayein gehra bhoora -> daayein kesariya), party-rang ki upar patti nahi.
+   Naam + saare count ek rang (#141414) aur KPI wala font; label grey uppercase + icon;
+   count box safed + gehri grey ring. Sirf #pfCards (Parties section) par. */
+#pfCards .pcard{border:1.5px solid transparent!important;border-radius:14px;padding:16px 16px 12px;isolation:isolate;
+  background:linear-gradient(#fff,#fff) padding-box,linear-gradient(110deg,#2B1407 0%,#5A2A0E 45%,#E8590C 100%) border-box!important;
+  box-shadow:0 2px 12px -4px rgba(43,20,7,.3);transition:transform .25s cubic-bezier(.2,.8,.2,1),box-shadow .25s}
+#pfCards .pcard::after{content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;opacity:0;transition:opacity .3s;z-index:-1;
+  background:radial-gradient(260px circle at var(--mx,50%) var(--my,30%),rgba(255,140,0,.09),transparent 62%)}
+#pfCards .pcard:hover{transform:translateY(-3px);box-shadow:0 10px 24px -10px rgba(43,20,7,.45)}
+#pfCards .pcard:hover::after{opacity:1}
+#pfCards .pcard.active-party{box-shadow:0 0 0 2px rgba(230,81,0,.3),0 10px 24px -10px rgba(43,20,7,.45);transform:translateY(-3px)}
+#pfCards .pcard:focus-visible{outline:2px solid #E65100;outline-offset:2px}
+#pfCards .pcard-go{position:absolute;top:12px;right:12px;width:26px;height:26px;border-radius:50%;background:#F1ECE6;color:#6B6B6B;
+  display:grid;place-items:center;z-index:2;transition:background .2s,color .2s}
+#pfCards .pcard-go svg{width:13px;height:13px}
+#pfCards .pcard:hover .pcard-go,#pfCards .pcard.active-party .pcard-go{background:#FFF1E4;color:#C2410C}
+#pfCards .pcard-head{padding-right:34px;margin-bottom:0}
+#pfCards .pcard-logo{width:44px;height:44px;box-shadow:none;border:1px solid #EEE7DE}
+#pfCards .pcard-name{font-size:22px;color:#141414!important;letter-spacing:-.2px}
+#pfCards .pcard-full{font-size:11.5px;color:#9A9A9A;margin-top:3px}
+#pfCards .pcard-handles{display:inline-block;align-self:flex-start;margin:12px 0;font-size:11.5px;font-weight:600;color:#6B6B6B!important;
+  background:#F4F0EA;border-radius:999px;padding:3px 10px}
+#pfCards .pstats,#pfCards .pfol{gap:8px;margin-bottom:8px}
+#pfCards .pstat{display:flex;flex-direction:column;background:#fff;border:1.5px solid #A9B0BA;border-radius:10px;padding:9px 11px;transition:border-color .2s}
+#pfCards .pcard:hover .pstat{border-color:#8A929D}
+#pfCards .pstat-lbl{order:-1;display:flex;align-items:center;gap:6px;margin:0;font-size:10.5px;font-weight:700;letter-spacing:.7px;color:#6B6B6B}
+#pfCards .pstat-lbl svg{width:13px;height:13px;color:#8A817A;flex:none}
+#pfCards .pstat-val{font-size:21px;line-height:1.1;margin-top:4px;color:#141414!important;font-variant-numeric:tabular-nums}
+#pfCards .pcard-action-bar,#pfCards .pcard:hover .pcard-action-bar{color:#3B3B3B;font-weight:600;font-size:12px;border-top:1px solid #F1ECE4}
+#pfCards .pcard:hover .pcard-action-bar svg{color:#C2410C}
 
 @media (prefers-reduced-motion: reduce){
   .pf-busy,.pf-ready{transition:none}
@@ -14090,6 +14121,18 @@ function cascade() {
 }
 
 /* ---------- 8. KPI card ---------- */
+/* pc-kpi (31-Oct): party card ke count label ke chhote icon (Dashboard KPI jaise) */
+var PC_ICO = (function () {
+  function i(d) { return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="' + d + '"/></svg>'; }
+  return {
+    tw: i('M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z'),
+    vw: i('M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z M12 9a3 3 0 1 0 0 6 3 3 0 0 0 0-6z'),
+    lk: i('M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l1 1.1L12 21l7.8-7.5 1-1.1a5.5 5.5 0 0 0 0-7.8z'),
+    rt: i('M17 1l4 4-4 4 M3 11V9a4 4 0 0 1 4-4h14 M7 23l-4-4 4-4 M21 13v2a4 4 0 0 1-4 4H3'),
+    fo: i('M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2 M9 3a4 4 0 1 0 0 8 4 4 0 0 0 0-8z M23 21v-2a4 4 0 0 0-3-3.87 M16 3.13a4 4 0 0 1 0 7.75'),
+    fg: i('M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2 M9 3a4 4 0 1 0 0 8 4 4 0 0 0 0-8z M19 8v6 M22 11h-6')
+  };
+})();
 function card(d, active) {
   var c = col(d.p), ap = sentExact() ? '' : '<span class="pstat-ap">approx.</span>';
   var dz = Object.keys(d.desig).sort(function (a, b) { return d.desig[b] - d.desig[a] || (a < b ? -1 : 1); });
@@ -14105,9 +14148,10 @@ function card(d, active) {
     restTip = rest.map(function (k) { return k + ': ' + d.desig[k]; }).join('\n');
     dz = dz.slice(0, DESIG_N);
   }
-  function box(val, lbl, extra) {
-    return '<div class="pstat"><div class="pstat-val" style="color:' + c + '">' + val + (extra || '') +
-           '</div><div class="pstat-lbl">' + lbl + '</div></div>';
+  /* pc-kpi (31-Oct): Dashboard KPI jaisa -- label pehle (CSS order), chhota grey icon, number ek rang (CSS) */
+  function box(val, lbl, extra, ic) {
+    return '<div class="pstat"><div class="pstat-val">' + val + (extra || '') +
+           '</div><div class="pstat-lbl">' + (PC_ICO[ic] || '') + lbl + '</div></div>';
   }
   var logoUrl = partyLogoUrl(d.p);
   var watermarkHtml = '';   /* no-wm (31-Oct): card ke peeche logo ka watermark nahi */
@@ -14119,14 +14163,15 @@ function card(d, active) {
     ' tabindex="0" role="button" aria-pressed="' + (active ? 'true' : 'false') + '"' +
     ' style="--pc:' + c + ';--pc-tint:' + c + '12;border-top-color:' + c + ';cursor:pointer">' +
     watermarkHtml +
+    '<span class="pcard-go" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M9 18l6-6-6-6"/></svg></span>' +
     '<div class="pcard-head"><div class="pcard-logo" style="background:' + (logoUrl ? '#ffffff' : (c + '18')) + '">' +
       logoHtml + '</div>' +
-      '<div><div class="pcard-name" style="color:' + c + '">' + esc(d.p) + '</div>' +
+      '<div><div class="pcard-name">' + esc(d.p) + '</div>' +
       '<div class="pcard-full">' + esc(PFULL[d.p] || d.p) + '</div>' +
-      '<div class="pcard-handles" style="color:' + c + '">' + d.n + ' handles</div></div></div>' +
-    '<div class="pstats">' + box(nf(d.tw), 'Tweets') + box(F(d.vw), 'Views') +
-      box(F(d.lk), 'Likes', ap) + box(F(d.rt), 'Retweets', ap) + '</div>' +
-    '<div class="pfol">' + box(F(d.fo), 'Total Followers') + box(nf(d.fg), 'Total Following') + '</div>' +
+      '</div></div><div class="pcard-handles">' + d.n + ' handles</div>' +
+    '<div class="pstats">' + box(nf(d.tw), 'Tweets', '', 'tw') + box(F(d.vw), 'Views', '', 'vw') +
+      box(F(d.lk), 'Likes', ap, 'lk') + box(F(d.rt), 'Retweets', ap, 'rt') + '</div>' +
+    '<div class="pfol">' + box(F(d.fo), 'Followers', '', 'fo') + box(nf(d.fg), 'Following', '', 'fg') + '</div>' +
     '<div class="pcard-action-bar"><span>Click to view Overview &amp; Leader Comparison</span><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg></div></div>';
 }
 
