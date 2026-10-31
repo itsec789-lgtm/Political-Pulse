@@ -2251,6 +2251,15 @@ svg#indiaMap{width:100%;height:100%;max-width:100%;max-height:100%;display:block
 .cs-side .cs-av{width:30px;height:30px}
 .cs-side .cs-nm{font-size:12.5px}.cs-side .cs-pc b{font-size:16px}
 @media (max-width:640px){.cs-side{grid-template-columns:1fr;justify-items:center}}
+/* cs-ins (31-Oct) */
+.cs-side{grid-template-columns:200px minmax(0,1fr)!important}.cs-side .cs-nm{white-space:normal;line-height:1.2}
+.cs-ins{margin-top:16px;border-top:1px dashed #E8E2D9;padding-top:14px}
+.cs-ik{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.cs-ik div{border:1.5px solid #D4D8DE;border-radius:12px;padding:10px 12px}
+.cs-ik b{display:block;font-family:'Rajdhani',sans-serif;font-size:20px;color:#141414}
+.cs-ik span{font-size:10.5px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:#6B6B6B}
+.cs-st{margin-top:14px}.cs-st .h{display:flex;justify-content:space-between;font-size:12px;color:#4B5563;margin-bottom:6px}.cs-st .h b{color:#141414}
+.cs-st .bar{display:flex;height:12px;border-radius:7px;overflow:hidden;background:#EEE9E2}.cs-st .bar i{height:100%;min-width:2px}
 /* pd-rail (31-Oct): Designation cards -- Dashboard category cards jaisa slide + grey ring */
 #pdesigSection .pd-rail{position:relative}
 #partyDesigTop5Grid{display:flex!important;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;padding:6px 2px 10px;scrollbar-width:none;grid-template-columns:none!important}
@@ -17664,6 +17673,17 @@ function renderOverviewDonutChart(handles, cfg) {
     e.onmouseenter = function () { show(+e.getAttribute('data-i')); }; e.onmouseleave = def;
   });
   def();
+  /* cs-ins (31-Oct): neeche ki khaali jagah -- 3 insight + Top 5 vs baaki party */
+  var all = handles.reduce(function (a, l) { return a + ((l.stats && l.stats.tweets) || 0); }, 0) || total;
+  var restN = Math.max(0, handles.length - top5.length), rest = Math.max(0, all - total);
+  var share = all ? total * 100 / all : 0, gap = data[data.length - 1] ? data[0] / data[data.length - 1] : 0;
+  var ins = wrap.parentNode.parentNode.querySelector('.cs-ins');
+  if (!ins) { ins = document.createElement('div'); ins.className = 'cs-ins'; wrap.parentNode.parentNode.appendChild(ins); }
+  ins.innerHTML = '<div class="cs-ik"><div><b>' + (share < 10 ? share.toFixed(1) : Math.round(share)) + '%</b><span>Top ' + top5.length + ' share of party tweets</span></div>'
+    + '<div><b>' + fmtF(Math.round(total / Math.max(1, top5.length))) + '</b><span>Avg tweets per top leader</span></div>'
+    + '<div><b>' + (gap ? gap.toFixed(1) + 'x' : '—') + '</b><span>#1 vs #' + top5.length + ' gap</span></div></div>'
+    + '<div class="cs-st"><div class="h"><span><b>Top ' + top5.length + '</b> ' + fmtF(total) + '</span><span>Other ' + restN.toLocaleString('en-IN') + ' handles ' + fmtF(rest) + '</span></div>'
+    + '<div class="bar"><i style="width:' + share + '%;background:' + cfg.color + '"></i><i style="width:' + (100 - share) + '%;background:#D6CFC6"></i></div></div>';
 }
 
 
