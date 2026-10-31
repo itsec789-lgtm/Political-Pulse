@@ -6202,9 +6202,13 @@ a.pe-btn:after{content:"";position:absolute;inset:0;z-index:1;background:linear-
   .db-et{display:flex;align-items:baseline;gap:8px}
   .db-et b{font:700 15px Inter,sans-serif;color:#141414}
   .db-dl{font-size:11.5px;font-weight:700}.db-dl.u{color:#067647}.db-dl.n{color:#B42318}
-  .db-bar{height:8px;border-radius:5px;background:#F3ECE4;overflow:hidden;margin:6px 0 6px}
-  .db-bar i{display:block;height:100%;border-radius:5px;background:linear-gradient(90deg,#FFC48F,#F08A3C)}
-  .db-t tr.best .db-bar i{background:linear-gradient(90deg,#FFB06A,#E65100)}
+  /* db-bar v2 (31-Oct): patla, halka bar + ant me "x% of best" -- bar kya naap raha hai saaf dikhe */
+  .db-br{display:flex;align-items:center;gap:10px;margin:7px 0 6px}
+  .db-bar{flex:1;height:6px;border-radius:999px;background:#F4EEE8;overflow:hidden}
+  .db-bar i{display:block;height:100%;border-radius:999px;background:#F6A86A;transition:width .6s cubic-bezier(.2,.8,.2,1)}
+  .db-t tr.best .db-bar i{background:#E8590C}
+  .db-br em{flex:none;min-width:64px;font:600 11px Inter,sans-serif;font-style:normal;color:#9A8F84;text-align:right}
+  .db-t tr.best .db-br em{color:#C2410C}
   .db-bd{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:11.5px;color:#6B5E50}
   .db-bd span{display:inline-flex;align-items:center;gap:3px;white-space:nowrap}
   .db-bd svg{width:12px;height:12px}
@@ -11927,7 +11931,8 @@ setTimeout(hExec,600);
         + '<td>' + dayCell(s, b ? '<span class="db-bt" title="Best day of the week">' + STAR + '</span>' : '') + '</td>'
         + '<td class="db-p" data-l="Posts">' + nf(p) + '</td>'
         + '<td class="db-e" data-l="Engagement"><div class="db-et"><b title="' + nf(e) + '">' + big(e) + '</b>' + dl + '</div>'
-        + '<div class="db-bar"><i style="width:' + Math.max(2, Math.round(e / eMax * 100)) + '%"></i></div>'
+        + '<div class="db-br"><div class="db-bar"><i style="width:' + Math.max(2, Math.round(e / eMax * 100)) + '%"></i></div>'
+        + '<em>' + (b ? 'Best' : Math.round(e / eMax * 100) + '% of best') + '</em></div>'
         + '<div class="db-bd"><span class="l" title="Likes ' + nf(x.likes) + '">' + TW_I.lk + big(x.likes) + '</span>'
         + '<span class="c" title="Comments ' + nf(x.comments) + '">' + TW_I.cm + big(x.comments) + '</span>'
         + '<span class="s" title="Retweets ' + nf(x.shares) + '">' + TW_I.sh + big(x.shares) + '</span></div></td>'
