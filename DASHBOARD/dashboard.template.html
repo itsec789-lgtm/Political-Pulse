@@ -2222,6 +2222,19 @@ svg#indiaMap{width:100%;height:100%;max-width:100%;max-height:100%;display:block
   text-overflow: ellipsis;
   margin-top: 4px;
 }
+/* pd-kpi (31-Oct): Designation cards -- Dashboard KPI jaisi gradient ring, ek rang ek font */
+#pdesigSection .pdtile{border:1.5px solid transparent!important;border-radius:14px;padding:14px 16px;
+  background:linear-gradient(#fff,#fff) padding-box,linear-gradient(110deg,#2B1407 0%,#5A2A0E 45%,#E8590C 100%) border-box!important;
+  box-shadow:0 2px 12px -4px rgba(43,20,7,.3)}
+#pdesigSection .pdtile::before{display:none}
+#pdesigSection .pdtile:hover{transform:translateY(-3px);box-shadow:0 10px 24px -10px rgba(43,20,7,.45)}
+#pdesigSection .pdtile-rank{font-size:10.5px;font-weight:700;letter-spacing:.7px;text-transform:uppercase;color:#6B6B6B;background:#F4F0EA;border-radius:999px;padding:3px 9px}
+#pdesigSection .pdtile-pct{font-size:12px;font-weight:700;color:#4B5563}
+#pdesigSection .pdtile-val{font-size:32px;font-weight:700;color:#141414!important;line-height:1;margin-top:8px}
+#pdesigSection .pdtile-lbl{font-size:11px;font-weight:700;letter-spacing:.7px;text-transform:uppercase;color:#6B6B6B;margin-top:6px}
+#pdesigSection .pdtile-bar{height:4px;border-radius:3px;background:#EEE9E2;margin-top:12px;overflow:hidden}
+#pdesigSection .pdtile-bar i{display:block;height:100%;background:#5A2A0E}
+
 
 .pdesig-toggle-wrap {
   display: flex;
@@ -17376,7 +17389,8 @@ function renderPartyOverview() {
         + '<span class="pdtile-rank">#' + (idx + 1) + ' Role</span>'
         + '<span class="pdtile-pct">' + pct + '%</span></div>'
         + '<div><div class="pdtile-val">' + count.toLocaleString('en-IN') + '</div>'
-        + '<div class="pdtile-lbl" title="' + role + '">' + role + '</div></div>';
+        + '<div class="pdtile-lbl" title="' + role + '">' + role + '</div></div>'
+        + '<div class="pdtile-bar"><i style="width:' + Math.max(2, Math.min(100, +pct)) + '%"></i></div>';   /* pd-kpi: hissa */
 
       if (idx < 5) top5Grid.appendChild(tile);
       else moreGrid.appendChild(tile);
