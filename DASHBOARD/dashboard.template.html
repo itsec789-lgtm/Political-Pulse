@@ -6485,6 +6485,14 @@ a.pe-btn:after{content:"";position:absolute;inset:0;z-index:1;background:linear-
     .htr-ax span:last-child{color:#C2410C;font-weight:600}
     .htr-f{margin-top:8px;font-size:10.5px;color:#A39A90}
     .htr-na{margin-top:8px;font-size:12.5px;color:#8A817A}
+    /* tw-nav (31-Oct): khule tweet ke neeche "Back to list" */
+    .htb-back{display:flex;justify-content:center;margin-top:12px}
+    .htb-back button{display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 14px;border-radius:999px;cursor:pointer;
+      font:600 12.5px Inter,sans-serif;color:#2B1407;background:#fff;border:1.5px solid #F7A25B;box-shadow:0 4px 12px -6px rgba(230,81,0,.4);
+      transition:background .2s,transform .2s}
+    .htb-back button svg{width:14px;height:14px;color:#E65100}
+    .htb-back button:hover{background:#FFF3E8;transform:translateY(-1px)}
+    .htb-back button:focus-visible{outline:2px solid #E65100;outline-offset:2px}
     .htb-exp .htc-sent{display:none}
     .htb-exp .htc-txt.clamp{display:block;-webkit-line-clamp:unset}
     .htb-exp .htc-more{display:none!important}
@@ -12211,20 +12219,40 @@ setTimeout(hExec,600);
       });
       if (!list.length) html += '<tr><td colspan="6" class="htc-empty">No other tweets in the latest 3 days (' + d3 + ').</td></tr>';
       b.innerHTML = html;
+      /* tw-nav (31-Oct): khulte hi khula tweet smooth scroll se nazar me; neeche "Back to list"
+         band karke wahi jagah wapas jahan se tap kiya tha (scroll position yaad rehti hai) */
+      var RM = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+      function twClose(tr, ex) {
+        ex.remove(); tr.classList.remove('open');
+        var btn = tr.querySelector('.htb-vf');
+        btn.firstChild.textContent = 'View full'; btn.setAttribute('aria-expanded', 'false');
+      }
       b.onclick = function (e) {
+        var back = e.target.closest('[data-back]');
+        if (back) {
+          var exb = back.closest('tr.htb-exp'), rowb = exb && exb.previousElementSibling, y0 = exb ? exb._y0 : null;
+          if (exb && rowb) twClose(rowb, exb);
+          if (y0 !== null && y0 !== undefined) window.scrollTo({ top: y0, behavior: RM ? 'auto' : 'smooth' });
+          return;
+        }
         if (e.target.closest('a')) return;
         var tr = e.target.closest('tr.htb-r'); if (!tr) return;
         var k = tr.getAttribute('data-k'), nxt = tr.nextElementSibling, btn = tr.querySelector('.htb-vf');
-        if (nxt && nxt.classList.contains('htb-exp')) {
-          nxt.remove(); tr.classList.remove('open');
-          btn.firstChild.textContent = 'View full'; btn.setAttribute('aria-expanded', 'false');
-          return;
-        }
+        if (nxt && nxt.classList.contains('htb-exp')) { twClose(tr, nxt); return; }
         var ex = document.createElement('tr'); ex.className = 'htb-exp';
-        ex.innerHTML = '<td colspan="6"><div class="htb-xw">' + twCard(ROWS[k], k, who) + twReach(ROWS[k]) + '</div></td>';
+        ex._y0 = window.scrollY;
+        ex.innerHTML = '<td colspan="6"><div class="htb-xw">' + twCard(ROWS[k], k, who) + twReach(ROWS[k]) + '</div>'
+          + '<div class="htb-back"><button type="button" data-back="1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 15l-6-6-6 6"/></svg>Back to list</button></div></td>';
         tr.after(ex); tr.classList.add('open');
         btn.firstChild.textContent = 'Hide'; btn.setAttribute('aria-expanded', 'true');
         wireCards(ex, ROWS);
+        /* poora khula hissa (row + tweet) dikhe -- pehle se dikh raha ho to page mat hilao */
+        setTimeout(function () {
+          var top = tr.getBoundingClientRect().top, bot = ex.getBoundingClientRect().bottom, vh = window.innerHeight, head = 96;
+          if (top >= head && bot <= vh - 12) return;
+          var want = (bot - top) > (vh - head - 24) ? top - head : bot - vh + 24;
+          window.scrollBy({ top: want, behavior: RM ? 'auto' : 'smooth' });
+        }, 40);
       };
       var start = r.total === 0 ? 0 : r.offset + 1;
       var end = Math.min(r.offset + r.pageSize, r.total);
