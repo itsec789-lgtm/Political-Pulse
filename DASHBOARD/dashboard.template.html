@@ -3970,6 +3970,17 @@ window.uiDetail=(function(){
   html body .pa-rail .pa-tabs{padding:12px 20px 14px}
   html body .cp-ch{height:260px}
 }
+/* space-tight (31-Oct): Dashboard par section ke beech faltu khaali jagah kam --
+   heading ke upar 22 -> 12 px, heading padding 8/9 -> 4/6, Retweet KPI ka dashed dibba hataya (12 px padding + border),
+   category rail ka padding 8/14 -> 4/8, category card thoda chhota, bade section title ke upar 28 -> 16 px. */
+html body #sec-dashboard .cat-sec-bar{margin:12px 0 6px;padding:4px 2px 6px}
+html body #sec-dashboard .cat-sec-bar:first-child,html body #sec-dashboard .ui-fbar + .cat-sec-bar{margin-top:4px}
+html body #sec-dashboard #dashKpis{margin-bottom:2px}
+html body #sec-dashboard #dashRtKpis{padding:0;background:none;border:0;border-radius:0;gap:14px;margin-bottom:2px}
+html body #sec-dashboard .lv-rail{margin-bottom:0}
+html body #sec-dashboard .lv-rail>.level-strip{padding:4px 4px 8px}
+html body #sec-dashboard .lv-rail .lv-card{min-height:112px;padding:12px 14px 9px}
+html body #sec-dashboard .sec-title{margin:16px 0 6px}
 /* exec-order (31-Oct): Executive Summary -- ek line ke dono card barabar unche (grid stretch), aur har card
    ki rows us poori unchai me barabar baant di (flex:1) -- neeche khaali patti nahi bachti */
 #sec-dashboard .summary-grid{align-items:stretch}
@@ -6707,9 +6718,10 @@ a.pe-btn:after{content:"";position:absolute;inset:0;z-index:1;background:linear-
       }, { passive: true });
     })();
     document.querySelectorAll('.ha-coll').forEach(function (c) {
-      try { if (localStorage.getItem(key(c)) === '1') set(c, true); } catch (e) {}
+      /* kpi-open (31-Oct): page khulte hi hamesha khula -- purani "band" yaad mita do */
+      try { localStorage.removeItem(key(c)); } catch (e) {}
       var t = c.querySelector('.ha-stitle');
-      function flip() { var cl = !c.classList.contains('closed'); set(c, cl); try { localStorage.setItem(key(c), cl ? '1' : '0'); } catch (e) {} }
+      function flip() { var cl = !c.classList.contains('closed'); set(c, cl); }
       t.addEventListener('click', flip);
       t.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); flip(); } });
     });
@@ -18598,7 +18610,11 @@ function toggleModalLeader(handle) {
     b.classList.toggle('ui-stuck',b.getBoundingClientRect().top<=hh+1&&window.scrollY>40);
   }
 
-  /* ---- 4. section collapse yaad rahe (wahi purana toggle chalta hai -- bar.click()) ---- */
+  /* ---- 4. section collapse ---- */
+  /* kpi-open (31-Oct): site khulte hi SAARE KPI / category section khule rahein -- pichhli baar band
+     kiya hua ab yaad rakh kar dobara band nahi karte (purani yaad bhi mita di). Page par haath se
+     band / khol abhi bhi chalta hai. */
+  try{localStorage.removeItem('ipp_ui_collapse');}catch(e){}
   var KEY='ipp_ui_collapse',BARS=['barTwSum','barRtSum','barMainCat','barOtherCat'],done={};
   function load(){try{return JSON.parse(localStorage.getItem(KEY)||'{}')||{};}catch(e){return {};}}
   function save(id,v){try{var m=load();if(v)m[id]=1;else delete m[id];localStorage.setItem(KEY,JSON.stringify(m));}catch(e){}}
@@ -18612,8 +18628,7 @@ function toggleModalLeader(handle) {
         b.setAttribute('role','button');b.setAttribute('tabindex','0');
         b.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();b.click();}});
       }
-      if(m[id]&&!isCol(b))b.click();
-      b.addEventListener('click',function(){setTimeout(function(){save(id,isCol(b));},0);});
+      /* kpi-open: yaad se band nahi karte, aur yaad likhte bhi nahi */
     });
     return left===0;
   }
