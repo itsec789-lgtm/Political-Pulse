@@ -3967,6 +3967,16 @@ window.uiDetail=(function(){
   html body .pa-rail .pa-tabs{padding:12px 20px 14px}
   html body .cp-ch{height:260px}
 }
+/* exec-order (31-Oct): Executive Summary -- ek line ke dono card barabar unche (grid stretch), aur har card
+   ki rows us poori unchai me barabar baant di (flex:1) -- neeche khaali patti nahi bachti */
+#sec-dashboard .summary-grid{align-items:stretch}
+#sec-dashboard .summary-grid > .sum-card{display:flex;flex-direction:column}
+#sec-dashboard #khCard > .insight-row,#sec-dashboard #ppCard > .insight-row{flex:1 1 auto}
+#sec-dashboard #tpCard > #execTop{flex:1 1 auto;display:flex;flex-direction:column}
+#sec-dashboard #execTop > .insight-row{flex:1 1 auto}
+#sec-dashboard #siCard > #siRows{flex:1 1 auto;display:flex;flex-direction:column}
+#sec-dashboard #siRows > .si-list{flex:1 1 auto;display:flex;flex-direction:column}
+#sec-dashboard #siRows .si-r{flex:1 1 auto}
 </style>
 </head>
 <body>
@@ -4469,18 +4479,21 @@ a.pe-btn:after{content:"";position:absolute;inset:0;z-index:1;background:linear-
     </div>
   </div>
   <div class="sec-title" id="execTitle" style="margin-top:8px">Executive Summary — Apr–Jul 2026</div>
+  <!-- exec-order (31-Oct): upar Top Performers + Sentiment Insights, neeche Party Performance + Key Highlights.
+       Ek line ke dono card barabar unche; rows poori unchai me barabar faili -- neeche khaali jagah nahi. -->
   <div class="summary-grid">
-    <div class="sum-card" id="khCard">
-      <div class="sum-card-title"><span class="ui-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3"/></svg></span>Key Highlights</div>
-      <div class="insight-row"><div class="insight-icon" style="background:#fff3e0">🥇</div><div class="insight-text"><span style="color:var(--muted,#9a9a9a)">Loading…</span></div></div>
-      <div class="insight-row"><div class="insight-icon" style="background:#e8f5e9">📈</div><div class="insight-text"><span style="color:var(--muted,#9a9a9a)">Loading…</span></div></div>
-      <div class="insight-row"><div class="insight-icon" style="background:#e3f2fd">🔥</div><div class="insight-text"><span style="color:var(--muted,#9a9a9a)">Loading…</span></div></div>
-      <div class="insight-row"><div class="insight-icon" style="background:#fce4ec">⏰</div><div class="insight-text"><span style="color:var(--muted,#9a9a9a)">Loading…</span></div></div>
-      <div class="insight-row"><div class="insight-icon" style="background:#f3e5f5">🌍</div><div class="insight-text"><span style="color:var(--muted,#9a9a9a)">Loading…</span></div></div>
+    <div class="sum-card" id="tpCard">
+      <div class="sum-card-title"><span class="ui-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3 6.5 7 .8-5.2 4.7 1.5 7L12 17.5 5.7 21l1.5-7L2 9.3l7-.8z"/></svg></span>Top Performers <span id="execTopSub" style="font-size:10px;font-weight:600;color:var(--muted)"></span></div>
+      <div id="execTop">
+      <div class="insight-row"><div class="insight-icon" style="background:#fff3e0">1️⃣</div><div class="insight-text"><span style="color:var(--muted,#9a9a9a)">Loading…</span></div></div>
+      <div class="insight-row"><div class="insight-icon" style="background:#fff3e0">2️⃣</div><div class="insight-text"><span style="color:var(--muted,#9a9a9a)">Loading…</span></div></div>
+      <div class="insight-row"><div class="insight-icon" style="background:#e3f2fd">3️⃣</div><div class="insight-text"><span style="color:var(--muted,#9a9a9a)">Loading…</span></div></div>
+      <div class="insight-row"><div class="insight-icon" style="background:#f3e5f5">4️⃣</div><div class="insight-text"><span style="color:var(--muted,#9a9a9a)">Loading…</span></div></div>
+      <div class="insight-row"><div class="insight-icon" style="background:#e8f5e9">5️⃣</div><div class="insight-text"><span style="color:var(--muted,#9a9a9a)">Loading…</span></div></div>
+      </div>
     </div>
     <!-- si-compact (09-Oct): 7 sentiment (No-Sentiment chhod kar) ek patli
-         list me -- matlab row ke tooltip me. Lines renderSentInsights() se
-         banti hain; height Key Highlights ke barabar rehti hai. -->
+         list me -- matlab row ke tooltip me. Lines renderSentInsights() se banti hain. -->
     <div class="sum-card" id="siCard">
       <div class="sum-card-title"><span class="ui-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span>Sentiment Insights</div>
       <div id="siRows"></div>
@@ -4493,15 +4506,14 @@ a.pe-btn:after{content:"";position:absolute;inset:0;z-index:1;background:linear-
       <div class="insight-row"><div class="insight-icon" style="background:#fce4ec">🌟</div><div class="insight-text"><span style="color:var(--muted,#9a9a9a)">Loading…</span></div></div>
       <div class="insight-row"><div class="insight-icon" style="background:#eceff1">🏛</div><div class="insight-text"><span style="color:var(--muted,#9a9a9a)">Loading…</span></div></div>
     </div>
-    <div class="sum-card">
-      <div class="sum-card-title"><span class="ui-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3 6.5 7 .8-5.2 4.7 1.5 7L12 17.5 5.7 21l1.5-7L2 9.3l7-.8z"/></svg></span>Top Performers <span id="execTopSub" style="font-size:10px;font-weight:600;color:var(--muted)"></span></div>
-      <div id="execTop">
-      <div class="insight-row"><div class="insight-icon" style="background:#fff3e0">1️⃣</div><div class="insight-text"><span style="color:var(--muted,#9a9a9a)">Loading…</span></div></div>
-      <div class="insight-row"><div class="insight-icon" style="background:#fff3e0">2️⃣</div><div class="insight-text"><span style="color:var(--muted,#9a9a9a)">Loading…</span></div></div>
-      <div class="insight-row"><div class="insight-icon" style="background:#e3f2fd">3️⃣</div><div class="insight-text"><span style="color:var(--muted,#9a9a9a)">Loading…</span></div></div>
-      <div class="insight-row"><div class="insight-icon" style="background:#f3e5f5">4️⃣</div><div class="insight-text"><span style="color:var(--muted,#9a9a9a)">Loading…</span></div></div>
-      <div class="insight-row"><div class="insight-icon" style="background:#e8f5e9">5️⃣</div><div class="insight-text"><span style="color:var(--muted,#9a9a9a)">Loading…</span></div></div>
-      </div>
+    <div class="sum-card" id="khCard">
+      <div class="sum-card-title"><span class="ui-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3"/></svg></span>Key Highlights</div>
+      <div class="insight-row"><div class="insight-icon" style="background:#fff3e0">🥇</div><div class="insight-text"><span style="color:var(--muted,#9a9a9a)">Loading…</span></div></div>
+      <div class="insight-row"><div class="insight-icon" style="background:#e8f5e9">📈</div><div class="insight-text"><span style="color:var(--muted,#9a9a9a)">Loading…</span></div></div>
+      <div class="insight-row"><div class="insight-icon" style="background:#e3f2fd">🔥</div><div class="insight-text"><span style="color:var(--muted,#9a9a9a)">Loading…</span></div></div>
+      <div class="insight-row"><div class="insight-icon" style="background:#fce4ec">⏰</div><div class="insight-text"><span style="color:var(--muted,#9a9a9a)">Loading…</span></div></div>
+      <div class="insight-row"><div class="insight-icon" style="background:#f3e5f5">🌍</div><div class="insight-text"><span style="color:var(--muted,#9a9a9a)">Loading…</span></div></div>
+      <div class="insight-row"><div class="insight-icon" style="background:#fff3e0">✍️</div><div class="insight-text"><span style="color:var(--muted,#9a9a9a)">Loading…</span></div></div>
     </div>
   </div>
 </main>
@@ -10260,6 +10272,14 @@ function hExecRange(f, t) {
                  : ''))
           : 'No state-wise activity in this date range';
       }
+      /* exec-order (31-Oct): 6th highlight -- sabse zyada post karne wala (reach wale #1 se alag sawaal) */
+      if (r[5]) {
+        var byT = HS.slice().sort(function (a, b) { return b.tw - a.tw; }), nD = idx.length || 1;
+        r[5].innerHTML = byT[0] && byT[0].tw
+          ? ('<strong>@' + byT[0].h + '</strong> was the most active with <strong>' + L(byT[0].tw) + ' tweets</strong>'
+             + (nD > 1 ? ' — about ' + L(Math.round(byT[0].tw / nD)) + ' a day' : ''))
+          : _no;
+      }
     }
 
     /* ---- PARTY PERFORMANCE ---- */
@@ -10397,6 +10417,9 @@ function hExec(){
   if(typeof HOURLY!=='undefined'&&HOURLY.length&&r[3]){var hi=0;for(var i=1;i<HOURLY.length;i++)if(HOURLY[i]>HOURLY[hi])hi=i;r[3].innerHTML='Peak tweeting hour is <strong>'+(hi%12||12)+'\u2013'+((hi+1)%12||12)+' '+(hi<12?'AM':'PM')+' IST</strong> with '+L(HOURLY[hi])+' tweets \u2014 busiest window';}
   var st=UNI.states||{},se=Object.keys(st).filter(function(k){return k&&k!=='\u2014';}).map(function(k){return [k,(st[k]&&st[k].tot?st[k].tot.tw:st[k])||0];}).sort(function(a,b){return b[1]-a[1];});
   if(se.length>=3&&r[4])r[4].innerHTML='<strong>'+se[0][0]+' leads</strong> all states with '+L(se[0][1])+' tweets, followed by '+se[1][0]+' ('+L(se[1][1])+') and '+se[2][0]+' ('+L(se[2][1])+')';
+  /* exec-order (31-Oct): 6th highlight -- sabse zyada post karne wala */
+  var at=(UNI.allHandles||[]).slice().sort(function(a,b){return (b.tw||0)-(a.tw||0);}),nd2=(typeof AGG!=='undefined'&&AGG.dates&&AGG.dates.length)||0;
+  if(at[0]&&at[0].tw&&r[5])r[5].innerHTML='<strong>@'+at[0].h+'</strong> was the most active with <strong>'+L(at[0].tw)+' tweets</strong>'+(nd2>1?' — about '+L(Math.round(at[0].tw/nd2))+' a day':'');
  }
  /* si-compact (09-Oct): renderSentInsights() hi is card ka maalik hai. */
  try{ if(window.renderSentInsights) window.renderSentInsights(); }catch(_eSi2){}
@@ -19023,6 +19046,7 @@ function toggleModalLeader(handle) {
       else if(i===2){var d=strong(t);if(d)setOnce(box,'d:'+d,function(){return calendar(box,d);});}
       else if(i===3){setOnce(box,'h:'+strong(t),function(){return clock(box,s);});}
       else if(i===4){var st=strong(t).replace(/\s+leads$/i,'');if(st)setOnce(box,'s:'+st,function(){stateShape(box,st);});}
+      else if(i===5){var h5=(s.match(/@([A-Za-z0-9_]{1,30})/)||[])[1];if(h5)setOnce(box,'av:'+h5,function(){avatar(box,h5,'#E65100');});}
     });
   }
   /* ---- Party Performance ---- */
