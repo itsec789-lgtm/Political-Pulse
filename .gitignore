@@ -60,3 +60,5 @@ DASHBOARD/x_config.json
 DASHBOARD/translate_config.json
 PunjabLens/ai_config.json
 *.local.txt
+# server audit report -- keep on this machine only (may list IPs / ports / weak spots)
+server audit political pulse.pdf
