@@ -6471,6 +6471,20 @@ a.pe-btn:after{content:"";position:absolute;inset:0;z-index:1;background:linear-
     @media (max-width:760px){.htb tr.htb-day td,.htb tr.htb-sec td{display:block}}
     .htb tr.htb-exp td{padding:4px 12px 14px;background:#FFF8F0;text-align:left;white-space:normal}
     .htb-exp .htc-row{grid-template-columns:1fr;max-width:640px;animation:htbIn .25s ease-out}
+    /* reach (31-Oct): khule tweet ke saath daayein chhota "Reach vs usual" box -- saada, kam rang */
+    .htb-xw{display:flex;gap:22px;align-items:stretch;flex-wrap:wrap}
+    .htb-xw .htc-row{flex:1 1 420px;max-width:640px}
+    .htr{flex:0 1 300px;min-width:240px;align-self:center;padding:14px 16px;border:1px solid #EFE8DD;border-radius:14px;background:#fff;animation:htbIn .3s ease-out}
+    .htr-k{font:700 10.5px 'DM Sans',Inter,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#8A817A}
+    .htr-v{margin-top:6px;font:700 28px/1 'Rajdhani',sans-serif;color:#141414;display:flex;align-items:baseline;gap:8px}
+    .htr-v span{font:600 12.5px Inter,sans-serif;color:#57534E}
+    .htr-v.up{color:#067647}.htr-v.dn{color:#B42318}
+    .htr-s{margin-top:4px;font-size:12px;color:#6B5E50}
+    .htr-ch{display:block;width:100%;height:84px;margin-top:12px}
+    .htr-ax{display:flex;justify-content:space-between;margin-top:5px;font-size:10.5px;color:#A39A90}
+    .htr-ax span:last-child{color:#C2410C;font-weight:600}
+    .htr-f{margin-top:8px;font-size:10.5px;color:#A39A90}
+    .htr-na{margin-top:8px;font-size:12.5px;color:#8A817A}
     .htb-exp .htc-sent{display:none}
     .htb-exp .htc-txt.clamp{display:block;-webkit-line-clamp:unset}
     .htb-exp .htc-more{display:none!important}
@@ -12141,6 +12155,32 @@ setTimeout(hExec,600);
       + '<td data-l="Followers"' + tip + '>' + fg + '</td>'
       + '<td class="htb-l" data-l="Sentiment"><span class="htb-pill" style="--sc:' + sc + '" title="' + esc(t.sent || '—') + '"><i></i><span>' + esc(t.sent || '—') + '</span></span></td></tr>';
   }
+  /* reach (31-Oct): khule tweet ke daayein chhota graph -- is post ke views vs pichhle 10 posts.
+     "Usual" = un 10 ka MEDIAN (beech wala), average nahi -- ek viral post se pura hisaab na bigde.
+     0 views = data nahi aaya, isliye hisaab se bahar. */
+  function twReach(t) {
+    var P = (t.prevViews || []).filter(function (v) { return v > 0; }), v = Number(t.views) || 0;
+    var head = '<div class="htr"><div class="htr-k">Reach vs usual</div>';
+    if (!v) return head + '<div class="htr-na">No view count for this post.</div></div>';
+    if (P.length < 3) return head + '<div class="htr-na">Not enough earlier posts to compare.</div></div>';
+    var s = P.slice().sort(function (a, b) { return a - b; }), m = s.length;
+    var med = m % 2 ? s[(m - 1) / 2] : (s[m / 2 - 1] + s[m / 2]) / 2, r = v / med;
+    var lab = r >= 1.5 ? 'Well above usual' : r >= 1.1 ? 'Above usual' : r > 0.9 ? 'About usual' : r > 0.6 ? 'Below usual' : 'Well below usual';
+    var cls = r >= 1.1 ? 'up' : r > 0.9 ? 'eq' : 'dn';
+    var all = P.concat([v]), mx = Math.max.apply(null, all) || 1, W = 260, H = 84, n = all.length, gap = 4, bw = (W - gap * (n - 1)) / n;
+    var bars = all.map(function (x, i) {
+      var h = Math.max(2, x / mx * (H - 6)), last = i === n - 1;
+      return '<rect x="' + (i * (bw + gap)).toFixed(1) + '" y="' + (H - h).toFixed(1) + '" width="' + bw.toFixed(1) + '" height="' + h.toFixed(1) + '" rx="2" fill="' + (last ? '#E8590C' : '#E7E0D8') + '"><title>'
+        + (last ? 'This post' : 'Earlier post') + ': ' + nf(x) + ' views</title></rect>';
+    }).join('');
+    var my = (H - med / mx * (H - 6)).toFixed(1);
+    return head + '<div class="htr-v ' + cls + '">' + (r >= 10 ? Math.round(r) : (Math.round(r * 10) / 10)) + '×<span>' + lab + '</span></div>'
+      + '<div class="htr-s">' + big(v) + ' views vs ' + big(med) + ' usual</div>'
+      + '<svg class="htr-ch" viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="none" aria-hidden="true">' + bars
+      + '<line x1="0" x2="' + W + '" y1="' + my + '" y2="' + my + '" stroke="#9A8F84" stroke-width="1" stroke-dasharray="3 3"/></svg>'
+      + '<div class="htr-ax"><span>Previous ' + P.length + ' posts</span><span>This post</span></div>'
+      + '<div class="htr-f">Dotted line = usual reach (median of the previous ' + P.length + ' posts)</div></div>';
+  }
   function loadTweets() {
     if (!CUR) return;
     api('/api/ha/tweets', { h: CUR, offset: OFFSET, limit: PAGE, view: 'table' }).then(function (r) {
@@ -12181,7 +12221,7 @@ setTimeout(hExec,600);
           return;
         }
         var ex = document.createElement('tr'); ex.className = 'htb-exp';
-        ex.innerHTML = '<td colspan="6">' + twCard(ROWS[k], k, who) + '</td>';
+        ex.innerHTML = '<td colspan="6"><div class="htb-xw">' + twCard(ROWS[k], k, who) + twReach(ROWS[k]) + '</div></td>';
         tr.after(ex); tr.classList.add('open');
         btn.firstChild.textContent = 'Hide'; btn.setAttribute('aria-expanded', 'true');
         wireCards(ex, ROWS);

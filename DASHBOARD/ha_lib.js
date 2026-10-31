@@ -382,6 +382,9 @@ function tweetTable(rows, offset, limit, anchor) {
        par; ghate ko baanta nahi jaata. Ye ANDAAZA hai -- table "est." likh kar dikhata hai. */
     t.folEst = (t.folGain > 0 && t.dayPosts) ? Math.round(t.folGain * (engDay[d] > 0 ? t.eng / engDay[d] : 1 / t.dayPosts)) : null;
     t.gapMin = (a !== null && b !== null && a >= b) ? Math.round((a - b) / 60000) : null;
+    /* reach (31-Oct): is post se pehle ke 10 posts ke views (purane -> naye) -- "View full" ke
+       saath chhota graph: ye post apni aam pahunch se upar gaya ya neeche */
+    t.prevViews = sorted.slice(k + 1, k + 11).map(function (x) { return num(x['Total Views']); }).reverse();
     return t;
   }
 
