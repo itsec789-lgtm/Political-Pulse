@@ -6013,15 +6013,21 @@ a.pe-btn:after{content:"";position:absolute;inset:0;z-index:1;background:linear-
     .pa-rail .pa-tab{flex:0 0 max(200px,calc((100% - 36px) / 4));scroll-snap-align:start}
     .pa-tab.pa-info{cursor:default;background:linear-gradient(#FBF9F6,#FBF9F6) padding-box,linear-gradient(110deg,#2B1407 0%,#5A2A0E 45%,#E8590C 100%) border-box}
     .pa-tab.pa-info:hover{transform:none;box-shadow:0 2px 12px -4px rgba(43,20,7,.3)}
-    .pa-nav{position:absolute;top:50%;z-index:3;width:36px;height:36px;margin-top:-18px;border-radius:50%;padding:0;cursor:pointer;display:grid;place-items:center;
-      color:#374151;background:rgba(255,255,255,.95);border:1px solid #E5E7EB;box-shadow:0 8px 20px -8px rgba(30,40,60,.4);
-      transition:opacity .3s,transform .3s cubic-bezier(.34,1.56,.64,1),color .2s,border-color .2s}
-    .pa-nav svg{width:16px;height:16px}
-    .pa-nav.prev{left:4px}.pa-nav.prev svg{transform:rotate(90deg)}
-    .pa-nav.next{right:4px}.pa-nav.next svg{transform:rotate(-90deg)}
-    .pa-nav:hover{color:#E65100;border-color:#F7A25B;transform:scale(1.08)}
-    .pa-nav:active{transform:scale(.94)}
-    .pa-nav.off{opacity:0;pointer-events:none;transform:scale(.8)}
+    /* pa-nav v2 (31-Oct): gol ghera hataya -- sirf kesariya teer, apni disha me halka-halka khiskta */
+    .pa-nav{position:absolute;top:50%;z-index:3;width:34px;height:44px;margin-top:-22px;padding:0;cursor:pointer;display:grid;place-items:center;
+      color:#E65100;background:none;border:0;border-radius:8px;filter:drop-shadow(0 0 6px #fff) drop-shadow(0 0 2px #fff);
+      transition:opacity .3s,transform .3s cubic-bezier(.34,1.56,.64,1),color .2s}
+    .pa-nav svg{width:28px;height:28px;stroke-width:3}
+    .pa-nav.prev{left:0}.pa-nav.prev svg{transform:rotate(90deg)}
+    .pa-nav.next{right:0}.pa-nav.next svg{transform:rotate(-90deg)}
+    .pa-nav.next{animation:paNudgeR 1.4s ease-in-out infinite}.pa-nav.prev{animation:paNudgeL 1.4s ease-in-out infinite}
+    @keyframes paNudgeR{0%,100%{translate:0 0}50%{translate:5px 0}}
+    @keyframes paNudgeL{0%,100%{translate:0 0}50%{translate:-5px 0}}
+    .pa-nav:hover{color:#BF360C;transform:scale(1.15);animation-play-state:paused}
+    .pa-nav:active{transform:scale(.9)}
+    .pa-nav:focus-visible{outline:2px solid #E65100;outline-offset:2px}
+    .pa-nav.off{opacity:0;pointer-events:none;transform:scale(.7)}
+    @media (prefers-reduced-motion:reduce){.pa-nav{animation:none!important}}
     @media(max-width:820px){.pa-rail .pa-tab{flex-basis:170px}.pa-nav{display:none}.pa-rail .pa-tabs{padding:12px 14px 14px}}
 
     /* pa-rail: Analysis panel -- gehra AI saaransh, rangeen ring wale chhote graph, ek-ek karke ubharte */
@@ -6509,6 +6515,23 @@ a.pe-btn:after{content:"";position:absolute;inset:0;z-index:1;background:linear-
       var t = c.querySelector('.ha-stitle'); t.setAttribute('aria-expanded', String(!closed));
       var h = c.querySelector('.ha-chint'); if (h) h.textContent = closed ? 'click to expand' : 'click to collapse';
     }
+    /* ha-top (31-Oct): Handle Analytics me bhi "upar jao" teer -- Dashboard wala (.ui-top) sirf
+       Dashboard section me tha. Neeche scroll karo to dikhe, tap = smooth upar. */
+    (function () {
+      var sec = document.getElementById('sec-handle-analytics'); if (!sec) return;
+      var b = document.createElement('button');
+      b.type = 'button'; b.className = 'ui-top'; b.setAttribute('aria-label', 'Back to top'); b.title = 'Back to top';
+      b.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>';
+      b.addEventListener('click', function () {
+        var rm = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+        window.scrollTo({ top: 0, behavior: rm ? 'auto' : 'smooth' });
+      });
+      sec.appendChild(b);
+      var q = 0;
+      window.addEventListener('scroll', function () {
+        if (q) return; q = requestAnimationFrame(function () { q = 0; b.classList.toggle('show', !!sec.offsetParent && window.scrollY > 600); });
+      }, { passive: true });
+    })();
     document.querySelectorAll('.ha-coll').forEach(function (c) {
       try { if (localStorage.getItem(key(c)) === '1') set(c, true); } catch (e) {}
       var t = c.querySelector('.ha-stitle');
