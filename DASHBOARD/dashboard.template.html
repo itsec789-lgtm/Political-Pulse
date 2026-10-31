@@ -2222,6 +2222,26 @@ svg#indiaMap{width:100%;height:100%;max-width:100%;max-height:100%;display:block
   text-overflow: ellipsis;
   margin-top: 4px;
 }
+/* cs-v2 (31-Oct): Overall Contribution Share */
+#overviewDonutChart,.comp-donut-wrapper .comp-donut-center{display:none!important}
+.comp-donut-wrapper{height:auto!important}
+.cs-donut{position:relative;width:240px;height:240px;margin:6px auto 14px}
+.cs-donut svg{width:100%;height:100%;transform:rotate(-90deg)}
+.cs-seg{fill:none;stroke-width:28;cursor:pointer;transition:stroke-width .2s,opacity .2s}
+.cs-donut.hov .cs-seg{opacity:.3}.cs-donut.hov .cs-seg.cs-on{opacity:1;stroke-width:34}
+.cs-ctr{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;pointer-events:none}
+.cs-ctr b{font-family:'Rajdhani',sans-serif;font-size:28px;line-height:1;color:#141414}
+.cs-ctr span{font-size:10.5px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:#6B6B6B;margin-top:3px;max-width:140px}
+.cs-face{position:relative;display:inline-grid;place-items:center;border-radius:50%;overflow:hidden;background:var(--c);color:#fff;font-weight:700;flex:none;box-shadow:0 0 0 2px #fff,0 0 0 4px var(--c)}
+.cs-face img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#fff}
+.cs-av{width:36px;height:36px;font-size:12px}.cs-big{width:54px;height:54px;font-size:16px;margin-bottom:6px}
+#overviewDonutLegend{display:flex;flex-direction:column;gap:4px}
+.cs-row{display:grid;grid-template-columns:26px 40px 1fr auto;gap:10px;align-items:center;padding:7px 10px;border-radius:12px;cursor:pointer;transition:background .15s}
+.cs-row:hover,.cs-row.cs-on{background:#FAF6F1}
+.cs-rk{font-size:12px;font-weight:700;color:#9A9A9A}.cs-mid{min-width:0}
+.cs-nm{font-weight:600;font-size:13.5px;color:#141414;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cs-br{height:5px;border-radius:3px;background:#F1ECE6;margin-top:5px;overflow:hidden}.cs-br i{display:block;height:100%;background:var(--c)}
+.cs-pc{text-align:right}.cs-pc b{font-family:'Rajdhani',sans-serif;font-size:18px;color:#141414}.cs-pc small{display:block;font-size:11px;color:#8A8A8A}
 /* pd-rail (31-Oct): Designation cards -- Dashboard category cards jaisa slide + grey ring */
 #pdesigSection .pd-rail{position:relative}
 #partyDesigTop5Grid{display:flex!important;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;padding:6px 2px 10px;scrollbar-width:none;grid-template-columns:none!important}
@@ -17585,57 +17605,56 @@ function toggleDesigSectionFull() {
   }
 }
 
+/* cs-v2 (31-Oct): Overall Contribution Share -- SVG donut + gol photo wala legend.
+   Hover / naam par: wo hissa mota, beech me us neta ki photo + % + tweets. Photo /api/avatar se, na mile to initials. */
 function renderOverviewDonutChart(handles, cfg) {
-  var canvas = document.getElementById('overviewDonutChart');
-  if (!canvas || !window.Chart) return;
-  var ctx = canvas.getContext('2d');
-
-  var top5 = handles.slice(0, 5);
-  var labels = top5.map(function(l) { return l.name; });
-  var data = top5.map(function(l) { return l.stats.tweets; });
-  var colors = [cfg.color, '#1E88E5', '#43A047', '#8E24AA', '#FB8C00'];
-  var total = data.reduce(function(a, b) { return a + b; }, 0);
-
-  var valEl = document.getElementById('overviewDonutVal');
-  if (valEl) valEl.textContent = fmtF(total);
-
+  var wrap = document.querySelector('#overviewDonutChart') && document.querySelector('#overviewDonutChart').parentNode;
   var legendList = document.getElementById('overviewDonutLegend');
-  if (legendList) {
-    legendList.innerHTML = '';
-    top5.forEach(function(l, idx) {
-      var v = data[idx];
-      var pct = total > 0 ? ((v / total) * 100).toFixed(1) : '0';
-      var row = document.createElement('div');
-      row.className = 'comp-donut-leg-row';
-      row.innerHTML = '<div style="display:flex;align-items:center;gap:6px">'
-        + '<span style="width:8px;height:8px;border-radius:50%;background:' + colors[idx] + ';display:inline-block"></span>'
-        + '<span style="color:#334155;font-weight:600">' + l.name + '</span></div>'
-        + '<strong style="font-family:\'Rajdhani\',sans-serif;font-size:12px;color:#0F172A">' + pct + '% (' + fmtF(v) + ')</strong>';
-      legendList.appendChild(row);
-    });
+  if (!wrap || !legendList) return;
+  if (_partyOverviewDonut) { try { _partyOverviewDonut.destroy(); } catch (e) {} _partyOverviewDonut = null; }
+  var top5 = handles.slice(0, 5);
+  var colors = [cfg.color, '#1E88E5', '#43A047', '#8E24AA', '#FB8C00'];
+  var data = top5.map(function (l) { return (l.stats && l.stats.tweets) || 0; });
+  var total = data.reduce(function (a, b) { return a + b; }, 0) || 1, mx = Math.max.apply(null, data.concat([1]));
+  function esc2(x) { return String(x == null ? '' : x).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;'); }
+  function ini(n) { return String(n || '?').replace(/^(Shri|Smt|Dr|Sushree|Kumari)\.?\s+/i, '').split(/\s+/).map(function (w) { return w[0] || ''; }).slice(0, 2).join('').toUpperCase(); }
+  function face(l, c, cls) {
+    var h = l.handle || l.h || '';
+    return '<span class="cs-face ' + cls + '" style="--c:' + c + '"><span class="cs-ini">' + esc2(ini(l.name)) + '</span>'
+      + (h ? '<img src="/api/avatar/' + encodeURIComponent(h) + '" alt="" loading="lazy" onload="this.previousSibling.style.display=\'none\'" onerror="this.remove()">' : '') + '</span>';
   }
-
-  if (_partyOverviewDonut) _partyOverviewDonut.destroy();
-  _partyOverviewDonut = new Chart(ctx, {
-    type: 'doughnut',
-    data: {
-      labels: labels,
-      datasets: [{
-        data: data,
-        backgroundColor: colors,
-        borderWidth: 2,
-        borderColor: '#FFFFFF',
-        hoverOffset: 4
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      cutout: '72%',
-      plugins: { legend: { display: false } }
-    }
+  var R = 45, C = 2 * Math.PI * R, off = 0, segs = '';
+  data.forEach(function (v, i) {
+    var L = v / total * C, g = data.length > 1 ? 1.2 : 0;
+    segs += '<circle class="cs-seg" data-i="' + i + '" r="' + R + '" cx="60" cy="60" stroke="' + colors[i] + '" stroke-dasharray="' + Math.max(0, L - g) + ' ' + (C - L + g) + '" stroke-dashoffset="' + (-off) + '"></circle>';
+    off += L;
   });
+  var host = wrap.querySelector('.cs-donut');
+  if (!host) { host = document.createElement('div'); host.className = 'cs-donut'; wrap.appendChild(host); }
+  host.innerHTML = '<svg viewBox="0 0 120 120">' + segs + '</svg><div class="cs-ctr"></div>';
+  legendList.innerHTML = top5.map(function (l, i) {
+    var pct = (data[i] * 100 / total).toFixed(1);
+    return '<div class="cs-row" data-i="' + i + '" style="--c:' + colors[i] + '"><span class="cs-rk">#' + (i + 1) + '</span>' + face(l, colors[i], 'cs-av')
+      + '<div class="cs-mid"><div class="cs-nm">' + esc2(l.name) + '</div><div class="cs-br"><i style="width:' + (data[i] * 100 / mx) + '%"></i></div></div>'
+      + '<div class="cs-pc"><b>' + pct + '%</b><small>' + fmtF(data[i]) + ' tweets</small></div></div>';
+  }).join('');
+  var ctr = host.querySelector('.cs-ctr');
+  function def() {
+    host.classList.remove('hov');
+    wrap.parentNode.querySelectorAll('.cs-on').forEach(function (e) { e.classList.remove('cs-on'); });
+    ctr.innerHTML = '<b>' + fmtF(total) + '</b><span>Total tweets &middot; top ' + top5.length + ' leaders</span>';
+  }
+  function show(i) {
+    def(); host.classList.add('hov');
+    wrap.parentNode.querySelectorAll('[data-i="' + i + '"]').forEach(function (e) { if (e.closest('.cs-donut') || e.classList.contains('cs-row')) e.classList.add('cs-on'); });
+    ctr.innerHTML = face(top5[i], colors[i], 'cs-big') + '<b>' + (data[i] * 100 / total).toFixed(1) + '%</b><span>' + esc2(top5[i].name) + '<br>' + fmtF(data[i]) + ' tweets</span>';
+  }
+  wrap.parentNode.querySelectorAll('.cs-seg,.cs-row').forEach(function (e) {
+    e.onmouseenter = function () { show(+e.getAttribute('data-i')); }; e.onmouseleave = def;
+  });
+  def();
 }
+
 
 function openComparisonWithLeader(handle) {
   _partyActiveHandles = [String(handle).toLowerCase()];
