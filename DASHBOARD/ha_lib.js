@@ -318,6 +318,83 @@ function tweetPage(rows, offset, limit) {
   };
 }
 
+/* ---------------------------------------------------------------------------
+ * tweet-table (31-Oct): Latest Tweets ab table hai.
+ *   best  = pichhle 7 din (sabse naye tweet se peeche) ka sabse zyada engagement
+ *           wala tweet (likes + comments + retweets; barabar ho to views) --
+ *           har load par naye sire se, isliye naya tweet aage nikle to khud badalta hai.
+ *   items = baaki tweets newest-first, page by page (best ko dobara nahi).
+ *   folGain = us din followers kitne badhe. Followers har tweet par nahi, din me
+ *           ek baar (scrape ke waqt) milte hain -- isliye ek din ke saare posts ka
+ *           ek hi number: us din ka count - pichhle snapshot wale din ka count.
+ *   folEst = us din ki badhat ka is post ka andaazan hissa (engagement ke hisaab se).
+ *   gapMin = pichhle (purane) post ke kitne minute baad ye post hua.
+ * ------------------------------------------------------------------------- */
+function tsOf(v) {
+  var m = String(v || '').match(/^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})(?::(\d{2}))?/);
+  return m ? Date.UTC(+m[1], +m[2] - 1, +m[3], +m[4], +m[5], +(m[6] || 0)) : null;
+}
+function tweetTable(rows, offset, limit) {
+  offset = Math.max(0, Number(offset) || 0);
+  limit = Math.min(Math.max(Number(limit) || 6, 1), 50);
+  var seen = {}, sorted = [];
+  (rows || []).slice().sort(function (a, b) {
+    var x = String(a['Tweet Date'] || ''), y = String(b['Tweet Date'] || '');
+    return x < y ? 1 : (x > y ? -1 : 0);
+  }).forEach(function (r) {
+    var id = String(r['Tweet ID'] || '');
+    if (id && seen[id]) return;
+    if (id) seen[id] = 1;
+    sorted.push(r);
+  });
+
+  var fol = {}, perDay = {}, engDay = {};
+  sorted.forEach(function (r) {
+    var d = dayOf(r['Tweet Date']); if (!d) return;
+    perDay[d] = (perDay[d] || 0) + 1;
+    engDay[d] = (engDay[d] || 0) + eng(r);
+    var f = num(r['Followers']);
+    if (f > (fol[d] || 0)) fol[d] = f;
+  });
+  var snapDays = Object.keys(fol).sort(), gain = {};
+  for (var i = 1; i < snapDays.length; i++) {
+    gain[snapDays[i]] = { n: fol[snapDays[i]] - fol[snapDays[i - 1]], from: snapDays[i - 1] };
+  }
+
+  var idx = new Map();
+  sorted.forEach(function (r, k) { idx.set(r, k); });
+  function eng(r) { return num(r['Total Likes']) + num(r['Total Comments']) + num(r['Total Retweets']); }
+  function row(r) {
+    var t = slimTweet(r), d = dayOf(r['Tweet Date']), k = idx.get(r);
+    var older = sorted[k + 1], a = tsOf(r['Tweet Date']), b = older ? tsOf(older['Tweet Date']) : null;
+    t.eng = eng(r);
+    t.folGain = gain[d] ? gain[d].n : null;
+    t.folFrom = gain[d] ? gain[d].from : '';
+    t.dayPosts = perDay[d] || 0;
+    /* folEst = us din ki badhat ka is post ka andaazan hissa -- din ke engagement me
+       iska jitna hissa, utna hi followers me (sab 0 ho to barabar baant). Sirf badhat
+       par; ghate ko baanta nahi jaata. Ye ANDAAZA hai -- table "est." likh kar dikhata hai. */
+    t.folEst = (t.folGain > 0 && t.dayPosts) ? Math.round(t.folGain * (engDay[d] > 0 ? t.eng / engDay[d] : 1 / t.dayPosts)) : null;
+    t.gapMin = (a !== null && b !== null && a >= b) ? Math.round((a - b) / 60000) : null;
+    return t;
+  }
+
+  var from = cutoffDay(sorted, 7), best = null, pool = 0;
+  sorted.forEach(function (r) {
+    var d = dayOf(r['Tweet Date']);
+    if (!d || (from && d < from)) return;
+    pool++;
+    if (!best || eng(r) > eng(best) || (eng(r) === eng(best) && num(r['Total Views']) > num(best['Total Views']))) best = r;
+  });
+  var rest = sorted.filter(function (r) { return r !== best; });
+  return {
+    best: best ? row(best) : null,
+    bestPool: pool, bestFrom: from, bestTo: sorted.length ? dayOf(sorted[0]['Tweet Date']) : '',
+    items: rest.slice(offset, offset + limit).map(row),
+    total: rest.length, all: sorted.length, offset: offset, pageSize: limit
+  };
+}
+
 /* pichhla barabar samay: '7' -> chuni range se theek pehle ke 7 din ('all' me null).
    Wahi chhota summary jo AI Summary ki tulna me lagta hai. */
 function prevWindow(rows, days) {
@@ -337,5 +414,5 @@ function prevWindow(rows, days) {
 module.exports = {
   SENT_KEYS: SENT_KEYS,
   num: num, dayOf: dayOf, cutoffDay: cutoffDay, isRetweet: isRetweet,
-  analyse: analyse, prevWindow: prevWindow, tweetPage: tweetPage, slimTweet: slimTweet
+  analyse: analyse, prevWindow: prevWindow, tweetPage: tweetPage, tweetTable: tweetTable, slimTweet: slimTweet
 };

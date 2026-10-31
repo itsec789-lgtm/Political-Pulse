@@ -5546,7 +5546,10 @@ app.get('/api/ha/tweets', dashGuard, async function (req, res) {
     var meta = await haOwns(req, h);
     if (!meta) return res.status(404).json({ error: 'This handle is not part of this dashboard.' });
     var rows = await haRows(h);
-    res.json(HA.tweetPage(rows, req.query.offset, req.query.limit));
+    /* tweet-table (31-Oct): view=table -> best-of-7-days + follower gain + post gap */
+    res.json(req.query.view === 'table'
+      ? HA.tweetTable(rows, req.query.offset, req.query.limit)
+      : HA.tweetPage(rows, req.query.offset, req.query.limit));
   } catch (e) {
     res.status(500).json({ error: e.message });
   }

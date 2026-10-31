@@ -3432,12 +3432,14 @@ body.ui-capture #sec-dashboard .kpi{transform:none!important}
 @media(max-width:900px){.ui-dp-stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
 
 /* ---------- ui-min: KPI cards par patli orange ring (Handle Analytics ke cards jaisi) ---------- */
-#sec-dashboard #dashKpis .kpi,#sec-dashboard #dashRtKpis .kpi{border:1.5px solid #F7A25B!important;border-radius:14px;
-  box-shadow:0 2px 10px -4px rgba(230,81,0,.18)}
-#sec-dashboard #dashKpis .kpi:hover,#sec-dashboard #dashRtKpis .kpi:hover{border-color:#EA580C!important;box-shadow:0 10px 24px -10px rgba(230,81,0,.35)}
-#sec-dashboard #dashKpis .kpi.kpi-open,#sec-dashboard #dashRtKpis .kpi.kpi-open{border-color:#E65100!important;box-shadow:0 0 0 2px rgba(230,81,0,.25),0 10px 24px -10px rgba(230,81,0,.35)}
+/* 31-Oct: ring ab header jaisi -- baayein gehra bhoora, daayein kesariya (gradient) */
+#sec-dashboard #dashKpis .kpi,#sec-dashboard #dashRtKpis .kpi{border:1.5px solid transparent!important;border-radius:14px;
+  background:linear-gradient(var(--card),var(--card)) padding-box,linear-gradient(110deg,#2B1407 0%,#5A2A0E 45%,#E8590C 100%) border-box!important;
+  box-shadow:0 2px 12px -4px rgba(43,20,7,.3)}
+#sec-dashboard #dashKpis .kpi:hover,#sec-dashboard #dashRtKpis .kpi:hover{border-color:transparent!important;box-shadow:0 10px 24px -10px rgba(43,20,7,.45)}
+#sec-dashboard #dashKpis .kpi.kpi-open,#sec-dashboard #dashRtKpis .kpi.kpi-open{border-color:transparent!important;box-shadow:0 0 0 2px rgba(230,81,0,.25),0 10px 24px -10px rgba(43,20,7,.45)}
 /* Avg Views/Tweet + Avg Likes/Tweet (5th, 6th card): orange nahi, halki grey ring -- upar ke 4 se contrast */
-#sec-dashboard #dashKpis .kpi:nth-child(n+5){border-color:#D4D8DE!important;box-shadow:0 2px 10px -4px rgba(30,40,60,.12)}
+#sec-dashboard #dashKpis .kpi:nth-child(n+5){border-color:#D4D8DE!important;background:linear-gradient(180deg,#fff,var(--card-2))!important;box-shadow:0 2px 10px -4px rgba(30,40,60,.12)}
 #sec-dashboard #dashKpis .kpi:nth-child(n+5):hover{border-color:#9CA3AF!important;box-shadow:0 10px 24px -10px rgba(30,40,60,.25)}
 #sec-dashboard #dashKpis .kpi.kpi-open:nth-child(n+5){border-color:#6B7280!important;box-shadow:0 0 0 2px rgba(107,114,128,.2),0 10px 24px -10px rgba(30,40,60,.3)}
 /* ---------- ui-cat-rail (30-Oct): dono category section ek hi line me, left-right smooth slide ----------
@@ -3677,6 +3679,25 @@ header.ui-hdr .hp-btn:hover .hp-car{transform:translateY(2px)}
 header.ui-hdr .hp-wrap.open .hp-car{transform:rotate(180deg);animation-play-state:paused}
 header.ui-hdr .hp-btn:hover .hp-av{transform:translateY(-1px);transition:transform .25s cubic-bezier(.2,.8,.2,1)}
 @media (prefers-reduced-motion:reduce){header.ui-hdr .hp-car{animation:none}}
+
+/* ---------- ui-hdr v5 (31-Oct): header bhi hero card jaisa gehra (dark) ----------
+   Seniors: upar halka, neeche gehra -- contrast toot raha tha. Ab header hero ke
+   kaale-bhoore rang me, wahi lehar + photo + kesariya chamak. Sirf rang badle. */
+header.ui-hdr{background:radial-gradient(120% 220% at 0% 0%,#2B1407 0%,#160B05 52%,#0B0604 100%);
+  box-shadow:0 14px 30px -16px rgba(0,0,0,.65),inset 0 -1px 0 rgba(255,255,255,.05)}
+header.ui-hdr::before{background:
+    radial-gradient(560px 150px at 14% 60%,rgba(255,122,24,.30),transparent 62%),
+    radial-gradient(520px 140px at 58% 20%,rgba(255,214,102,.10),transparent 62%),
+    radial-gradient(460px 130px at 96% 85%,rgba(255,122,24,.22),transparent 60%)}
+header.ui-hdr::after{background-image:radial-gradient(rgba(255,255,255,.075) 1px,transparent 1.2px)}
+header.ui-hdr .hdr-wh{filter:drop-shadow(6px 0 16px rgba(0,0,0,.55))}
+header.ui-hdr .hdr-wh path[fill="#ffffff"]{opacity:.04}
+header.ui-hdr .ui-hdr-photo::after{background:linear-gradient(90deg,rgba(22,11,5,.55) 0%,rgba(22,11,5,.25) 45%,rgba(11,6,4,.55) 100%),
+  linear-gradient(0deg,rgba(11,6,4,.55) 0%,transparent 55%)}
+header.ui-hdr .logo-sub{color:rgba(255,226,196,.72)}
+header.ui-hdr .hdr-burger,header.ui-hdr .data-pill{background:rgba(255,255,255,.08);box-shadow:inset 0 0 0 1px rgba(255,255,255,.16),0 6px 16px -10px rgba(0,0,0,.7)}
+header.ui-hdr .hdr-burger:hover{background:rgba(255,122,24,.22)}
+header.ui-hdr .hp-btn:hover{background:rgba(255,255,255,.08)!important}
 </style>
 
 <script>
@@ -3937,7 +3958,7 @@ window.sentCardsHTML = function (S, suffix) {
   <span class="ui-hdr-fx" aria-hidden="true"><i class="ui-hdr-photo"></i><i class="ui-hdr-shine"></i><i class="ui-hdr-tri"></i></span>
   <svg class="hdr-wh" viewBox="0 0 900 80" preserveAspectRatio="none" aria-hidden="true">
     <defs>
-      <linearGradient id="hdwa" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#E9701C"/><stop offset="1" stop-color="#C0430D"/></linearGradient>
+      <linearGradient id="hdwa" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2B1407"/><stop offset="1" stop-color="#140904"/></linearGradient>
       <linearGradient id="hdwg" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#FFE7B0"/><stop offset=".5" stop-color="#FFC062"/><stop offset="1" stop-color="#F0871A"/></linearGradient>
       <linearGradient id="hdwSh" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#FFF6DF" stop-opacity="0"/><stop offset=".5" stop-color="#FFFDF6" stop-opacity="1"/><stop offset="1" stop-color="#FFF6DF" stop-opacity="0"/></linearGradient>
       <clipPath id="hdwShimWin"><rect x="-75" y="-12" width="150" height="104"/></clipPath>
@@ -6043,27 +6064,7 @@ a.pe-btn:after{content:"";position:absolute;inset:0;z-index:1;background:linear-
     <div class="ha-cbody"><div class="ha-cin"><div class="ha-grid" id="haGrowth"><div class="ha-msg">Ek handle chuno.</div></div></div></div>
   </div>
 
-  <div class="ha-card ha-coll" data-key="content">
-    <div class="ha-stitle" role="button" tabindex="0" aria-expanded="true">Content Performance <span class="ha-chint">click to collapse</span><span class="ha-cchev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg></span></div>
-    <div class="ha-cbody"><div class="ha-cin"><div class="ha-grid" id="haContent"><div class="ha-msg">&mdash;</div></div></div></div>
-  </div>
-  <script>
-  (function () {
-    function key(c) { return 'ha_coll_' + c.getAttribute('data-key'); }
-    function set(c, closed) {
-      c.classList.toggle('closed', closed);
-      var t = c.querySelector('.ha-stitle'); t.setAttribute('aria-expanded', String(!closed));
-      var h = c.querySelector('.ha-chint'); if (h) h.textContent = closed ? 'click to expand' : 'click to collapse';
-    }
-    document.querySelectorAll('.ha-coll').forEach(function (c) {
-      try { if (localStorage.getItem(key(c)) === '1') set(c, true); } catch (e) {}
-      var t = c.querySelector('.ha-stitle');
-      function flip() { var cl = !c.classList.contains('closed'); set(c, cl); try { localStorage.setItem(key(c), cl ? '1' : '0'); } catch (e) {} }
-      t.addEventListener('click', flip);
-      t.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); flip(); } });
-    });
-  })();
-  </script>
+  <!-- cp-v2 (31-Oct): Content Performance ab sabse neeche (Latest Tweets ke baad) -->
 
   <!-- no-er : Engagement Rate card hata diya gaya hai.
        Is data me 'Total Retweets' column galat bhara hua hai (shares views
@@ -6170,13 +6171,136 @@ a.pe-btn:after{content:"";position:absolute;inset:0;z-index:1;background:linear-
     .htc-spill + .htc-x{margin-left:10px}
     .htc-empty{padding:26px;text-align:center;color:#8A8074;font-size:13px}
     @media (max-width:700px){.htc-head{display:none}.htc-row{grid-template-columns:1fr}.htc-sent{padding:0 6px}}
+    /* tweet-table (31-Oct): Latest Tweets ab table -- upar "Best of last 7 days", phir latest 6,
+       neeche Newer / Older. "View full" par usi row ke neeche wahi X card khulta hai (page nahi badalta). */
+    .htb-wrap{overflow-x:auto;border:1px solid #EFE8DD;border-radius:14px}
+    .htb{width:100%;min-width:940px;border-collapse:collapse;font:13px Inter,sans-serif;color:#0F1419}
+    .htb th{position:sticky;top:0;background:#FBF8F4;text-align:right;padding:10px 12px;font:700 10.5px Inter,sans-serif;letter-spacing:.07em;text-transform:uppercase;color:#6B5E50;border-bottom:1px solid #EFE8DD;white-space:nowrap}
+    .htb th:first-child,.htb td:first-child{text-align:left}
+    .htb th.htb-l,.htb td.htb-l{text-align:left}
+    .htb th .htb-i{display:inline-flex;align-items:center;gap:5px}
+    .htb th svg{width:13px;height:13px}
+    .htb td{padding:12px;border-bottom:1px solid #F3EEE7;text-align:right;vertical-align:top;font-variant-numeric:tabular-nums;white-space:nowrap}
+    .htb tr.htb-r{cursor:pointer;transition:background .15s}
+    .htb tr.htb-r:hover{background:#FCFAF7}
+    .htb tr.htb-r.open{background:#FFF8F0}
+    .htb td.htb-tw{white-space:normal;min-width:300px;max-width:420px}
+    .htb-txt{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:1.5;font-size:13.5px;word-break:break-word}
+    .htb-txt .ht,.htb-txt a{color:#1D9BF0;text-decoration:none}
+    .htb-vf{background:none;border:0;padding:0;margin-top:4px;font:600 12.5px Inter,sans-serif;color:#1D9BF0;cursor:pointer;display:inline-flex;align-items:center;gap:4px}
+    .htb-vf:hover{text-decoration:underline}
+    .htb-vf i{display:inline-block;transition:transform .25s;font-style:normal}
+    .htb tr.open .htb-vf i{transform:rotate(180deg)}
+    .htb-dt b{display:block;font-weight:600}
+    .htb-dt span,.htb-sub{display:block;font-size:11.5px;color:#8A8074;margin-top:2px}
+    .htb-est{margin-left:4px;font:700 9.5px Inter,sans-serif;letter-spacing:.04em;text-transform:uppercase;color:#8A8074;background:#F3EEE7;border-radius:4px;padding:1px 4px;vertical-align:1px}
+    .htb-up{color:#15803D;font-weight:700}.htb-dn{color:#C62828;font-weight:700}.htb-na{color:#A79C90}
+    .htb-st{display:inline-flex;align-items:center;gap:7px;font-weight:600}
+    .htb-st i{width:8px;height:8px;border-radius:50%;flex:none}
+    .htb tr.htb-sec td{background:#FBF8F4;padding:8px 12px;font:700 11px Inter,sans-serif;letter-spacing:.06em;text-transform:uppercase;color:#6B5E50;text-align:left;white-space:normal}
+    .htb tr.htb-sec td em{font-style:normal;font-weight:500;text-transform:none;letter-spacing:0;color:#8A8074;margin-left:6px}
+    .htb tr.htb-best{background:linear-gradient(90deg,#FFF4E3,#FFFBF5)}
+    .htb tr.htb-best:hover{background:linear-gradient(90deg,#FFEED6,#FFF8EE)}
+    .htb tr.htb-best td:first-child{box-shadow:inset 3px 0 0 #E8590C}
+    .htb-badge{display:inline-flex;align-items:center;gap:5px;font:800 10px Inter,sans-serif;letter-spacing:.06em;text-transform:uppercase;color:#fff;
+      background:linear-gradient(110deg,#2B1407,#E8590C);padding:3px 8px;border-radius:999px;margin-bottom:6px}
+    .htb-best .htb-eng{color:#C2410C;font-weight:800}
+    .htb tr.htb-exp td{padding:4px 12px 14px;background:#FFF8F0;text-align:left;white-space:normal}
+    .htb-exp .htc-row{grid-template-columns:1fr;max-width:640px;animation:htbIn .25s ease-out}
+    .htb-exp .htc-sent{display:none}
+    .htb-exp .htc-txt.clamp{display:block;-webkit-line-clamp:unset}
+    .htb-exp .htc-more{display:none!important}
+    @keyframes htbIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+    @media (prefers-reduced-motion:reduce){.htb-exp .htc-row{animation:none}}
+    .htb-pg{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:12px;font-size:12.5px;color:#6B5E50;flex-wrap:wrap}
+    .htb-pg div{display:flex;gap:8px}
     </style>
-    <div class="htc-head"><span class="htc-xh"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>Tweet</span><span>Sentiment</span></div>
-    <div class="htc-feed" id="haTwBody"><div class="htc-empty">Ek handle chuno.</div></div>
-    <div class="ha-pg"><span id="haTwInfo"></span>
-      <button class="filter-select" id="haPrev" onclick="window.haPrev()">&larr; Prev</button>
-      <button class="filter-select" id="haNext" onclick="window.haNext()">Next &rarr;</button></div>
+    <div class="htb-wrap"><table class="htb">
+      <thead><tr><th class="htb-l"><span class="htb-i"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>Tweet</span></th>
+        <th class="htb-l">Posted</th><th>Likes</th><th>Comments</th><th>Retweets</th><th>Views</th><th>Engagement</th>
+        <th title="X gives the follower count once a day. The big number is this post's estimated share of that day's gain (split by engagement); the line below is the day's real gain.">Followers gained</th>
+        <th class="htb-l">Sentiment</th></tr></thead>
+      <tbody id="haTwBody"><tr><td colspan="9" class="htc-empty">Ek handle chuno.</td></tr></tbody>
+    </table></div>
+    <div class="htb-pg"><span id="haTwInfo"></span><div>
+      <button class="filter-select" id="haPrev" onclick="window.haPrev()">&larr; Newer</button>
+      <button class="filter-select" id="haNext" onclick="window.haNext()">Older tweets &rarr;</button></div></div>
   </div>
+
+  <!-- cp-v2 (31-Oct): Content Performance -- Dashboard ke analysis panel jaisa. Upar 5 metric card
+       (har ek ka apna rang, chhota graph, pichhle 7 din se ↑↓), card par click -> neeche wahi metric
+       ka analysis: tiles, roz ke bar + 7 din ki average line, hafte ke din ka pattern, roz ki table. -->
+  <style>
+  .cp-cards{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin-top:4px}
+  .cp-card{--mc:#E65100;position:relative;text-align:left;font:inherit;color:inherit;cursor:pointer;background:#fff;border:1.5px solid color-mix(in srgb,var(--mc) 30%,#fff);
+    border-radius:14px;padding:12px 14px 8px;min-width:0;overflow:hidden;transition:transform .18s,box-shadow .18s,border-color .18s,background .18s;touch-action:manipulation}
+  .cp-card::before{content:'';position:absolute;left:0;right:0;top:0;height:3px;background:var(--mc)}
+  .cp-card:hover{transform:translateY(-2px);box-shadow:0 10px 22px -12px color-mix(in srgb,var(--mc) 60%,transparent);border-color:color-mix(in srgb,var(--mc) 55%,#fff)}
+  .cp-card.on{background:color-mix(in srgb,var(--mc) 7%,#fff);border-color:var(--mc);box-shadow:0 0 0 3px color-mix(in srgb,var(--mc) 16%,transparent),0 10px 22px -12px color-mix(in srgb,var(--mc) 60%,transparent)}
+  .cp-card:focus-visible{outline:2px solid var(--mc);outline-offset:2px}
+  .cp-t{display:flex;align-items:center;gap:7px;font:700 10.5px 'DM Sans',sans-serif;letter-spacing:.8px;text-transform:uppercase;color:#57534E}
+  .cp-t i{width:8px;height:8px;border-radius:50%;background:var(--mc);flex:none}
+  .cp-t .cp-tr{margin-left:auto}
+  .cp-v{font:700 24px/1.1 'Rajdhani',sans-serif;color:#141414;margin-top:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .cp-v small{font:500 11px 'DM Sans',sans-serif;color:#8A817A;margin-left:4px}
+  .cp-s{font-size:11.5px;color:#8A817A;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .cp-sp{display:block;width:100%;height:34px;margin-top:6px}
+  .cp-tr{display:inline-flex;align-items:center;gap:2px;font:700 10.5px 'DM Sans',sans-serif;border-radius:999px;padding:2px 7px;letter-spacing:0;text-transform:none}
+  .cp-tr.u{color:#067647;background:#E7F6EC}.cp-tr.d{color:#B42318;background:#FDECEA}.cp-tr.f{color:#78716C;background:#F1EEEA}
+  .cp-panel{--mc:#E65100;margin-top:14px;border:1px solid #EFE8DD;border-top:3px solid var(--mc);border-radius:16px;padding:18px 20px 16px;background:#fff;animation:cpIn .3s ease-out}
+  @keyframes cpIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  .cp-ph{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap}
+  .cp-pl{font:700 11px 'DM Sans',sans-serif;letter-spacing:1px;text-transform:uppercase;color:var(--mc)}
+  .cp-pv{font:700 34px/1.05 'Rajdhani',sans-serif;color:#141414;margin-top:3px}
+  .cp-pv small{font:500 13px 'DM Sans',sans-serif;color:#78716C;margin-left:6px}
+  .cp-pr{font-size:12px;color:#78716C;margin-top:4px}
+  .cp-ins{margin:12px 0 14px;padding:11px 14px;border-radius:12px;background:color-mix(in srgb,var(--mc) 6%,#FBF9F6);border:1px solid color-mix(in srgb,var(--mc) 18%,#EFE8DD);
+    font-size:13.5px;line-height:1.6;color:#3F3A36}
+  .cp-ins b{color:#141414}
+  .cp-ins ul{margin:0;padding-left:18px}
+  .cp-tiles{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin-bottom:16px}
+  .cp-tiles .ui-dps{border-left:3px solid color-mix(in srgb,var(--mc) 70%,#fff)}
+  .cp-body{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr);gap:16px}
+  .cp-ch{position:relative;height:300px}
+  .cp-side{display:flex;flex-direction:column;gap:12px;min-width:0}
+  .cp-box{border:1px solid #EFE8DD;border-radius:12px;padding:12px 14px;min-width:0}
+  .cp-bh{font:700 10px 'DM Sans',sans-serif;letter-spacing:.8px;text-transform:uppercase;color:#8A817A;margin-bottom:8px;display:flex;justify-content:space-between}
+  .cp-wd{display:grid;grid-template-columns:34px 1fr auto;align-items:center;gap:8px;font-size:12px;margin:5px 0}
+  .cp-wd span{color:#57534E}
+  .cp-wd em{display:block;height:8px;border-radius:5px;background:#F3EEE7;overflow:hidden}
+  .cp-wd em i{display:block;height:100%;border-radius:5px;background:color-mix(in srgb,var(--mc) 55%,#fff)}
+  .cp-wd.top em i{background:var(--mc)}
+  .cp-wd b{font:600 12px 'DM Sans',sans-serif;font-variant-numeric:tabular-nums;color:#141414}
+  .cp-wd.top span,.cp-wd.top b{color:var(--mc);font-weight:700}
+  .cp-tb{max-height:176px;overflow-y:auto;margin:0 -4px}
+  .cp-tb table{width:100%;border-collapse:collapse}
+  .cp-tb td{padding:6px 4px;border-bottom:1px solid #F3EEE7}
+  .cp-tb .ui-dv i{background:color-mix(in srgb,var(--mc) 60%,transparent)}
+  @media (max-width:1200px){.cp-cards{grid-template-columns:repeat(3,minmax(0,1fr))}.cp-body{grid-template-columns:1fr}.cp-tiles{grid-template-columns:repeat(3,minmax(0,1fr))}}
+  @media (max-width:700px){.cp-cards,.cp-tiles{grid-template-columns:repeat(2,minmax(0,1fr))}.cp-ch{height:240px}.cp-panel{padding:14px}}
+  @media (prefers-reduced-motion:reduce){.cp-panel{animation:none}.cp-card{transition:none}}
+  </style>
+  <div class="ha-card ha-coll" data-key="content">
+    <div class="ha-stitle" role="button" tabindex="0" aria-expanded="true">Content Performance <span class="ha-chint">click to collapse</span><span class="ha-cchev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg></span></div>
+    <div class="ha-cbody"><div class="ha-cin"><div id="haContent"><div class="ha-msg">&mdash;</div></div></div></div>
+  </div>
+  <script>
+  (function () {
+    function key(c) { return 'ha_coll_' + c.getAttribute('data-key'); }
+    function set(c, closed) {
+      c.classList.toggle('closed', closed);
+      var t = c.querySelector('.ha-stitle'); t.setAttribute('aria-expanded', String(!closed));
+      var h = c.querySelector('.ha-chint'); if (h) h.textContent = closed ? 'click to expand' : 'click to collapse';
+    }
+    document.querySelectorAll('.ha-coll').forEach(function (c) {
+      try { if (localStorage.getItem(key(c)) === '1') set(c, true); } catch (e) {}
+      var t = c.querySelector('.ha-stitle');
+      function flip() { var cl = !c.classList.contains('closed'); set(c, cl); try { localStorage.setItem(key(c), cl ? '1' : '0'); } catch (e) {} }
+      t.addEventListener('click', flip);
+      t.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); flip(); } });
+    });
+  })();
+  </script>
 </main>
 </div>
 <div class="page-section" id="sec-reports">
@@ -10736,7 +10860,7 @@ setTimeout(hExec,600);
    Na aaye to initials dikhte hain aur neeche ek line asli wajah batati hai. */
 (function () {
   'use strict';
-  var CUR = null, OFFSET = 0, PAGE = 20, LIST = [], LOADING = false;
+  var CUR = null, OFFSET = 0, PAGE = 6, LIST = [], LOADING = false;
 
   function el(id) { return document.getElementById(id); }
   function esc(s) {
@@ -11301,6 +11425,137 @@ setTimeout(hExec,600);
     }, 150);
   });
 
+  /* ===== cp-v2 (31-Oct): Content Performance -- 5 rangeen metric card + analysis panel =====
+     Har card: roz ka aausat, ek tweet par kitna, pichhle 7 din vs usse pehle ke 7 din (kam din
+     ho to doosra aadha vs pehla aadha), chhota graph. Click -> neeche panel: saaransh ki 2-3
+     lines, tiles, roz ke bar + 7 din ki average line (Chart.js), hafte ke din ka pattern, roz ki table. */
+  var CP = { k: 'views', d: [] };
+  var CP_M = [
+    { k: 'posts',    t: 'Posts',    c: '#2E7D32', u: 'posts' },
+    { k: 'likes',    t: 'Likes',    c: '#E11D48', u: 'likes' },
+    { k: 'comments', t: 'Comments', c: '#D97706', u: 'comments' },
+    { k: 'views',    t: 'Views',    c: '#7C3AED', u: 'views' },
+    { k: 'shares',   t: 'Shares',   c: '#1D4ED8', u: 'shares' }
+  ];
+  var CP_DOW = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  function cpU() { return window.uiDetail || { cmp: big, full: nf, long: function (x) { return x; }, nice: function (x) { return x; }, range: function () { return ''; } }; }
+  function cpStat(d, m) {
+    var V = d.map(function (x) { return Number(x[m.k]) || 0; }), n = V.length;
+    var tot = V.reduce(function (a, v) { return a + v; }, 0);
+    var posts = d.reduce(function (a, x) { return a + (Number(x.posts) || 0); }, 0);
+    var mi = 0; V.forEach(function (v, i) { if (v > V[mi]) mi = i; });
+    /* rujhaan: 14+ din ho to aakhri 7 vs usse pehle ke 7, warna doosra aadha vs pehla aadha */
+    var w = n >= 14 ? 7 : Math.floor(n / 2), a = 0, b = 0;
+    for (var i = n - w; i < n; i++) a += V[i];
+    for (var j = n - 2 * w; j < n - w; j++) b += V[j];
+    var tr = (w >= 2 && b > 0) ? Math.round((a - b) / b * 100) : null;
+    /* hafte ke din: us din ka aausat (sirf jo din range me aaye) */
+    var ws = [0, 0, 0, 0, 0, 0, 0], wc = [0, 0, 0, 0, 0, 0, 0];
+    d.forEach(function (x, i) { var q = String(x.date).split('-'), dw = new Date(+q[0], +q[1] - 1, +q[2]).getDay(); if (!isNaN(dw)) { ws[dw] += V[i]; wc[dw]++; } });
+    var wd = ws.map(function (v, i) { return wc[i] ? v / wc[i] : 0; }), wb = wd.indexOf(Math.max.apply(null, wd));
+    var act = V.filter(function (v) { return v > 0; }).length;
+    return { V: V, n: n, tot: tot, avg: n ? tot / n : 0, per: (m.k !== 'posts' && posts) ? tot / posts : null, posts: posts,
+             mi: mi, peak: V[mi] || 0, last: n ? V[n - 1] : 0, tr: tr, w: w, a: a, b: b, wd: wd, wb: wb, act: act };
+  }
+  function cpTrend(tr) {
+    if (tr === null) return '<span class="cp-tr f">—</span>';
+    return '<span class="cp-tr ' + (tr > 0 ? 'u' : (tr < 0 ? 'd' : 'f')) + '" title="Last 7 days vs the 7 before">' + (tr > 0 ? '▲' : (tr < 0 ? '▼' : '')) + Math.abs(tr) + '%</span>';
+  }
+  function cpSpark(V, c) {
+    if (V.length < 2) return '';
+    var mx = Math.max.apply(null, V) || 1, W = 200, H = 34, st = W / (V.length - 1);
+    var p = V.map(function (v, i) { return (i ? 'L' : 'M') + (i * st).toFixed(1) + ',' + (H - 2 - v / mx * (H - 4)).toFixed(1); }).join(' ');
+    var g = 'cpg' + Math.random().toString(36).slice(2, 7);
+    return '<svg class="cp-sp" viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="' + g + '" x1="0" y1="0" x2="0" y2="1">'
+      + '<stop offset="0" stop-color="' + c + '" stop-opacity=".28"/><stop offset="1" stop-color="' + c + '" stop-opacity="0"/></linearGradient></defs>'
+      + '<path d="' + p + ' L' + W + ',' + H + ' L0,' + H + ' Z" fill="url(#' + g + ')"/><path d="' + p + '" fill="none" stroke="' + c + '" stroke-width="1.8" vector-effect="non-scaling-stroke" stroke-linejoin="round"/></svg>';
+  }
+  function cpRender(d) {
+    CP.d = d || [];
+    var box = el('haContent'); if (!box) return;
+    if (!CP.d.length) { box.innerHTML = '<div class="ha-msg">No data in this period.</div>'; return; }
+    var U = cpU();
+    box.innerHTML = '<div class="cp-cards">' + CP_M.map(function (m) {
+      var st = cpStat(CP.d, m);
+      return '<button type="button" class="cp-card' + (m.k === CP.k ? ' on' : '') + '" data-k="' + m.k + '" style="--mc:' + m.c + '" aria-pressed="' + (m.k === CP.k) + '">'
+        + '<div class="cp-t"><i></i>' + m.t + ' / day' + cpTrend(st.tr) + '</div>'
+        + '<div class="cp-v">' + U.cmp(st.avg) + '<small>avg</small></div>'
+        + '<div class="cp-s">' + (st.per !== null ? U.cmp(st.per) + ' per tweet' : U.cmp(st.tot) + ' in ' + st.n + ' days') + '</div>'
+        + cpSpark(st.V, m.c) + '</button>';
+    }).join('') + '</div><div id="cpPanel"></div>';
+    box.querySelectorAll('.cp-card').forEach(function (b) {
+      b.onclick = function () {
+        CP.k = b.getAttribute('data-k');
+        box.querySelectorAll('.cp-card').forEach(function (x) { var on = x === b; x.classList.toggle('on', on); x.setAttribute('aria-pressed', String(on)); });
+        cpPanel();
+      };
+    });
+    cpPanel();
+  }
+  function cpPanel() {
+    var p = el('cpPanel'); if (!p) return;
+    var m = CP_M.filter(function (x) { return x.k === CP.k; })[0] || CP_M[0], d = CP.d, st = cpStat(d, m), U = cpU();
+    var L = d.map(function (x) { return x.date; });
+    var lw = st.n >= 14 ? 'last 7 days' : 'second half of the period', pw = st.n >= 14 ? 'the 7 days before' : 'the first half';
+    /* saaransh: sirf data se banti 2-3 seedhi lines */
+    var ins = [];
+    if (st.tr !== null) ins.push(m.t + ' are <b style="color:' + (st.tr >= 0 ? '#067647' : '#B42318') + '">' + (st.tr >= 0 ? 'up ' : 'down ') + Math.abs(st.tr) + '%</b> in the ' + lw
+      + ' (' + U.cmp(st.a) + ') compared with ' + pw + ' (' + U.cmp(st.b) + ').');
+    ins.push('Best day was <b>' + U.long(L[st.mi]) + '</b> with <b>' + U.full(st.peak) + '</b> ' + m.u + (st.avg > 0 ? ', ' + (Math.round(st.peak / st.avg * 10) / 10) + '× the daily average.' : '.'));
+    if (st.wd[st.wb] > 0) ins.push('<b>' + ['Sundays','Mondays','Tuesdays','Wednesdays','Thursdays','Fridays','Saturdays'][st.wb] + '</b> perform best on average (' + U.cmp(st.wd[st.wb]) + ' ' + m.u + ' a day).');
+    if (st.per !== null) ins.push('An average tweet gets <b>' + U.cmp(st.per) + '</b> ' + m.u + ' (' + U.full(st.posts) + ' tweets in this period).');
+    function tile(k, v, s) { return '<div class="ui-dps"><span class="k">' + k + '</span><b>' + v + '</b>' + (s ? '<span class="s">' + s + '</span>' : '') + '</div>'; }
+    var wmax = Math.max.apply(null, st.wd) || 1;
+    var rows = '';
+    for (var i = st.n - 1; i >= 0; i--) {
+      var v = st.V[i], wv = st.peak ? Math.max(1.5, v / st.peak * 100) : 0;
+      rows += '<tr><td class="ui-dt">' + esc(U.long(L[i])) + '</td><td class="ui-dv"><span>' + U.full(v) + '</span><i style="width:' + wv.toFixed(1) + '%"></i></td></tr>';
+    }
+    p.innerHTML = '<div class="cp-panel" style="--mc:' + m.c + '">'
+      + '<div class="cp-ph"><div><div class="cp-pl">' + m.t + ' · daily analysis</div>'
+      + '<div class="cp-pv">' + U.full(st.tot) + '<small>total ' + m.u + '</small></div>'
+      + '<div class="cp-pr">' + esc(U.range(L)) + '</div></div>' + cpTrend(st.tr) + '</div>'
+      + '<div class="cp-ins"><ul>' + ins.map(function (x) { return '<li>' + x + '</li>'; }).join('') + '</ul></div>'
+      + '<div class="cp-tiles">'
+      + tile('Daily average', U.cmp(st.avg), 'over ' + st.n + (st.n === 1 ? ' day' : ' days'))
+      + (st.per !== null ? tile('Per tweet', U.cmp(st.per), 'from ' + U.full(st.posts) + ' tweets') : tile('Active days', st.act + ' / ' + st.n, 'days with at least 1 post'))
+      + tile('Peak day', U.cmp(st.peak), esc(U.nice(L[st.mi], true)))
+      + tile('Latest day', U.cmp(st.last), esc(U.nice(L[st.n - 1], true)))
+      + tile(st.n >= 14 ? 'Last 7 days' : 'Recent half', U.cmp(st.a), 'vs ' + U.cmp(st.b) + ' before')
+      + '</div>'
+      + '<div class="cp-body"><div class="cp-ch"><canvas id="cpCv" aria-label="' + m.t + ' per day"></canvas></div>'
+      + '<div class="cp-side"><div class="cp-box"><div class="cp-bh"><span>By weekday</span><span>avg / day</span></div>'
+      + [1, 2, 3, 4, 5, 6, 0].map(function (k) {
+          return '<div class="cp-wd' + (k === st.wb && st.wd[k] > 0 ? ' top' : '') + '"><span>' + CP_DOW[k] + '</span><em><i style="width:' + (st.wd[k] / wmax * 100).toFixed(1) + '%"></i></em><b>' + U.cmp(st.wd[k]) + '</b></div>';
+        }).join('') + '</div>'
+      + '<div class="cp-box"><div class="cp-bh"><span>Day by day</span><span>' + m.t + '</span></div><div class="cp-tb"><table><tbody>' + rows + '</tbody></table></div></div></div></div>'
+      + '</div>';
+    cpChart(el('cpCv'), L, st.V, m);
+  }
+  function cpChart(cv, L, V, m) {
+    if (!cv || !window.Chart) return;
+    try { var old = Chart.getChart(cv); if (old) old.destroy(); } catch (e) {}
+    var U = cpU(), n = L.length, h = m.c.replace('#', ''), rgb = 'rgba(' + parseInt(h.slice(0, 2), 16) + ',' + parseInt(h.slice(2, 4), 16) + ',' + parseInt(h.slice(4, 6), 16) + ',';
+    var avg = [], s = 0;
+    for (var i = 0; i < n; i++) { s += V[i]; if (i >= 7) s -= V[i - 7]; avg.push(i >= 6 ? s / 7 : null); }
+    var ds = [{ type: 'bar', label: 'Daily', data: V, order: 2, backgroundColor: rgb + '.30)', hoverBackgroundColor: rgb + '.75)',
+                borderRadius: 3, borderSkipped: false, barPercentage: .92, categoryPercentage: 1, maxBarThickness: 28 }];
+    if (n >= 10) ds.push({ type: 'line', label: '7-day average', data: avg, order: 1, borderColor: m.c, backgroundColor: m.c, borderWidth: 2.4,
+                           pointRadius: 0, pointHoverRadius: 4, pointHitRadius: 8, tension: .35, fill: false, spanGaps: true });
+    new Chart(cv, { data: { labels: L, datasets: ds }, options: {
+      maintainAspectRatio: false, animation: { duration: 550, easing: 'easeOutQuart' }, interaction: { mode: 'index', intersect: false },
+      plugins: { datalabels: { display: false },
+        legend: { display: n >= 10, position: 'top', align: 'end', labels: { usePointStyle: true, boxWidth: 8, boxHeight: 8, padding: 14, font: { family: "'DM Sans',sans-serif", size: 11 }, color: '#57534E' } },
+        tooltip: { backgroundColor: 'rgba(20,16,13,.94)', padding: 11, cornerRadius: 9, usePointStyle: true, boxPadding: 4,
+          titleFont: { family: "'DM Sans',sans-serif", size: 12, weight: '700' }, bodyFont: { family: "'DM Sans',sans-serif", size: 12 },
+          callbacks: { title: function (it) { return it && it[0] ? U.long(L[it[0].dataIndex]) : ''; },
+            label: function (c) { if (c.raw == null) return null; return ' ' + c.dataset.label + ': ' + (c.datasetIndex === 0 ? U.full(c.raw) : U.cmp(c.raw)) + ' ' + m.u; } } } },
+      scales: {
+        x: { grid: { display: false }, border: { display: false }, ticks: { autoSkip: true, maxTicksLimit: 8, maxRotation: 0, color: '#78716C', font: { family: "'DM Sans',sans-serif", size: 11 },
+             callback: function (v, i) { return U.nice(L[i]); } } },
+        y: { beginAtZero: true, border: { display: false }, grid: { color: '#F1ECE4' }, ticks: { maxTicksLimit: 5, color: '#78716C', font: { family: "'DM Sans',sans-serif", size: 11 }, callback: function (v) { return U.cmp(v); } } } } } });
+  }
+
   function render(r) {
     var p = r.profile, s = r.summary, d = r.daily || [], c = col(p.party);
 
@@ -11330,12 +11585,7 @@ setTimeout(hExec,600);
     el('haGrowth').innerHTML =
         chart('Followers', L, d.map(function (x) { return x.followers; }), '#E65100', true, big(s.followers))
       + chart('Following', L, d.map(function (x) { return x.following; }), '#B45309', true, big(s.following));
-    el('haContent').innerHTML =
-        chart('Posts / Day', L, d.map(function (x) { return x.posts; }), '#1B5E20', false, s.postsPerDay + '<small>avg/day</small>')
-      + chart('Likes / Day', L, d.map(function (x) { return x.likes; }), '#C62828', false, big(s.avgLikes) + '<small>avg</small>')
-      + chart('Comments / Day', L, d.map(function (x) { return x.comments; }), '#A8611F', false, big(s.avgComments) + '<small>avg</small>')
-      + chart('Views / Day', L, d.map(function (x) { return x.views; }), '#4A148C', false, big(s.avgViews) + '<small>avg</small>')
-      + chart('Shares / Day', L, d.map(function (x) { return x.shares; }), '#0D47A1', false, big(s.avgShares) + '<small>avg</small>');
+    cpRender(d);
     /* no-er : Engagement Rate chart hata diya gaya */
 
     /* ---- daily breakdown -- sirf pichhle 7 din  (kpi-tiles) ---- */
@@ -11417,25 +11667,87 @@ setTimeout(hExec,600);
       + (bottom ? '<div class="ha-cb">' + bottom + '</div>' : '') + '</div>';
   }
 
+  /* tweet-table (31-Oct): pehle page par sabse upar "Best of last 7 days" (server har load par
+     naye sire se chunta hai), phir 6 latest; Older / Newer se purane tweets. Row par ya
+     "View full" par usi ke neeche wahi X card khulta hai, dobara tap par band. */
+  function twShort(d) {
+    var m = String(d || '').match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (!m) return '';
+    return (+m[3]) + ' ' + ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][+m[2] - 1];
+  }
+  function twGap(m) {
+    if (m === null || m === undefined) return '';
+    if (m < 1) return 'same minute as previous';
+    if (m < 60) return m + 'm after previous';
+    if (m < 1440) return Math.floor(m / 60) + 'h ' + (m % 60 ? (m % 60) + 'm ' : '') + 'after previous';
+    return Math.round(m / 1440) + 'd after previous';
+  }
+  function twRow(t, key, best) {
+    var sk = String(t.sent || '').toLowerCase(), sc = TW_SENT[sk] || '#78909C';
+    var parts = twDate(t.date).split(' · '), g = t.folGain, fg;
+    if (g === null || g === undefined) fg = '<span class="htb-na">—</span><span class="htb-sub">no earlier count</span>';
+    else if (t.folEst !== null && t.folEst !== undefined && t.dayPosts > 1)
+      /* kai post wala din: bada number = is post ka andaazan hissa, neeche poore din ki asli badhat */
+      fg = '<span class="htb-up">~+' + nf(t.folEst) + '</span><span class="htb-est">est.</span>'
+        + '<span class="htb-sub">of +' + nf(g) + ' on ' + twShort(t.date) + ' · ' + nf(t.dayPosts) + ' posts</span>';
+    else fg = '<span class="' + (g > 0 ? 'htb-up' : (g < 0 ? 'htb-dn' : 'htb-na')) + '">' + (g > 0 ? '+' : (g < 0 ? '−' : '')) + nf(Math.abs(g)) + '</span>'
+      + '<span class="htb-sub">' + twShort(t.date) + ' · ' + nf(t.dayPosts) + ' post' + (t.dayPosts === 1 ? '' : 's') + '</span>';
+    var tip = g === null || g === undefined ? '' : ' title="Followers on ' + twShort(t.date) + ' minus followers on ' + twShort(t.folFrom) + ' = ' + (g < 0 ? '−' : '+') + nf(Math.abs(g))
+      + '. X gives the follower count once a day.' + (t.folEst !== null && t.folEst !== undefined && t.dayPosts > 1
+        ? ' This post\'s share (~+' + nf(t.folEst) + ') is an estimate: the day\'s gain split across its ' + nf(t.dayPosts) + ' posts by engagement.' : '') + '"';
+    return '<tr class="htb-r' + (best ? ' htb-best' : '') + '" data-k="' + key + '">'
+      + '<td class="htb-tw">' + (best ? '<span class="htb-badge">&#9733; Best of last 7 days</span>' : '')
+      + '<div class="htb-txt">' + twHtml(t.text) + '</div>'
+      + '<button class="htb-vf" type="button" aria-expanded="false">View full <i>&#9662;</i></button></td>'
+      + '<td class="htb-l htb-dt"><b>' + esc(parts[0] || '') + '</b><span>' + esc(parts[1] || '') + '</span>'
+      + (t.gapMin !== null && t.gapMin !== undefined ? '<span>' + twGap(t.gapMin) + '</span>' : '') + '</td>'
+      + '<td title="' + nf(t.likes) + '">' + big(t.likes) + '</td>'
+      + '<td title="' + nf(t.comments) + '">' + big(t.comments) + '</td>'
+      + '<td title="' + nf(t.shares) + '">' + big(t.shares) + '</td>'
+      + '<td title="' + nf(t.views) + '">' + big(t.views) + '</td>'
+      + '<td class="htb-eng" title="Likes + Comments + Retweets = ' + nf(t.eng) + '"><b>' + big(t.eng) + '</b></td>'
+      + '<td' + tip + '>' + fg + '</td>'
+      + '<td class="htb-l"><span class="htb-st" style="color:' + sc + '"><i style="background:' + sc + '"></i>' + esc(t.sent || '—') + '</span></td></tr>';
+  }
   function loadTweets() {
     if (!CUR) return;
-    api('/api/ha/tweets', { h: CUR, offset: OFFSET, limit: PAGE }).then(function (r) {
+    api('/api/ha/tweets', { h: CUR, offset: OFFSET, limit: PAGE, view: 'table' }).then(function (r) {
       var b = el('haTwBody'); if (!b) return;
-      var list = r.items || [];
+      var list = r.items || [], ROWS = {}, html = '';
       var who = (LIST || []).find(function (o) { return o.h === CUR; }) || {};
-      b.innerHTML = list.length ? list.map(function (t, i) { return twCard(t, i, who); }).join('')
-                                : '<div class="htc-empty">No tweets.</div>';
-      wireCards(b, list);
+      if (r.offset === 0 && r.best) {
+        ROWS.b = r.best;
+        html += '<tr class="htb-sec"><td colspan="9">Best of last 7 days<em>' + esc(twShort(r.bestFrom)) + ' – ' + esc(twShort(r.bestTo))
+          + ' · highest engagement of ' + nf(r.bestPool) + ' tweets</em></td></tr>' + twRow(r.best, 'b', true);
+      }
+      if (list.length) html += '<tr class="htb-sec"><td colspan="9">' + (r.offset === 0 ? 'Latest tweets' : 'Older tweets') + '</td></tr>';
+      list.forEach(function (t, i) { ROWS['r' + i] = t; html += twRow(t, 'r' + i, false); });
+      b.innerHTML = html || '<tr><td colspan="9" class="htc-empty">No tweets.</td></tr>';
+      b.onclick = function (e) {
+        if (e.target.closest('a')) return;
+        var tr = e.target.closest('tr.htb-r'); if (!tr) return;
+        var k = tr.getAttribute('data-k'), nxt = tr.nextElementSibling, btn = tr.querySelector('.htb-vf');
+        if (nxt && nxt.classList.contains('htb-exp')) {
+          nxt.remove(); tr.classList.remove('open');
+          btn.innerHTML = 'View full <i>&#9662;</i>'; btn.setAttribute('aria-expanded', 'false');
+          return;
+        }
+        var ex = document.createElement('tr'); ex.className = 'htb-exp';
+        ex.innerHTML = '<td colspan="9">' + twCard(ROWS[k], k, who) + '</td>';
+        tr.after(ex); tr.classList.add('open');
+        btn.innerHTML = 'Hide <i>&#9662;</i>'; btn.setAttribute('aria-expanded', 'true');
+        wireCards(ex, ROWS);
+      };
       var start = r.total === 0 ? 0 : r.offset + 1;
       var end = Math.min(r.offset + r.pageSize, r.total);
-      var inf = el('haTwInfo'); if (inf) inf.textContent = start + '–' + end + ' of ' + nf(r.total);
-      var cnt = el('haTwCount'); if (cnt) cnt.textContent = nf(r.total) + ' total';
+      var inf = el('haTwInfo'); if (inf) inf.textContent = 'Latest ' + start + '–' + end + ' of ' + nf(r.total) + (r.best && r.offset === 0 ? ' + best of 7 days' : '');
+      var cnt = el('haTwCount'); if (cnt) cnt.textContent = nf(r.all || r.total) + ' total';
       var pv = el('haPrev'), nx = el('haNext');
       if (pv) pv.disabled = r.offset <= 0;
       if (nx) nx.disabled = end >= r.total;
     }).catch(function (e) {
       var b = el('haTwBody');
-      if (b) b.innerHTML = '<div class="htc-empty">' + esc(e.message) + '</div>';
+      if (b) b.innerHTML = '<tr><td colspan="9" class="htc-empty">' + esc(e.message) + '</td></tr>';
     });
   }
 
