@@ -334,7 +334,13 @@ function tsOf(v) {
   var m = String(v || '').match(/^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})(?::(\d{2}))?/);
   return m ? Date.UTC(+m[1], +m[2] - 1, +m[3], +m[4], +m[5], +(m[6] || 0)) : null;
 }
-function tweetTable(rows, offset, limit) {
+/* tw-anchor (31-Oct): anchor = poore data ki sabse nayi tareekh (YYYY-MM-DD, server deta hai).
+   "Is hafte" (anchor se 7 din) aur "pichhle 3 din" usi se ginte hain -- handle ke apne aakhri
+   tweet se nahi. anchor na mile to purana tareeka (handle ka sabse naya tweet). */
+function shiftDay(day, n) {
+  return new Date(Date.parse(day + 'T00:00:00Z') + n * 86400000).toISOString().slice(0, 10);
+}
+function tweetTable(rows, offset, limit, anchor) {
   offset = Math.max(0, Number(offset) || 0);
   limit = Math.min(Math.max(Number(limit) || 6, 1), 50);
   var seen = {}, sorted = [];
@@ -379,20 +385,21 @@ function tweetTable(rows, offset, limit) {
     return t;
   }
 
-  var from = cutoffDay(sorted, 7), best = null, pool = 0;
+  var to = /^\d{4}-\d{2}-\d{2}$/.test(anchor || '') ? anchor : (sorted.length ? dayOf(sorted[0]['Tweet Date']) : '');
+  var from = to ? shiftDay(to, -6) : '', best = null, pool = 0;
+  function inWin(r, f) { var d = dayOf(r['Tweet Date']); return !!d && (!f || d >= f) && (!to || d <= to); }
   sorted.forEach(function (r) {
-    var d = dayOf(r['Tweet Date']);
-    if (!d || (from && d < from)) return;
+    if (!inWin(r, from)) return;
     pool++;
     if (!best || eng(r) > eng(best) || (eng(r) === eng(best) && num(r['Total Views']) > num(best['Total Views']))) best = r;
   });
   /* ha-fast (31-Oct): list me sirf pichhle 3 din ke tweets (best upar alag) -- page halka */
-  var from3 = cutoffDay(sorted, 3);
-  var rest = sorted.filter(function (r) { return r !== best && (!from3 || dayOf(r['Tweet Date']) >= from3); });
+  var from3 = to ? shiftDay(to, -2) : '';
+  var rest = sorted.filter(function (r) { return r !== best && inWin(r, from3); });
   return {
     best: best ? row(best) : null,
-    bestPool: pool, bestFrom: from, bestTo: sorted.length ? dayOf(sorted[0]['Tweet Date']) : '',
-    recentFrom: from3,
+    bestPool: pool, bestFrom: from, bestTo: to,
+    recentFrom: from3, anchor: to,
     items: rest.slice(offset, offset + limit).map(row),
     total: rest.length, all: sorted.length, offset: offset, pageSize: limit
   };

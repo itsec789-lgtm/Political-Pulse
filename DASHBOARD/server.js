@@ -5552,19 +5552,50 @@ app.get('/api/ha/analytics', dashGuard, async function (req, res) {
   }
 });
 
+/* tw-anchor (31-Oct): data kahan tak POORA aaya hai -- Latest Tweets ka "is hafte" / "latest 3 din"
+   isi tareekh se ginta hai. Sirf sabse nayi tareekh nahi: aakhri din aksar adhoore hote hain
+   (is laptop par 7 Sep = 9 tweet / 4 handle, jabki 4 Sep = 21K). Isliye pichhle 10 din me jis din
+   sabse zyada tweet aaye, uske kam se kam 25% wala SABSE NAYA din. Galat future tareekh nahi
+   (kal tak hi). 5 min yaad. */
+var _haLatest = { at: 0, v: '' };
+async function haLatestDay() {
+  if (_haLatest.v && Date.now() - _haLatest.at < 300000) return _haLatest.v;
+  var tmr = new Date(Date.now() + 86400000 + 19800000).toISOString().slice(0, 10);   /* IST kal */
+  var cli = MP.client();
+  try {
+    await cli.connect();
+    var col = cli.db(MASTER_DB).collection(MASTER_COLL);
+    var d = await col.find({ 'Tweet Date': { $gte: '2000-01-01', $lt: tmr } }, { projection: { _id: 0, 'Tweet Date': 1 } })
+      .sort({ 'Tweet Date': -1 }).limit(1).maxTimeMS(20000).toArray();
+    var top = d.length ? String(d[0]['Tweet Date'] || '').slice(0, 10) : '';
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(top)) return _haLatest.v;
+    var from = new Date(Date.parse(top + 'T00:00:00Z') - 9 * 86400000).toISOString().slice(0, 10);
+    var per = await col.aggregate([
+      { $match: { 'Tweet Date': { $gte: from, $lt: tmr } } },
+      { $group: { _id: { $substrBytes: ['$Tweet Date', 0, 10] }, n: { $sum: 1 } } }
+    ], { maxTimeMS: 30000 }).toArray();
+    var mx = per.reduce(function (a, x) { return Math.max(a, x.n); }, 0), day = top;
+    var ok = per.filter(function (x) { return x.n >= mx * 0.25; }).map(function (x) { return x._id; }).sort();
+    if (ok.length) day = ok[ok.length - 1];
+    _haLatest = { at: Date.now(), v: day };
+    return day;
+  } catch (e) { return _haLatest.v; }
+  finally { try { await cli.close(); } catch (e) {} }
+}
+
 /* ---- 4. latest tweets (page by page) ---- */
 app.get('/api/ha/tweets', dashGuard, async function (req, res) {
   res.set('Cache-Control', 'no-store');
   var h = String(req.query.h || '').trim();
   if (!h) return res.status(400).json({ error: 'no handle supplied' });
   try {
-    var got = await Promise.all([haOwns(req, h), haRows(h)]);
+    var got = await Promise.all([haOwns(req, h), haRows(h), req.query.view === 'table' ? haLatestDay() : '']);
     var meta = got[0];
     if (!meta) return res.status(404).json({ error: 'This handle is not part of this dashboard.' });
     var rows = got[1];
     /* tweet-table (31-Oct): view=table -> best-of-7-days + follower gain + post gap */
     res.json(req.query.view === 'table'
-      ? HA.tweetTable(rows, req.query.offset, req.query.limit)
+      ? HA.tweetTable(rows, req.query.offset, req.query.limit, got[2])
       : HA.tweetPage(rows, req.query.offset, req.query.limit));
   } catch (e) {
     res.status(500).json({ error: e.message });

@@ -6316,6 +6316,20 @@ a.pe-btn:after{content:"";position:absolute;inset:0;z-index:1;background:linear-
     .htb-badge{display:inline-flex;align-items:center;gap:5px;font:800 10px Inter,sans-serif;letter-spacing:.06em;text-transform:uppercase;color:#fff;
       background:linear-gradient(110deg,#2B1407,#E8590C);padding:3px 8px;border-radius:999px;margin-bottom:6px}
     .htb-best .htb-eng{color:#C2410C;font-weight:800}
+    /* tw-v3 (31-Oct): saaf label + din ki patti */
+    .htb-bw{display:inline-flex;align-items:center;gap:5px;margin-bottom:6px;font:700 11.5px Inter,sans-serif;letter-spacing:.02em;color:#C2410C}
+    .htb-bw svg{width:13px;height:13px;color:#F59E0B}
+    .htb tr.htb-best td:first-child{box-shadow:inset 3px 0 0 #E8590C}
+    .htb tr.htb-sec td{background:#fff;padding:14px 12px 8px;border-bottom:1px solid #EFE8DD}
+    .htb tr.htb-sec td span{font:800 12px Inter,sans-serif;letter-spacing:.06em;text-transform:uppercase;color:#141414}
+    .htb tr.htb-sec td em{font-size:11.5px}
+    .htb tr.htb-day td{background:#FBF8F4;padding:7px 12px;text-align:left;font-size:12px;color:#6B5E50;border-bottom:1px solid #F3EEE7;white-space:normal}
+    .htb tr.htb-day td b{color:#141414;font-weight:700;margin-right:10px}
+    .htb tr.htb-day td span{margin-right:10px}
+    .htb tr.htb-day td span.up{color:#067647;font-weight:600}.htb tr.htb-day td span.dn{color:#B42318;font-weight:600}
+    .htb-dt b{font-size:13px}
+    .htb tr.htb-r td.htb-dt span{display:block}
+    @media (max-width:760px){.htb tr.htb-day td,.htb tr.htb-sec td{display:block}}
     .htb tr.htb-exp td{padding:4px 12px 14px;background:#FFF8F0;text-align:left;white-space:normal}
     .htb-exp .htc-row{grid-template-columns:1fr;max-width:640px;animation:htbIn .25s ease-out}
     .htb-exp .htc-sent{display:none}
@@ -11910,23 +11924,21 @@ setTimeout(hExec,600);
   }
   function twRow(t, key, best) {
     var sk = String(t.sent || '').toLowerCase(), sc = TW_SENT[sk] || '#78909C';
+    /* tw-v3 (31-Oct): din ki poori badhat ab din ki patti (htb-day) me -- cell me sirf is post ka hissa */
     var parts = twDate(t.date).split(' · '), g = t.folGain, fg;
-    if (g === null || g === undefined) fg = '<span class="htb-na">—</span><span class="htb-sub">no earlier count</span>';
+    if (g === null || g === undefined) fg = '<span class="htb-na">—</span>';
     else if (t.folEst !== null && t.folEst !== undefined && t.dayPosts > 1)
-      /* kai post wala din: bada number = is post ka andaazan hissa, neeche poore din ki asli badhat */
-      fg = '<span class="htb-up">~+' + nf(t.folEst) + '</span><span class="htb-est">est.</span>'
-        + '<span class="htb-sub">of +' + nf(g) + ' that day</span>';
-    else fg = '<span class="' + (g > 0 ? 'htb-up' : (g < 0 ? 'htb-dn' : 'htb-na')) + '">' + (g > 0 ? '+' : (g < 0 ? '−' : '')) + nf(Math.abs(g)) + '</span>'
-      + '<span class="htb-sub">that day</span>';
+      fg = (t.folEst > 0 ? '<span class="htb-up">~+' + nf(t.folEst) + '</span>' : '<span class="htb-na">~0</span>') + '<span class="htb-est">est.</span>';
+    else fg = '<span class="' + (g > 0 ? 'htb-up' : (g < 0 ? 'htb-dn' : 'htb-na')) + '">' + (g > 0 ? '+' : (g < 0 ? '−' : '')) + nf(Math.abs(g)) + '</span>';
     var tip = g === null || g === undefined ? '' : ' title="Followers on ' + twShort(t.date) + ' minus followers on ' + twShort(t.folFrom) + ' = ' + (g < 0 ? '−' : '+') + nf(Math.abs(g))
       + '. X gives the follower count once a day.' + (t.folEst !== null && t.folEst !== undefined && t.dayPosts > 1
         ? ' This post\'s share (~+' + nf(t.folEst) + ') is an estimate: the day\'s gain split across its ' + nf(t.dayPosts) + ' posts by engagement.' : '') + '"';
     return '<tr class="htb-r' + (best ? ' htb-best' : '') + '" data-k="' + key + '">'
-      + '<td class="htb-tw">' + (best ? '<span class="htb-badge">&#9733; Best of last 7 days</span>' : '')
+      + '<td class="htb-tw">' + (best ? '<span class="htb-bw"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l2.9 6.6 7.1.6-5.4 4.7 1.6 7L12 17.3 5.8 21l1.6-7L2 9.2l7.1-.6z"/></svg>Best of the week</span>' : '')
       + '<div class="htb-txt">' + twHtml(t.text) + '</div>'
       + '<button class="htb-vf" type="button" aria-expanded="false">View full <i>&#9662;</i></button></td>'
-      + '<td class="htb-l htb-dt" data-l="Posted"><b>' + esc(parts[0] || '') + '</b><span>' + esc(parts[1] || '') + '</span>'
-      + (t.gapMin !== null && t.gapMin !== undefined ? '<span>' + twGap(t.gapMin) + '</span>' : '') + '</td>'
+      + '<td class="htb-l htb-dt" data-l="Posted">' + (best ? '<b>' + esc(parts[0] || '') + '</b><span>' + esc(parts[1] || '') + '</span>'
+          : '<b>' + esc(parts[1] || '') + '</b>' + (t.gapMin !== null && t.gapMin !== undefined ? '<span>' + twGap(t.gapMin) + '</span>' : '')) + '</td>'
       + '<td class="htb-en htb-eng" data-l="Engagement" title="Likes + Comments + Retweets = ' + nf(t.eng) + '"><b>' + big(t.eng) + '</b><div class="htb-bd">'
       + '<span class="l" title="Likes ' + nf(t.likes) + '">' + TW_I.lk + big(t.likes) + '</span>'
       + '<span class="c" title="Comments ' + nf(t.comments) + '">' + TW_I.cm + big(t.comments) + '</span>'
@@ -11941,15 +11953,30 @@ setTimeout(hExec,600);
       var b = el('haTwBody'); if (!b) return;
       var list = r.items || [], ROWS = {}, html = '';
       var who = (LIST || []).find(function (o) { return o.h === CUR; }) || {};
-      if (r.offset === 0 && r.best) {
-        ROWS.b = r.best;
-        html += '<tr class="htb-sec"><td colspan="6">Best of last 7 days<em>' + esc(twShort(r.bestFrom)) + ' – ' + esc(twShort(r.bestTo))
-          + ' · highest engagement of ' + nf(r.bestPool) + ' tweets</em></td></tr>' + twRow(r.best, 'b', true);
+      /* tw-v3 (31-Oct): dono khidki poore data ki sabse nayi tareekh (r.anchor) se -- "is hafte" ka best,
+         phir "latest 3 din" din-wise patti ke saath (din ke tweets + us din followers kitne bade) */
+      var wk = esc(twShort(r.bestFrom)) + ' – ' + esc(twShort(r.bestTo)), d3 = esc(twShort(r.recentFrom)) + ' – ' + esc(twShort(r.bestTo));
+      if (r.offset === 0) {
+        html += '<tr class="htb-sec"><td colspan="6"><span>Best of the week</span><em>' + wk
+          + (r.best ? ' · top engagement among ' + nf(r.bestPool) + ' tweet' + (r.bestPool === 1 ? '' : 's') : '') + '</em></td></tr>';
+        if (r.best) { ROWS.b = r.best; html += twRow(r.best, 'b', true); }
+        else html += '<tr><td colspan="6" class="htc-empty">No tweets this week (' + wk + ').</td></tr>';
       }
-      if (list.length) html += '<tr class="htb-sec"><td colspan="6">Last 3 days<em>' + esc(twShort(r.recentFrom)) + ' – ' + esc(twShort(r.bestTo))
-        + ' · ' + nf(r.total) + ' tweet' + (r.total === 1 ? '' : 's') + '</em></td></tr>';
-      list.forEach(function (t, i) { ROWS['r' + i] = t; html += twRow(t, 'r' + i, false); });
-      b.innerHTML = html || '<tr><td colspan="6" class="htc-empty">No tweets in the last 3 days.</td></tr>';
+      html += '<tr class="htb-sec"><td colspan="6"><span>Latest 3 days</span><em>' + d3 + ' · ' + nf(r.total) + ' tweet' + (r.total === 1 ? '' : 's') + '</em></td></tr>';
+      var lastDay = '';
+      list.forEach(function (t, i) {
+        var day = String(t.date || '').slice(0, 10);
+        if (day !== lastDay) {
+          lastDay = day;
+          var g = t.folGain, wd = paDt(day);
+          html += '<tr class="htb-day"><td colspan="6"><b>' + (wd ? PA_WD[wd.getDay()] + ', ' : '') + esc(twShort(day)) + '</b>'
+            + '<span>' + nf(t.dayPosts) + ' tweet' + (t.dayPosts === 1 ? '' : 's') + '</span>'
+            + (g === null || g === undefined ? '' : '<span class="' + (g >= 0 ? 'up' : 'dn') + '">' + (g >= 0 ? '+' : '−') + nf(Math.abs(g)) + ' followers</span>') + '</td></tr>';
+        }
+        ROWS['r' + i] = t; html += twRow(t, 'r' + i, false);
+      });
+      if (!list.length) html += '<tr><td colspan="6" class="htc-empty">No other tweets in the latest 3 days (' + d3 + ').</td></tr>';
+      b.innerHTML = html;
       b.onclick = function (e) {
         if (e.target.closest('a')) return;
         var tr = e.target.closest('tr.htb-r'); if (!tr) return;
@@ -11967,7 +11994,7 @@ setTimeout(hExec,600);
       };
       var start = r.total === 0 ? 0 : r.offset + 1;
       var end = Math.min(r.offset + r.pageSize, r.total);
-      var inf = el('haTwInfo'); if (inf) inf.textContent = start + '–' + end + ' of ' + nf(r.total) + ' from the last 3 days' + (r.best && r.offset === 0 ? ' + best of 7 days' : '');
+      var inf = el('haTwInfo'); if (inf) inf.textContent = r.total ? 'Showing ' + start + '–' + end + ' of ' + nf(r.total) + ' tweets from the latest 3 days' : '';
       var cnt = el('haTwCount'); if (cnt) cnt.textContent = nf(r.all || r.total) + ' total';
       var pv = el('haPrev'), nx = el('haNext');
       if (pv) pv.disabled = r.offset <= 0;
