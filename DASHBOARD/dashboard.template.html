@@ -2260,6 +2260,17 @@ svg#indiaMap{width:100%;height:100%;max-width:100%;max-height:100%;display:block
 .cs-ik span{font-size:10.5px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:#6B6B6B}
 .cs-st{margin-top:14px}.cs-st .h{display:flex;justify-content:space-between;font-size:12px;color:#4B5563;margin-bottom:6px}.cs-st .h b{color:#141414}
 .cs-st .bar{display:flex;height:12px;border-radius:7px;overflow:hidden;background:#EEE9E2}.cs-st .bar i{height:100%;min-width:2px}
+/* cs-mix (31-Oct): donut 180px, naam upar + % neeche, chhoti bar, list right ki taraf */
+.cs-side{grid-template-columns:180px minmax(0,1fr)!important;gap:30px!important}
+.cs-side .cs-donut{width:180px!important;height:180px!important}
+.cs-side .cs-ctr b{font-size:22px}.cs-side .cs-ctr span{font-size:8.5px;max-width:86px}
+.cs-side #overviewDonutLegend{justify-self:end;width:100%;max-width:250px}
+.cs-side .cs-row{grid-template-columns:20px 30px minmax(0,1fr)!important;grid-template-areas:'rk av nm' 'rk av pc'}
+.cs-side .cs-rk{grid-area:rk}.cs-side .cs-av{grid-area:av}.cs-side .cs-mid{grid-area:nm}
+.cs-side .cs-pc{grid-area:pc;display:flex;align-items:baseline;gap:6px;text-align:left}.cs-side .cs-pc small{display:inline}
+.cs-side .cs-nm{white-space:nowrap!important;overflow:hidden;text-overflow:ellipsis}
+.cs-side .cs-br{max-width:110px}
+@media (max-width:640px){.cs-side{grid-template-columns:1fr!important}.cs-side #overviewDonutLegend{justify-self:stretch;max-width:none}}
 /* pd-rail (31-Oct): Designation cards -- Dashboard category cards jaisa slide + grey ring */
 #pdesigSection .pd-rail{position:relative}
 #partyDesigTop5Grid{display:flex!important;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;padding:6px 2px 10px;scrollbar-width:none;grid-template-columns:none!important}
@@ -17655,7 +17666,7 @@ function renderOverviewDonutChart(handles, cfg) {
   legendList.innerHTML = top5.map(function (l, i) {
     var pct = (data[i] * 100 / total).toFixed(1);
     return '<div class="cs-row" data-i="' + i + '" style="--c:' + colors[i] + '"><span class="cs-rk">#' + (i + 1) + '</span>' + face(l, colors[i], 'cs-av')
-      + '<div class="cs-mid"><div class="cs-nm">' + esc2(l.name) + '</div><div class="cs-br"><i style="width:' + (data[i] * 100 / mx) + '%"></i></div></div>'
+      + '<div class="cs-mid"><div class="cs-nm" title="' + esc2(l.name) + '">' + esc2(l.name) + '</div><div class="cs-br"><i style="width:' + (data[i] * 100 / mx) + '%"></i></div></div>'
       + '<div class="cs-pc"><b>' + pct + '%</b><small>' + fmtF(data[i]) + ' tweets</small></div></div>';
   }).join('');
   var ctr = host.querySelector('.cs-ctr');
