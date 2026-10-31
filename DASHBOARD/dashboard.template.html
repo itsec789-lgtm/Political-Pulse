@@ -5930,6 +5930,7 @@ a.pe-btn:after{content:"";position:absolute;inset:0;z-index:1;background:linear-
         <div class="ha-chips" id="haChips"></div>
         <p class="ha-bio" id="haBio"></p>
       </div>
+      <div class="ha-bnact" id="haBnAct"></div>
     </div>
     <!-- pa (30-Oct): Profile & activity -- "Design 1".
          4 KPI tab: ek click = us KPI ka graph, doosra KPI = graph badle, double click = band.
@@ -5949,15 +5950,34 @@ a.pe-btn:after{content:"";position:absolute;inset:0;z-index:1;background:linear-
     .pa-abtn:hover{border-color:#D1D5DB;background:#FAFAF9}
     .pa-abtn.on{background:#111827;border-color:#111827;color:#fff}
     .pa-abtn:focus-visible,.pa-tab:focus-visible,.pa-pt:focus-visible{outline:2px solid #E65100;outline-offset:-2px}
+    /* bn-act (31-Oct): banner ke neeche-daayein kone me -- gehra kaanch pill + safed button, photo par bhi saaf padhe */
+    .ha-banner > .ha-bnact{position:absolute;right:16px;bottom:14px;z-index:3;display:flex;align-items:center;gap:8px}
+    .ha-bnact:empty{display:none}
+    .ha-bnact .pa-per{margin:0;display:inline-flex;align-items:center;height:34px;padding:0 14px;border-radius:999px;font-size:12.5px;color:rgba(255,255,255,.88);
+      background:rgba(20,10,4,.62);border:1px solid rgba(255,255,255,.18);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);
+      box-shadow:0 8px 20px -10px rgba(0,0,0,.6);white-space:nowrap}
+    .ha-bnact .pa-per b{color:#fff;font-weight:700;margin-right:2px}
+    .ha-bnact .pa-abtn{height:34px;border-radius:999px;padding:0 15px;border:0;background:#fff;color:#141414;font-weight:600;
+      box-shadow:0 8px 20px -10px rgba(0,0,0,.6)}
+    .ha-bnact .pa-abtn svg{color:#E65100}
+    .ha-bnact .pa-abtn:hover{background:#FFF3E8}
+    .ha-bnact .pa-abtn.on{background:linear-gradient(110deg,#2B1407,#E8590C);color:#fff}
+    .ha-bnact .pa-abtn.on svg{color:#fff}
+    .ha-bnact .pa-abtn:focus-visible{outline:2px solid #fff;outline-offset:2px}
+    .ha-bnact .pa-per{width:auto;order:0}
+    @media (max-width:700px){.ha-banner > .ha-bnact{position:static;width:100%;justify-content:flex-end;flex-wrap:wrap}}
     /* KPI card: kesariya outline + halki kesariya chhaya; chuna hua card gehra kesariya */
     .pa-tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;padding:14px 22px 16px;border-top:1px solid #E5E7EB}
-    .pa-tab{padding:14px 16px 12px;cursor:pointer;border:2px solid #FF9933;border-radius:12px;background:#fff;box-shadow:0 4px 12px -6px rgba(255,153,51,.45);text-align:left;font:inherit;color:inherit;position:relative;transition:border-color .15s,box-shadow .15s,transform .15s;touch-action:manipulation;user-select:none;-webkit-tap-highlight-color:transparent;min-width:0}
-    .pa-tab:hover{border-color:#F57C00;box-shadow:0 8px 18px -8px rgba(245,124,0,.5);transform:translateY(-1px)}
+    /* pa-ring (31-Oct): KPI cards jaisi gehri bhoori -> kesariya gradient ring */
+    .pa-tab{padding:14px 16px 12px;cursor:pointer;border:1.5px solid transparent;border-radius:14px;
+      background:linear-gradient(#fff,#fff) padding-box,linear-gradient(110deg,#2B1407 0%,#5A2A0E 45%,#E8590C 100%) border-box;box-shadow:0 2px 12px -4px rgba(43,20,7,.3);text-align:left;font:inherit;color:inherit;position:relative;transition:border-color .15s,box-shadow .15s,transform .15s;touch-action:manipulation;user-select:none;-webkit-tap-highlight-color:transparent;min-width:0}
+    .pa-tab:hover{box-shadow:0 10px 24px -10px rgba(43,20,7,.45);transform:translateY(-1px)}
     .pa-tab .t{font-size:13px;color:#1F2937;font-weight:600;display:flex;align-items:center;justify-content:space-between}
     .pa-tab .t svg{width:14px;height:14px;color:#9CA3AF;transition:transform .3s,color .2s}
     .pa-tab .v{font-size:23px;font-weight:600;letter-spacing:-.5px;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     .pa-tab .d{font-size:12px;color:#6B7280;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-    .pa-tab.act{border-color:#E65100;background:#FFF6EC;box-shadow:0 0 0 3px rgba(255,153,51,.18),0 8px 18px -8px rgba(230,81,0,.5)}
+    .pa-tab.act{background:linear-gradient(#FFF6EC,#FFF6EC) padding-box,linear-gradient(110deg,#2B1407 0%,#5A2A0E 45%,#E8590C 100%) border-box;
+      box-shadow:0 0 0 2px rgba(230,81,0,.25),0 10px 24px -10px rgba(43,20,7,.45)}
     .pa-tab.act .t{color:#111827}
     .pa-tab.act .t svg{transform:rotate(180deg);color:#E65100}
     .pa-up{color:#067647;font-weight:600}.pa-dn{color:#B42318;font-weight:600}
@@ -11303,6 +11323,14 @@ setTimeout(hExec,600);
           return '<div class="m pa-num"><b>' + paF(m.v) + '</b><span>' + m.t.toLowerCase() + (ov ? ' &middot; ' + ov : '') + '</span></div>';
         }).join('') + '</div>'
       + '<div class="pa-col pa-pts' + (PA.pt ? ' open' : '') + '" id="paPtb"><div><div class="in"><div class="pa-pg" id="paPg"></div></div></div></div>';
+
+    /* bn-act (31-Oct): "All time · range" + Analysis button banner ke neeche-daayein kone me */
+    var bnAct = el('haBnAct'), paId = el('haCells').querySelector('.pa-id');
+    if (bnAct && paId) {
+      bnAct.innerHTML = '';
+      bnAct.appendChild(paId.querySelector('.pa-per'));
+      bnAct.appendChild(el('paAbtn'));
+    }
 
     /* ---- events ---- */
     var tabs = el('paTabs');
