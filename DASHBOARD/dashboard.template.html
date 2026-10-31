@@ -479,6 +479,9 @@ th.cf-open .cf-btn{opacity:1;background:rgba(0,0,0,.07)}
 #pfCards .pstat-val{font-size:21px;line-height:1.1;margin-top:4px;color:#141414!important;font-variant-numeric:tabular-nums}
 #pfCards .pcard-action-bar,#pfCards .pcard:hover .pcard-action-bar{color:#3B3B3B;font-weight:600;font-size:12px;border-top:1px solid #F1ECE4}
 #pfCards .pcard:hover .pcard-action-bar svg{color:#C2410C}
+/* pc-flag (31-Oct): flag rang ki patti card ke peeche, 32% (hover 40%) */
+#pfCards .pcard[style*="--fs"]::before{content:"";position:absolute;inset:0;z-index:-1;background:var(--fs);opacity:.32;border-radius:inherit;pointer-events:none;transition:opacity .25s}
+#pfCards .pcard[style*="--fs"]:hover::before{opacity:.40}
 /* pc-logo (31-Oct): logo gola poora bhare; poora party naam gehra; insaan avatar */
 #pfCards .pcard-logo{padding:0!important;background:#fff!important}
 #pfCards .pcard-logo img{width:100%;height:100%;object-fit:cover;border-radius:50%}
@@ -14396,6 +14399,21 @@ function cascade() {
 }
 
 /* ---------- 8. KPI card ---------- */
+/* pc-flag (31-Oct): card ke peeche sirf party flag ke RANG (CSS patti) -- koi image / symbol / logo nahi.
+   Sirf woh parties jinka flag-rang pakka pata hai; baaki card saada rehta hai (galat rang se behtar). */
+var PC_FLAG = {
+  BJP: 'linear-gradient(90deg,#138808 0 24%,#FF9933 24% 100%)',
+  INC: 'linear-gradient(180deg,#FF9933 0 33.3%,#FFFFFF 33.3% 66.6%,#138808 66.6% 100%)',
+  SP: 'linear-gradient(180deg,#E31E24 0 50%,#00873E 50% 100%)',
+  TDP: 'linear-gradient(180deg,#FFD200 0 100%)',
+  DMK: 'linear-gradient(180deg,#111111 0 50%,#E00000 50% 100%)',
+  AIADMK: 'linear-gradient(180deg,#111111 0 33.3%,#FFFFFF 33.3% 66.6%,#E00000 66.6% 100%)',
+  BSP: 'linear-gradient(180deg,#1E3F9E 0 100%)',
+  'CPI(M)': 'linear-gradient(180deg,#D7191C 0 100%)', CPI: 'linear-gradient(180deg,#D7191C 0 100%)',
+  BRS: 'linear-gradient(180deg,#E6007E 0 100%)',
+  'SS(UBT)': 'linear-gradient(180deg,#FF6600 0 100%)', 'SS(ES)': 'linear-gradient(180deg,#FF6600 0 100%)',
+  AIMIM: 'linear-gradient(180deg,#0B6E2E 0 100%)', BJD: 'linear-gradient(180deg,#00843D 0 100%)'
+};
 /* pc-logo (31-Oct): party logo -- server /api/party-logo (official X handle ki photo, warna Wikipedia);
    wo na mile to purana static logo (data-fb); wo bhi na ho to insaan wala avatar (header ke profile jaisa) */
 var PC_NOLOGO = { IND: 1, '-': 1, OTHERS: 1, UNKNOWN: 1, NONE: 1, NOMINATED: 1 };
@@ -14448,7 +14466,7 @@ function card(d, active) {
        + '<span class="pcard-person" style="display:none">' + PC_PERSON + '</span>');
   return '<div class="pcard' + (active ? ' active-party' : '') + '" data-p="' + esc(d.p) + '"' +
     ' tabindex="0" role="button" aria-pressed="' + (active ? 'true' : 'false') + '"' +
-    ' style="--pc:' + c + ';--pc-tint:' + c + '12;border-top-color:' + c + ';cursor:pointer">' +
+    ' style="--pc:' + c + ';--pc-tint:' + c + '12;border-top-color:' + c + ';cursor:pointer' + (PC_FLAG[String(d.p).toUpperCase()] ? ';--fs:' + PC_FLAG[String(d.p).toUpperCase()] : '') + '">' +
     watermarkHtml +
     '<span class="pcard-go" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M9 18l6-6-6-6"/></svg></span>' +
     '<div class="pcard-head"><div class="pcard-logo" style="background:' + (logoUrl ? '#ffffff' : (c + '18')) + '">' +
