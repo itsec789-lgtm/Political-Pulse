@@ -13361,8 +13361,11 @@ setTimeout(hExec,600);
   'use strict';
   if (W.tableScroll) return;
 
-  /* form wali, report-preview wali aur modal ki table chhod do */
-  var SKIP_IN = ['rpPreview', 'sec-handle-req', 'profileModal', 'aiPanel', 'hrqCheck', 'hrqMine'];
+  /* form wali, report-preview wali aur modal ki table chhod do.
+     ha-scroll (31-Oct): Handle Analytics bhi -- wahan ki table chhoti hain (Daily Breakdown 7 row,
+     Latest Tweets 7 row) aur apna overflow-x khud sambhalti hain. Dibbe ka overscroll:contain
+     maus wheel pakad leta tha -> cursor table par ho to page upar/neeche nahi hota tha. */
+  var SKIP_IN = ['rpPreview', 'sec-handle-req', 'profileModal', 'aiPanel', 'hrqCheck', 'hrqMine', 'sec-handle-analytics'];
   function skip(t) {
     if (!t || t._ts) return true;
     var p = t.parentNode;
