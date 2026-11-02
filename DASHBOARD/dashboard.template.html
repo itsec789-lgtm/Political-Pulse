@@ -97,6 +97,10 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 #loader::after{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   background-size:160px 160px;animation:none;opacity:.08;mix-blend-mode:multiply}
 #loader .splash-map{display:none}
+/* while the loader is up: no page scrollbars (the page is still being built underneath). scrollbar-gutter keeps
+   the scrollbar's space reserved, so nothing shifts sideways when scrolling is unlocked. */
+html{scrollbar-gutter:stable}
+html.lx-lock,html.lx-lock body{overflow:hidden}
 .splash-tricolor{height:3px}
 .splash-tagline{bottom:22px;font-size:10px;letter-spacing:2.5px;color:#A39483}
 .lx{position:relative;z-index:2;width:min(1240px,100%);padding:0 64px;display:grid;grid-template-columns:minmax(0,1.08fr) minmax(0,1fr);align-items:center;gap:48px}
@@ -4198,6 +4202,9 @@ window.sentCardsHTML = function (S, suffix) {
   <script src="/assets/xorbit.js"></script>
   <script>
   (function(){
+    /* lx-lock (02-Nov): loader ke peeche page abhi ban raha hota hai -- uski scrollbars (khaas kar neeche wali
+       horizontal) kuch pal ke liye jhapak jaati thi. Loader rehte tak page scroll band; hatte hi khul jaata hai. */
+    var R=document.documentElement;R.classList.add('lx-lock');setTimeout(function(){R.classList.remove('lx-lock');},15000);
     var X=window.XOrbit;
     try{X.mount(document.getElementById('splashXOrbit'),{theme:'light',intro:true,introDelay:.1});}catch(e){}
     /* legend: map ke asli data se ginti (CM ki party) */
@@ -8241,7 +8248,7 @@ function hideLoader(){if(_loaderHidden)return;_loaderHidden=true;
   l.classList.add('done');
   let fired=false,qt=null,mo=null;
   function reveal(){if(fired)return;fired=true;clearTimeout(qt);try{mo&&mo.disconnect();}catch(e){}window._lxLanded=true;   /* ab se charts animate kar sakte hain (filter badalne par) */
-    requestAnimationFrame(()=>requestAnimationFrame(()=>{l.classList.add('hiding');setTimeout(()=>{l.style.display='none';},900);}));}
+    requestAnimationFrame(()=>requestAnimationFrame(()=>{l.classList.add('hiding');document.documentElement.classList.remove('lx-lock');setTimeout(()=>{l.style.display='none';},900);}));}
   try{const m=document.querySelector('main');if(m&&window.MutationObserver){mo=new MutationObserver(()=>{clearTimeout(qt);qt=setTimeout(reveal,220);});mo.observe(m,{childList:true,subtree:true,characterData:true});}}catch(e){}
   qt=setTimeout(reveal,220);setTimeout(reveal,1200);}
 function startApp(){try{cycleSplash();}catch(e){}setTimeout(hideLoader,Math.max(500,2500-performance.now()));}   /* intro ~2.2 s; page load usually ends later */
