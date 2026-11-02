@@ -5751,7 +5751,10 @@ async function haLatestDay() {
 var _fgCache = Object.create(null), _fgBusy = Object.create(null);
 async function _fgCompute(to) {
   var D = function (s, n) { return new Date(Date.parse(s + 'T00:00:00Z') + n * 86400000).toISOString().slice(0, 10); };
-  var base = D(to, -7), from = D(to, -14), rows;
+  /* sparse-fix (02-Nov): jo kam tweet karte hain (Kharge: 20 Aug, phir 4 Sep) unka 7 din pehle ka reading
+     nahi milta tha -> "—". Ab 30 din peeche tak dekhte hain aur theek (to - 7) din ka count do readings
+     ke beech seedhi line se nikalte hain. Readings 7 din se zyada door hon to "estimate" (e = 1). */
+  var base = D(to, -7), from = D(to, -30), rows;
   var cli = MP.client();
   try {
     await cli.connect();
@@ -5764,12 +5767,22 @@ async function _fgCompute(to) {
   rows.forEach(function (r) {
     var h = r._id && r._id.h, d = r._id && r._id.d, f = +r.f || 0;
     if (!h || !(f > 0) || !/^\d{4}-\d{2}-\d{2}$/.test(String(d))) return;
-    var o = by[h] || (by[h] = {});
-    if (d <= base) { if (!o.b || d > o.b[0]) o.b = [d, f]; }
-    else if (!o.n || d > o.n[0]) o.n = [d, f];
+    (by[h] || (by[h] = [])).push([d, f]);
   });
+  var day = function (s) { return Date.parse(s + 'T00:00:00Z') / 86400000; }, B = day(base);
   var g = {};
-  Object.keys(by).forEach(function (h) { var o = by[h]; if (o.n && o.b) g[h] = [o.n[1] - o.b[1], o.b[0], o.n[0], o.b[1], o.n[1]]; });
+  Object.keys(by).forEach(function (h) {
+    var a = by[h].sort(function (x, y) { return x[0] < y[0] ? -1 : x[0] > y[0] ? 1 : 0; });
+    var now = a[a.length - 1];
+    if (now[0] <= base) return;                                     /* pichhle 7 din me koi reading nahi */
+    var prev = null, next = null;
+    for (var i = 0; i < a.length; i++) { if (a[i][0] <= base) prev = a[i]; else { next = a[i]; break; } }
+    if (!prev) return;                                              /* 30 din me pehle ka koi reading nahi */
+    /* (to - 7) din ka count: prev aur next ke beech seedhi line */
+    var span = day(next[0]) - day(prev[0]), bv = prev[1] + (next[1] - prev[1]) * ((B - day(prev[0])) / (span || 1));
+    bv = Math.round(bv);
+    g[h] = [now[1] - bv, base, now[0], bv, now[1], span > 7 ? 1 : 0, prev[0], next[0]];
+  });
   return { ok: true, to: to, base: base, g: g };
 }
 app.get('/api/fol-gain', dashGuard, async function (req, res) {

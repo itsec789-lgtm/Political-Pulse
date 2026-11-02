@@ -9122,7 +9122,9 @@ window.legImgErr=function(img){var fb=img.getAttribute('data-fb');if(fb){img.rem
 function _legGainCell(g){if(!g)return '<td class="num leg-g0" title="No follower reading on both ends of this 7-day window">—</td>';
   var d=g[0],pct=g[3]?(d/g[3]*100):0,cls=d>0?'leg-up':d<0?'leg-dn':'leg-g0',sign=d>0?'+':d<0?'−':'';
   var tip='Followers '+g[1].slice(5)+' → '+g[2].slice(5)+': '+Number(g[3]).toLocaleString('en-IN')+' → '+Number(g[4]).toLocaleString('en-IN');
-  return '<td class="num" title="'+tip+'"><div class="leg-gain '+cls+'">'+sign+uf(Math.abs(d))+'</div><div class="leg-pct">'+(d?sign+Math.abs(pct).toFixed(pct&&Math.abs(pct)<0.1?2:1)+'%':'no change')+'</div></td>';}
+  /* g[5] = estimate: is handle ke readings door-door hain (jaise 20 Aug aur 4 Sep) -- beech ka count seedhi line se */
+  if(g[5])tip+=' (estimate: no tweets between '+String(g[6]).slice(5)+' and '+String(g[7]).slice(5)+', so the '+g[1].slice(5)+' count is read off the line between those two readings)';
+  return '<td class="num" title="'+tip+'"><div class="leg-gain '+cls+'">'+(g[5]?'≈':'')+sign+uf(Math.abs(d))+'</div><div class="leg-pct">'+(d?sign+Math.abs(pct).toFixed(pct&&Math.abs(pct)<0.1?2:1)+'%':'no change')+'</div></td>';}
 function mlaRow(h,i){
   const av=h.tw>0?Math.round(h.vw/h.tw):0,al=h.tw>0?Math.round(h.lk/h.tw):0;
   var P=String(h.party||'').trim(),PU=P.toUpperCase(),col=pc(P),noLogo=!P||/^(IND|-|OTHERS|UNKNOWN|NONE|NOMINATED)$/.test(PU);
