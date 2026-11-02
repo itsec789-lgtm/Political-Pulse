@@ -3535,6 +3535,46 @@ body.ui-capture #sec-dashboard .kpi{transform:none!important}
   .ui-jump2 .ui-hero-chips{grid-template-columns:repeat(4,minmax(0,1fr))}
   .ui-jump2 .ui-chip:nth-child(5)::before{display:none}}
 .ui-hero:has(.ui-jump2) .ui-hero-map{bottom:62px}                 /* map rail ke upar hi rahe */
+/* ---------- leg-v2 (02-Nov): Legislators table ---------- */
+#sec-mla-tracker .leg-tbl{border-collapse:separate;border-spacing:0;width:100%}
+#sec-mla-tracker .leg-tbl thead th{position:sticky;top:0;z-index:2;background:#FBF8F4;padding:11px 10px;border-bottom:1px solid #EDE6DC;
+  font:700 10px 'DM Sans',sans-serif;letter-spacing:.7px;text-transform:uppercase;color:#7A6E63;white-space:nowrap;text-align:left}
+#sec-mla-tracker .leg-tbl th.num,#sec-mla-tracker .leg-tbl td.num{text-align:right}
+#sec-mla-tracker .leg-tbl th.leg-sort{cursor:pointer;user-select:none;transition:color .15s}
+#sec-mla-tracker .leg-tbl th.leg-sort:hover{color:#2B1407}
+#sec-mla-tracker .leg-tbl th.leg-sort::after{content:'';display:inline-block;width:0;height:0;margin-left:6px;vertical-align:2px;opacity:0;
+  border-left:3.5px solid transparent;border-right:3.5px solid transparent;border-top:4.5px solid currentColor;transition:opacity .15s,transform .15s}
+#sec-mla-tracker .leg-tbl th.leg-sort:hover::after{opacity:.35}
+#sec-mla-tracker .leg-tbl th.is-sorted{color:#C2410C}
+#sec-mla-tracker .leg-tbl th.is-sorted::after{opacity:1}
+#sec-mla-tracker .leg-tbl th.is-asc::after{transform:rotate(180deg)}
+#sec-mla-tracker .leg-tbl th:focus-visible{outline:2px solid rgba(232,89,12,.5);outline-offset:-3px}
+#sec-mla-tracker .leg-tbl td{padding:10px;border-bottom:1px solid #F1ECE5;vertical-align:middle}
+#sec-mla-tracker .leg-tbl tbody tr{transition:background .15s}
+#sec-mla-tracker .leg-tbl tbody tr:hover{background:#FFF9F2}
+#sec-mla-tracker .leg-tbl .nv{font:600 12px 'DM Sans',sans-serif;color:#2A221C;font-variant-numeric:tabular-nums;letter-spacing:-.1px}
+#sec-mla-tracker .leg-tbl .leg-strong{font-weight:700;color:#17120E}
+#sec-mla-tracker .leg-tbl .leg-mut{color:#8A7B6C;font-weight:500}
+.leg-who{display:flex;align-items:center;gap:10px;min-width:190px}
+.leg-av{position:relative;flex:none;width:34px;height:34px;border-radius:50%;overflow:hidden;background:#EFE7DC;box-shadow:0 0 0 1px rgba(0,0,0,.06)}
+.leg-av img{width:100%;height:100%;object-fit:cover;display:block}
+.leg-av i{position:absolute;inset:0;display:grid;place-items:center;font:700 11.5px 'DM Sans',sans-serif;font-style:normal;color:#7A5A3A}
+.leg-nm{display:flex;flex-direction:column;min-width:0;line-height:1.25}
+.leg-nm b{font:700 12.5px 'DM Sans',sans-serif;color:#17120E}
+.leg-nm small{font-size:10.5px;color:#9A8B7B}
+.leg-loc{display:flex;flex-direction:column;line-height:1.3;min-width:96px}
+.leg-loc b{font:600 11.5px 'DM Sans',sans-serif;color:#2A221C}
+.leg-loc small{font-size:10.5px;color:#9A8B7B}
+.leg-party{display:flex;flex-direction:column;align-items:center;gap:4px;min-width:46px}
+.leg-plogo{width:26px;height:26px;border-radius:50%;background:#fff;box-shadow:0 0 0 1px rgba(0,0,0,.08);display:grid;place-items:center;overflow:hidden}
+.leg-plogo img{width:100%;height:100%;object-fit:contain;padding:2px;box-sizing:border-box}
+.leg-plogo b,.leg-pnone{font:800 8.5px 'DM Sans',sans-serif;color:var(--pc,#777);letter-spacing:.2px}
+.leg-pn{font:700 9.5px 'DM Sans',sans-serif;letter-spacing:.2px;white-space:nowrap}
+.leg-gain{font:700 12px 'DM Sans',sans-serif;font-variant-numeric:tabular-nums}
+.leg-gain.leg-up{color:#15803D}.leg-gain.leg-dn{color:#B91C1C}.leg-gain.leg-g0{color:#8A7B6C}
+.leg-pct{font-size:10px;color:#9A8B7B;margin-top:1px;font-variant-numeric:tabular-nums}
+td.leg-g0{color:#B5A898}
+#sec-mla-tracker .leg-tbl .rank{font:700 12px 'DM Sans',sans-serif;color:#C2410C}
 body.ui-capture .ui-jump2{display:none!important}
 
 @media(min-width:1200px){#sec-dashboard main{padding-right:64px}}
@@ -4880,12 +4920,18 @@ a.pe-btn:after{content:"";position:absolute;inset:0;z-index:1;background:linear-
     <input type="date" id="mlaTo" class="filter-select" value="2026-07-01" min="2026-04-01" max="2026-07-01" onchange="var p=document.getElementById('mlaPreset');if(p)p.value='custom';renderMLA()" style="min-width:140px">
     <button class="filter-select" style="cursor:pointer;font-weight:700;color:#C2410C;border-color:#f0d0b0" onclick="mlaReset()">↺ Reset</button>
   </div>
-  <div class="tbl-box" style="margin-bottom:0">
-    <table>
+  <!-- leg-v2 (02-Nov): leader photo + party logo, 7-day follower gain, har column par sahi (poori list ki) sorting,
+       default kram pad ke hisaab se (PM, LoP, Union Cabinet, CM ...). "Last updated" column is table me nahi. -->
+  <div class="tbl-box leg-box" style="margin-bottom:0">
+    <table class="leg-tbl" data-nolu="1">
       <thead>
-        <tr>
-          <th>#</th><th>State</th><th>PC / AC Name</th><th>Party</th><th>Designation</th><th>Name / Handle</th>
-          <th>Followers</th><th>Followings</th><th>Tweets</th><th>Retweets</th><th>Total Views</th><th>Avg Views/Post</th><th>Avg Likes/Post</th>
+        <tr id="mlaHead">
+          <th data-k="tier" title="Default order: by post (PM, Leader of Opposition, Union Cabinet, CMs ...)">#</th>
+          <th data-k="name">Leader</th><th data-k="state">State / Seat</th><th data-k="party">Party</th><th data-k="desig">Designation</th>
+          <th data-k="followers" class="num">Followers</th>
+          <th data-k="gain" class="num" id="mlaGainTh" title="Followers gained in the 7 days up to the selected date">7-day gain</th>
+          <th data-k="followings" class="num">Following</th><th data-k="tw" class="num">Tweets</th><th data-k="rt" class="num">Retweets</th>
+          <th data-k="vw" class="num">Total Views</th><th data-k="av" class="num">Avg Views/Post</th><th data-k="al" class="num">Avg Likes/Post</th>
         </tr>
       </thead>
       <tbody id="mlaBody"></tbody>
@@ -9068,7 +9114,38 @@ function _mlaDesigCell(h){var cur=(window.isCurrent&&window.isCurrent(h.h));/* d
    do baar dikhne lagi thi. Ab wo chip tabhi lagta hai jab designation
    me MLA pehle se likha na ho. */
   var raw=(window.roleOf?window.roleOf(h.h,h.origLevel||h.level):(h.origLevel||h.level))||'';var d1=esc(raw);var out='<span style="'+base+(cur?green:yellow)+'">'+d1+'</span>';if(h.origLevel&&!/\bMLA\b/i.test(raw)){out+='<span style="'+base+green+'">MLA</span>';}return out;}
-function mlaRow(h,i){const av=h.tw>0?Math.round(h.vw/h.tw):0,al=h.tw>0?Math.round(h.lk/h.tw):0;return '<tr><td><span class="rank">'+(i+1)+'</span></td><td style="font-weight:600;font-size:11px">'+esc(h[window.ROW_LOC_F||'state']||h.state||'—')+'</td><td style="font-size:10px;color:#666">'+esc(h.loc||'—')+'</td><td><span class="party-chip" style="background:'+pc(h.party)+'18;color:'+pc(h.party)+'">'+esc(h.party)+'</span></td><td style="white-space:normal">'+_mlaDesigCell(h)+'</td><td><div style="font-weight:700;font-size:11px">'+esc(h.name)+'</div><div style="font-size:10px;color:var(--muted)">@'+esc(h.h)+'</div></td><td><span class="nv" style="color:#0D47A1">'+uf(h.followers)+'</span></td><td><span class="nv" style="color:#607d8b">'+uf(h.followings)+'</span></td><td><span class="nv">'+h.tw+'</span></td><td><span class="nv" style="color:#1B5E20">'+uf(h.rt)+'</span></td><td><span class="nv" style="color:#4A148C">'+uf(h.vw)+'</span></td><td><span class="nv" style="color:#E65100">'+uf(av)+'</span></td><td><span class="nv" style="color:#B71C1C">'+uf(al)+'</span></td></tr>'}
+/* leg-v2 (02-Nov): Legislators row -- photo + naam + handle, State / Seat ek hi khaane me, party logo (naam neeche),
+   7-day follower gain. Number wahi purane hisaab se: Tweets / Retweets / Views date range ke, Followers / Following
+   aaj ke, Avg = Views / Tweets aur Likes / Tweets. */
+function _legInit(n){n=String(n||'?').replace(/^(shri|smt|dr|km|kum|sri|thiru)\.?\s+/i,'').trim();var p=n.split(/\s+/);return ((p[0]||'?')[0]+(p.length>1?p[p.length-1][0]:'')).toUpperCase();}
+window.legImgErr=function(img){var fb=img.getAttribute('data-fb');if(fb){img.removeAttribute('data-fb');img.src=fb;return;}img.onerror=null;img.style.display='none';var s=img.nextElementSibling;if(s)s.style.display='';};
+function _legGainCell(g){if(!g)return '<td class="num leg-g0" title="No follower reading on both ends of this 7-day window">—</td>';
+  var d=g[0],pct=g[3]?(d/g[3]*100):0,cls=d>0?'leg-up':d<0?'leg-dn':'leg-g0',sign=d>0?'+':d<0?'−':'';
+  var tip='Followers '+g[1].slice(5)+' → '+g[2].slice(5)+': '+Number(g[3]).toLocaleString('en-IN')+' → '+Number(g[4]).toLocaleString('en-IN');
+  return '<td class="num" title="'+tip+'"><div class="leg-gain '+cls+'">'+sign+uf(Math.abs(d))+'</div><div class="leg-pct">'+(d?sign+Math.abs(pct).toFixed(pct&&Math.abs(pct)<0.1?2:1)+'%':'no change')+'</div></td>';}
+function mlaRow(h,i){
+  const av=h.tw>0?Math.round(h.vw/h.tw):0,al=h.tw>0?Math.round(h.lk/h.tw):0;
+  var P=String(h.party||'').trim(),PU=P.toUpperCase(),col=pc(P),noLogo=!P||/^(IND|-|OTHERS|UNKNOWN|NONE|NOMINATED)$/.test(PU);
+  var fb=(window.partyLogoUrl&&partyLogoUrl(P))||'';
+  var logo=noLogo?'<span class="leg-plogo leg-pnone" style="--pc:'+col+'">'+esc((P||'—').slice(0,3))+'</span>'
+    :'<span class="leg-plogo"><img src="/api/party-logo?p='+encodeURIComponent(P)+'" alt="" loading="lazy"'+(fb?' data-fb="'+esc(fb)+'"':'')+' onerror="legImgErr(this)"><b style="display:none;--pc:'+col+'">'+esc(P.slice(0,3))+'</b></span>';
+  var loc=h[window.ROW_LOC_F||'state']||h.state||'—',seat=h.loc&&h.loc!=='-'?h.loc:'';
+  var g=window._legGainFor?window._legGainFor(h.h):null;
+  return '<tr><td><span class="rank">'+(i+1)+'</span></td>'
+    +'<td><div class="leg-who"><span class="leg-av"><img src="/api/avatar/'+encodeURIComponent(h.h)+'" alt="" loading="lazy" onerror="legImgErr(this)"><i style="display:none">'+esc(_legInit(h.name||h.h))+'</i></span>'
+    +'<span class="leg-nm"><b>'+esc(h.name||h.h)+'</b><small>@'+esc(h.h)+'</small></span></div></td>'
+    +'<td><div class="leg-loc"><b>'+esc(loc)+'</b>'+(seat&&seat!==loc?'<small>'+esc(seat)+'</small>':'')+'</div></td>'
+    +'<td><div class="leg-party">'+logo+'<span class="leg-pn" style="color:'+col+'">'+esc(P||'—')+'</span></div></td>'
+    +'<td style="white-space:normal">'+_mlaDesigCell(h)+'</td>'
+    +'<td class="num"><span class="nv">'+uf(h.followers)+'</span></td>'
+    +_legGainCell(g)
+    +'<td class="num"><span class="nv leg-mut">'+uf(h.followings)+'</span></td>'
+    +'<td class="num"><span class="nv">'+(+h.tw||0).toLocaleString('en-IN')+'</span></td>'
+    +'<td class="num"><span class="nv">'+uf(h.rt)+'</span></td>'
+    +'<td class="num"><span class="nv leg-strong">'+uf(h.vw)+'</span></td>'
+    +'<td class="num"><span class="nv">'+uf(av)+'</span></td>'
+    +'<td class="num"><span class="nv">'+uf(al)+'</span></td></tr>';
+}
 var mlaPage=1;var MLA_PP=40;function mlaPageList(cur,pages){var set={};set[1]=1;set[pages]=1;for(var p=cur-1;p<=cur+1;p++){if(p>=1&&p<=pages)set[p]=1;}var ks=Object.keys(set).map(Number).sort(function(x,y){return x-y});var a=[],prev=0;ks.forEach(function(p){if(p-prev>1)a.push('...');a.push(p);prev=p;});return a;}function buildMlaPager(total,pages,start,shown){if(total===0)return '<div class="mla-info">No results found</div>';var cur=mlaPage;var html='<div class="mla-info">Showing '+(start+1)+'\u2013'+(start+shown)+' of '+total+' legislators</div><div class="mla-pages">';html+='<button class="mla-pg'+(cur<=1?' disabled':'')+'" '+(cur<=1?'':'onclick="mlaGoto('+(cur-1)+')"')+'>\u2039 Prev</button>';mlaPageList(cur,pages).forEach(function(p){if(p==='...'){html+='<span class="mla-pg dots">\u2026</span>';}else{html+='<button class="mla-pg'+(p===cur?' active':'')+'" onclick="mlaGoto('+p+')">'+p+'</button>';}});html+='<button class="mla-pg'+(cur>=pages?' disabled':'')+'" '+(cur>=pages?'':'onclick="mlaGoto('+(cur+1)+')"')+'>Next \u203a</button></div>';return html;}window.mlaGoto=function(n){mlaPage=n;window.renderMLA();var el=document.getElementById('mlaPager');if(el&&el.scrollIntoView)el.scrollIntoView({block:'nearest'});};function _rebuildSel(id,allLabel,opts,cur){var sel=document.getElementById(id);if(!sel)return;sel.innerHTML='<option value="">'+allLabel+'</option>'+opts.map(function(o){return '<option value="'+String(o).replace(/"/g,'&quot;')+'"'+(o===cur?' selected':'')+'>'+o+'</option>';}).join('');if(opts.indexOf(cur)<0)sel.value='';}
 window.mlaOpts=function(){var pf=(document.getElementById('mlaPartyFilter')||{}).value||'';var sf=(document.getElementById('mlaStateFilter')||{}).value||'';var lf=(document.getElementById('mlaLevelFilter')||{}).value||'';/* fix-md (12-Oct): MLA_LOCF -- All-India par 'state', UP par 'loc'
      (UP me har handle ka state 'Uttar Pradesh' hi hai, isliye
@@ -9076,11 +9153,62 @@ window.mlaOpts=function(){var pf=(document.getElementById('mlaPartyFilter')||{})
   var MLA_LOCF='state';
   try{window.MLA_LOCF=MLA_LOCF;}catch(e){}
   function dist(field,skip){var set={};MLA_POOL.forEach(function(r){if(skip!=='party'&&pf&&r.party!==pf)return;if(skip!=='state'&&sf&&sf!=='ALL'&&r[MLA_LOCF]!==sf)return;if(skip!=='level'&&lf&&r.level!==lf)return;var v=r[field];if(v!=null&&v!=='')set[v]=1;});return Object.keys(set).sort();}_rebuildSel('mlaPartyFilter','All Parties',dist('party','party'),pf);_rebuildSel('mlaStateFilter','All States/UTs',dist(MLA_LOCF,'state').filter(function(v){v=String(v||'').trim();return v&&v!=='-'&&v!=='—'&&!(MLA_LOCF==='loc'&&v==='Uttar Pradesh');}),sf);_rebuildSel('mlaLevelFilter','All Levels',dist('level','level'),lf);};
-window.renderMLA=function(){var q=((document.getElementById('mlaSearch')||{}).value||'').toLowerCase();var pf=(document.getElementById('mlaPartyFilter')||{}).value||'';var lf=(document.getElementById('mlaLevelFilter')||{}).value||'';var sf=(document.getElementById('mlaStateFilter')||{}).value||'';var _mf=(document.getElementById('mlaFrom')||{}).value||'';var _mt=(document.getElementById('mlaTo')||{}).value||'';var all=MLA_POOL.filter(function(r){return (!q||String(r.name||'').toLowerCase().indexOf(q)>=0||String(r.h||'').toLowerCase().indexOf(q)>=0)&&(!pf||r.party===pf)&&(!lf||r.level===lf)&&(!sf||sf==='ALL'||r[(window.MLA_LOCF||'state')]===sf)});if(window._applyDate){all=all.map(function(r){return window._applyDate(r,_mf,_mt);})/* fix-md (12-Oct): pehle yahan state ke NAAM se A->Z sort hota tha,
-     aur page size 40 hai -- isliye page 1 hamesha Andhra Pradesh se
-     bhar jaata tha aur lagta tha ki data hi sirf AP ka hai. Ab Total
-     Views se (zyada se kam), taaki pehle page par poore desh ke bade
-     handle aayein. State se dekhna ho to State filter maujood hai. */.sort(function(a,b){return (b.vw||0)-(a.vw||0);});}var _ao=activeOnly(all);all=_ao.rows;var _hid=_ao.hidden;var total=all.length;var pages=Math.max(1,Math.ceil(total/MLA_PP));if(mlaPage>pages)mlaPage=pages;if(mlaPage<1)mlaPage=1;var start=(mlaPage-1)*MLA_PP;var rows=all.slice(start,start+MLA_PP);var b=document.getElementById('mlaBody');if(b)b.innerHTML=rows.map(function(r,idx){return mlaRow(r,start+idx)}).join('')+((mlaPage===pages)?emptyNote(_hid,13):'');var pg=document.getElementById('mlaPager');if(pg)pg.innerHTML=buildMlaPager(total,pages,start,rows.length);};window.filterMLA=function(){mlaPage=1;try{window.mlaOpts&&window.mlaOpts();}catch(e){}window.renderMLA()};
+/* leg-v2 (02-Nov): sorting POORI filtered list par hoti hai (pehle sirf ek page ke 40 row ya sirf Views se).
+   Default 'tier' = pad ka kram (server se: PM, LoP, Union Cabinet, Speaker, CM, party adhyaksh, MoS, Dy CM ...),
+   ek pad ke andar followers se. Header click: number -> bada pehle, text -> A-Z; dobara click = ulta.
+   '#' par click = wapas pad wala kram. 7-day gain jinka nahi pata (—) wo hamesha neeche. */
+var MLA_SORT={k:'tier',d:1};
+var _LEG_TXT={name:1,state:1,party:1,desig:1,tier:1};
+function _legLvTier(h){var l=h.origLevel||h.level||'';return l==='LS MP'?11:l==='RS MP'?12:/contest/i.test(l)?15:l==='MLC'?14:13;}
+function _legVal(h,k){switch(k){
+  case 'tier':return h.tier!=null?+h.tier:_legLvTier(h);
+  case 'name':return String(h.name||h.h||'').replace(/^(shri|smt|dr|km|kum|sri|thiru)\.?\s+/i,'').toLowerCase();
+  case 'state':return String(h[window.ROW_LOC_F||'state']||h.state||'').toLowerCase()+'|'+String(h.loc||'').toLowerCase();
+  case 'party':return String(h.party||'').toLowerCase();
+  case 'desig':return String((window.roleOf?roleOf(h.h,h.origLevel||h.level):(h.origLevel||h.level))||'').toLowerCase();
+  case 'gain':var g=window._legGainFor?window._legGainFor(h.h):null;return g?g[0]:null;
+  case 'av':return h.tw>0?h.vw/h.tw:0;
+  case 'al':return h.tw>0?h.lk/h.tw:0;
+  default:return +h[k]||0;}}
+function _legSort(rows){var k=MLA_SORT.k,d=MLA_SORT.d,txt=_LEG_TXT[k];
+  return rows.map(function(r,i){return {r:r,v:_legVal(r,k),i:i};}).sort(function(a,b){
+    if(a.v===null||b.v===null){if(a.v===b.v)return 0;return a.v===null?1:-1;}
+    var c=txt&&k!=='tier'?String(a.v).localeCompare(String(b.v),'en',{numeric:true}):(a.v<b.v?-1:a.v>b.v?1:0);
+    if(!txt||k==='tier')c=k==='tier'?c:-c;   /* numbers: bada pehle */
+    c*=d;
+    if(c)return c;
+    return ((+b.r.followers||0)-(+a.r.followers||0))||(a.i-b.i);   /* barabar ho to followers, phir purana kram */
+  }).map(function(x){return x.r;});}
+window.mlaSortBy=function(k){if(MLA_SORT.k===k&&k!=='tier')MLA_SORT.d*=-1;else MLA_SORT={k:k,d:1};mlaPage=1;window.renderMLA();};
+function _legHead(){var tr=document.getElementById('mlaHead');if(!tr)return;
+  if(!tr._wired){tr._wired=1;[].forEach.call(tr.cells,function(th){var k=th.getAttribute('data-k');if(!k)return;th.tabIndex=0;th.classList.add('leg-sort');
+    th.addEventListener('click',function(){window.mlaSortBy(k);});
+    th.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();window.mlaSortBy(k);}});});}
+  [].forEach.call(tr.cells,function(th){var k=th.getAttribute('data-k'),on=k===MLA_SORT.k;th.classList.toggle('is-sorted',on);
+    th.classList.toggle('is-asc',on&&((_LEG_TXT[k]&&k!=='tier')?MLA_SORT.d>0:MLA_SORT.d<0));
+    th.setAttribute('aria-sort',on?(th.classList.contains('is-asc')?'ascending':'descending'):'none');});}
+/* 7-day follower gain: server se ek baar per "to" din (10 min cache waha bhi) */
+/* live-safe: sirf kaamyaab jawab yaad rakhte hain. Server / Mongo / login (401, HTML) kuch bhi fail ho to column
+   me "—" rehta hai aur 60 s baad agli render par phir koshish -- table kabhi nahi rukta, koi error nahi. */
+var _FG={},_FGwait={},_FGfail={};
+window._legGainFor=function(h){var to=(document.getElementById('mlaTo')||{}).value||'',o=_FG[to];return o&&o.g?(o.g[String(h||'').toLowerCase()]||null):null;};
+function _legGainLoad(to){if(_FG[to]||_FGwait[to]||!window.fetch)return;if(_FGfail[to]&&Date.now()-_FGfail[to]<60000)return;_FGwait[to]=1;
+  var th=document.getElementById('mlaGainTh');
+  fetch('/api/fol-gain?to='+encodeURIComponent(to),{credentials:'same-origin',cache:'no-store'}).then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json();}).then(function(j){
+    if(!j||!j.ok||!j.g)throw new Error((j&&j.error)||'no data');
+    _FG[to]=j;delete _FGfail[to];
+    if(th)th.title='Followers gained '+String(j.base).slice(5)+' → '+String(j.to).slice(5)+(j.asked&&j.asked!==j.to?' (latest data day; '+String(j.asked).slice(5)+' not in the data yet)':'')+'. Each reading is the follower count captured with that day’s tweets.';
+    if(((document.getElementById('mlaTo')||{}).value||'')===to)window.renderMLA();
+  }).catch(function(e){_FGfail[to]=Date.now();if(th)th.title='7-day follower gain is not available right now -- it will retry automatically.';try{console.warn('[fol-gain]',e&&e.message);}catch(x){}
+  }).then(function(){delete _FGwait[to];});}
+window.renderMLA=function(){var q=((document.getElementById('mlaSearch')||{}).value||'').toLowerCase();var pf=(document.getElementById('mlaPartyFilter')||{}).value||'';var lf=(document.getElementById('mlaLevelFilter')||{}).value||'';var sf=(document.getElementById('mlaStateFilter')||{}).value||'';var _mf=(document.getElementById('mlaFrom')||{}).value||'';var _mt=(document.getElementById('mlaTo')||{}).value||'';
+  var all=MLA_POOL.filter(function(r){return (!q||String(r.name||'').toLowerCase().indexOf(q)>=0||String(r.h||'').toLowerCase().indexOf(q)>=0)&&(!pf||r.party===pf)&&(!lf||r.level===lf)&&(!sf||sf==='ALL'||r[(window.MLA_LOCF||'state')]===sf)});
+  if(window._applyDate)all=all.map(function(r){return window._applyDate(r,_mf,_mt);});
+  var _ao=activeOnly(all);all=_legSort(_ao.rows);var _hid=_ao.hidden;
+  if(_mt)_legGainLoad(_mt);_legHead();
+  var total=all.length;var pages=Math.max(1,Math.ceil(total/MLA_PP));if(mlaPage>pages)mlaPage=pages;if(mlaPage<1)mlaPage=1;var start=(mlaPage-1)*MLA_PP;var rows=all.slice(start,start+MLA_PP);
+  var b=document.getElementById('mlaBody');if(b)b.innerHTML=rows.map(function(r,idx){return mlaRow(r,start+idx)}).join('')+((mlaPage===pages)?emptyNote(_hid,13):'');
+  var pg=document.getElementById('mlaPager');if(pg)pg.innerHTML=buildMlaPager(total,pages,start,rows.length);};;window.filterMLA=function(){mlaPage=1;try{window.mlaOpts&&window.mlaOpts();}catch(e){}window.renderMLA()};
 
 // ---------- CM Profiles ----------
 /* prof-map (13-Oct): ab CM ki list MAPPING se (CM_DATA), sirf un se nahi
@@ -11362,7 +11490,7 @@ setTimeout(hExec,600);
      Idempotent hai -- pehle se laga ho to kuch nahi karta. */
   function addCol() {
     try {
-      var ts = document.querySelectorAll('.tbl-box table');
+      var ts = document.querySelectorAll('.tbl-box table:not([data-nolu])');   /* data-nolu = is table me nahi chahiye */
       for (var i = 0; i < ts.length; i++) {
         var t = ts[i], th = t.tHead;
         if (!th || !th.rows.length) continue;
