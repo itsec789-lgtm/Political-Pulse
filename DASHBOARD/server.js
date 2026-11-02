@@ -1129,11 +1129,18 @@ function mapGate(map, scope) {
       if (low && _tierBy[low] !== undefined) r.tier = _tierBy[low];
     });
     /* LoP ka chip bhi sahi pad dikhaye (mapping me sirf "Leader" likha hai) */
-    if (map.HROLE && typeof map.HROLE === 'object') Object.keys(_mm).forEach(function (k) {
-      var low = String(k).toLowerCase(); if (!LOP[low]) return;
-      var was = map.HROLE[k], rest = String((Array.isArray(was) && was[0]) || '').split(' / ').filter(function (x) { return !/^leader$/i.test(x); });
-      map.HROLE[k] = [[LOP[low]].concat(rest).join(' / '), 1];
-    });
+    /* HROLE ki key kisi bhi spelling me ho sakti hai (RahulGandhi / rahulgandhi) -- har milti key par lagao,
+       aur page jis spelling se poochta hai (allHandles ka h) wo bhi. Pehle sirf mapping ki key par lagta tha. */
+    if (map.HROLE && typeof map.HROLE === 'object') {
+      var _lopKeys = Object.keys(map.HROLE).concat(Object.keys(_mm));
+      try { (map.UNI.allHandles || []).forEach(function (r) { if (r && r.h) _lopKeys.push(String(r.h)); }); } catch (e) {}
+      _lopKeys.forEach(function (k) {
+        var low = String(k).replace(/^@/, '').toLowerCase(); if (!LOP[low]) return;
+        var was = map.HROLE[k], rest = String((Array.isArray(was) && was[0]) || '').split(' / ').filter(function (x) { return x && !/^(leader|president)$/i.test(x) && x.indexOf('Leader of Opposition') < 0; });
+        if (!rest.length) rest = [low === 'kharge' ? 'RS MP' : 'LS MP'];
+        map.HROLE[k] = [[LOP[low]].concat(rest).join(' / '), 1];
+      });
+    }
 
     /* ---- CM & Dy CM ka tab poori tarah MAPPING se ----
        Ye list pipeline banati hai, isliye usme wahi aate the jinke tweet

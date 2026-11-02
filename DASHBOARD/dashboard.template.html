@@ -3566,9 +3566,16 @@ body.ui-capture #sec-dashboard .kpi{transform:none!important}
 .leg-loc b{font:600 11.5px 'DM Sans',sans-serif;color:#2A221C}
 .leg-loc small{font-size:10.5px;color:#9A8B7B}
 .leg-party{display:flex;flex-direction:column;align-items:center;gap:4px;min-width:46px}
-.leg-plogo{width:26px;height:26px;border-radius:50%;background:#fff;box-shadow:0 0 0 1px rgba(0,0,0,.08);display:grid;place-items:center;overflow:hidden}
-.leg-plogo img{width:100%;height:100%;object-fit:contain;padding:2px;box-sizing:border-box}
-.leg-plogo b,.leg-pnone{font:800 8.5px 'DM Sans',sans-serif;color:var(--pc,#777);letter-spacing:.2px}
+/* logo: poora dikhe -- koi gol frame / crop nahi (BJP ka chaukor logo kone se kat raha tha) */
+.leg-plogo{width:30px;height:30px;display:grid;place-items:center}
+.leg-plogo img{max-width:30px;max-height:30px;width:auto;height:auto;object-fit:contain;display:block;border-radius:6px}
+.leg-plogo b,.leg-pnone{display:grid;place-items:center;width:28px;height:28px;border-radius:7px;background:color-mix(in srgb,var(--pc,#777) 12%,#fff);
+  font:800 9px 'DM Sans',sans-serif;color:var(--pc,#777);letter-spacing:.2px}
+/* designation: typography, no pill */
+.leg-role{display:flex;flex-direction:column;gap:2px;min-width:120px;max-width:190px;line-height:1.3}
+.leg-role b{font:600 12px 'DM Sans',sans-serif;color:#2A221C}
+.leg-role small{font:500 10.5px 'DM Sans',sans-serif;color:#9A8B7B}
+.leg-role.leg-cont b{color:#8A7B6C;font-weight:500}
 .leg-pn{font:700 9.5px 'DM Sans',sans-serif;letter-spacing:.2px;white-space:nowrap}
 .leg-gain{font:700 12px 'DM Sans',sans-serif;font-variant-numeric:tabular-nums}
 .leg-gain.leg-up{color:#15803D}.leg-gain.leg-dn{color:#B91C1C}.leg-gain.leg-g0{color:#8A7B6C}
@@ -9125,6 +9132,21 @@ function _legGainCell(g){if(!g)return '<td class="num leg-g0" title="No follower
   /* g[5] = estimate: is handle ke readings door-door hain (jaise 20 Aug aur 4 Sep) -- beech ka count seedhi line se */
   if(g[5])tip+=' (estimate: no tweets between '+String(g[6]).slice(5)+' and '+String(g[7]).slice(5)+', so the '+g[1].slice(5)+' count is read off the line between those two readings)';
   return '<td class="num" title="'+tip+'"><div class="leg-gain '+cls+'">'+(g[5]?'≈':'')+sign+uf(Math.abs(d))+'</div><div class="leg-pct">'+(d?sign+Math.abs(pct).toFixed(pct&&Math.abs(pct)<0.1?2:1)+'%':'no change')+'</div></td>';}
+/* leg-desig (02-Nov): pill ki jagah saaf typography -- upar pad (Prime Minister / Cabinet Minister ...),
+   neeche halke me sadan (Lok Sabha MP / MLA). "Ls Mp" jaisi casing yahin theek hoti hai. */
+var _LEG_HOUSE=/^(ls|rs)[ _]?mp$|^mla$|^mlc$|^mla contest[ae]nt$/i;
+function _legNiceRole(x){x=String(x||'').replace(/_/g,' ').replace(/\s+/g,' ').trim();
+  if(/^ls ?mp$/i.test(x))return 'Lok Sabha MP';if(/^rs ?mp$/i.test(x))return 'Rajya Sabha MP';if(/^ml[ac]$/i.test(x))return x.toUpperCase();
+  if(/^mla contest[ae]nt$/i.test(x))return 'MLA Contestant';
+  return x.replace(/[A-Za-z][A-Za-z.]*/g,function(w){return /^(mp|mla|mlc|cm|bjp|inc|it|ap|up)$/i.test(w)?w.toUpperCase():(/^(of|and|the|for|in)$/i.test(w)?w.toLowerCase():w.charAt(0).toUpperCase()+w.slice(1).toLowerCase());}).replace(/^[a-z]/,function(c){return c.toUpperCase();});}
+function _legDesig(h){
+  var raw=(window.roleOf?roleOf(h.h,h.origLevel||h.level):(h.origLevel||h.level))||'';
+  var parts=String(raw).split(/\s*\/\s*/).filter(Boolean),seen={},post=[],house=[];
+  parts.forEach(function(p){var n=_legNiceRole(p),k=n.toLowerCase();if(seen[k])return;seen[k]=1;(_LEG_HOUSE.test(p.replace(/_/g,' '))?house:post).push(n);});
+  if(h.origLevel&&!house.some(function(x){return /MLA/.test(x);}))house.push('MLA');
+  if(!post.length&&house.length)post.push(house.shift());
+  var cont=/contest/i.test(raw);
+  return '<div class="leg-role'+(cont?' leg-cont':'')+'"><b>'+esc(post.join(' · ')||'—')+'</b>'+(house.length?'<small>'+esc(house.join(' · '))+'</small>':'')+'</div>';}
 function mlaRow(h,i){
   const av=h.tw>0?Math.round(h.vw/h.tw):0,al=h.tw>0?Math.round(h.lk/h.tw):0;
   var P=String(h.party||'').trim(),PU=P.toUpperCase(),col=pc(P),noLogo=!P||/^(IND|-|OTHERS|UNKNOWN|NONE|NOMINATED)$/.test(PU);
@@ -9138,7 +9160,7 @@ function mlaRow(h,i){
     +'<span class="leg-nm"><b>'+esc(h.name||h.h)+'</b><small>@'+esc(h.h)+'</small></span></div></td>'
     +'<td><div class="leg-loc"><b>'+esc(loc)+'</b>'+(seat&&seat!==loc?'<small>'+esc(seat)+'</small>':'')+'</div></td>'
     +'<td><div class="leg-party">'+logo+'<span class="leg-pn" style="color:'+col+'">'+esc(P||'—')+'</span></div></td>'
-    +'<td style="white-space:normal">'+_mlaDesigCell(h)+'</td>'
+    +'<td>'+_legDesig(h)+'</td>'
     +'<td class="num"><span class="nv">'+uf(h.followers)+'</span></td>'
     +_legGainCell(g)
     +'<td class="num"><span class="nv leg-mut">'+uf(h.followings)+'</span></td>'
