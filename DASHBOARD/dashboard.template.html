@@ -3509,6 +3509,33 @@ body.ui-capture #sec-dashboard .kpi{transform:none!important}
 .ui-chipwrap.ui-jump .ui-chip-arr.l{left:2px}.ui-chipwrap.ui-jump .ui-chip-arr.r{right:2px}
 @media(max-width:820px){.ui-jump-lbl{display:none}.ui-chipwrap.ui-jump{display:flex}}
 @media (prefers-reduced-motion:reduce){.ui-jump-ind{transition:none}}
+/* ---------- ui-jump v4 (02-Nov): hero ki index rail -- card ke neeche kinare se kinare tak.
+   7 barabar khaane (koi scroll / teer / "Jump to" pill / 01-02 number nahi). Upar ki saffron patti
+   active section ke upar sarakti hai; uske neeche halki roshni. ---------- */
+.ui-hero{--hx:30px;--hb:24px}                                    /* = hero padding, so the rail bleeds edge to edge */
+@media(min-width:1100px){html body .ui-hero{--hx:26px;--hb:20px}}  /* ui-scale padding */
+.ui-jump2{position:relative;margin:20px calc(-1 * var(--hx)) calc(-1 * var(--hb));padding:0 calc(var(--hx) - 12px);
+  border-top:1px solid rgba(255,255,255,.08);background:linear-gradient(180deg,rgba(0,0,0,.06),rgba(0,0,0,.30))}
+.ui-jump2 .ui-hero-chips{position:relative;display:grid;grid-template-columns:repeat(var(--n,7),minmax(0,1fr));gap:0;overflow:visible;padding:0;margin:0}
+.ui-jump2 .ui-chip{position:relative;z-index:1;display:flex;justify-content:center;width:100%;min-width:0;padding:14px 8px 15px;border-radius:0;
+  background:none;box-shadow:none;font:600 12.5px 'DM Sans',sans-serif;letter-spacing:.15px;color:rgba(255,236,214,.56);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:color .2s}
+.ui-jump2 .ui-chip>span:last-child{overflow:hidden;text-overflow:ellipsis}
+.ui-jump2 .ui-chip:hover{color:#fff;background:none;transform:none}
+.ui-jump2 .ui-chip.on{color:#fff}
+.ui-jump2 .ui-chip:focus-visible{outline:2px solid rgba(255,179,71,.7);outline-offset:-4px;border-radius:8px}
+.ui-jump2 .ui-chip+.ui-chip::before{content:'';position:absolute;left:0;top:34%;bottom:34%;width:1px;background:rgba(255,255,255,.08)}
+.ui-jump2 .ui-chip-n{display:none}
+.ui-jump2 .ui-jump-ind{top:-1px;bottom:auto;height:2px;border-radius:0 0 3px 3px;background:linear-gradient(90deg,#FF7A18,#FFB347);
+  box-shadow:0 0 12px rgba(255,140,40,.55)}
+.ui-jump2 .ui-jump-ind::after{content:'';left:8%;right:8%;top:2px;bottom:auto;height:34px;border-radius:0;
+  background:radial-gradient(60% 100% at 50% 0,rgba(255,140,40,.20),transparent 75%)}
+@media(max-width:1100px){.ui-jump2 .ui-chip{font-size:11.5px;padding:13px 4px 14px}}
+@media(max-width:820px){.ui-hero{--hx:18px;--hb:20px}
+  .ui-jump2 .ui-hero-chips{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .ui-jump2 .ui-chip:nth-child(5)::before{display:none}}
+.ui-hero:has(.ui-jump2) .ui-hero-map{bottom:62px}                 /* map rail ke upar hi rahe */
+body.ui-capture .ui-jump2{display:none!important}
 
 @media(min-width:1200px){#sec-dashboard main{padding-right:64px}}
 @media(max-width:1199px){.ui-dots{display:none}}
@@ -18880,7 +18907,29 @@ function toggleModalLeader(handle) {
   /* ---- 1b. chips ek line me + teer ---- */
   var ARR='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>';
   /* ui-v3.3: capsule = [JUMP TO] [viewport: chips + highlight + teer] */
+  /* ui-jump v4 (02-Nov): hero card ke neeche poori chaudai ki index rail -- saare section ek saath
+     barabar khaano me, koi scroll / teer nahi. Upar saffron patti sarak kar batati hai ki aap kahan ho. */
+  function jumpRail(j){
+    var h=$('uiHero');if(!h)return false;
+    if(j.parentNode&&j.parentNode.classList.contains('ui-jump2'))return true;
+    var w=document.createElement('div');w.className='ui-jump2';
+    h.appendChild(w);w.appendChild(j);
+    j.style.setProperty('--n',j.querySelectorAll('.ui-chip').length);
+    var ind=document.createElement('span');ind.className='ui-jump-ind';ind.setAttribute('aria-hidden','true');j.appendChild(ind);
+    /* keyboard: Tab se rail me ek hi baar aate ho (active khaana); phir Left/Right (Home/End) se agla/pichhla
+       section -- focus bhi sarakta hai aur page bhi wahin pahunchta hai. Enter/Space waise hi. */
+    var cs=function(){return Array.prototype.slice.call(j.querySelectorAll('.ui-chip'));};
+    cs().forEach(function(b,i){b.tabIndex=i?-1:0;});
+    j.addEventListener('keydown',function(e){
+      var a=cs(),i=a.indexOf(document.activeElement);if(i<0)return;
+      var n=e.key==='ArrowRight'?(i+1)%a.length:e.key==='ArrowLeft'?(i-1+a.length)%a.length:e.key==='Home'?0:e.key==='End'?a.length-1:-1;
+      if(n<0)return;
+      e.preventDefault();a[n].focus({preventScroll:true});a[n].click();
+    });
+    return true;
+  }
   function chipSlider(j){
+    if(jumpRail(j))return;
     if(j.parentNode&&j.parentNode.classList.contains('ui-jump-vp'))return;
     var w=document.createElement('div');w.className='ui-chipwrap ui-jump';
     var lb=document.createElement('div');lb.className='ui-jump-lbl';lb.setAttribute('aria-hidden','true');
@@ -18904,9 +18953,10 @@ function toggleModalLeader(handle) {
   function jumpActive(k){
     var j=$('uiHeroJump');if(!j)return;var ind=j.querySelector('.ui-jump-ind');
     var on=null;each(j.querySelectorAll('.ui-chip'),function(b){var m=b.getAttribute('data-k')===k;b.classList.toggle('on',m);if(m){on=b;b.setAttribute('aria-current','true');}else b.removeAttribute('aria-current');});
+    if(on&&j.parentNode&&j.parentNode.classList.contains('ui-jump2'))each(j.querySelectorAll('.ui-chip'),function(b){b.tabIndex=b===on?0:-1;});   /* Tab hamesha active khaane par aaye */
     if(!ind)return;
     if(!on||!on.offsetWidth){ind.style.opacity='0';return;}
-    ind.style.opacity='1';ind.style.width=on.offsetWidth+'px';ind.style.transform='translateX('+on.offsetLeft+'px)';
+    ind.style.opacity='1';ind.style.width=on.offsetWidth+'px';ind.style.transform='translate('+on.offsetLeft+'px,'+on.offsetTop+'px)';
     if(k!==_jumpCur){_jumpCur=k;
       /* chip nazar se bahar ho to use dikhao (sirf capsule ke andar sarakna, page nahi) */
       var L=on.offsetLeft,R=L+on.offsetWidth;
