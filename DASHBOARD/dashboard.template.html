@@ -8275,7 +8275,7 @@ function hideLoader(){if(_loaderHidden)return;_loaderHidden=true;
   l.classList.add('done');
   let fired=false,qt=null,mo=null;
   function reveal(){if(fired)return;fired=true;clearTimeout(qt);try{mo&&mo.disconnect();}catch(e){}window._lxLanded=true;   /* ab se charts animate kar sakte hain (filter badalne par) */
-    requestAnimationFrame(()=>requestAnimationFrame(()=>{l.classList.add('hiding');document.documentElement.classList.remove('lx-lock');setTimeout(()=>{l.style.display='none';},900);}));}
+    requestAnimationFrame(()=>requestAnimationFrame(()=>{l.classList.add('hiding');document.documentElement.classList.remove('lx-lock');setTimeout(()=>{l.style.display='none';try{const o=document.getElementById('splashXOrbit');(o&&o._xoAnims||[]).forEach(a=>a.cancel());}catch(e){}},900);}));}
   try{const m=document.querySelector('main');if(m&&window.MutationObserver){mo=new MutationObserver(()=>{clearTimeout(qt);qt=setTimeout(reveal,220);});mo.observe(m,{childList:true,subtree:true,characterData:true});}}catch(e){}
   qt=setTimeout(reveal,220);setTimeout(reveal,1200);}
 function startApp(){try{cycleSplash();}catch(e){}setTimeout(hideLoader,Math.max(500,2500-performance.now()));}   /* intro ~2.2 s; page load usually ends later */

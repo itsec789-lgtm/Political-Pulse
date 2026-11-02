@@ -80,7 +80,6 @@
     if (cssDone) return; cssDone = true;
     var s = document.createElement('style');
     s.textContent =
-      '.xo-host{position:relative}' +
       '.xo-l{position:absolute;left:0;top:0;width:100%;height:100%;overflow:visible;pointer-events:none;transform-origin:50% 52%}' +
       '.xo-b,.xo-rp{position:absolute;left:0;top:0;border-radius:50%;will-change:transform,opacity;backface-visibility:hidden}' +
       '.xo-b svg{display:block;width:100%;height:100%;overflow:visible}' +
@@ -103,6 +102,7 @@
     host._xoAnims && host._xoAnims.forEach(function (a) { try { a.cancel(); } catch (e) {} });
     while (host.firstChild) host.removeChild(host.firstChild);
     host.classList.add('xo-host');
+    if (getComputedStyle(host).position === 'static') host.style.position = 'relative';   /* layers ke liye; host ki apni position (absolute/relative) nahi badalte */
     var id = 'xo' + (UID++);
 
     /* 1) back rings */
