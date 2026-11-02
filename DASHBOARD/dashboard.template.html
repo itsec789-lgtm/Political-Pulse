@@ -15137,6 +15137,13 @@ W.__pfByParty = byParty; W.__pfMetrics = metrics; W.__pfCATS = CATS; W.__pfDAYS 
     scrollers().forEach(function (e) {
       if (e.scrollTop || e.scrollLeft) o.s[skey(e)] = [e.scrollTop | 0, e.scrollLeft | 0];
     });
+    /* keep-more (02-Nov): khula analysis panel (KPI / category) aur category strips ki side-scroll bhi */
+    var kc = D.querySelector('#dashKpis .kpi.kpi-open,#dashRtKpis .kpi.kpi-open');
+    var kp = D.getElementById('kpiDetailPanel');
+    if (kp && kp.classList.contains('kpi-dp-open')) o.kpi = (kc && kc.dataset.kpi) || W._trOpen || undefined;   /* card dobara bana ho to class chali jaati hai -- _trOpen me key rehti hai */
+    var cc = D.querySelector('.lv-card.cat-card-open');
+    if (cc && cc.dataset.cat) o.cat = [cc.dataset.cat, ((cc.querySelector('.lv-lbl') || {}).textContent || '').trim()];
+    ['lvStrip', 'lvOtherStrip'].forEach(function (id) { var e = D.getElementById(id); if (e && e.scrollLeft > 0) (o.r = o.r || {})[id] = e.scrollLeft | 0; });
     try { sessionStorage.setItem(KEY, JSON.stringify(o)); } catch (e) {}
   }
 
@@ -15185,6 +15192,18 @@ W.__pfByParty = byParty; W.__pfMetrics = metrics; W.__pfCATS = CATS; W.__pfDAYS 
           if (v !== undefined) put(e, v);
         });
       }
+      /* keep-more: panel filters ke BAAD kholo (filter badalna panel band karta hai). Dono functions
+         toggle hain -- isliye sirf tab jab card maujood ho aur abhi khula na ho (restore 3 baar chalta hai). */
+      if (o.kpi && W.kpiOpenDetail) {
+        var kc = D.querySelector('#dashKpis [data-kpi="' + o.kpi + '"],#dashRtKpis [data-kpi="' + o.kpi + '"]');
+        var kp = D.getElementById('kpiDetailPanel');
+        if (kc && !(kp && kp.classList.contains('kpi-dp-open'))) { try { W.kpiOpenDetail(o.kpi); } catch (e) {} }
+      }
+      if (o.cat && W.catOpenDetail) {
+        var cc = [].filter.call(D.querySelectorAll('.lv-card[data-cat]'), function (c) { return c.dataset.cat === o.cat[0]; })[0];
+        var cp = D.getElementById('catDetailPanel');
+        if (cc && !(cp && cp.classList.contains('cat-dp-open'))) { try { W.catOpenDetail(o.cat[0], o.cat[1] || o.cat[0]); } catch (e) {} }
+      }
     } finally { busy = false; }
 
     /* scroll sabse aakhir me -- rows ban jaane ke baad hi matlab hai */
@@ -15194,6 +15213,9 @@ W.__pfByParty = byParty; W.__pfMetrics = metrics; W.__pfCATS = CATS; W.__pfDAYS 
         scrollers().forEach(function (e) {
           var p = (o.s || {})[skey(e)];
           if (p) { e.scrollTop = p[0]; e.scrollLeft = p[1]; }
+        });
+        Object.keys(o.r || {}).forEach(function (id) {   /* category strips (smooth scroll-behavior -> seedha) */
+          var e = D.getElementById(id); if (e) { try { e.scrollTo({ left: o.r[id], behavior: 'instant' }); } catch (x) { e.scrollLeft = o.r[id]; } }
         });
         if (o.y) { W.scrollTo(0, o.y); try { if (D.scrollingElement) D.scrollingElement.scrollTop = o.y; } catch (x) {} }
       } catch (e) {}
