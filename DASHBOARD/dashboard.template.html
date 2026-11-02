@@ -8240,7 +8240,7 @@ function hideLoader(){if(_loaderHidden)return;_loaderHidden=true;
   const l=document.getElementById('loader');if(!l)return;
   l.classList.add('done');
   let fired=false,qt=null,mo=null;
-  function reveal(){if(fired)return;fired=true;clearTimeout(qt);try{mo&&mo.disconnect();}catch(e){}
+  function reveal(){if(fired)return;fired=true;clearTimeout(qt);try{mo&&mo.disconnect();}catch(e){}window._lxLanded=true;   /* ab se charts animate kar sakte hain (filter badalne par) */
     requestAnimationFrame(()=>requestAnimationFrame(()=>{l.classList.add('hiding');setTimeout(()=>{l.style.display='none';},900);}));}
   try{const m=document.querySelector('main');if(m&&window.MutationObserver){mo=new MutationObserver(()=>{clearTimeout(qt);qt=setTimeout(reveal,220);});mo.observe(m,{childList:true,subtree:true,characterData:true});}}catch(e){}
   qt=setTimeout(reveal,220);setTimeout(reveal,1200);}
@@ -9446,9 +9446,14 @@ const GROWTH="__MONGO_GROWTH__";try{window.GROWTH=GROWTH;}catch(e){}
    var rlab=full?'Full Range · '+tot.t.toLocaleString('en-IN')+' tweets':(f.slice(5)+' → '+t.slice(5)+' · '+idx.length+' days');var _rcT=0;try{Object.keys(PHD).forEach(function(h){if(_dp!=='all'){var _hp2=PM.party(h);if(_hp2!==_dp)return;}var _c=PHD[h].c;if(_c&&_c.length)idx.forEach(function(i){_rcT+=(+_c[i])||0;});});}catch(e){}
    function kc(key,val,lbl,sub,col){return '<div class="kpi" data-kpi="'+key+'" onclick="window.kpiOpenDetail(\''+key+'\')" style="--ka:'+col+';cursor:pointer"><div class="kpi-val">'+uf2(val)+'</div><div class="kpi-lbl">'+lbl+'</div><div class="kpi-sub">'+sub+'</div><div class="kpi-action"><span class="kpi-action-txt">Tap for Analysis</span><span class="kpi-action-arrow">&#x25BE;</span></div><div class="kpi-spark"><canvas class="kspark"></canvas></div></div>';}
    var kk=document.getElementById('dashKpis');
-   if(kk)kk.innerHTML=kc('tweets',tot.t,'Total Tweets',rlab,'#1a1a1a')+kc('likes',tot.k,'Total Likes','Engagement','#B71C1C')+kc('rts',tot.r,'Retweets Received','On own tweets','#1B5E20')+kc('views',tot.v,'Total Views','Impressions','#4A148C')+kc('avgvpt',avg,'Avg Views/Tweet','Content efficiency','#E65100')+kc('avglpt',tot.t?Math.round(tot.k/tot.t):0,'Avg Likes/Tweet','Engagement per tweet','#00838F');
+   /* calm-load (02-Nov): load par ye 4-5 baar chalta hai (load, +250, +700 ms, loader hatte waqt). Har baar
+      cards + 6 sparkline phir se bante aur 700 ms animate hote the -- wahi "ajeeb load". Same range / party /
+      totals -> cards aur charts ko chhuo hi mat. Pehli baar (loader ke peeche) charts bina animation. */
+   var _ksig=[f,t,_dp,tot.t,tot.v,tot.k,tot.r].join('|'),_kskip=!!(kk&&kk._ksig===_ksig&&kk.children.length);
+   if(kk&&!_kskip){kk._ksig=(typeof Chart!=='undefined')?_ksig:'';}
+   if(_kskip){}else if(kk)kk.innerHTML=kc('tweets',tot.t,'Total Tweets',rlab,'#1a1a1a')+kc('likes',tot.k,'Total Likes','Engagement','#B71C1C')+kc('rts',tot.r,'Retweets Received','On own tweets','#1B5E20')+kc('views',tot.v,'Total Views','Impressions','#4A148C')+kc('avgvpt',avg,'Avg Views/Tweet','Content efficiency','#E65100')+kc('avglpt',tot.t?Math.round(tot.k/tot.t):0,'Avg Likes/Tweet','Engagement per tweet','#00838F');
    try{window.updateLevelStrip&&window.updateLevelStrip();}catch(e){}
-   if(kk&&typeof Chart!=='undefined'){var _davg=dser_t.map(function(x,i){return x?Math.round(dser_v[i]/x):0;});var _davl=dser_t.map(function(x,i){return x?Math.round(dser_k[i]/x):0;});var _sser=[dser_t,dser_k,dser_r,dser_v,_davg,_davl];var _scol=['#E65100','#E65100','#E65100','#E65100','#E65100','#E65100'];/* ui-min (30-Oct): sab sparkline ek brand rang me */var _cvs=kk.querySelectorAll('canvas.kspark');window._ksp=window._ksp||[];for(var _ci=0;_ci<_cvs.length&&_ci<_sser.length;_ci++){if(window._ksp[_ci]){try{window._ksp[_ci].destroy();}catch(e){}}window._ksp[_ci]=new Chart(_cvs[_ci],{type:'line',data:{labels:_sser[_ci].map(function(_,j){return j;}),datasets:[{data:_sser[_ci],borderColor:_scol[_ci],backgroundColor:(window.uiGrad?window.uiGrad(_scol[_ci],.26):_scol[_ci]+'22'),fill:true,tension:0.4,pointRadius:0,borderWidth:2}]},options:{maintainAspectRatio:false,animation:{duration:700,easing:'easeOutQuart'},plugins:{legend:{display:false},datalabels:{display:false},tooltip:{enabled:false}},scales:{x:{display:false},y:{display:false}}}});}}
+   if(kk&&!_kskip&&typeof Chart!=='undefined'){var _davg=dser_t.map(function(x,i){return x?Math.round(dser_v[i]/x):0;});var _davl=dser_t.map(function(x,i){return x?Math.round(dser_k[i]/x):0;});var _sser=[dser_t,dser_k,dser_r,dser_v,_davg,_davl];var _scol=['#E65100','#E65100','#E65100','#E65100','#E65100','#E65100'];/* ui-min (30-Oct): sab sparkline ek brand rang me */var _cvs=kk.querySelectorAll('canvas.kspark');window._ksp=window._ksp||[];for(var _ci=0;_ci<_cvs.length&&_ci<_sser.length;_ci++){if(window._ksp[_ci]){try{window._ksp[_ci].destroy();}catch(e){}}window._ksp[_ci]=new Chart(_cvs[_ci],{type:'line',data:{labels:_sser[_ci].map(function(_,j){return j;}),datasets:[{data:_sser[_ci],borderColor:_scol[_ci],backgroundColor:(window.uiGrad?window.uiGrad(_scol[_ci],.26):_scol[_ci]+'22'),fill:true,tension:0.4,pointRadius:0,borderWidth:2}]},options:{maintainAspectRatio:false,animation:window._lxLanded?{duration:700,easing:'easeOutQuart'}:false,plugins:{legend:{display:false},datalabels:{display:false},tooltip:{enabled:false}},scales:{x:{display:false},y:{display:false}}}});}}
    var top=Object.keys(per).map(function(h){return {h:h,v:per[h].v,t:per[h].t,k:per[h].k};}).sort(function(a,b){return b.v-a.v;}).slice(0,8);
    var tp=document.getElementById('dashTop');
    if(tp){var _hd='<div style="overflow-x:auto"><table class="data-table" style="width:100%;min-width:640px"><thead><tr><th>#</th><th>Name / Handle</th><th>Designation</th><th>Party</th><th class="num">Followers</th><th class="num">Following</th><th class="num">Tweets</th><th class="num">Avg Views/Post</th></tr></thead><tbody>';
@@ -9503,7 +9508,9 @@ window.updateLevelStrip=function(){try{
   /* sub-line bhi wahi jo page load par: "567 handles · 455 par data" (Mapping se). Party filter par sirf roster ginti. */
   var _ID2C={LSMP:'LS_MP',RSMP:'RS_MP',MLA:'MLA',MLC:'MLC',Cont:'MLA Contestent',CM:'Chief Minister',DyCM:'Dy CM'};
   function _st(id){var k=_ID2C[id];if(!k||typeof UNI==='undefined'||!UNI)return null;return (UNI.catStats&&UNI.catStats[k])||(UNI.admStats&&UNI.admStats[k])||null;}
-  function slv(id){var v=document.getElementById('lv'+id);if(v)v.textContent=(lvT[id]||0).toLocaleString('en-IN');var hh=document.getElementById('lv'+id+'h');if(hh){var st=(dp==='all')?_st(id):null;if(st&&(+st.map||0)>0){var mp=+st.map||0,lv=+st.live||0;hh.textContent=mp.toLocaleString('en-IN')+' handles'+(lv!==mp?' · '+lv.toLocaleString('en-IN')+' par data':'');}else hh.textContent=(lvH[id]||0).toLocaleString('en-IN')+' handles';}}
+  /* calm-load (02-Nov): sirf tab likho jab text sach me badla -- wahi number dobara likhne se bhi DOM badalta tha aur card "tick" karke jhapakta tha */
+  function _sx(e,s){if(e&&e.textContent!==s)e.textContent=s;}
+  function slv(id){var v=document.getElementById('lv'+id);_sx(v,(lvT[id]||0).toLocaleString('en-IN'));var hh=document.getElementById('lv'+id+'h');if(hh){var st=(dp==='all')?_st(id):null;if(st&&(+st.map||0)>0){var mp=+st.map||0,lv=+st.live||0;_sx(hh,mp.toLocaleString('en-IN')+' handles'+(lv!==mp?' · '+lv.toLocaleString('en-IN')+' par data':''));}else _sx(hh,(lvH[id]||0).toLocaleString('en-IN')+' handles');}}
   ['LSMP','RSMP','MLA','Cont','MLC','CM','DyCM','Others'].forEach(slv);
 }catch(e){}};
 window.AD=AD;window.renderDashDate=renderDashDate;try{renderDashDate();}catch(e){}
@@ -15289,8 +15296,13 @@ W.__pfByParty = byParty; W.__pfMetrics = metrics; W.__pfCATS = CATS; W.__pfDAYS 
     }
     function fill(el, ks) {
       if (!el) return;
-      el.style.gridTemplateColumns = 'repeat(' + Math.min(Math.max(ks.length, 1), 7) + ',1fr)';
-      el.innerHTML = ks.map(card).join('');
+      /* calm-load (02-Nov): ye DCL, +600 ms, +1.8 s par chalta hai -- har baar poori strip
+         phir se banti thi (cards gayab-wapas, hover/scroll reset). Same cards -> kuch mat chhuo. */
+      var html = ks.map(card).join(''), gc = 'repeat(' + Math.min(Math.max(ks.length, 1), 7) + ',1fr)';
+      if (el._lvHtml === html && el.children.length) return;
+      el._lvHtml = html;
+      el.style.gridTemplateColumns = gc;
+      el.innerHTML = html;
     }
     var main = keys.filter(function (k) { return MAIN.indexOf(k) >= 0; });
     var rest = keys.filter(function (k) { return MAIN.indexOf(k) < 0; });
@@ -18521,9 +18533,10 @@ function toggleModalLeader(handle) {
     cards().forEach(function (c) {
       var k = c.getAttribute('data-cat'), base = cs[k] || {}, o = stats ? (stats[k] || { tw: 0, live: 0 }) : base;
       var v = c.querySelector('.lv-val'), s = c.querySelector('.lv-sub');
-      if (v) v.textContent = N(o.tw);
-      if (s) s.textContent = N(base.map) + ' handles' + ((+o.live || 0) !== (+base.map || 0) ? ' · ' + N(o.live) + ' par data' : '');
-      c.title = note || '';
+      var vt = N(o.tw), st = N(base.map) + ' handles' + ((+o.live || 0) !== (+base.map || 0) ? ' · ' + N(o.live) + ' par data' : '');
+      if (v && v.textContent !== vt) v.textContent = vt;          /* calm-load: same number -> no write, no flash */
+      if (s && s.textContent !== st) s.textContent = st;
+      if (c.title !== (note || '')) c.title = note || '';
     });
   }
   function run() {
@@ -18607,6 +18620,11 @@ function toggleModalLeader(handle) {
   function render(){
     var g=$('dashRtKpis');if(!g)return;
     var s=series(),C=sum(s.c),L=sum(s.l),W=sum(s.w),ok=hasLW(),na='—',lk=likesKnown(),noLk=ok&&!lk;
+    /* calm-load (02-Nov): #dashKpis har baar badalne par ye bhi poora dobara banta tha (3 chart, 700 ms
+       animation). Same numbers + range -> kuch mat chhuo. */
+    var sig=[C,W,ok,s.dates[0],s.dates[s.dates.length-1],($('dashParty')||{}).value||'all'].join('|');
+    if(g._rtSig===sig&&g.children.length)return;
+    g._rtSig=(typeof Chart!=='undefined')?sig:'';   /* charts abhi na ban sake to agli baar dobara koshish */
     function lkTxt(v){return !ok?na:(lk?fmt(v):'N/A');}
     g.innerHTML=card('rcount',fmt(C),'Total Retweets','Posts reposted (RT) by leaders','#1B5E20')
       +card('rviews',ok?fmt(W):na,'Total Views','On the reposted posts','#4A148C')
@@ -18623,7 +18641,7 @@ function toggleModalLeader(handle) {
     for(var i=0;i<cv.length&&i<ser.length;i++){
       if(SP[i]){try{SP[i].destroy();}catch(e){}SP[i]=null;}
       if(i>0&&!ok)continue;
-      SP[i]=new Chart(cv[i],{type:'line',data:{labels:ser[i].map(function(_,j){return j;}),datasets:[{data:ser[i],borderColor:col[i],backgroundColor:(window.uiGrad?window.uiGrad(col[i],.26):col[i]+'22'),fill:true,tension:0.4,pointRadius:0,borderWidth:2}]},options:{maintainAspectRatio:false,animation:{duration:700,easing:'easeOutQuart'},plugins:{legend:{display:false},datalabels:{display:false},tooltip:{enabled:false}},scales:{x:{display:false},y:{display:false}}}});
+      SP[i]=new Chart(cv[i],{type:'line',data:{labels:ser[i].map(function(_,j){return j;}),datasets:[{data:ser[i],borderColor:col[i],backgroundColor:(window.uiGrad?window.uiGrad(col[i],.26):col[i]+'22'),fill:true,tension:0.4,pointRadius:0,borderWidth:2}]},options:{maintainAspectRatio:false,animation:window._lxLanded?{duration:700,easing:'easeOutQuart'}:false,plugins:{legend:{display:false},datalabels:{display:false},tooltip:{enabled:false}},scales:{x:{display:false},y:{display:false}}}});
     }
   }
   var _q=0;function later(){if(_q)return;_q=setTimeout(function(){_q=0;try{render();}catch(e){console.warn('[tw-rt-split]',e);}},0);}
@@ -18953,17 +18971,20 @@ function toggleModalLeader(handle) {
 
   /* ---- 5. value tick: text badla to halka animation (text khud nahi chhuate) ---- */
   function tick(el){if(RM||!el)return;el.classList.remove('ui-tick');void el.offsetWidth;el.classList.add('ui-tick');}
+  /* calm-load (02-Nov): tick sirf jab number SACH me badle. Pehle wahi number dobara likhne par bhi
+     (load par 6-7 baar) card jhapakta tha. Purana text mutation record se hi milta hai. */
+  function txt(ns){var s='';for(var i=0;i<ns.length;i++)s+=ns[i].textContent||'';return s;}
   function watch(){
     if(!window.MutationObserver)return;
     var mo=new MutationObserver(function(ms){
       ms.forEach(function(m){
         var t=m.target;if(t&&t.nodeType===3)t=t.parentNode;
-        var v=t&&t.closest?t.closest('.lv-val'):null;
-        if(v&&m.type==='characterData')tick(v);
-        else if(v&&m.type==='childList'&&m.addedNodes.length)tick(v);
+        var v=t&&t.closest?t.closest('.lv-val'):null;if(!v)return;
+        if(m.type==='characterData'){if(m.oldValue!==m.target.textContent)tick(v);}
+        else if(m.type==='childList'&&m.addedNodes.length&&txt(m.removedNodes)!==txt(m.addedNodes))tick(v);
       });
     });
-    ['lvStrip','lvOtherStrip'].forEach(function(id){var s=$(id);if(s)mo.observe(s,{childList:true,subtree:true,characterData:true});});
+    ['lvStrip','lvOtherStrip'].forEach(function(id){var s=$(id);if(s)mo.observe(s,{childList:true,subtree:true,characterData:true,characterDataOldValue:true});});
   }
 
   /* ---- 6. scroll reveal ---- */
