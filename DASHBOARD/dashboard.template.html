@@ -4937,7 +4937,7 @@ a.pe-btn:after{content:"";position:absolute;inset:0;z-index:1;background:linear-
           <th data-k="name">Leader</th><th data-k="state">State / Seat</th><th data-k="party">Party</th><th data-k="desig">Designation</th>
           <th data-k="followers" class="num">Followers</th>
           <th data-k="gain" class="num" id="mlaGainTh" title="Followers gained in the 7 days up to the selected date">7-day gain</th>
-          <th data-k="followings" class="num">Following</th><th data-k="tw" class="num">Tweets</th><th data-k="rt" class="num">Retweets</th>
+          <th data-k="tw" class="num">Tweets</th><th data-k="rt" class="num">Retweets</th>
           <th data-k="vw" class="num">Total Views</th><th data-k="av" class="num">Avg Views/Post</th><th data-k="al" class="num">Avg Likes/Post</th>
         </tr>
       </thead>
@@ -9163,7 +9163,6 @@ function mlaRow(h,i){
     +'<td>'+_legDesig(h)+'</td>'
     +'<td class="num"><span class="nv">'+uf(h.followers)+'</span></td>'
     +_legGainCell(g)
-    +'<td class="num"><span class="nv leg-mut">'+uf(h.followings)+'</span></td>'
     +'<td class="num"><span class="nv">'+(+h.tw||0).toLocaleString('en-IN')+'</span></td>'
     +'<td class="num"><span class="nv">'+uf(h.rt)+'</span></td>'
     +'<td class="num"><span class="nv leg-strong">'+uf(h.vw)+'</span></td>'
@@ -9231,7 +9230,7 @@ window.renderMLA=function(){var q=((document.getElementById('mlaSearch')||{}).va
   var _ao=activeOnly(all);all=_legSort(_ao.rows);var _hid=_ao.hidden;
   if(_mt)_legGainLoad(_mt);_legHead();
   var total=all.length;var pages=Math.max(1,Math.ceil(total/MLA_PP));if(mlaPage>pages)mlaPage=pages;if(mlaPage<1)mlaPage=1;var start=(mlaPage-1)*MLA_PP;var rows=all.slice(start,start+MLA_PP);
-  var b=document.getElementById('mlaBody');if(b)b.innerHTML=rows.map(function(r,idx){return mlaRow(r,start+idx)}).join('')+((mlaPage===pages)?emptyNote(_hid,13):'');
+  var b=document.getElementById('mlaBody');if(b)b.innerHTML=rows.map(function(r,idx){return mlaRow(r,start+idx)}).join('')+((mlaPage===pages)?emptyNote(_hid,12):'');
   var pg=document.getElementById('mlaPager');if(pg)pg.innerHTML=buildMlaPager(total,pages,start,rows.length);};;window.filterMLA=function(){mlaPage=1;try{window.mlaOpts&&window.mlaOpts();}catch(e){}window.renderMLA()};
 
 // ---------- CM Profiles ----------
