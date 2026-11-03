@@ -14816,14 +14816,54 @@ var PC_ICO = (function () {
    Pehla = head (bada, aage), doosra peeche. Jis party ki photo nahi, uska card pehle jaisa.
    Credit (CC BY ki shart) photo ke tooltip me. Naya neta jodna ho: photo assets/leaders me + yahan ek line. */
 var PC_LEAD = {
-  BJP: [['narendramodi', 'Narendra Modi', 'Prime Minister', "Prime Minister's Office · GODL-India"],
-        ['NitinNabin', 'Nitin Nabin', 'National President', 'President Secretariat · GODL-India']],
-  INC: [['kharge', 'Mallikarjun Kharge', 'Party President', "Prime Minister's Office · GODL-India"],
-        ['RahulGandhi', 'Rahul Gandhi', 'Leader of Opposition', 'Indian National Congress · CC BY-SA 3.0']],
-  TDP: [['ncbn', 'N. Chandrababu Naidu', 'Party President', "Prime Minister's Office · GODL-India"],
-        ['naralokesh', 'Nara Lokesh', 'National Working President', 'Saiphani02 · CC BY-SA 4.0']],
-  AAP: [['ArvindKejriwal', 'Arvind Kejriwal', 'Party Head', 'Govt. of NCT of Delhi · GODL-India']],
-  SP:  [['yadavakhilesh', 'Akhilesh Yadav', 'National President', 'Prateek Dubey · CC BY 3.0']]
+  "BJP": [["narendramodi", "Narendra Modi", "Prime Minister", "Prime Minister's Office \u00b7 GODL-India", "Modi"],
+    ["NitinNabin", "Nitin Nabin", "National President", "President Secretariat (Rashtrapati Bhavan) \u00b7 GODL-India", "Nabin"]],
+  "INC": [["kharge", "Mallikarjun Kharge", "Party President", "Prime Minister's Office \u00b7 GODL-India", "Kharge"],
+    ["RahulGandhi", "Rahul Gandhi", "Leader of Opposition", "Indian National Congress \u00b7 CC BY-SA 3.0", "Rahul"]],
+  "TDP": [["ncbn", "N. Chandrababu Naidu", "Party President", "Prime Minister's Office \u00b7 GODL-India", "Naidu"],
+    ["naralokesh", "Nara Lokesh", "National Working President", "Saiphani02 \u00b7 CC BY-SA 4.0", "Lokesh"]],
+  "AAP": [["ArvindKejriwal", "Arvind Kejriwal", "Party Head", "Government of the National Capital Territory o\u2026 \u00b7 GODL-India", "Kejriwal"]],
+  "SP": [["yadavakhilesh", "Akhilesh Yadav", "National President", "Prateek Dubey \u00b7 CC BY 3.0", "Yadav"]],
+  "TMC": [["MamataOfficial", "Mamata Banerjee", "Party Chairperson", "Chief Minister's Office, Government of West Be\u2026 \u00b7 CC BY 1.0", "Mamata"],
+    ["AbhishekAITC", "Abhishek Banerjee", "National General Secretary", "Mainakchatterjee.tech \u00b7 CC0", "Abhishek"]],
+  "DMK": [["mkstalin", "M. K. Stalin", "Party President", "Vice President's Secretariat \u00b7 GODL-India", "Stalin"],
+    ["Udhaystalin", "Udhayanidhi Stalin", "Deputy Chief Minister", "Shaik Mydeen \u00b7 CC BY-SA 3.0", "Udhayanidhi"]],
+  "JD(U)": [["NitishKumar", "Nitish Kumar", "Party President", "Prime Minister's Office \u00b7 GODL-India", "Kumar"]],
+  "TVK": [["TVKVijayHQ", "Vijay", "Chief Minister", "Prime Minister's Office \u00b7 GODL-India", "Vijay"]],
+  "BSP": [["Mayawati", "Mayawati", "National President", "Ministry of Parliamentary Affairs \u00b7 GODL-India", "Mayawati"]],
+  "SS(ES)": [["mieknathshinde", "Eknath Shinde", "Deputy Chief Minister", "Real96kmaratha \u00b7 CC BY-SA 4.0", "Shinde"]],
+  "SS": [["mieknathshinde", "Eknath Shinde", "Deputy Chief Minister", "Real96kmaratha \u00b7 CC BY-SA 4.0", "Shinde"]],
+  "NCP(AP)": [["praful_patel", "Praful Patel", "Party President", "Ministry of Heavy Industries and Public Enterp\u2026 \u00b7 GODL-India", "Patel"]],
+  "BJD": [["Naveen_Odisha", "Naveen Patnaik", "Party President", "Naveen Patnaik \u00b7 CC BY 4.0", "Patnaik"]],
+  "RJD": [["laluprasadrjd", "Lalu Prasad Yadav", "National President", "Rogfig \u00b7 CC BY-SA 4.0", "Yadav"]],
+  "JMM": [["HemantSorenJMM", "Hemant Soren", "Chief Minister", "Prime Minister's Office \u00b7 GODL-India", "Soren"]],
+  "JKNC": [["OmarAbdullah", "Omar Abdullah", "Chief Minister", "Prime Minister's Office \u00b7 GODL-India", "Abdullah"]],
+  "AIADMK": [["EPSTamilNadu", "Edappadi K. Palaniswami", "General Secretary", "Silverscreen Media Inc. (https://silverscreen.\u2026 \u00b7 CC BY-SA 3.0", "Palaniswami"]],
+  "NPF": [["Neiphiu_Rio", "Neiphiu Rio", "Chief Minister", "Ministry of Textiles, Government of India \u00b7 GODL-India", "Rio"]],
+  "BRS": [["KCRBRSPresident", "K. Chandrashekar Rao", "Party President", "Digital Media Telangana Government \u00b7 CC BY-SA 4.0", "KCR"],
+    ["KTRBRS", "K. T. Rama Rao", "Working President", "Rama Krishna Vallapudasu \u00b7 CC BY-SA 4.0", "KTR"]],
+  "SS(UBT)": [["UddhavThackeray", "Uddhav Thackeray", "Party President", "Prime Minister's Office \u00b7 GODL-India", "Thackeray"]],
+  "JSP": [["PawanKalyan", "Pawan Kalyan", "Deputy Chief Minister", "Prime Minister's Office \u00b7 GODL-India", "Kalyan"]],
+  "CPI(M)": [["pinarayivijayan", "Pinarayi Vijayan", "Chief Minister", "Augustus Binu : flickr : Instagram \u00b7 CC BY-SA 3.0", "Vijayan"]],
+  "RLD": [["jayantrld", "Jayant Chaudhary", "National President", "President's Secretariat \u00b7 GODL-India", "Chaudhary"]],
+  "YSRCP": [["ysjagan", "Y. S. Jagan Mohan Reddy", "Party President", "Prime Minister's Office \u00b7 GODL-India", "Reddy"]],
+  "JD(S)": [["H_D_Devegowda", "H. D. Deve Gowda", "National President", "Prime Minister's Office \u00b7 GODL-India", "Gowda"]],
+  "NCP(SP)": [["PawarSpeaks", "Sharad Pawar", "Party President", "U.S. Department of Agriculture \u00b7 Public domain", "Pawar"]],
+  "AD(S)": [["AnupriyaSPatel", "Anupriya Patel", "National President", "Prime Minister's Office \u00b7 GODL-India", "Patel"]],
+  "NPP": [["SangmaConrad", "Conrad Sangma", "Chief Minister", "Ministry of Social Justice and Empowerment \u00b7 GODL-India", "Sangma"]],
+  "CPI": [["ComradeDRaja", "D. Raja", "General Secretary", "Kannanshanmugam,shanmugamstudio,Kollam \u00b7 CC BY 3.0", "Raja"]],
+  "AIMIM": [["asadowaisi", "Asaduddin Owaisi", "President", "Planet Bulletin \u00b7 CC BY 3.0", "Owaisi"]],
+  "LJP(RV)": [["iChiragPaswan", "Chirag Paswan", "National President", "Ministry of Food Processing Industries \u00b7 GODL-India", "Paswan"]],
+  "LJP (RV)": [["iChiragPaswan", "Chirag Paswan", "National President", "Ministry of Food Processing Industries \u00b7 GODL-India", "Paswan"]],
+  "ZPM": [["Lal_Duhoma", "Lalduhoma", "Chief Minister", "Prime Minister's Office \u00b7 GODL-India", "Lalduhoma"]],
+  "SBSP": [["oprajbhar", "Om Prakash Rajbhar", "National President", "Sachin96700 \u00b7 CC0", "Rajbhar"]],
+  "AINRC": [["cm_nrangaswamy", "N. Rangaswamy", "Chief Minister", "Prime Minister's Office \u00b7 GODL-India", "Rangaswamy"]],
+  "VCK": [["thirumaofficial", "Thol. Thirumavalavan", "Founder-President", "Satrainbox \u00b7 CC0", "Thirumavalavan"]],
+  "RLP": [["hanumanbeniwal", "Hanuman Beniwal", "National President", "Premsukhdidel \u00b7 CC BY 4.0", "Beniwal"]],
+  "JKPDP": [["MehboobaMufti", "Mehbooba Mufti", "Party President", "Prime Minister's Office, Government of India \u00b7 GODL-India", "Mufti"]],
+  "SAD": [["officeofssbadal", "Sukhbir Singh Badal", "Party President", "Harvinder Chandigarh \u00b7 CC BY-SA 4.0", "Badal"]],
+  "PMK": [["draramadoss", "Anbumani Ramadoss", "Party President", "Ministry of Health and Family Welfare \u00b7 GODL-India", "Ramadoss"]],
+  "MNF": [["ZoramthangaMNF", "Zoramthanga", "Party President", "Planning Commission \u00b7 GODL-India", "Zoramthanga"]]
 };
 function pcLeadFigs(L) {
   var two = L.length > 1;
@@ -14832,7 +14872,7 @@ function pcLeadFigs(L) {
       + ' title="' + esc(l[1]) + ' — photo: ' + esc(l[3]) + ', via Wikimedia Commons" onerror="this.remove()">';
   };
   return '<div class="pc-figs' + (two ? ' two' : '') + '" aria-hidden="true">' + (two ? img(L[1], 'p2') : '') + img(L[0], 'p1') + '</div>'
-    + '<div class="pc-cap"><b>' + esc(two ? L[0][1].split(' ').pop() + ' & ' + L[1][1].split(' ').pop() : L[0][1]) + '</b>'
+    + '<div class="pc-cap"><b>' + esc(two ? (L[0][4] || L[0][1].split(' ').pop()) + ' & ' + (L[1][4] || L[1][1].split(' ').pop()) : L[0][1]) + '</b>'   /* [4] = chhota naam (Mamata & Abhishek, KCR & KTR) */
     + '<small>' + esc(two ? L[0][2] + ' · ' + L[1][2] : L[0][2]) + '</small></div>';
 }
 function card(d, active) {
