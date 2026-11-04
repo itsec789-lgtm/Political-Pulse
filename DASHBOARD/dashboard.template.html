@@ -602,6 +602,12 @@ th.cf-open .cf-btn{opacity:1;background:rgba(0,0,0,.07)}
 #pfCards .pcard.pc-lead[data-p="BJP"] .pc-figs,#pfCards .pcard.pc-lead[data-p="INC"] .pc-figs{top:4px}
 #pfCards .pcard.pc-lead[data-p="BJP"] .pc-figs.two .p1,#pfCards .pcard.pc-lead[data-p="INC"] .pc-figs.two .p1{width:78%;height:100%}
 #pfCards .pcard.pc-lead[data-p="BJP"] .pc-figs.two .p2,#pfCards .pcard.pc-lead[data-p="INC"] .pc-figs.two .p2{width:56%;height:80%}
+/* INC: Rahul ka utha hua haath left me hai -- isliye Rahul aage-LEFT (haath khaali jagah me), Kharge peeche-RIGHT
+   (Rahul ke kandhe ke upar), taaki haath Kharge ke chehre par na aaye */
+#pfCards .pcard.pc-lead[data-p="INC"] .pc-main{width:43%}
+#pfCards .pcard.pc-lead[data-p="INC"] .pc-figs{width:56%}   /* Rahul ki haath hilati photo chaudi hai -- thodi zyada jagah */
+#pfCards .pcard.pc-lead[data-p="INC"] .pc-figs.two .p1{left:0;right:auto;width:72%;height:70%;object-position:left bottom}
+#pfCards .pcard.pc-lead[data-p="INC"] .pc-figs.two .p2{left:auto;right:-2%;width:54%;height:63%;object-position:right bottom}
 #pfCards .pcard.pc-lead:hover .pc-fig.p1{transform:translateY(-5px)}
 #pfCards .pcard.pc-lead:hover .pc-fig.p2{transform:translateY(-3px)}
 #pfCards .pc-who{display:flex;flex-direction:column;gap:7px;margin:8px 2px 10px;padding-left:10px;border-left:2px solid var(--pc)}
@@ -14827,8 +14833,8 @@ var PC_ICO = (function () {
 var PC_LEAD = {
   "BJP": [["narendramodi", "Narendra Modi", "Prime Minister", "Prime Minister's Office \u00b7 GODL-India", "Modi"],
     ["NitinNabin", "Nitin Nabin", "National President", "Political Pulse team \u00b7 supplied photo", "Nabin"]],
-  "INC": [["RahulGandhi", "Rahul Gandhi", "Leader of Opposition", "Himanshu Arya Khowal \u00b7 CC BY 4.0", "Rahul"],
-    ["kharge", "Mallikarjun Kharge", "Party President", "Prime Minister's Office \u00b7 GODL-India", "Kharge"]],
+  "INC": [["RahulGandhi", "Rahul Gandhi", "Leader of Opposition", "Political Pulse team \u00b7 supplied photo", "Rahul"],
+    ["kharge", "Mallikarjun Kharge", "Party President", "Political Pulse team \u00b7 supplied photo", "Kharge"]],
   "TDP": [["ncbn", "N. Chandrababu Naidu", "Party President", "Prime Minister's Office \u00b7 GODL-India", "Naidu"],
     ["naralokesh", "Nara Lokesh", "National Working President", "Saiphani02 \u00b7 CC BY-SA 4.0", "Lokesh"]],
   "AAP": [["ArvindKejriwal", "Arvind Kejriwal", "Party Head", "Vice President's Secretariat \u00b7 GODL-India", "Kejriwal"],
