@@ -591,12 +591,13 @@ th.cf-open .cf-btn{opacity:1;background:rgba(0,0,0,.07)}
 #pfCards .pc-lead .pstat-lbl{font-size:9.5px;letter-spacing:.6px}
 #pfCards .pc-lead .pcard-action-bar{margin-top:auto}
 /* the figures: own box from 40px above the card to its bottom; clipped only at the rounded bottom-right corner */
-#pfCards .pc-figs{position:absolute;right:0;bottom:0;top:14px;width:58%;z-index:1;pointer-events:none;
+#pfCards .pc-figs{position:absolute;right:0;bottom:0;top:14px;width:53%;z-index:1;pointer-events:none;overflow:hidden;   /* 47% se shuru -- stats column (46%) ke peeche kabhi nahi */
   -webkit-mask-image:linear-gradient(to top,transparent 0,#000 16%);mask-image:linear-gradient(to top,transparent 0,#000 16%)}   /* photo ka neeche ka seedha kinara card me ghul jaaye */
 #pfCards .pc-fig{position:absolute;bottom:0;max-width:none;object-fit:contain;filter:drop-shadow(0 12px 14px rgba(40,20,5,.22));transition:transform .45s cubic-bezier(.2,.8,.2,1)}
 #pfCards .pc-figs .p1{right:2%;width:92%;height:96%;object-position:center bottom}
-#pfCards .pc-figs.two .p1{right:-3%;width:80%;height:96%;object-position:right bottom}
-#pfCards .pc-figs.two .p2{left:0;width:58%;height:72%;object-position:left bottom;filter:drop-shadow(0 10px 12px rgba(40,20,5,.18)) saturate(.92)}
+/* do neta: peeche wala left me, aage wala right me -- overlap kam, dono chehre poore dikhein */
+#pfCards .pc-figs.two .p1{right:-2%;width:70%;height:95%;object-position:right bottom}
+#pfCards .pc-figs.two .p2{left:0;width:50%;height:70%;object-position:left bottom;filter:drop-shadow(0 10px 12px rgba(40,20,5,.18)) saturate(.92)}
 #pfCards .pcard.pc-lead:hover .pc-fig.p1{transform:translateY(-5px)}
 #pfCards .pcard.pc-lead:hover .pc-fig.p2{transform:translateY(-3px)}
 #pfCards .pc-who{display:flex;flex-direction:column;gap:7px;margin:8px 2px 10px;padding-left:10px;border-left:2px solid var(--pc)}
@@ -14822,11 +14823,11 @@ var PC_ICO = (function () {
 var PC_LEAD = {
   "BJP": [["narendramodi", "Narendra Modi", "Prime Minister", "Prime Minister's Office \u00b7 GODL-India", "Modi"],
     ["NitinNabin", "Nitin Nabin", "National President", "Political Pulse team \u00b7 supplied photo", "Nabin"]],
-  "INC": [["kharge", "Mallikarjun Kharge", "Party President", "Prime Minister's Office \u00b7 GODL-India", "Kharge"],
-    ["RahulGandhi", "Rahul Gandhi", "Leader of Opposition", "Indian National Congress \u00b7 CC BY-SA 3.0", "Rahul"]],
+  "INC": [["RahulGandhi", "Rahul Gandhi", "Leader of Opposition", "Himanshu Arya Khowal \u00b7 CC BY 4.0", "Rahul"],
+    ["kharge", "Mallikarjun Kharge", "Party President", "Prime Minister's Office \u00b7 GODL-India", "Kharge"]],
   "TDP": [["ncbn", "N. Chandrababu Naidu", "Party President", "Prime Minister's Office \u00b7 GODL-India", "Naidu"],
     ["naralokesh", "Nara Lokesh", "National Working President", "Saiphani02 \u00b7 CC BY-SA 4.0", "Lokesh"]],
-  "AAP": [["ArvindKejriwal", "Arvind Kejriwal", "Party Head", "Government of the National Capital Territory o\u2026 \u00b7 GODL-India", "Kejriwal"],
+  "AAP": [["ArvindKejriwal", "Arvind Kejriwal", "Party Head", "Vice President's Secretariat \u00b7 GODL-India", "Kejriwal"],
     ["BhagwantMann", "Bhagwant Mann", "Chief Minister, Punjab", "Press Information Bureau \u00b7 GODL-India", "Mann"]],
   "SP": [["yadavakhilesh", "Akhilesh Yadav", "National President", "Prateek Dubey \u00b7 CC BY 3.0", "Yadav"]],
   "TMC": [["MamataOfficial", "Mamata Banerjee", "Party Chairperson", "Chief Minister's Office, Government of West Be\u2026 \u00b7 CC BY 1.0", "Mamata"],
@@ -14836,10 +14837,10 @@ var PC_LEAD = {
   "JD(U)": [["NitishKumar", "Nitish Kumar", "Party President", "Prime Minister's Office \u00b7 GODL-India", "Kumar"]],
   "TVK": [["TVKVijayHQ", "Vijay", "Chief Minister", "Prime Minister's Office \u00b7 GODL-India", "Vijay"]],
   "BSP": [["Mayawati", "Mayawati", "National President", "Ministry of Parliamentary Affairs \u00b7 GODL-India", "Mayawati"]],
-  "SS(ES)": [["mieknathshinde", "Eknath Shinde", "Deputy Chief Minister", "Real96kmaratha \u00b7 CC BY-SA 4.0", "Shinde"]],
-  "SS": [["mieknathshinde", "Eknath Shinde", "Deputy Chief Minister", "Real96kmaratha \u00b7 CC BY-SA 4.0", "Shinde"]],
+  "SS(ES)": [["mieknathshinde", "Eknath Shinde", "Deputy Chief Minister", "Prime Minister's Office \u00b7 GODL-India", "Shinde"]],
+  "SS": [["mieknathshinde", "Eknath Shinde", "Deputy Chief Minister", "Prime Minister's Office \u00b7 GODL-India", "Shinde"]],
   "NCP(AP)": [["praful_patel", "Praful Patel", "Party President", "Ministry of Heavy Industries and Public Enterp\u2026 \u00b7 GODL-India", "Patel"]],
-  "BJD": [["Naveen_Odisha", "Naveen Patnaik", "Party President", "Naveen Patnaik \u00b7 CC BY 4.0", "Patnaik"]],
+  "BJD": [["Naveen_Odisha", "Naveen Patnaik", "Party President", "Prime Minister's Office, Government of India \u00b7 GODL-India", "Patnaik"]],
   "RJD": [["laluprasadrjd", "Lalu Prasad Yadav", "National President", "Rogfig \u00b7 CC BY-SA 4.0", "Yadav"]],
   "JMM": [["HemantSorenJMM", "Hemant Soren", "Chief Minister", "Prime Minister's Office \u00b7 GODL-India", "Soren"]],
   "JKNC": [["OmarAbdullah", "Omar Abdullah", "Chief Minister", "Prime Minister's Office \u00b7 GODL-India", "Abdullah"]],
