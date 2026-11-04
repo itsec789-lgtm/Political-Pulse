@@ -3622,6 +3622,123 @@ body.ui-capture #sec-dashboard .kpi{transform:none!important}
 .leg-role b{font:600 12px 'DM Sans',sans-serif;color:#2A221C}
 .leg-role small{font:500 10.5px 'DM Sans',sans-serif;color:#9A8B7B}
 .leg-role.leg-cont b{color:#8A7B6C;font-weight:500}
+/* ================= sc-v2 (04-Nov): States & CM ================= */
+#sec-states-cm .sc-hero{position:relative;overflow:hidden;isolation:isolate;border-radius:20px;margin:2px 0 16px;padding:24px 26px 20px;color:#fff;
+  background:radial-gradient(130% 150% at 0% 0%,#2B1407 0%,#160B05 48%,#0B0604 100%);box-shadow:0 22px 50px -30px rgba(120,45,0,.6),inset 0 1px 0 rgba(255,255,255,.06)}
+#sec-states-cm .sc-hero::before{content:'';position:absolute;right:-80px;top:-120px;width:420px;height:420px;border-radius:50%;z-index:-1;
+  background:radial-gradient(closest-side,rgba(255,122,24,.28),transparent)}
+#sec-states-cm .sc-eyebrow{display:flex;align-items:center;gap:8px;font:700 11px 'DM Sans',sans-serif;letter-spacing:1.6px;text-transform:uppercase;color:rgba(255,214,170,.78)}
+#sec-states-cm .sc-dot{width:7px;height:7px;border-radius:50%;background:#FF9933;box-shadow:0 0 10px rgba(255,153,51,.9)}
+#sec-states-cm .sc-title{margin:10px 0 4px;font:700 30px/1.1 'Rajdhani',sans-serif;color:#FFF7EE;letter-spacing:.2px}
+#sec-states-cm .sc-title span{color:#FFB347}
+#sec-states-cm .sc-sub{margin:0;font-size:12.5px;color:rgba(255,236,214,.7)}
+#sec-states-cm .sc-kpis{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin:18px 0 0}
+#sec-states-cm .sc-k{background:rgba(255,255,255,.055)!important;border:1px solid rgba(255,255,255,.09)!important;border-radius:14px!important;padding:12px 14px!important;
+  box-shadow:none!important;min-height:0!important;color:#fff}
+#sec-states-cm .sc-k::before,#sec-states-cm .sc-k::after{display:none!important}
+#sec-states-cm .sc-k .kpi-lbl{order:0;margin:0;font:700 10px 'DM Sans',sans-serif;letter-spacing:1.2px;text-transform:uppercase;color:rgba(255,214,170,.66)!important}
+#sec-states-cm .sc-k .kpi-val{margin:6px 0 2px;font:700 24px/1.05 'DM Sans',sans-serif;letter-spacing:-.5px;color:#fff!important;font-variant-numeric:tabular-nums;-webkit-text-fill-color:#fff;background:none}
+#sec-states-cm .sc-k .kpi-sub{font-size:11px;color:rgba(255,236,214,.55)!important;margin:0}
+/* map + list card */
+#sec-states-cm .main-wrapper{height:620px;grid-template-columns:minmax(0,1fr) 380px;border:1px solid #ECE4DA;border-radius:18px;background:#fff;
+  box-shadow:0 1px 0 #ECE4DA,0 18px 40px -30px rgba(60,30,10,.45)}
+#sec-states-cm .map-panel{background:radial-gradient(90% 80% at 50% 45%,#FFFDF9 0%,#F6F1EA 100%);border-right:1px solid #ECE4DA}
+#sec-states-cm .map-header{background:transparent;border-bottom:0;padding:14px 18px 4px}
+#sec-states-cm .map-title{font:700 15px 'DM Sans',sans-serif;letter-spacing:-.1px;text-transform:none;color:#17120E}
+#sec-states-cm .ml-item{font-size:10.5px;color:#6E6156}
+#sec-states-cm .ml-dot{width:9px;height:9px;border-radius:3px}
+#sec-states-cm svg#indiaMap{filter:drop-shadow(0 10px 16px rgba(60,30,10,.12))}
+#sec-states-cm .state-path{stroke:#fff;stroke-width:.9}
+#sec-states-cm .state-path:hover{filter:brightness(.92) saturate(1.15)}
+#sec-states-cm .state-path.selected{stroke:#17120E;stroke-width:2.2;filter:drop-shadow(0 0 6px rgba(232,89,12,.55))}
+#sec-states-cm .map-mode-bar{background:transparent;border-top:0;padding:8px 16px 14px;gap:4px}
+#sec-states-cm .map-mode-bar>span{margin-right:6px}
+#sec-states-cm .mode-btn{border:0;background:rgba(23,18,14,.05);color:#5E5247;border-radius:999px;padding:6px 14px;font-size:11px;font-weight:600}
+#sec-states-cm .mode-btn:hover{background:rgba(23,18,14,.09);color:#17120E}
+#sec-states-cm .mode-btn.active{background:#17120E;color:#fff}
+#sec-states-cm .right-panel{background:#fff}
+#sec-states-cm .filter-bar{border-bottom:1px solid #F1ECE5;padding:12px 16px;gap:4px}
+#sec-states-cm .filter-pill{border:0;background:rgba(23,18,14,.05);color:#5E5247;border-radius:999px;padding:5px 12px;font-size:11px}
+#sec-states-cm .filter-pill:hover{background:rgba(23,18,14,.09);color:#17120E}
+#sec-states-cm .filter-pill.active{background:#E8590C;color:#fff}
+#sec-states-cm .rp-header{border-bottom:1px solid #F1ECE5;padding:12px 16px 10px}
+#sec-states-cm .rp-title{font:700 15px 'DM Sans',sans-serif;letter-spacing:-.1px;text-transform:none;color:#17120E}
+#sec-states-cm .rp-subtitle{font-size:11.5px;color:#8A7B6C}
+#sec-states-cm .rp-content{padding:8px 10px 14px}
+#sec-states-cm .sc-list-cap{font:600 10.5px 'DM Sans',sans-serif;letter-spacing:.3px;color:#9A8B7B;margin:2px 6px 6px}
+#sec-states-cm .sc-sli{position:relative;display:flex;align-items:center;gap:10px;padding:9px 8px 11px;border-radius:12px;cursor:pointer;transition:background .15s}
+#sec-states-cm .sc-sli:hover,#sec-states-cm .sc-sli:focus-visible{background:#FBF6F0;outline:0}
+#sec-states-cm .sc-sli+.sc-sli{border-top:1px solid #F4EFE8}
+#sec-states-cm .sc-rank{width:18px;flex:none;text-align:right;font:700 11.5px 'DM Sans',sans-serif;color:#B5A898;font-variant-numeric:tabular-nums}
+#sec-states-cm .sc-sli-mid{flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.25}
+#sec-states-cm .sc-sli-mid b{font:700 12.5px 'DM Sans',sans-serif;color:#17120E;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#sec-states-cm .sc-sli-mid small{font-size:11px;color:#8A7B6C;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#sec-states-cm .sc-sli-r{display:flex;align-items:center;gap:8px;flex:none}
+#sec-states-cm .sc-sli-r b{font:700 12.5px 'DM Sans',sans-serif;color:#17120E;font-variant-numeric:tabular-nums}
+#sec-states-cm .sc-bar{position:absolute;left:58px;bottom:4px;height:2px;border-radius:2px;background:var(--sci);opacity:.55;max-width:calc(100% - 66px)}
+/* avatar + logo */
+.sc-av{position:relative;flex:none;width:34px;height:34px;border-radius:50%;overflow:hidden;background:color-mix(in srgb,var(--pc,#999) 14%,#fff);box-shadow:0 0 0 2px #fff,0 0 0 3px color-mix(in srgb,var(--pc,#999) 45%,transparent)}
+.sc-av.sm{width:32px;height:32px}.sc-av.md{width:36px;height:36px}.sc-av.lg{width:52px;height:52px}
+.sc-av img{width:100%;height:100%;object-fit:cover;display:block}
+.sc-av i{position:absolute;inset:0;display:grid;place-items:center;font:700 11px 'DM Sans',sans-serif;font-style:normal;color:var(--pc,#7A5A3A)}
+.sc-plogo{width:22px;height:22px;display:grid;place-items:center;flex:none}
+.sc-plogo img{max-width:22px;max-height:22px;object-fit:contain;display:block;border-radius:4px}
+.sc-plogo b,.sc-pnone{display:grid;place-items:center;width:22px;height:22px;border-radius:6px;background:color-mix(in srgb,var(--pc,#777) 12%,#fff);font:800 8px 'DM Sans',sans-serif;color:var(--pc,#777)}
+/* state panel (map click) */
+#sec-states-cm .state-hero{background:#FBF8F4;border:1px solid #EDE6DC;border-radius:14px}
+#sec-states-cm .sh-name{font:700 20px 'DM Sans',sans-serif;color:#17120E;letter-spacing:-.3px}
+#sec-states-cm .sh-kpi,#sec-states-cm .sh-sent-item{border-color:#EDE6DC;border-radius:10px}
+#sec-states-cm .sh-kpi-val{font:700 16px 'DM Sans',sans-serif;color:#17120E}
+#sec-states-cm .cm-card{border:1px solid #EDE6DC;border-left:3px solid var(--cc);border-radius:12px;box-shadow:none}
+#sec-states-cm .cm-card-head{align-items:center;gap:10px}
+#sec-states-cm .cm-stat{background:#FBF8F4;border-radius:8px}
+#sec-states-cm .cm-stat-val{font:700 13px 'DM Sans',sans-serif;color:#17120E}
+#sec-states-cm .cmx-chart-box{border:1px solid #EDE6DC;border-radius:14px;box-shadow:none}
+#sec-states-cm .cb-title,#sec-states-cm .cm-sec-title{font:700 11px 'DM Sans',sans-serif;letter-spacing:1px;color:#7A6E63}
+#sec-states-cm .back-btn{border:0;background:#17120E;color:#fff;font-weight:600}
+/* table */
+#sec-states-cm .table-section{padding:18px 0 0}
+#sec-states-cm .ts-title{font:700 17px 'DM Sans',sans-serif;letter-spacing:-.2px;text-transform:none;color:#17120E}
+#sec-states-cm .ts-subtitle{font-size:12px;color:#8A7B6C}
+#sec-states-cm .ts-search,#sec-states-cm .ts-filter-sel{border:1px solid #E6DED3;border-radius:10px;background:#fff;padding:7px 12px}
+#sec-states-cm .data-table-wrap{border:1px solid #ECE4DA;border-radius:16px;background:#fff;box-shadow:0 18px 40px -32px rgba(60,30,10,.45)}
+#sec-states-cm .data-table thead tr{background:#FBF8F4;border-bottom:1px solid #EDE6DC}
+#sec-states-cm .data-table th{position:sticky;top:0;background:#FBF8F4;z-index:1;color:#7A6E63;font-size:10px;letter-spacing:.7px;padding:11px 12px}
+#sec-states-cm .data-table td{padding:10px 12px;border-bottom:1px solid #F4EFE8}
+#sec-states-cm .data-table tbody tr{border-bottom:0}
+#sec-states-cm .data-table tbody tr:hover{background:#FFF9F2}
+#sec-states-cm .data-table th.r,#sec-states-cm .data-table td.r{text-align:right}
+#sec-states-cm .sc-cmrow td:first-child{box-shadow:inset 3px 0 0 #E8590C}
+.sc-n{font:700 12px 'DM Sans',sans-serif;color:#B5A898;font-variant-numeric:tabular-nums}
+.sc-who{display:flex;align-items:center;gap:10px;min-width:200px}
+.sc-nm{display:flex;flex-direction:column;line-height:1.25;min-width:0}
+.sc-nm b{font:700 12.5px 'DM Sans',sans-serif;color:#17120E}
+.sc-nm small{font-size:10.5px;color:#9A8B7B}
+.sc-loc{display:flex;flex-direction:column;line-height:1.3}
+.sc-loc b{font:600 12px 'DM Sans',sans-serif;color:#2A221C}.sc-loc small{font-size:10.5px;color:#9A8B7B}
+.sc-party{display:flex;align-items:center;gap:7px;font:700 11px 'DM Sans',sans-serif}
+.sc-role{display:flex;flex-direction:column;gap:1px;line-height:1.3;max-width:200px;white-space:normal}
+.sc-role b{font:600 12px 'DM Sans',sans-serif;color:#2A221C}.sc-role.is-cm b{color:#C2410C}
+.sc-role small{font-size:10.5px;color:#9A8B7B}
+.sc-v{font:600 12px 'DM Sans',sans-serif;color:#2A221C;font-variant-numeric:tabular-nums}
+.sc-v.sc-strong{font-weight:700;color:#17120E}.sc-v.sc-mut{color:#8A7B6C;font-weight:500}
+.sc-pf{border:0;background:rgba(23,18,14,.05);color:#17120E;border-radius:999px;padding:6px 12px;font:600 11px 'DM Sans',sans-serif;cursor:pointer;white-space:nowrap;transition:background .15s}
+.sc-pf span{color:#E8590C}.sc-pf:hover{background:#17120E;color:#fff}
+/* state analysis (row / state click) */
+.sc-sthead{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:4px 0 14px}
+.sc-sthead-l{display:flex;align-items:center;gap:12px}
+.sc-stname{font:700 22px 'DM Sans',sans-serif;letter-spacing:-.4px;color:#17120E}
+.sc-stmeta{display:flex;align-items:center;gap:7px;font-size:12px;color:#8A7B6C;margin-top:3px}
+.sc-clear{border:0;background:#17120E;color:#fff;border-radius:999px;padding:8px 14px;font:600 11.5px 'DM Sans',sans-serif;cursor:pointer}
+.sc-sttiles{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px;margin-bottom:16px}
+.sc-st{background:#fff;border:1px solid #ECE4DA;border-radius:14px;padding:12px 14px}
+.sc-st b{display:block;font:700 19px 'DM Sans',sans-serif;letter-spacing:-.4px;color:#17120E;font-variant-numeric:tabular-nums}
+.sc-st span{display:block;margin-top:3px;font:700 10px 'DM Sans',sans-serif;letter-spacing:1px;text-transform:uppercase;color:#8A7B6C}
+.sc-st.pos b{color:#15803D}.sc-st.neg b{color:#B91C1C}
+.sc-stcap{font:700 11px 'DM Sans',sans-serif;letter-spacing:1.2px;text-transform:uppercase;color:#7A6E63;margin:0 2px 8px}
+@media(max-width:1100px){#sec-states-cm .sc-kpis{grid-template-columns:repeat(3,minmax(0,1fr))}.sc-sttiles{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:900px){#sec-states-cm .main-wrapper{height:auto;grid-template-columns:1fr}#sec-states-cm .right-panel{max-height:520px}}
+@media(max-width:600px){#sec-states-cm .sc-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}#sec-states-cm .sc-title{font-size:23px}#sec-states-cm .sc-hero{padding:18px}.sc-sttiles{grid-template-columns:repeat(2,minmax(0,1fr))}}
 .leg-pn{font:700 9.5px 'DM Sans',sans-serif;letter-spacing:.2px;white-space:nowrap}
 .leg-gain{font:700 12px 'DM Sans',sans-serif;font-variant-numeric:tabular-nums}
 .leg-gain.leg-up{color:#15803D}.leg-gain.leg-dn{color:#B91C1C}.leg-gain.leg-g0{color:#8A7B6C}
@@ -4836,21 +4953,27 @@ a.pe-btn:after{content:"";position:absolute;inset:0;z-index:1;background:linear-
 <!-- 3. STATES & CM (map integrated) -->
 <div class="page-section" id="sec-states-cm">
 <main>
-  <div class="sec-title">Chief Ministers &amp; Deputy CMs — Overview · Apr–Jul 2026</div>
-  <div class="kpi-row">
-    <div class="kpi" style="--ka:#1a1a1a"><div class="kpi-val" id="cmkCount">—</div><div class="kpi-lbl">CM + Dy CM</div><div class="kpi-sub" id="cmkSub">—</div></div>
-    <div class="kpi" style="--ka:#E65100"><div class="kpi-val" id="cmkTweets">—</div><div class="kpi-lbl">Total Tweets</div><div class="kpi-sub" id="cmkTwSub">—</div></div>
-    <div class="kpi" style="--ka:#B71C1C"><div class="kpi-val" id="cmkLikes">—</div><div class="kpi-lbl">Total Likes</div><div class="kpi-sub">Cumulative engagement</div></div>
-    <div class="kpi" style="--ka:#1B5E20"><div class="kpi-val" id="cmkRt">—</div><div class="kpi-lbl">Retweets</div><div class="kpi-sub">Content amplification</div></div>
-    <div class="kpi" style="--ka:#4A148C"><div class="kpi-val" id="cmkViews">—</div><div class="kpi-lbl">Total Views</div><div class="kpi-sub">Impressions delivered</div></div>
-  </div>
-  <div class="sec-title">India Map — CM Twitter Presence by State</div>
+  <!-- sc-v2 (04-Nov): States & CM -- dark hero (Dashboard jaisa) + KPI tiles; IDs wahi (server/export bharte hain) -->
+  <section class="sc-hero">
+    <div class="sc-hero-txt">
+      <div class="sc-eyebrow"><span class="sc-dot"></span>States &amp; Chief Ministers</div>
+      <h1 class="sc-title">Every state's government, <span>on X</span></h1>
+      <p class="sc-sub">Chief Ministers &amp; Deputy CMs · Apr–Jul 2026</p>
+    </div>
+    <div class="sc-kpis kpi-row">
+      <div class="kpi sc-k"><div class="kpi-lbl">CM + Dy CM</div><div class="kpi-val" id="cmkCount">—</div><div class="kpi-sub" id="cmkSub">—</div></div>
+      <div class="kpi sc-k"><div class="kpi-lbl">Total Tweets</div><div class="kpi-val" id="cmkTweets">—</div><div class="kpi-sub" id="cmkTwSub">—</div></div>
+      <div class="kpi sc-k"><div class="kpi-lbl">Total Likes</div><div class="kpi-val" id="cmkLikes">—</div><div class="kpi-sub">Engagement</div></div>
+      <div class="kpi sc-k"><div class="kpi-lbl">Retweets</div><div class="kpi-val" id="cmkRt">—</div><div class="kpi-sub">Amplification</div></div>
+      <div class="kpi sc-k"><div class="kpi-lbl">Total Views</div><div class="kpi-val" id="cmkViews">—</div><div class="kpi-sub">Impressions</div></div>
+    </div>
+  </section>
 
 <div class="map-tooltip" id="mapTooltip"></div>
 <div class="main-wrapper">
   <div class="map-panel">
     <div class="map-header">
-      <span class="map-title">India &mdash; CM Twitter Presence by State</span>
+      <span class="map-title">Who governs where</span>
       <div class="map-legend" id="mapLegend"></div>
     </div>
     <div class="map-canvas-wrap">
@@ -4889,8 +5012,8 @@ a.pe-btn:after{content:"";position:absolute;inset:0;z-index:1;background:linear-
 <div class="table-section">
   <div class="table-section-header">
     <div>
-      <div class="ts-title">Chief Ministers on X &mdash; Apr–Jul 2026</div>
-      <div class="ts-subtitle">All leaders ranked by total views · Click a row to highlight state on map</div>
+      <div class="ts-title">All Chief Ministers &amp; Deputy CMs</div>
+      <div class="ts-subtitle">State by state, CM first · Click a row to open that state on the map</div>
     </div>
     <div class="ts-search-bar">
       <input class="ts-search" id="tblSearch" type="text" placeholder="Search by name or handle&hellip;" oninput="filterTable()">
@@ -4925,20 +5048,9 @@ a.pe-btn:after{content:"";position:absolute;inset:0;z-index:1;background:linear-
     <table class="data-table" id="mainTable">
       <thead>
         <tr>
-          <th>#</th>
-          <th>State</th>
-          <th>PC / AC Name</th>
-          <th>Party</th>
-          <th>Designation</th>
-          <th>Name / Handle</th>
-          <th class="num">Followers</th>
-          <th class="num">Followings</th>
-          <th class="num">Tweets</th>
-          <th class="num">Retweets</th>
-          <th class="num">Total Views</th>
-          <th class="num">Avg Views/Post</th>
-          <th class="num">Avg Likes/Post</th>
-          <th class="r">Action</th>
+          <th>#</th><th>Leader</th><th>State / Seat</th><th>Party</th><th>Designation</th>
+          <th class="num">Followers</th><th class="num">Following</th><th class="num">Tweets</th><th class="num">Retweets</th>
+          <th class="num">Total Views</th><th class="num">Avg Views/Post</th><th class="num">Avg Likes/Post</th><th class="r"></th>
         </tr>
       </thead>
       <tbody id="mainTableBody"></tbody>
@@ -8586,8 +8698,8 @@ function showStatePanel(s){
   if(cms.length){
     h+=`<div class="cm-section"><div class="cm-sec-title">Leaders</div>`;
     [...cms].sort((a,b)=>b.views-a.views).forEach(c=>{
-      const cp=pColor(c.party);const ini=c.name.split(' ').slice(0,2).map(w=>w[0]||'').join('');
-      h+=`<div class="cm-card" style="--cc:${cp}"><div class="cm-card-head"><div class="cm-avatar" style="background:${cp}">${ini}</div><div style="flex:1;min-width:0"><div class="cm-name">${c.name}</div><div class="cm-handle">@${c.handle}</div><div style="display:flex;gap:4px;margin-top:3px;flex-wrap:wrap"><span class="cm-badge">${c.level==='Chief Minister'?'&#128081; CM':'&#9889; Dy.CM'}</span><span class="cm-badge" style="background:${cp}18;color:${cp}">${c.party.length>12?c.party.slice(0,12)+'&hellip;':c.party}</span></div></div></div><div class="cm-stats"><div class="cm-stat"><div class="cm-stat-val">${c.tweets}</div><div class="cm-stat-lbl">Tweets</div></div><div class="cm-stat"><div class="cm-stat-val">${fmt(c.views)}</div><div class="cm-stat-lbl">Views</div></div><div class="cm-stat"><div class="cm-stat-val">${fmt(c.followers)}</div><div class="cm-stat-lbl">Followers</div></div></div><div class="cm-sent-mini"><div class="csm csm-n">Neu: ${c.neu}</div><div class="csm csm-p">Pos: ${c.pos}</div><div class="csm csm-neg">Neg: ${c.neg}</div></div></div>`;
+      const cp=pColor(c.party);
+      h+=`<div class="cm-card" style="--cc:${cp}"><div class="cm-card-head">${scAv(c.handle,c.name,cp,'md')}<div style="flex:1;min-width:0"><div class="cm-name">${c.name}</div><div class="cm-handle">@${c.handle}</div><div style="display:flex;gap:4px;margin-top:3px;flex-wrap:wrap"><span class="cm-badge">${c.level==='Chief Minister'?'&#128081; CM':'&#9889; Dy.CM'}</span><span class="cm-badge" style="background:${cp}18;color:${cp}">${c.party.length>12?c.party.slice(0,12)+'&hellip;':c.party}</span></div></div></div><div class="cm-stats"><div class="cm-stat"><div class="cm-stat-val">${c.tweets}</div><div class="cm-stat-lbl">Tweets</div></div><div class="cm-stat"><div class="cm-stat-val">${fmt(c.views)}</div><div class="cm-stat-lbl">Views</div></div><div class="cm-stat"><div class="cm-stat-val">${fmt(c.followers)}</div><div class="cm-stat-lbl">Followers</div></div></div><div class="cm-sent-mini"><div class="csm csm-n">Neu: ${c.neu}</div><div class="csm csm-p">Pos: ${c.pos}</div><div class="csm csm-neg">Neg: ${c.neg}</div></div></div>`;
     });
     h+=`</div>`;
   }
@@ -8608,16 +8720,27 @@ function showStatePanel(s){
   }
 }
 function clearSel(){selectedState=null;document.querySelectorAll('.state-path').forEach(p=>p.classList.remove('selected'));renderDefaultPanel()}
+/* sc-v2 (04-Nov): leader photo (X avatar, initials fallback) + party logo -- Legislators table jaisa */
+function scEsc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+function scAv(h,name,col,cls){return '<span class="sc-av '+(cls||'')+'" style="--pc:'+col+'"><img src="/api/avatar/'+encodeURIComponent(h||'')+'" alt="" loading="lazy" onerror="window.legImgErr?legImgErr(this):(this.style.display=\'none\')"><i style="display:none">'+scEsc(ini(String(name||'').replace(/^(shri|smt|dr|km|kum|sri|thiru)\.?\s+/i,'')))+'</i></span>';}
+function scLogo(p){var P=String(p||'').trim(),U=P.toUpperCase(),col=pColor(P),fb=(window.partyLogoUrl&&partyLogoUrl(P))||'';
+  if(!P||/^(IND|-|OTHERS?|UNKNOWN|NONE|NOMINATED)$/.test(U))return '<span class="sc-plogo sc-pnone" style="--pc:'+col+'">'+scEsc((P||'—').slice(0,3))+'</span>';
+  return '<span class="sc-plogo"><img src="/api/party-logo?p='+encodeURIComponent(P)+'" alt="" loading="lazy"'+(fb?' data-fb="'+scEsc(fb)+'"':'')+' onerror="window.legImgErr?legImgErr(this):(this.style.display=\'none\')"><b style="display:none;--pc:'+col+'">'+scEsc(P.slice(0,3))+'</b></span>';}
+function scRole(c){var r=(window.roleOf?window.roleOf(c.handle,c.level):'')||c.level||'';var parts=String(r).split(/\s*\/\s*/).filter(Boolean);var post=parts.filter(function(x){return !/^(ls|rs)[ _]?mp$|^mla$|^mlc$/i.test(x);}),house=parts.filter(function(x){return /^(ls|rs)[ _]?mp$|^mla$|^mlc$/i.test(x);}).map(function(x){return x.replace(/_/g,' ').toUpperCase().replace(/^LS MP$/,'Lok Sabha MP').replace(/^RS MP$/,'Rajya Sabha MP');});
+  if(!post.length)post=[c.level==='Deputy Chief Minister'?'Deputy Chief Minister':(c.level||'—')];
+  return '<div class="sc-role'+(c.level==='Chief Minister'?' is-cm':'')+'"><b>'+scEsc(post.join(' · '))+'</b>'+(house.length?'<small>'+scEsc(house.join(' · '))+'</small>':'')+'</div>';}
 function renderDefaultPanel(){
   if(!selectedState){restoreMainTable();var _s2=document.getElementById('stateSel');if(_s2)_s2.value='';}
   document.getElementById('rpTitle').textContent='State CMs — Twitter Stats';
   document.getElementById('rpSub').textContent='Click any state on the map · Ranked by total views';
   let list=[...STATE_DATA].sort((a,b)=>b.views-a.views).filter(sd=>getCMs(sd.state).length>0);
   if(partyFilter!=='ALL')list=list.filter(sd=>getCMs(sd.state).some(c=>c.party===partyFilter));
-  let h=`<div style="margin-bottom:8px;font-size:10px;color:#999;font-weight:600">${list.length} states · sorted by views</div>`;
+  /* sc-v2: har state ek row -- CM ki photo, state + CM naam, views + party logo, views ki patli patti */
+  const _mx=Math.max(1,...list.map(sd=>+sd.views||0));
+  let h=`<div class="sc-list-cap">${list.length} states · ranked by views</div>`;
   list.forEach((sd,i)=>{
     const pc=pColor(getPP(sd.state));const cm=CM_DATA.find(c=>c.state===sd.state&&c.level==='Chief Minister');const pp=getPP(sd.state);
-    h+=`<div class="state-list-item" style="--sci:${pc}" onclick="selectState('${sd.state.replace(/'/g,"\\'")}')"><div class="sli-rank">${i+1}</div><div style="flex:1;min-width:0"><div class="sli-name">${sd.state}</div>${cm?`<div style="font-size:10px;color:#888">${cm.name}</div>`:''}</div><div style="text-align:right"><div class="sli-views">${fmt(sd.views)}</div><span class="sli-party" style="background:${pc}18;color:${pc}">${pp.length>10?pp.slice(0,10)+'…':pp}</span></div></div>`;
+    h+=`<div class="sc-sli" style="--sci:${pc}" tabindex="0" onkeydown="if(event.key==='Enter')this.click()" onclick="selectState('${sd.state.replace(/'/g,"\\'")}')"><span class="sc-rank">${i+1}</span>${cm?scAv(cm.handle,cm.name,pc,'sm'):'<span class="sc-av sm" style="--pc:'+pc+'"><i>'+scEsc(sd.state.slice(0,2))+'</i></span>'}<div class="sc-sli-mid"><b>${scEsc(sd.state)}</b><small>${cm?scEsc(cm.name):'&nbsp;'}</small></div><div class="sc-sli-r"><b>${fmt(sd.views)}</b>${scLogo(pp)}</div><i class="sc-bar" style="width:${Math.max(3,Math.round((+sd.views||0)/_mx*100))}%"></i></div>`;
   });
   document.getElementById('rpContent').innerHTML=h;
 }
@@ -8727,44 +8850,32 @@ function renderTable(){
   renderTableRows(sorted);
 }
 
+/* sc-v2 (04-Nov): ek hi row-builder -- main table aur state table dono. Photo + naam, State/Seat, party logo,
+   pad (text, pill nahi), numbers ek rang me. Hisaab wahi purana. */
+function scRow(c,i){
+  const cp=pColor(c.party),seat=c.seat||(typeof AC_MAP!=='undefined'&&AC_MAP[c.name])||'';
+  const avgViews=c.tweets>0?Math.round(c.views/c.tweets):0,avgLikes=c.tweets>0?Math.round(c.likes/c.tweets):0;
+  return `<tr class="${c.level==='Chief Minister'?'sc-cmrow':''}" onclick="selectState('${String(c.state).replace(/'/g,"\\'")}');window.scrollTo({top:0,behavior:'smooth'})">
+    <td><span class="sc-n">${i+1}</span></td>
+    <td><div class="sc-who">${scAv(c.handle,c.name,cp,'md')}<span class="sc-nm"><b>${scEsc(c.name)}</b><small>@${scEsc(c.handle)}${c.noData?' · no tweets yet':''}</small></span></div></td>
+    <td><div class="sc-loc"><b>${scEsc(c.state)}</b>${seat&&seat!=='—'?'<small>'+scEsc(seat)+'</small>':''}</div></td>
+    <td><div class="sc-party">${scLogo(c.party)}<span style="color:${cp}">${scEsc(c.party)}</span></div></td>
+    <td>${scRole(c)}</td>
+    <td class="num"><span class="sc-v">${fmt(c.followers)}</span></td>
+    <td class="num"><span class="sc-v sc-mut">${c.followings!=null?fmt(c.followings):'—'}</span></td>
+    <td class="num"><span class="sc-v">${(+c.tweets||0).toLocaleString('en-IN')}</span></td>
+    <td class="num"><span class="sc-v">${fmt(c.rts)}</span></td>
+    <td class="num"><span class="sc-v sc-strong">${fmt(c.views)}</span></td>
+    <td class="num"><span class="sc-v">${fmt(avgViews)}</span></td>
+    <td class="num"><span class="sc-v">${fmt(avgLikes)}</span></td>
+    <td class="r"><button class="sc-pf" onclick="event.stopPropagation();openProfile('${c.handle}')">Profile <span>&rarr;</span></button></td>
+  </tr>`;
+}
 function renderTableRows(data){
   const body=document.getElementById('mainTableBody');
-  if(!data.length){body.innerHTML=`<tr><td colspan="14" class="tbl-no-results">No results found</td></tr>`;return;}
-  body.innerHTML=data.map((c,i)=>{
-    const cp=pColor(c.party);
-    const ac=c.seat||AC_MAP[c.name]||'—';
-    const avgViews=c.tweets>0?Math.round(c.views/c.tweets):0;
-    const avgLikes=c.tweets>0?Math.round(c.likes/c.tweets):0;
-    const isTop3=['#E65100','#FF8F00','#FFA726'];
-    const rankColor=i<3?isTop3[i]:'#E65100';
-    return `<tr onclick="selectState('${c.state.replace(/'/g,"\\'")}');window.scrollTo({top:0,behavior:'smooth'})">
-      <td><span class="td-rank" style="color:${rankColor}">${i+1}</span></td>
-      <td><div class="td-state">${c.state}</div></td>
-      <td><div class="td-ac">${c.seat||ac}</div></td>
-      <td><span class="td-party-badge" style="background:${cp}20;color:${cp};border:1px solid ${cp}50">${c.party.length>12?c.party.slice(0,12)+'…':c.party}</span></td>
-      <td><span class="td-desig">${c.level==='Chief Minister'?'Chief Minister':c.level==='Deputy Chief Minister'?'Deputy Chief Minister':c.level}</span></td>
-      <td>
-        <div style="display:flex;align-items:center;gap:11px">
-          <div class="cm-av" style="width:38px;height:38px;min-width:38px;border-radius:50%;position:relative;overflow:hidden;flex-shrink:0;background:${cp}25;border:1.5px solid ${cp}40;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;color:${cp};font-family:'Rajdhani',sans-serif">
-            ${ini(c.name)}${photoImg(c.handle)}
-          </div>
-          <div style="min-width:0">
-            <div class="td-name">${c.name}</div>
-            <div class="td-handle">@${c.handle}${c.noData?' <span style="color:#9aa4b2;font-weight:600">· No tweets yet</span>':''}</div>
-          </div>
-        </div>
-      </td>
-      <td class="num"><span class="td-num orange">${fmt(c.followers)}</span></td>
-      <td class="num"><span class="td-num blue">${c.followings!=null?c.followings:'—'}</span></td>      <td class="num"><span class="td-num">${c.tweets}</span></td>
-      <td class="num"><span class="td-num blue">${fmt(c.rts)}</span></td>
-      <td class="num"><span class="td-num orange">${fmt(c.views)}</span></td>
-      <td class="num"><span class="td-num green">${fmt(avgViews)}</span></td>
-      <td class="num"><span class="td-num orange">${fmt(avgLikes)}</span></td>
-      <td class="r"><button class="cm-pf-btn" onclick="event.stopPropagation();openProfile('${c.handle}')">View Profile →</button></td>
-    </tr>`;
-  }).join('')+emptyNote(window._tblHidden||0,14);
+  if(!data.length){body.innerHTML=`<tr><td colspan="13" class="tbl-no-results">No results found</td></tr>`;return;}
+  body.innerHTML=data.map(scRow).join('')+emptyNote(window._tblHidden||0,13);
 }
-
 window.cmPreset=function(){var DD=window.PHD_DATES||[];if(!DD.length){filterTable();return;}var v=(document.getElementById('cmPreset')||{}).value;if(v==='custom'){filterTable();return;}var _r=window.pRange(v)||{f:DD[0],t:DD[DD.length-1]};var f=_r.f,t=_r.t;var fe=document.getElementById('cmFrom'),te=document.getElementById('cmTo');if(fe)fe.value=f;if(te)te.value=t;filterTable();};
 window.cmReset=function(){var p=document.getElementById('cmPreset');if(p)p.value='all';try{selectedState=null;}catch(e){}try{partyFilter='ALL';}catch(e){}try{document.querySelectorAll('.state-path.selected').forEach(function(x){x.classList.remove('selected');});}catch(e){}try{restoreMainTable();}catch(e){}try{renderDefaultPanel();}catch(e){}window.cmPreset();};
 function filterTable(){
@@ -8781,37 +8892,7 @@ function filterTable(){
 }
 
 
-function rowHTMLState(c,i){
-  const cp=pColor(c.party);const ac=c.seat||(typeof AC_MAP!=='undefined'&&AC_MAP[c.name])||'—';
-  const avgViews=c.tweets>0?Math.round(c.views/c.tweets):0;const avgLikes=c.tweets>0?Math.round(c.likes/c.tweets):0;
-  const desig=(window.roleOf?window.roleOf(c.handle,c.level):'')||c.level;
-  return `<tr>
-    <td><span class="td-rank" style="color:#E65100">${i+1}</span></td>
-    <td><div class="td-state">${c.state}</div></td>
-    <td><div class="td-ac">${c.seat||ac}</div></td>
-    <td><span class="td-party-badge" style="background:${cp}20;color:${cp};border:1px solid ${cp}50">${c.party}</span></td>
-    <td><span class="td-desig">${desig}</span></td>
-    <td>
-      <div style="display:flex;align-items:center;gap:11px">
-        <div class="cm-av" style="width:38px;height:38px;min-width:38px;border-radius:50%;position:relative;overflow:hidden;flex-shrink:0;background:${cp}25;border:1.5px solid ${cp}40;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;color:${cp};font-family:'Rajdhani',sans-serif">
-          ${ini(c.name)}${photoImg(c.handle)}
-        </div>
-        <div style="min-width:0">
-          <div class="td-name">${c.name}</div>
-          ${c.handle?`<div class="td-handle">@${c.handle}</div>`:''}
-        </div>
-      </div>
-    </td>
-    <td class="num"><span class="td-num orange">${fmt(c.followers)}</span></td>
-    <td class="num"><span class="td-num blue">${c.followings!=null?c.followings:'—'}</span></td>
-    <td class="num"><span class="td-num">${c.tweets}</span></td>
-    <td class="num"><span class="td-num">${fmt(c.rts)}</span></td>
-    <td class="num"><span class="td-num orange">${fmt(c.views)}</span></td>
-    <td class="num"><span class="td-num green">${fmt(avgViews)}</span></td>
-    <td class="num"><span class="td-num green">${fmt(avgLikes)}</span></td>
-    <td class="r"><button class="cm-pf-btn" onclick="event.stopPropagation();openProfile('${c.handle}')">View Profile →</button></td>
-  </tr>`;
-}
+function rowHTMLState(c,i){return scRow(c,i);}
 function renderStateTable(s){
   const box=document.getElementById('stateAnalysisBox');if(!box)return;
   const sec=document.querySelector('.table-section');
@@ -8823,28 +8904,18 @@ function renderStateTable(s){
   const dys=cms.filter(c=>c.level==='Deputy Chief Minister');
   const pp=getPP(s),pcv=pColor(pp);
   const tot=cms.reduce((o,c)=>{o.tw+=c.tweets;o.vw+=c.views;o.lk+=c.likes;o.fo+=c.followers;o.pos+=c.pos||0;o.neg+=c.neg||0;o.neu+=c.neu||0;return o;},{tw:0,vw:0,lk:0,fo:0,pos:0,neg:0,neu:0});
-  let h=`<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px;flex-wrap:wrap">
-    <div style="display:flex;align-items:center;flex-wrap:wrap;gap:8px">
-      <span style="font-size:20px;font-weight:800;color:#222;padding-left:10px;border-left:4px solid ${pcv}">${s}</span>
-      <span class="td-party-badge" style="background:${pcv}20;color:${pcv};border:1px solid ${pcv}50">${pp}</span>
-      <span style="font-size:11px;color:#999;font-weight:600">${cms.length} leader${cms.length!==1?'s':''} tracked · Apr–Jul 2026</span>
-    </div>
-    <button onclick="clearStateSel()" style="font-size:11px;font-weight:700;color:#E65100;background:#FFF3E0;border:1.5px solid #FFCC80;border-radius:8px;padding:6px 12px;cursor:pointer">✕ Show all leaders</button>
+  const tile=(v,l,cls)=>`<div class="sc-st${cls?' '+cls:''}"><b>${v}</b><span>${l}</span></div>`;
+  let h=`<div class="sc-sthead" style="--pc:${pcv}">
+    <div class="sc-sthead-l">${cm?scAv(cm.handle,cm.name,pcv,'lg'):''}<div><div class="sc-stname">${scEsc(s)}</div>
+      <div class="sc-stmeta">${scLogo(pp)}<span style="color:${pcv};font-weight:700">${scEsc(pp)}</span><span>· ${cms.length} leader${cms.length!==1?'s':''} tracked</span></div></div></div>
+    <button class="sc-clear" onclick="clearStateSel()">&#x2715; Show all leaders</button>
   </div>`;
-  h+=`<div style="display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:16px">
-    <div style="background:#fafafa;border:1px solid #eee;border-radius:10px;padding:10px 8px;text-align:center"><div style="font-size:16px;font-weight:800;color:#222">${fmt(tot.fo)}</div><div style="font-size:9px;color:#999;font-weight:700;text-transform:uppercase;margin-top:2px">Followers</div></div>
-    <div style="background:#fafafa;border:1px solid #eee;border-radius:10px;padding:10px 8px;text-align:center"><div style="font-size:16px;font-weight:800;color:#222">${tot.tw}</div><div style="font-size:9px;color:#999;font-weight:700;text-transform:uppercase;margin-top:2px">Tweets</div></div>
-    <div style="background:#fafafa;border:1px solid #eee;border-radius:10px;padding:10px 8px;text-align:center"><div style="font-size:16px;font-weight:800;color:#222">${fmt(tot.vw)}</div><div style="font-size:9px;color:#999;font-weight:700;text-transform:uppercase;margin-top:2px">Total Views</div></div>
-    <div style="background:#fafafa;border:1px solid #eee;border-radius:10px;padding:10px 8px;text-align:center"><div style="font-size:16px;font-weight:800;color:#222">${fmt(tot.lk)}</div><div style="font-size:9px;color:#999;font-weight:700;text-transform:uppercase;margin-top:2px">Likes</div></div>
-    <div style="background:#fafafa;border:1px solid #eee;border-radius:10px;padding:10px 8px;text-align:center"><div style="font-size:16px;font-weight:800;color:#2E7D32">${tot.pos}</div><div style="font-size:9px;color:#999;font-weight:700;text-transform:uppercase;margin-top:2px">Positive</div></div>
-    <div style="background:#fafafa;border:1px solid #eee;border-radius:10px;padding:10px 8px;text-align:center"><div style="font-size:16px;font-weight:800;color:#C62828">${tot.neg}</div><div style="font-size:9px;color:#999;font-weight:700;text-transform:uppercase;margin-top:2px">Negative</div></div>
-  </div>`;
+  h+=`<div class="sc-sttiles">${tile(fmt(tot.fo),'Followers')}${tile(tot.tw.toLocaleString('en-IN'),'Tweets')}${tile(fmt(tot.vw),'Total Views')}${tile(fmt(tot.lk),'Likes')}${tile(tot.pos,'Positive','pos')}${tile(tot.neg,'Negative','neg')}</div>`;
   const rows=[];if(cm)rows.push(cm);dys.forEach(x=>rows.push(x));cms.forEach(c=>{if(c!==cm&&dys.indexOf(c)<0)rows.push(c);});
-  h+=`<div style="font-size:12px;font-weight:800;color:#E65100;margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px">Chief Minister &amp; Deputy CM${dys.length>1?'s':''}</div>`;
-  h+=`<div class="data-table-wrap"><table class="data-table"><thead><tr><th>#</th><th>State</th><th>PC / AC Name</th><th>Party</th><th>Designation</th><th>Name / Handle</th><th class="num">Followers</th><th class="num">Followings</th><th class="num">Tweets</th><th class="num">Retweets</th><th class="num">Total Views</th><th class="num">Avg Views/Post</th><th class="num">Avg Likes/Post</th><th class="r">Action</th></tr></thead><tbody>`;
-  h+=rows.length?rows.map((c,i)=>rowHTMLState(c,i)).join(''):`<tr><td colspan="14" class="tbl-no-results">No CM/DyCM tracked for ${s}</td></tr>`;
-  h+=`</tbody></table></div>`;
-  box.innerHTML=h;box.style.display='block';
+  h+=`<div class="sc-stcap">Chief Minister &amp; Deputy CM${dys.length>1?'s':''}</div>`;
+  h+=`<div class="data-table-wrap"><table class="data-table"><thead><tr><th>#</th><th>Leader</th><th>State / Seat</th><th>Party</th><th>Designation</th><th class="num">Followers</th><th class="num">Following</th><th class="num">Tweets</th><th class="num">Retweets</th><th class="num">Total Views</th><th class="num">Avg Views/Post</th><th class="num">Avg Likes/Post</th><th class="r"></th></tr></thead><tbody>`;
+  h+=rows.length?rows.map((c,i)=>rowHTMLState(c,i)).join(''):`<tr><td colspan="13" class="tbl-no-results">No CM/DyCM tracked for ${s}</td></tr>`;
+  h+=`</tbody></table></div>`;  box.innerHTML=h;box.style.display='block';
 }
 function restoreMainTable(){
   const box=document.getElementById('stateAnalysisBox');if(box){box.style.display='none';box.innerHTML='';}
@@ -10521,7 +10592,7 @@ setTimeout(ovRefresh,80);
    Wo const doosre block me hai, isliye yahan kabhi mila hi nahi aur
    ginti neeche wale raaste se banti thi -- sirf un CM ki jinke tweet
    aaye the (50), mapping ke 52 nahi. Ab window.CM_DATA pehle. */
-var _CM=(window.CM_DATA||(typeof CM_DATA!=="undefined"?CM_DATA:null));if(Array.isArray(_CM)&&_CM.length){n=_CM.length;_CM.forEach(function(c){var L=c.level||"";if(L==="Chief Minister")cm++;else if(L==="Deputy Chief Minister"||L==="Dy CM")dy++;tw+=+c.tweets||0;vw+=+c.views||0;lk+=+c.likes||0;rt+=+c.rts||0;});ok=true;}else if(typeof UNI==="object"&&UNI&&Array.isArray(UNI.allHandles)){var hs=UNI.allHandles.filter(function(h){return h.level==="Chief Minister"||h.level==="Deputy Chief Minister"||h.level==="Dy CM";});n=hs.length;hs.forEach(function(h){if(h.level==="Chief Minister")cm++;else dy++;tw+=+h.tw||0;vw+=+h.vw||0;lk+=+h.lk||0;rt+=+h.rt||0;});ok=true;}if(!ok)return;var F=window.fmt||function(x){return x;};var S=function(id,v){var e=document.getElementById(id);if(e)e.textContent=v;};S("cmkCount",n);S("cmkSub",cm+" CMs \u00b7 "+dy+" Dy CMs");S("cmkTweets",tw.toLocaleString("en-IN"));S("cmkTwSub","Across "+n+" leaders");S("cmkLikes",F(lk));S("cmkRt",F(rt));S("cmkViews",F(vw));}window.hCM=hCM;if(document.readyState!=="loading")hCM();else document.addEventListener("DOMContentLoaded",hCM);setTimeout(hCM,500);})();</script>
+var _CM=(window.CM_DATA||(typeof CM_DATA!=="undefined"?CM_DATA:null));if(Array.isArray(_CM)&&_CM.length){n=_CM.length;_CM.forEach(function(c){var L=c.level||"";if(L==="Chief Minister")cm++;else if(L==="Deputy Chief Minister"||L==="Dy CM")dy++;tw+=+c.tweets||0;vw+=+c.views||0;lk+=+c.likes||0;rt+=+c.rts||0;});ok=true;}else if(typeof UNI==="object"&&UNI&&Array.isArray(UNI.allHandles)){var hs=UNI.allHandles.filter(function(h){return h.level==="Chief Minister"||h.level==="Deputy Chief Minister"||h.level==="Dy CM";});n=hs.length;hs.forEach(function(h){if(h.level==="Chief Minister")cm++;else dy++;tw+=+h.tw||0;vw+=+h.vw||0;lk+=+h.lk||0;rt+=+h.rt||0;});ok=true;}if(!ok)return;/* sc-v2 (04-Nov): window.fmt kahin bana hi nahi -- isliye Likes/RT/Views kachche (3075155) dikhte the. Ab apna L/Cr formatter. */var F=window.fmt||function(x){x=Math.round(+x||0);if(x>=1e7)return(x/1e7).toFixed(2)+" Cr";if(x>=1e5)return(x/1e5).toFixed(2)+" L";if(x>=1e3)return(x/1e3).toFixed(1)+"K";return x.toLocaleString("en-IN");};var S=function(id,v){var e=document.getElementById(id);if(e)e.textContent=v;};S("cmkCount",n);S("cmkSub",cm+" CMs \u00b7 "+dy+" Dy CMs");S("cmkTweets",tw.toLocaleString("en-IN"));S("cmkTwSub","Across "+n+" leaders");S("cmkLikes",F(lk));S("cmkRt",F(rt));S("cmkViews",F(vw));}window.hCM=hCM;if(document.readyState!=="loading")hCM();else document.addEventListener("DOMContentLoaded",hCM);setTimeout(hCM,500);})();</script>
 <script>(function(){
 function nd(s){var mo=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];var p=String(s).split('-');return p.length<3?s:mo[(+p[1]||1)-1]+' '+(+p[2]);}
 /* ====== exec-range : Executive Summary ab date filter maanta hai ======
