@@ -7,11 +7,11 @@
   "author": "Prime Minister's Office"
  },
  "NitinNabin": {
-  "file": "File:Nitin Nabin, National President of Bharatiya Janata Party meeting with the President of India, Droupadi Murmu at Rashtrapati Bhavan (2025).jpg",
-  "page": "https://commons.wikimedia.org/wiki/File:Nitin_Nabin,_National_President_of_Bharatiya_Janata_Party_meeting_with_the_President_of_India,_Droupadi_Murmu_at_Rashtrapati_Bhavan_(2025).jpg",
-  "license": "GODL-India",
-  "licenseUrl": "https://data.gov.in/sites/default/files/Gazette_Notification_OGDL.pdf",
-  "author": "President Secretariat (Rashtrapati Bhavan)"
+  "file": "(supplied photo)",
+  "page": "",
+  "license": "supplied photo",
+  "licenseUrl": "",
+  "author": "Political Pulse team"
  },
  "kharge": {
   "file": "File:The Lok Sabha Mallikarjun Kharge (cropped).jpg",
@@ -320,5 +320,12 @@
   "license": "CC BY-SA 4.0",
   "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
   "author": "Harvinder Chandigarh"
+ },
+ "BhagwantMann": {
+  "file": "File:Bhagwant Mann 2026.jpg",
+  "page": "https://commons.wikimedia.org/wiki/File:Bhagwant_Mann_2026.jpg",
+  "license": "GODL-India",
+  "licenseUrl": "https://data.gov.in/sites/default/files/Gazette_Notification_OGDL.pdf",
+  "author": "Press Information Bureau"
  }
 }
