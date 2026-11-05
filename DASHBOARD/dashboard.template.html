@@ -3583,13 +3583,13 @@ body.ui-capture #sec-dashboard .kpi{transform:none!important}
 .ui-hero:has(.ui-jump2) .ui-hero-map{bottom:62px}                 /* map rail ke upar hi rahe */
 /* ui-hero-figs (05-Nov): naksha chhupa (element rehta hai -- JS use bharta hai), uski jagah Modi + Nabin rail ke upar */
 .ui-hero:has(.ui-hero-figs) .ui-hero-map{display:none}
-.ui-hero-figs{position:absolute;right:40px;top:10px;bottom:0;width:340px;z-index:0;pointer-events:none;
+.ui-hero-figs{position:absolute;right:0;top:10px;bottom:0;width:360px;z-index:0;pointer-events:none;   /* right kinare tak -- Modi ka kata kandha hero ke kinare se milta hai */
   -webkit-mask-image:linear-gradient(to top,transparent 0,#000 12%);mask-image:linear-gradient(to top,transparent 0,#000 12%)}
 .ui-hero:has(.ui-jump2) .ui-hero-figs{bottom:47px}               /* section rail ke theek upar khade -- rail ke naam saaf padhe jaayein */
 .ui-hero:has(.ui-hero-figs) .ui-hero-body{min-height:152px;display:flex;flex-direction:column;justify-content:center}   /* photo ko jagah */
 .ui-hero-figs img{position:absolute;bottom:0;object-fit:contain;object-position:center bottom;filter:drop-shadow(0 8px 14px rgba(0,0,0,.55))}
-.ui-hero-figs .hf1{right:0;width:60%;height:100%}
-.ui-hero-figs .hf2{left:4%;width:46%;height:80%;filter:drop-shadow(0 8px 14px rgba(0,0,0,.55)) brightness(.96)}
+.ui-hero-figs .hf1{right:-1%;width:60%;height:100%;object-position:right bottom}
+.ui-hero-figs .hf2{left:8%;width:44%;height:80%;filter:drop-shadow(0 8px 14px rgba(0,0,0,.55)) brightness(.96)}
 @media(max-width:820px){.ui-hero-figs{display:none}}
 /* ui-hero-light (05-Nov): Dashboard hero -- default light (button se dark = purana brown, .is-dark) -- BJP party card jaisa: safed se saffron, brown->orange kinara */
 #sec-dashboard .ui-hero:not(.is-dark){color:#17120E;border:1.5px solid transparent;
