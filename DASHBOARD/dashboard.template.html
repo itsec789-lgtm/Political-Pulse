@@ -3736,7 +3736,33 @@ body.ui-capture #sec-dashboard .kpi{transform:none!important}
 .sc-st span{display:block;margin-top:3px;font:700 10px 'DM Sans',sans-serif;letter-spacing:1px;text-transform:uppercase;color:#8A7B6C}
 .sc-st.pos b{color:#15803D}.sc-st.neg b{color:#B91C1C}
 .sc-stcap{font:700 11px 'DM Sans',sans-serif;letter-spacing:1.2px;text-transform:uppercase;color:#7A6E63;margin:0 2px 8px}
+/* sc-v3 (04-Nov): hero brown nahi -- Parties wale BJP card jaisa: safed + saffron dhalan, gradient kinara; right me 4 CM */
+#sec-states-cm .sc-hero{color:#17120E;padding:22px 24px 20px;border:1.5px solid transparent;
+  background:linear-gradient(118deg,#fff 0%,#fff 40%,color-mix(in srgb,#F26A1B 22%,#fff) 100%) padding-box,
+             linear-gradient(110deg,#2B1407 0%,#5A2A0E 45%,#E8590C 100%) border-box;box-shadow:0 2px 12px -4px rgba(43,20,7,.3)}
+#sec-states-cm .sc-hero::before{background:radial-gradient(closest-side,rgba(242,106,27,.18),transparent);right:40px;top:-80px}
+#sec-states-cm .sc-hero-txt,#sec-states-cm .sc-kpis{position:relative;z-index:2;margin-right:min(400px,34%)}
+#sec-states-cm .sc-eyebrow{color:#C2410C}
+#sec-states-cm .sc-title{color:#17120E}
+#sec-states-cm .sc-title span{color:#E8590C}
+#sec-states-cm .sc-sub{color:#6E6156}
+#sec-states-cm .sc-k{background:rgba(255,255,255,.92)!important;border:1px solid #EADFD2!important;color:#17120E}
+#sec-states-cm .sc-k .kpi-lbl{color:#8A7B6C!important}
+#sec-states-cm .sc-k .kpi-val{color:#17120E!important;-webkit-text-fill-color:#17120E;font-size:22px}
+#sec-states-cm .sc-k .kpi-sub{color:#9A8B7B!important}
+#sec-states-cm .sc-figs{position:absolute;right:0;bottom:0;top:8px;width:min(400px,34%);z-index:1;pointer-events:none;
+  -webkit-mask-image:linear-gradient(to top,transparent 0,#000 14%);mask-image:linear-gradient(to top,transparent 0,#000 14%)}
+#sec-states-cm .sc-figs img{position:absolute;bottom:0;object-fit:contain;object-position:center bottom;filter:drop-shadow(0 10px 12px rgba(40,20,5,.2))}
+#sec-states-cm .sc-figs .f1{left:-2%;width:40%;height:74%}
+#sec-states-cm .sc-figs .f2{left:16%;width:40%;height:82%}
+#sec-states-cm .sc-figs .f3{right:-3%;width:42%;height:84%}
+#sec-states-cm .sc-figs .f4{left:34%;width:42%;height:96%;z-index:2}
 @media(max-width:1100px){#sec-states-cm .sc-kpis{grid-template-columns:repeat(3,minmax(0,1fr))}.sc-sttiles{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:820px){#sec-states-cm .sc-figs{display:none}#sec-states-cm .sc-hero-txt,#sec-states-cm .sc-kpis{margin-right:0}}
+/* state list: photo poora, ring nahi, patti nahi */
+#sec-states-cm .sc-bar{display:none}
+#sec-states-cm .sc-sli .sc-av{width:38px;height:38px;box-shadow:none;background:#F4EEE6}
+.sc-av{box-shadow:none}
 @media(max-width:900px){#sec-states-cm .main-wrapper{height:auto;grid-template-columns:1fr}#sec-states-cm .right-panel{max-height:520px}}
 @media(max-width:600px){#sec-states-cm .sc-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}#sec-states-cm .sc-title{font-size:23px}#sec-states-cm .sc-hero{padding:18px}.sc-sttiles{grid-template-columns:repeat(2,minmax(0,1fr))}}
 .leg-pn{font:700 9.5px 'DM Sans',sans-serif;letter-spacing:.2px;white-space:nowrap}
@@ -4960,6 +4986,13 @@ a.pe-btn:after{content:"";position:absolute;inset:0;z-index:1;background:linear-
       <h1 class="sc-title">Every state's government, <span>on X</span></h1>
       <p class="sc-sub">Chief Ministers &amp; Deputy CMs · Apr–Jul 2026</p>
     </div>
+    <!-- sc-v3 (04-Nov): char bade CM -- cut-out photos (Wikimedia Commons, GODL-India / CC BY-SA; credits.json) -->
+    <div class="sc-figs" aria-hidden="true">
+      <img class="f1" src="/assets/leaders/samrat4bjp.webp" alt="" title="Samrat Choudhary, Chief Minister, Bihar" loading="lazy" onerror="this.remove()">
+      <img class="f2" src="/assets/leaders/Dev_Fadnavis.webp" alt="" title="Devendra Fadnavis, Chief Minister, Maharashtra" loading="lazy" onerror="this.remove()">
+      <img class="f3" src="/assets/leaders/himantabiswa.webp" alt="" title="Himanta Biswa Sarma, Chief Minister, Assam" loading="lazy" onerror="this.remove()">
+      <img class="f4" src="/assets/leaders/myogiadityanath.webp" alt="" title="Yogi Adityanath, Chief Minister, Uttar Pradesh" loading="lazy" onerror="this.remove()">
+    </div>
     <div class="sc-kpis kpi-row">
       <div class="kpi sc-k"><div class="kpi-lbl">CM + Dy CM</div><div class="kpi-val" id="cmkCount">—</div><div class="kpi-sub" id="cmkSub">—</div></div>
       <div class="kpi sc-k"><div class="kpi-lbl">Total Tweets</div><div class="kpi-val" id="cmkTweets">—</div><div class="kpi-sub" id="cmkTwSub">—</div></div>
@@ -5049,7 +5082,7 @@ a.pe-btn:after{content:"";position:absolute;inset:0;z-index:1;background:linear-
       <thead>
         <tr>
           <th>#</th><th>Leader</th><th>State / Seat</th><th>Party</th><th>Designation</th>
-          <th class="num">Followers</th><th class="num">Following</th><th class="num">Tweets</th><th class="num">Retweets</th>
+          <th class="num">Followers</th><th class="num" title="Followers gained in the 7 days up to the To date">7-day gain</th><th class="num">Tweets</th><th class="num">Retweets</th>
           <th class="num">Total Views</th><th class="num">Avg Views/Post</th><th class="num">Avg Likes/Post</th><th class="r"></th>
         </tr>
       </thead>
@@ -8846,9 +8879,25 @@ function ini(n){
 }
 
 function renderTable(){
-  const sorted=[...CM_DATA].sort((a,b)=>b.views-a.views);
-  renderTableRows(sorted);
+  renderTableRows(scOrder(CM_DATA));
 }
+/* sc-v3 (04-Nov): kram -- sabse zyada views wala STATE upar; har state me pehle CM, phir Dy CM (views se) */
+function scOrder(data){
+  const tot={};data.forEach(c=>{tot[c.state]=(tot[c.state]||0)+(+c.views||0);});
+  const rk=c=>c.level==='Chief Minister'?0:1;
+  return [...data].sort((a,b)=>(tot[b.state]-tot[a.state])||String(a.state).localeCompare(String(b.state))||(rk(a)-rk(b))||((+b.views||0)-(+a.views||0)));
+}
+/* 7-day follower gain -- wahi /api/fol-gain jo Elected Representatives table me hai; "To" date tak ke 7 din */
+var _scFG={},_scFGw={},_scFGf={};
+function scGainTo(){var v=(document.getElementById('cmTo')||{}).value||'';if(v)return v;var D=window.PHD_DATES||[];return D[D.length-1]||'';}
+function scGainTd(h){var o=_scFG[scGainTo()],g=o&&o.g?(o.g[String(h||'').toLowerCase()]||null):null;
+  if(typeof _legGainCell==='function')return _legGainCell(g);
+  return '<td class="num leg-g0">—</td>';}
+function scGainLoad(){var to=scGainTo();if(!to||_scFG[to]||_scFGw[to]||!window.fetch)return;if(_scFGf[to]&&Date.now()-_scFGf[to]<60000)return;_scFGw[to]=1;
+  fetch('/api/fol-gain?to='+encodeURIComponent(to),{credentials:'same-origin',cache:'no-store'}).then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json();}).then(function(j){
+    if(!j||!j.ok||!j.g)throw new Error('no data');_scFG[to]=j;
+    if(scGainTo()===to){try{if(typeof selectedState!=='undefined'&&selectedState)renderStateTable(selectedState);else filterTable();}catch(e){}}
+  }).catch(function(){_scFGf[to]=Date.now();}).then(function(){delete _scFGw[to];});}
 
 /* sc-v2 (04-Nov): ek hi row-builder -- main table aur state table dono. Photo + naam, State/Seat, party logo,
    pad (text, pill nahi), numbers ek rang me. Hisaab wahi purana. */
@@ -8862,7 +8911,7 @@ function scRow(c,i){
     <td><div class="sc-party">${scLogo(c.party)}<span style="color:${cp}">${scEsc(c.party)}</span></div></td>
     <td>${scRole(c)}</td>
     <td class="num"><span class="sc-v">${fmt(c.followers)}</span></td>
-    <td class="num"><span class="sc-v sc-mut">${c.followings!=null?fmt(c.followings):'—'}</span></td>
+    ${scGainTd(c.handle)}
     <td class="num"><span class="sc-v">${(+c.tweets||0).toLocaleString('en-IN')}</span></td>
     <td class="num"><span class="sc-v">${fmt(c.rts)}</span></td>
     <td class="num"><span class="sc-v sc-strong">${fmt(c.views)}</span></td>
@@ -8875,6 +8924,7 @@ function renderTableRows(data){
   const body=document.getElementById('mainTableBody');
   if(!data.length){body.innerHTML=`<tr><td colspan="13" class="tbl-no-results">No results found</td></tr>`;return;}
   body.innerHTML=data.map(scRow).join('')+emptyNote(window._tblHidden||0,13);
+  scGainLoad();
 }
 window.cmPreset=function(){var DD=window.PHD_DATES||[];if(!DD.length){filterTable();return;}var v=(document.getElementById('cmPreset')||{}).value;if(v==='custom'){filterTable();return;}var _r=window.pRange(v)||{f:DD[0],t:DD[DD.length-1]};var f=_r.f,t=_r.t;var fe=document.getElementById('cmFrom'),te=document.getElementById('cmTo');if(fe)fe.value=f;if(te)te.value=t;filterTable();};
 window.cmReset=function(){var p=document.getElementById('cmPreset');if(p)p.value='all';try{selectedState=null;}catch(e){}try{partyFilter='ALL';}catch(e){}try{document.querySelectorAll('.state-path.selected').forEach(function(x){x.classList.remove('selected');});}catch(e){}try{restoreMainTable();}catch(e){}try{renderDefaultPanel();}catch(e){}window.cmPreset();};
@@ -8882,7 +8932,7 @@ function filterTable(){
   const q=(document.getElementById('tblSearch').value||'').toLowerCase();
   const party=document.getElementById('tblParty').value;
   const desig=document.getElementById('tblDesig').value;
-  var _cf=(document.getElementById('cmFrom')||{}).value||'';var _ct=(document.getElementById('cmTo')||{}).value||'';let data=CM_DATA.map(function(c){return (window._applyDate?window._applyDate(c,_cf,_ct):c);}).sort(function(a,b){var s=String(a.state||'').localeCompare(String(b.state||''));if(s!==0)return s;var la=a.level==='Chief Minister'?0:1,lb=b.level==='Chief Minister'?0:1;if(la!==lb)return la-lb;return b.views-a.views;});
+  var _cf=(document.getElementById('cmFrom')||{}).value||'';var _ct=(document.getElementById('cmTo')||{}).value||'';let data=scOrder(CM_DATA.map(function(c){return (window._applyDate?window._applyDate(c,_cf,_ct):c);}));
   if(q) data=data.filter(c=>c.name.toLowerCase().includes(q)||c.handle.toLowerCase().includes(q)||c.state.toLowerCase().includes(q));
   if(party) data=data.filter(c=>c.party===party);
   if(desig) data=data.filter(c=>c.level===desig);
@@ -8913,7 +8963,7 @@ function renderStateTable(s){
   h+=`<div class="sc-sttiles">${tile(fmt(tot.fo),'Followers')}${tile(tot.tw.toLocaleString('en-IN'),'Tweets')}${tile(fmt(tot.vw),'Total Views')}${tile(fmt(tot.lk),'Likes')}${tile(tot.pos,'Positive','pos')}${tile(tot.neg,'Negative','neg')}</div>`;
   const rows=[];if(cm)rows.push(cm);dys.forEach(x=>rows.push(x));cms.forEach(c=>{if(c!==cm&&dys.indexOf(c)<0)rows.push(c);});
   h+=`<div class="sc-stcap">Chief Minister &amp; Deputy CM${dys.length>1?'s':''}</div>`;
-  h+=`<div class="data-table-wrap"><table class="data-table"><thead><tr><th>#</th><th>Leader</th><th>State / Seat</th><th>Party</th><th>Designation</th><th class="num">Followers</th><th class="num">Following</th><th class="num">Tweets</th><th class="num">Retweets</th><th class="num">Total Views</th><th class="num">Avg Views/Post</th><th class="num">Avg Likes/Post</th><th class="r"></th></tr></thead><tbody>`;
+  h+=`<div class="data-table-wrap"><table class="data-table"><thead><tr><th>#</th><th>Leader</th><th>State / Seat</th><th>Party</th><th>Designation</th><th class="num">Followers</th><th class="num">7-day gain</th><th class="num">Tweets</th><th class="num">Retweets</th><th class="num">Total Views</th><th class="num">Avg Views/Post</th><th class="num">Avg Likes/Post</th><th class="r"></th></tr></thead><tbody>`;
   h+=rows.length?rows.map((c,i)=>rowHTMLState(c,i)).join(''):`<tr><td colspan="13" class="tbl-no-results">No CM/DyCM tracked for ${s}</td></tr>`;
   h+=`</tbody></table></div>`;  box.innerHTML=h;box.style.display='block';
 }
