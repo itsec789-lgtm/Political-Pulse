@@ -3588,8 +3588,9 @@ body.ui-capture #sec-dashboard .kpi{transform:none!important}
 .ui-hero:has(.ui-jump2) .ui-hero-figs{bottom:47px}               /* section rail ke theek upar khade -- rail ke naam saaf padhe jaayein */
 .ui-hero:has(.ui-hero-figs) .ui-hero-body{min-height:152px;display:flex;flex-direction:column;justify-content:center}   /* photo ko jagah */
 .ui-hero-figs img{position:absolute;bottom:0;object-fit:contain;object-position:center bottom;filter:drop-shadow(0 8px 14px rgba(0,0,0,.55))}
-.ui-hero-figs .hf1{right:-1%;width:60%;height:100%;object-position:right bottom}
-.ui-hero-figs .hf2{left:8%;width:44%;height:80%;filter:drop-shadow(0 8px 14px rgba(0,0,0,.55)) brightness(.96)}
+/* BJP party card jaisa: Nabin Modi ke kandhe ke peeche sata hua (gap nahi), dono chehre poore */
+.ui-hero-figs .hf1{right:-1%;width:62%;height:100%;object-position:right bottom}
+.ui-hero-figs .hf2{left:auto;right:44%;width:42%;height:80%;object-position:right bottom;filter:drop-shadow(0 8px 14px rgba(0,0,0,.55)) brightness(.96)}
 @media(max-width:820px){.ui-hero-figs{display:none}}
 /* ui-hero-light (05-Nov): Dashboard hero -- default light (button se dark = purana brown, .is-dark) -- BJP party card jaisa: safed se saffron, brown->orange kinara */
 #sec-dashboard .ui-hero:not(.is-dark){color:#17120E;border:1.5px solid transparent;
@@ -4733,8 +4734,9 @@ a.pe-btn:after{content:"";position:absolute;inset:0;z-index:1;background:linear-
     </button>
     <script>(function(){var h=document.getElementById('uiHero'),b=document.getElementById('uiHeroMode');if(!h||!b)return;
       function set(d){h.classList.toggle('is-dark',d);b.setAttribute('aria-pressed',d?'true':'false');b.title=d?'Light hero':'Dark hero';b.setAttribute('aria-label',d?'Switch hero to light':'Switch hero to dark');}
-      var d=true;try{d=localStorage.getItem('ipp_hero_dark')!=='0';}catch(e){}set(d);   /* default dark; light tabhi jab user ne chuna ho */
-      b.addEventListener('click',function(){d=!h.classList.contains('is-dark');set(d);try{localStorage.setItem('ipp_hero_dark',d?'1':'0');}catch(e){}});})();</script>    <div class="ui-hero-figs" aria-hidden="true">
+      set(true);   /* har reload par dark -- light sirf button dabane tak (yaad nahi rakhte) */
+      try{localStorage.removeItem('ipp_hero_dark');}catch(e){}   /* purani save ki hui choice saaf */
+      b.addEventListener('click',function(){set(!h.classList.contains('is-dark'));});})();</script>    <div class="ui-hero-figs" aria-hidden="true">
       <img class="hf2" src="/assets/leaders/NitinNabin.webp" alt="" title="Nitin Nabin, BJP National President" onerror="this.remove()">
       <img class="hf1" src="/assets/leaders/narendramodi.webp" alt="" title="Narendra Modi, Prime Minister" onerror="this.remove()">
     </div>
