@@ -3918,6 +3918,30 @@ body.ui-capture .ui-hero-mode{display:none!important}
 #sec-states-cm .ts-subtitle{font-size:12px;color:#8A7B6C}
 #sec-states-cm .ts-search,#sec-states-cm .ts-filter-sel{border:1px solid #E6DED3;border-radius:10px;background:#fff;padding:7px 12px}
 #sec-states-cm .data-table-wrap{border:1px solid #EFE7DD;border-radius:14px;background:#fff;box-shadow:none}
+/* 14-Nov: filter + list EK hi panel -- andar ka alag dibba nahi; filter upar tike rehte hain, sirf rows scroll (thead chipka) */
+#sec-states-cm .table-section{padding:0;overflow:hidden}
+#sec-states-cm .table-section-header{display:block;padding:20px 22px 14px;margin:0;border-bottom:1px solid #EFE7DD;background:#fff}
+#sec-states-cm .ts-search-bar{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:14px;width:100%}
+#sec-states-cm .sc-sbox{position:relative;flex:1 1 180px;min-width:170px;max-width:320px;display:block}
+#sec-states-cm .sc-sbox svg{position:absolute;left:12px;top:50%;width:15px;height:15px;transform:translateY(-50%);color:#A8998A;pointer-events:none}
+#sec-states-cm .ts-search-bar .ts-search,#sec-states-cm .ts-search-bar .ts-filter-sel{box-sizing:border-box;height:36px;border:1px solid #E6DED3;border-radius:10px;background-color:#fff;
+  font:500 12.5px 'DM Sans',sans-serif;color:#17120E;box-shadow:none;margin:0}
+#sec-states-cm .ts-search-bar .ts-search{width:100%;padding:0 12px 0 34px}
+#sec-states-cm .ts-search-bar .ts-search::placeholder{color:#A8998A}
+#sec-states-cm .ts-search-bar select.ts-filter-sel{padding:0 24px 0 11px;width:124px;min-width:0;flex:0 0 auto;text-overflow:ellipsis}
+#sec-states-cm .ts-search-bar #stateSel{width:140px}#sec-states-cm .ts-search-bar #tblDesig{width:138px}#sec-states-cm .ts-search-bar #tblParty{width:124px}
+#sec-states-cm .ts-search-bar .ts-search:focus,#sec-states-cm .ts-search-bar .ts-filter-sel:focus{border-color:#E8590C;outline:0;box-shadow:0 0 0 3px rgba(232,89,12,.12)}
+#sec-states-cm .ts-search-bar #cmFrom,#sec-states-cm .ts-search-bar #cmTo{display:none;width:138px;padding:0 10px}
+#sec-states-cm .ts-search-bar.is-custom #cmFrom,#sec-states-cm .ts-search-bar.is-custom #cmTo{display:inline-block}
+#sec-states-cm .ts-search-bar .pf-reset{margin-left:2px}
+#sec-states-cm .sc-scope{margin:12px 22px 0}
+#sec-states-cm .table-section .data-table-wrap{border:0;border-radius:0;max-height:max(380px,calc(100vh - 250px));max-height:max(380px,calc(100svh - 250px));overflow:auto;overscroll-behavior:auto}
+#sec-states-cm .table-section .table-scroll{max-height:none!important;overflow:visible!important}
+#sec-states-cm .data-table th:first-child,#sec-states-cm .data-table td:first-child{padding-left:22px}
+#sec-states-cm .data-table th:last-child,#sec-states-cm .data-table td:last-child{padding-right:22px}
+#sec-states-cm .data-table thead th{z-index:3;box-shadow:inset 0 -1px 0 #EDE6DC}
+@media(max-width:600px){#sec-states-cm .table-section{padding:0}#sec-states-cm .table-section-header{padding:16px 14px 12px}
+  #sec-states-cm .sc-sbox{max-width:none;flex-basis:100%}#sec-states-cm .ts-search-bar select.ts-filter-sel{flex:1 1 140px}#sec-states-cm .sc-scope{margin:10px 14px 0}}
 #sec-states-cm .data-table thead tr{background:#FBF8F4;border-bottom:1px solid #EDE6DC}
 #sec-states-cm .data-table th{position:sticky;top:0;background:#FBF8F4;z-index:1;color:#7A6E63;font-size:10px;letter-spacing:.7px;padding:11px 12px}
 #sec-states-cm .data-table td{padding:10px 12px;border-bottom:1px solid #F4EFE8}
@@ -5431,7 +5455,7 @@ a.pe-btn:after{content:"";position:absolute;inset:0;z-index:1;background:linear-
       <div class="ts-subtitle">State by state, CM first · Click a row to open the leader&rsquo;s profile</div>
     </div>
     <div class="ts-search-bar">
-      <input class="ts-search" id="tblSearch" type="text" placeholder="Search by name or handle&hellip;" oninput="filterTable()">
+      <label class="sc-sbox"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input class="ts-search" id="tblSearch" type="text" placeholder="Search name, handle or state&hellip;" oninput="filterTable()"></label>
       <select class="ts-filter-sel" id="tblParty" onchange="onTblParty()">
         <option value="">All Parties</option>
         <option value="BJP">BJP</option>
@@ -5446,9 +5470,9 @@ a.pe-btn:after{content:"";position:absolute;inset:0;z-index:1;background:linear-
         <option value="CPI(M)">CPI(M)</option>
       </select>
       <select class="ts-filter-sel" id="tblDesig" onchange="filterTable()">
-        <option value="">CM & DyCM</option>
+        <option value="">CM &amp; Dy CM</option>
         <option value="Chief Minister">Chief Minister</option>
-        <option value="Deputy Chief Minister">Deputy Chief Minister</option>
+        <option value="Deputy Chief Minister">Deputy CM</option>
       </select>
       <select class="ts-filter-sel" id="stateSel" onchange="onStateSel(this.value)">
         <option value="">All States</option>
@@ -5456,7 +5480,7 @@ a.pe-btn:after{content:"";position:absolute;inset:0;z-index:1;background:linear-
       <select class="ts-filter-sel" id="cmPreset" onchange="cmPreset()"><option value="today">Today (1 Jul)</option><option value="all" selected>Full Range</option><option value="3">Last 3d</option><option value="7">Last 7d</option><option value="14">Last 14d</option><option value="custom">Custom</option></select>
       <input type="date" class="ts-filter-sel" id="cmFrom" value="2026-04-01" min="2026-04-01" max="2026-07-01" onchange="var p=document.getElementById('cmPreset');if(p)p.value='custom';filterTable()">
       <input type="date" class="ts-filter-sel" id="cmTo" value="2026-07-01" min="2026-04-01" max="2026-07-01" onchange="var p=document.getElementById('cmPreset');if(p)p.value='custom';filterTable()">
-      <button class="ts-filter-sel" style="cursor:pointer;font-weight:700;color:#C2410C" onclick="cmReset()">↺ Reset</button>
+      <button type="button" class="pf-reset" onclick="cmReset()" title="Back to all states, all parties, CM &amp; Dy CM and Full Range"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg><span>Reset</span></button>
     </div>
   </div>
   <div id="scScope" class="sc-scope" hidden></div>
@@ -9357,8 +9381,15 @@ function renderTableRows(data){
   body.innerHTML=data.map(scRow).join('')+scMoreRow();
   scGainLoad();
 }
-window.cmPreset=function(){var DD=window.PHD_DATES||[];if(!DD.length){filterTable();return;}var v=(document.getElementById('cmPreset')||{}).value;if(v==='custom'){filterTable();return;}var _r=window.pRange(v)||{f:DD[0],t:DD[DD.length-1]};var f=_r.f,t=_r.t;var fe=document.getElementById('cmFrom'),te=document.getElementById('cmTo');if(fe)fe.value=f;if(te)te.value=t;filterTable();};
-window.cmReset=function(){var p=document.getElementById('cmPreset');if(p)p.value='all';try{selectedState=null;}catch(e){}try{partyFilter='ALL';}catch(e){}try{document.querySelectorAll('.state-path.selected').forEach(function(x){x.classList.remove('selected');});}catch(e){}try{restoreMainTable();}catch(e){}try{renderDefaultPanel();}catch(e){}window.cmPreset();};
+window.cmPreset=function(){var DD=window.PHD_DATES||[];var v=(document.getElementById('cmPreset')||{}).value;scCustomUI(v);if(!DD.length){filterTable();return;}if(v==='custom'){filterTable();return;}var _r=window.pRange(v)||{f:DD[0],t:DD[DD.length-1]};var f=_r.f,t=_r.t;var fe=document.getElementById('cmFrom'),te=document.getElementById('cmTo');if(fe)fe.value=f;if(te)te.value=t;filterTable();};
+/* 14-Nov: From/To date sirf 'Custom' chunne par dikhein (warna search ke saath faltu 2 date-box) */
+function scCustomUI(v){var b=document.querySelector('#sec-states-cm .ts-search-bar');if(b)b.classList.toggle('is-custom',v==='custom');}
+document.addEventListener('change',function(e){if(e.target&&(e.target.id==='cmFrom'||e.target.id==='cmTo'))scCustomUI('custom');});
+setTimeout(function(){scCustomUI((document.getElementById('cmPreset')||{}).value);},0);
+/* 14-Nov: Reset = sab default -- search khaali, All Parties, CM & Dy CM, All States, Full Range, map ka party 'All' */
+window.cmReset=function(){var p=document.getElementById('cmPreset');if(p)p.value='all';
+  try{var q=document.getElementById('tblSearch');if(q)q.value='';var d=document.getElementById('tblDesig');if(d)d.value='';var tp=document.getElementById('tblParty');if(tp)tp.value='';var ss=document.getElementById('stateSel');if(ss)ss.value='';rebuildPartyOptions('');rebuildStateOptions('');}catch(e){}
+  try{var ap=document.querySelector('#sec-states-cm .filter-bar .filter-pill');if(ap&&typeof filterParty==='function')filterParty('ALL',ap);}catch(e){}try{selectedState=null;}catch(e){}try{partyFilter='ALL';}catch(e){}try{document.querySelectorAll('.state-path.selected').forEach(function(x){x.classList.remove('selected');});}catch(e){}try{restoreMainTable();}catch(e){}try{renderDefaultPanel();}catch(e){}window.cmPreset();};
 function filterTable(){
   const q=(document.getElementById('tblSearch').value||'').toLowerCase();
   const party=document.getElementById('tblParty').value;
