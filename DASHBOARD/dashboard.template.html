@@ -3850,6 +3850,34 @@ body.ui-capture .ui-hero-mode{display:none!important}
 #sec-states-cm .sc-sp-go{flex:none;color:#C9BBAA;transition:transform .2s,color .2s}#sec-states-cm .sc-sp-go svg{width:16px;height:16px;display:block}
 #sec-states-cm .sc-sp-lead:hover .sc-sp-go,#sec-states-cm .sc-sp-lead:focus-visible .sc-sp-go{color:#C2410C;transform:translateX(3px)}
 #sec-states-cm .sc-sp-empty{margin:14px 6px;padding:14px;border-radius:12px;background:#FBF7F2;font-size:12.5px;color:#6E6156;line-height:1.5}
+/* 14-Nov: map card me alag safed panel nahi -- state list seedhe map ke background par; upar filter + title ruke rehte,
+   sirf rows scroll hoti hain (upar/neeche narm fade). Map bachi jagah me beech me. Phone par list map ke neeche. */
+#sec-states-cm .main-wrapper{display:block;position:relative;height:640px;overflow:hidden;
+  background:radial-gradient(70% 85% at 36% 45%,#FFFDF9 0%,#F6F1EA 100%)}
+#sec-states-cm .map-panel{position:absolute;inset:0;padding-right:392px;background:transparent;border-right:0;border-radius:18px;display:flex;flex-direction:column}
+#sec-states-cm .right-panel{position:absolute;top:0;right:0;bottom:0;width:384px;z-index:3;background:transparent;box-shadow:none;border:0;border-radius:0;
+  display:flex;flex-direction:column;overflow:hidden;padding:6px 14px 0 4px}
+#sec-states-cm .right-panel .filter-bar{background:transparent;border-bottom:0;padding:12px 8px 6px;gap:3px;flex-wrap:nowrap;flex:none}
+#sec-states-cm .right-panel .filter-pill{padding:5px 10px;background:rgba(23,18,14,.06)}
+#sec-states-cm .right-panel .filter-pill:hover{background:rgba(23,18,14,.1)}
+#sec-states-cm .right-panel .filter-pill.active{background:#E8590C;color:#fff}
+#sec-states-cm .right-panel .filter-bar>span{margin-right:2px}
+#sec-states-cm .right-panel .rp-header{position:static;background:transparent;border-bottom:0;padding:10px 10px 4px;flex:none}
+#sec-states-cm .right-panel .rp-content{flex:1;min-height:0;overflow:auto;padding:4px 4px 30px;
+  -webkit-mask-image:linear-gradient(to bottom,transparent 0,#000 16px,#000 calc(100% - 36px),transparent 100%);
+          mask-image:linear-gradient(to bottom,transparent 0,#000 16px,#000 calc(100% - 36px),transparent 100%);
+  scrollbar-width:thin;scrollbar-color:#DCCFC0 transparent}
+#sec-states-cm .sc-sli+.sc-sli{border-top:1px solid rgba(60,30,10,.07)}
+#sec-states-cm .sc-sli:hover,#sec-states-cm .sc-sli:focus-visible{background:rgba(255,255,255,.7);box-shadow:0 6px 16px -10px rgba(60,30,10,.35)}
+#sec-states-cm .sc-sp-stats{background:rgba(255,255,255,.55)}
+#sec-states-cm .sc-sp-lead+.sc-sp-lead{border-top:1px solid rgba(60,30,10,.07)}
+#sec-states-cm .sc-sp-lead:hover,#sec-states-cm .sc-sp-lead:focus-visible{background:rgba(255,255,255,.7)}
+#sec-states-cm .sc-back{background:rgba(23,18,14,.06)}
+@media(max-width:900px){
+  #sec-states-cm .main-wrapper{height:auto}
+  #sec-states-cm .map-panel{position:relative;inset:auto;padding-right:0;min-height:420px}
+  #sec-states-cm .right-panel{position:relative;inset:auto;width:auto;height:520px;padding:0 10px;border-top:1px solid rgba(60,30,10,.08)}
+}
 #sec-states-cm .sc-list-cap{font:600 10.5px 'DM Sans',sans-serif;letter-spacing:.3px;color:#9A8B7B;margin:2px 6px 6px}
 #sec-states-cm .sc-sli{position:relative;display:flex;align-items:center;gap:10px;padding:9px 8px 11px;border-radius:12px;cursor:pointer;transition:background .15s}
 #sec-states-cm .sc-sli:hover,#sec-states-cm .sc-sli:focus-visible{background:#FBF6F0;outline:0}
