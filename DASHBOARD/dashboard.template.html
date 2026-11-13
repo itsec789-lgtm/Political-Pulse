@@ -4476,6 +4476,19 @@ body .hp-menu .hp-sep{height:1px;background:#F1EAE1;margin:6px 4px}
 /* 14-Nov: "kab update hua" saamne (header pill + hero) se hata kar Admin menu ke upar wale hisse ke right corner me */
 header.ui-hdr #updPill{display:none!important}
 #sec-top-leaders{display:none!important}   /* 14-Nov: Top Leaders section band -- HTML rehta hai taaki scripts na tootein */
+/* 14-Nov: Parties ka filter -- Elected Representatives jaisa safed card (content ke saath ek line me); uppercase labels /
+   dividers nahi; tweets-handles ginti nahi; chhoti chaudai ke saaf inputs */
+#sec-parties .parties-filter-bar{box-sizing:border-box;width:calc(100% - 48px);max-width:1552px;margin:16px auto 0;padding:12px 14px;gap:8px;
+  background:#fff;border:1px solid #ECE4DA;border-radius:18px;box-shadow:0 1px 0 #ECE4DA,0 18px 40px -30px rgba(60,30,10,.45)}
+#sec-parties .parties-filter-bar>.filter-label,#sec-parties .parties-filter-bar>.filter-divider{display:none}
+#sec-parties .parties-filter-bar .filter-info{display:none!important}
+#sec-parties .parties-filter-bar .filter-select{min-width:0!important;height:34px;padding:0 28px 0 12px;border:1px solid #E6DED3;border-radius:10px;background-color:#fff;
+  font:500 12.5px 'DM Sans',sans-serif;color:#17120E;box-shadow:none}
+#sec-parties .parties-filter-bar .filter-select:focus{border-color:#E8590C;outline:0;box-shadow:0 0 0 3px rgba(232,89,12,.12)}
+#sec-parties #pfDate,#sec-parties #pfLevel,#sec-parties #pfParty{width:140px}#sec-parties #pfState{width:170px}
+#sec-parties #pfCustom .filter-select{width:140px;padding-right:10px}
+@media(max-width:600px){#sec-parties .parties-filter-bar{width:calc(100% - 20px);margin-top:10px;border-radius:16px;padding:10px}
+  #sec-parties #pfDate,#sec-parties #pfLevel,#sec-parties #pfState,#sec-parties #pfParty{flex:1 1 calc(50% - 8px);width:auto}}
 .ui-hero-sub #uiHeroUpd,.ui-hero-sub .ui-dot-sep{display:none}
 body .hp-menu .hp-head{position:relative}
 body .hp-menu .hp-head.has-upd{padding-top:30px}
@@ -15939,7 +15952,7 @@ W.__pfByParty = byParty; W.__pfMetrics = metrics; W.__pfCATS = CATS; W.__pfDAYS 
     /* sirf wahi control jinki apni id hai -- unhi ko wapas dhoondh sakte hain */
     return [].slice.call(D.querySelectorAll(
       'select[id], input[id][type="date"], input[id][type="search"], input[id][type="text"]'
-    )).filter(function (e) { return !e.closest('#sec-handle-req') && !/^(mla|cm)(Preset|From|To)$/.test(e.id); });   /* 14-Nov: Elected Representatives + States & CM hamesha Full Range se khulen */
+    )).filter(function (e) { return !e.closest('#sec-handle-req') && !/^((mla|cm)(Preset|From|To)|pf(Date|From|To|Level))$/.test(e.id); });   /* 14-Nov: Elected Representatives + States & CM + Parties hamesha Full Range (Parties: All Levels) se khulen */
     /* Handle-Request form chhod dete hain -- wo bhara hua form hai, usme
        purani value wapas daalna ulta pad sakta hai. */
   }
@@ -19343,7 +19356,7 @@ function toggleModalLeader(handle) {
    badalta. Kaam wahi purane handler karte hain (change event), koi nayi logic nahi. */
 (function () {
   if (window.__defaultToday) return; window.__defaultToday = 1;
-  var SKIP = { 'sec-dashboard': 1, 'sec-handle-analytics': 1, 'sec-reports': 1, 'sec-states-cm': 1, 'sec-mla-tracker': 1 };   /* 14-Nov: States & CM default Full Range */
+  var SKIP = { 'sec-dashboard': 1, 'sec-handle-analytics': 1, 'sec-reports': 1, 'sec-states-cm': 1, 'sec-mla-tracker': 1, 'sec-parties': 1 };   /* 14-Nov: States & CM default Full Range */
   var EXTRA = { pfDate: 1, ngFilterRange: 1, ngLaDateRange: 1 };
   var done = {};
   function lastDay() {
