@@ -8889,7 +8889,7 @@ function showTT(e,s){
 function hideTT(){document.getElementById('mapTooltip').style.display='none'}
 function selectState(s){
   document.querySelectorAll('.state-path').forEach(p=>p.classList.remove('selected'));
-  if(selectedState===s){selectedState=null;renderDefaultPanel();restoreMainTable();var _s0=document.getElementById('stateSel');if(_s0)_s0.value='';filterTable();return}
+  if(selectedState===s){selectedState=null;renderDefaultPanel();restoreMainTable();var _s0=document.getElementById('stateSel');if(_s0)_s0.value='';return}
   selectedState=s;
   const p=document.querySelector('[data-state="'+s.replace(/"/g,'\\"')+'"]');
   if(p)p.classList.add('selected');
@@ -8932,7 +8932,7 @@ function showStatePanel(s){
     viewsChart=new Chart(ctx2,{type:'bar',data:{labels:leaders.map(l=>l.name.length>22?l.name.slice(0,22)+'…':l.name),datasets:[{data:leaders.map(l=>l.views),backgroundColor:leaders.map(l=>pColor(l.party)+'55'),borderColor:leaders.map(l=>pColor(l.party)),borderWidth:2,borderRadius:6}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',layout:{padding:{right:55}},plugins:{legend:{display:false},datalabels:{display:true,anchor:'end',align:'end',color:'#444',font:{size:9,weight:'700'},formatter:v=>fmt(v),clamp:true}},scales:{x:{ticks:{color:'#888',font:{size:8},callback:v=>fmt(v)},grid:{color:'#f0f0f0'}},y:{ticks:{color:'#333',font:{size:10,weight:'600'}},grid:{display:false}}}}});
   }
 }
-function clearSel(){selectedState=null;document.querySelectorAll('.state-path').forEach(p=>p.classList.remove('selected'));renderDefaultPanel();var _s2=document.getElementById('stateSel');if(_s2)_s2.value='';try{filterTable();}catch(e){}}
+function clearSel(){selectedState=null;document.querySelectorAll('.state-path').forEach(p=>p.classList.remove('selected'));renderDefaultPanel()}
 /* sc-v2 (04-Nov): leader photo (X avatar, initials fallback) + party logo -- Legislators table jaisa */
 function scEsc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
 function scAv(h,name,col,cls){return '<span class="sc-av '+(cls||'')+'" style="--pc:'+col+'"><img src="/api/avatar/'+encodeURIComponent(h||'')+'" alt="" loading="lazy" onerror="window.legImgErr?legImgErr(this):(this.style.display=\'none\')"><i style="display:none">'+scEsc(ini(String(name||'').replace(/^(shri|smt|dr|km|kum|sri|thiru)\.?\s+/i,'')))+'</i></span>';}
@@ -9116,22 +9116,44 @@ function filterTable(){
   if(q) data=data.filter(c=>c.name.toLowerCase().includes(q)||c.handle.toLowerCase().includes(q)||c.state.toLowerCase().includes(q));
   if(party) data=data.filter(c=>c.party===party);
   if(desig) data=data.filter(c=>c.level===desig);
-  if(typeof selectedState!=='undefined'&&selectedState) data=data.filter(c=>c.state===selectedState);   /* state chuna ho to wahi normal table, sirf us state ki rows */
   var _ao=activeOnly(data);window._tblHidden=_ao.hidden;data=_ao.rows;
   renderTableRows(data);
+  if(typeof selectedState!=='undefined'&&selectedState){try{renderStateTable(selectedState);}catch(e){}}
 }
 
 
 function rowHTMLState(c,i){return scRow(c,i);}
-/* 13-Nov: state chunne par alag block (naam + 6 tiles) nahi -- wahi table us state tak filter (block bug jaisa lagta tha) */
-function renderStateTable(s){restoreMainTable();filterTable();}
+function renderStateTable(s){
+  const box=document.getElementById('stateAnalysisBox');if(!box)return;
+  const sec=document.querySelector('.table-section');
+  const wrap=sec.querySelector('.data-table-wrap');
+  if(wrap)wrap.style.display='none';
+  var _cf=(document.getElementById('cmFrom')||{}).value||'',_ct=(document.getElementById('cmTo')||{}).value||'';const cms=getCMs(s).map(function(c){return (window._applyDate?window._applyDate(c,_cf,_ct):c);}).sort((a,b)=>b.views-a.views);
+  if(!cms.length){box.style.display='';box.innerHTML=`<div style="padding:26px 16px;text-align:center;color:var(--muted);font-size:12px;line-height:1.6">No Chief Minister tracked for <strong>${s}</strong> — so no count is shown.</div>`;return;}
+  const cm=cms.find(c=>c.level==='Chief Minister');
+  const dys=cms.filter(c=>c.level==='Deputy Chief Minister');
+  const pp=getPP(s),pcv=pColor(pp);
+  const tot=cms.reduce((o,c)=>{o.tw+=c.tweets;o.vw+=c.views;o.lk+=c.likes;o.fo+=c.followers;o.pos+=c.pos||0;o.neg+=c.neg||0;o.neu+=c.neu||0;return o;},{tw:0,vw:0,lk:0,fo:0,pos:0,neg:0,neu:0});
+  const tile=(v,l,cls)=>`<div class="sc-st${cls?' '+cls:''}"><b>${v}</b><span>${l}</span></div>`;
+  let h=`<div class="sc-sthead" style="--pc:${pcv}">
+    <div class="sc-sthead-l">${cm?scAv(cm.handle,cm.name,pcv,'lg'):''}<div><div class="sc-stname">${scEsc(s)}</div>
+      <div class="sc-stmeta">${scLogo(pp)}<span style="color:${pcv};font-weight:700">${scEsc(pp)}</span><span>· ${cms.length} leader${cms.length!==1?'s':''} tracked</span></div></div></div>
+    <button class="sc-clear" onclick="clearStateSel()">&#x2715; Show all leaders</button>
+  </div>`;
+  h+=`<div class="sc-sttiles">${tile(fmt(tot.fo),'Followers')}${tile(tot.tw.toLocaleString('en-IN'),'Tweets')}${tile(fmt(tot.vw),'Total Views')}${tile(fmt(tot.lk),'Likes')}${tile(tot.pos,'Positive','pos')}${tile(tot.neg,'Negative','neg')}</div>`;
+  const rows=[];if(cm)rows.push(cm);dys.forEach(x=>rows.push(x));cms.forEach(c=>{if(c!==cm&&dys.indexOf(c)<0)rows.push(c);});
+  h+=`<div class="sc-stcap">Chief Minister &amp; Deputy CM${dys.length>1?'s':''}</div>`;
+  h+=`<div class="data-table-wrap"><table class="data-table"><thead><tr><th>#</th><th>Leader</th><th>State / Seat</th><th>Party</th><th>Designation</th><th class="num">Followers</th><th class="num">7-day gain</th><th class="num">Tweets</th><th class="num">Retweets</th><th class="num">Total Views</th><th class="num">Avg Views/Post</th><th class="num">Avg Likes/Post</th><th class="r"></th></tr></thead><tbody>`;
+  h+=rows.length?rows.map((c,i)=>rowHTMLState(c,i)).join(''):`<tr><td colspan="13" class="tbl-no-results">No CM/DyCM tracked for ${s}</td></tr>`;
+  h+=`</tbody></table></div>`;  box.innerHTML=h;box.style.display='block';
+}
 function restoreMainTable(){
   const box=document.getElementById('stateAnalysisBox');if(box){box.style.display='none';box.innerHTML='';}
   const sec=document.querySelector('.table-section');if(!sec)return;
   const hd=sec.querySelector('.table-section-header'),wrap=sec.querySelector('.data-table-wrap');
   if(hd)hd.style.display='';if(wrap)wrap.style.display='';
 }
-function clearStateSel(){ if(selectedState)selectState(selectedState); else {restoreMainTable();filterTable();} }
+function clearStateSel(){ if(selectedState)selectState(selectedState); else restoreMainTable(); }
 function onStateSel(v){ if(v){ if(selectedState!==v)selectState(v); } else { if(selectedState)selectState(selectedState); else restoreMainTable(); } rebuildPartyOptions(v); }
 var ALL_PARTIES=[...new Set(CM_DATA.filter(function(c){return c.level==='Chief Minister'||c.level==='Deputy Chief Minister';}).map(function(c){return c.party;}))].sort();
 var ALL_STATES=[...STATE_DATA].map(function(x){return x.state;}).sort();
