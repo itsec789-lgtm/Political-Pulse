@@ -1088,6 +1088,60 @@ function mapGate(map, scope) {
       });
     }
 
+    /* ---- leg-tier (02-Nov): Legislators table ka "pad ke hisaab se" kram ----
+       Default kram ab Total Views nahi, PAD hai: PM, phir Leader of Opposition,
+       Union Cabinet, Lok Sabha Speaker, CM, party adhyaksh, Union MoS, Dy CM,
+       rajya mantri, Speaker, party padadhikari, phir LS MP / RS MP / MLA / MLC.
+       Ek tier ke andar followers se (client par). Sab mapping se aata hai
+       (admin_group / admin_designation / party_designation / levels).
+       Leader of Opposition mapping me kahin likha nahi hai -- isliye ye chhoti
+       si list yahin hai; pad badle to sirf ise badlo. */
+    var LOP = { rahulgandhi: 'Leader of Opposition (Lok Sabha)', kharge: 'Leader of Opposition (Rajya Sabha)' };
+    function _tier(rec, low) {
+      var ag = _real(rec.admin_group), ad = _real(rec.admin_designation), pd = _real(rec.party_designation);
+      var lv = [].concat(rec.levels || [], rec.designations || []).join('|');
+      var mp = /LS[ _]MP|RS[ _]MP/i.test(lv);
+      if (/prime minister/i.test(ag)) return 0;
+      if (LOP[low]) return 1;
+      if (mp && /cabinet minister|union minister|other minister/i.test(ag)) return 2;
+      if (/speaker/i.test(ag) && /lok ?sabha/i.test(ad) && !/panel/i.test(ad)) return 3;
+      if (/^chief minister$/i.test(ag)) return 4;
+      if (/^(national )?president$|^party head$|^founder[- ]president$/i.test(pd)) return 5;   /* party chief (Kejriwal = "PARTY HEAD") */
+      if (mp && /minister of state/i.test(ag)) return 6;
+      if (/deputy chief minister/i.test(ag)) return 7;
+      if (/minister/i.test(ag)) return 8;
+      if (/speaker/i.test(ag)) return 9;
+      if (/national|working president|state president|polit ?bureau|general secretary/i.test(pd)) return 10;
+      if (/LS[ _]MP/i.test(lv)) return 11;
+      if (/RS[ _]MP/i.test(lv)) return 12;
+      if (/contest/i.test(lv)) return 15;
+      if (/\bMLA\b|\bCM\b/i.test(lv)) return 13;
+      if (/MLC/i.test(lv)) return 14;
+      return 15;
+    }
+    var _tierBy = Object.create(null);
+    Object.keys(_mm).forEach(function (k) {
+      var low = String(k).toLowerCase(), t = _tier(_mm[k] || {}, low);
+      if (_tierBy[low] === undefined || t < _tierBy[low]) _tierBy[low] = t;
+    });
+    if (map.UNI && Array.isArray(map.UNI.allHandles)) map.UNI.allHandles.forEach(function (r) {
+      var low = String((r && r.h) || '').trim().replace(/^@/, '').toLowerCase();
+      if (low && _tierBy[low] !== undefined) r.tier = _tierBy[low];
+    });
+    /* LoP ka chip bhi sahi pad dikhaye (mapping me sirf "Leader" likha hai) */
+    /* HROLE ki key kisi bhi spelling me ho sakti hai (RahulGandhi / rahulgandhi) -- har milti key par lagao,
+       aur page jis spelling se poochta hai (allHandles ka h) wo bhi. Pehle sirf mapping ki key par lagta tha. */
+    if (map.HROLE && typeof map.HROLE === 'object') {
+      var _lopKeys = Object.keys(map.HROLE).concat(Object.keys(_mm));
+      try { (map.UNI.allHandles || []).forEach(function (r) { if (r && r.h) _lopKeys.push(String(r.h)); }); } catch (e) {}
+      _lopKeys.forEach(function (k) {
+        var low = String(k).replace(/^@/, '').toLowerCase(); if (!LOP[low]) return;
+        var was = map.HROLE[k], rest = String((Array.isArray(was) && was[0]) || '').split(' / ').filter(function (x) { return x && !/^(leader|president)$/i.test(x) && x.indexOf('Leader of Opposition') < 0; });
+        if (!rest.length) rest = [low === 'kharge' ? 'RS MP' : 'LS MP'];
+        map.HROLE[k] = [[LOP[low]].concat(rest).join(' / '), 1];
+      });
+    }
+
     /* ---- CM & Dy CM ka tab poori tarah MAPPING se ----
        Ye list pipeline banati hai, isliye usme wahi aate the jinke tweet
        mile. Mapping me 31 CM hain par @cm_nrangaswamy ka ek bhi tweet nahi
@@ -5691,6 +5745,78 @@ async function haLatestDay() {
   } catch (e) { return _haLatest.v; }
   finally { try { await cli.close(); } catch (e) {} }
 }
+
+/* ---- fol-gain (02-Nov): Legislators table -- pichhle 7 din me followers kitne badhe ----
+   Har tweet row me scrape ke waqt ka Followers count hota hai. Har handle ke liye:
+     ab   = dekhe gaye din (to) tak, base ke BAAD ka sabse naya din ka (max) count
+     base = (to - 7 din) ya usse pehle ka sabse naya din ka count  (to-14 tak dekhte hain)
+   gain = ab - base. Dono na milein to us handle ka number nahi bhejte ("—").
+   to us din se aage ho jahan tak data hai, to aakhri data wala din (haLatestDay). */
+/* live-safe: ek din ka hisaab ek hi baar chalta hai -- 20 log ek saath khole to bhi Mongo par ek hi query
+   (in-flight promise share), 10 min cache, sirf aakhri 8 din ke cache rakhte hain. Galti par cache NAHI
+   hota (agli request phir koshish karegi), aur jawab hamesha JSON hota hai -- page kabhi nahi toot-ta. */
+var _fgCache = Object.create(null), _fgBusy = Object.create(null);
+async function _fgCompute(to) {
+  var D = function (s, n) { return new Date(Date.parse(s + 'T00:00:00Z') + n * 86400000).toISOString().slice(0, 10); };
+  /* sparse-fix (02-Nov): jo kam tweet karte hain (Kharge: 20 Aug, phir 4 Sep) unka 7 din pehle ka reading
+     nahi milta tha -> "—". Ab 30 din peeche tak dekhte hain aur theek (to - 7) din ka count do readings
+     ke beech seedhi line se nikalte hain. Readings 7 din se zyada door hon to "estimate" (e = 1). */
+  var base = D(to, -7), from = D(to, -30), rows;
+  var cli = MP.client();
+  try {
+    await cli.connect();
+    rows = await cli.db(MASTER_DB).collection(MASTER_COLL).aggregate([
+      { $match: { 'Tweet Date': { $gte: from, $lte: to + '~' }, Followers: { $gt: 0 } } },
+      { $group: { _id: { h: { $toLower: '$Handle' }, d: { $substrBytes: ['$Tweet Date', 0, 10] } }, f: { $max: '$Followers' } } }
+    ], { maxTimeMS: 60000, allowDiskUse: true }).toArray();
+  } finally { try { await cli.close(); } catch (e) {} }
+  var by = Object.create(null);
+  rows.forEach(function (r) {
+    var h = r._id && r._id.h, d = r._id && r._id.d, f = +r.f || 0;
+    if (!h || !(f > 0) || !/^\d{4}-\d{2}-\d{2}$/.test(String(d))) return;
+    (by[h] || (by[h] = [])).push([d, f]);
+  });
+  var day = function (s) { return Date.parse(s + 'T00:00:00Z') / 86400000; }, B = day(base);
+  var g = {};
+  Object.keys(by).forEach(function (h) {
+    var a = by[h].sort(function (x, y) { return x[0] < y[0] ? -1 : x[0] > y[0] ? 1 : 0; });
+    var now = a[a.length - 1];
+    if (now[0] <= base) return;                                     /* pichhle 7 din me koi reading nahi */
+    var prev = null, next = null;
+    for (var i = 0; i < a.length; i++) { if (a[i][0] <= base) prev = a[i]; else { next = a[i]; break; } }
+    if (!prev) return;                                              /* 30 din me pehle ka koi reading nahi */
+    /* (to - 7) din ka count: prev aur next ke beech seedhi line */
+    var span = day(next[0]) - day(prev[0]), bv = prev[1] + (next[1] - prev[1]) * ((B - day(prev[0])) / (span || 1));
+    bv = Math.round(bv);
+    g[h] = [now[1] - bv, base, now[0], bv, now[1], span > 7 ? 1 : 0, prev[0], next[0]];
+  });
+  return { ok: true, to: to, base: base, g: g };
+}
+app.get('/api/fol-gain', dashGuard, async function (req, res) {
+  res.set('Cache-Control', 'no-store');
+  try {
+    var want = String(req.query.to || '').slice(0, 10), latest = '';
+    try { latest = await haLatestDay(); } catch (e) {}
+    var to = /^\d{4}-\d{2}-\d{2}$/.test(want) ? want : latest;
+    if (latest && to > latest) to = latest;
+    if (!to) return res.json({ ok: false, g: {}, error: 'no data day' });
+    var hit = _fgCache[to];
+    if (!(hit && Date.now() - hit.at < 600000)) {
+      if (!_fgBusy[to]) _fgBusy[to] = _fgCompute(to).then(function (v) {
+        _fgCache[to] = { at: Date.now(), v: v };
+        var ks = Object.keys(_fgCache).sort();                       /* purane din hatao */
+        while (ks.length > 8) delete _fgCache[ks.shift()];
+        return v;
+      }).finally(function () { delete _fgBusy[to]; });
+      await _fgBusy[to];
+      hit = _fgCache[to];
+    }
+    res.json(Object.assign({}, hit.v, { asked: want }));
+  } catch (e) {
+    console.warn('[fol-gain]', e && e.message);
+    res.status(200).json({ ok: false, g: {}, error: 'follower gain is not available right now' });
+  }
+});
 
 /* ---- 4. latest tweets (page by page) ---- */
 app.get('/api/ha/tweets', dashGuard, async function (req, res) {
