@@ -3764,8 +3764,23 @@ body.ui-capture .ui-hero-mode{display:none!important}
 .sc-role small{font-size:10.5px;color:#9A8B7B}
 .sc-v{font:600 12px 'DM Sans',sans-serif;color:#2A221C;font-variant-numeric:tabular-nums}
 .sc-v.sc-strong{font-weight:700;color:#17120E}.sc-v.sc-mut{color:#8A7B6C;font-weight:500}
-.sc-pf{border:0;background:rgba(23,18,14,.05);color:#17120E;border-radius:999px;padding:6px 12px;font:600 11px 'DM Sans',sans-serif;cursor:pointer;white-space:nowrap;transition:background .15s}
-.sc-pf span{color:#E8590C}.sc-pf:hover{background:#17120E;color:#fff}
+/* sc-tbl v2 (05-Nov): profile button -- saaf outline pill; hover par saffron */
+.sc-pf{display:inline-flex;align-items:center;gap:6px;border:1px solid #E6DED3;background:#fff;color:#17120E;border-radius:999px;padding:7px 13px 7px 14px;
+  font:600 11.5px 'DM Sans',sans-serif;cursor:pointer;white-space:nowrap;transition:background .15s,border-color .15s,color .15s,box-shadow .15s}
+.sc-pf span{display:inline-grid;place-items:center;width:16px;height:16px;border-radius:50%;background:#FFF1E6;color:#E8590C;font-size:11px;line-height:1;transition:background .15s,color .15s,transform .15s}
+.sc-pf:hover{background:#E8590C;border-color:#E8590C;color:#fff;box-shadow:0 6px 14px -8px rgba(232,89,12,.7)}
+.sc-pf:hover span{background:#fff;color:#E8590C;transform:translateX(2px)}
+.sc-pf:focus-visible{outline:2px solid rgba(232,89,12,.55);outline-offset:2px}
+/* badi photo (CM / Dy CM) */
+#sec-states-cm .data-table .sc-av.md{width:46px;height:46px}
+#sec-states-cm .data-table .sc-who{gap:12px}
+/* header: chhote uppercase + bej patti hata kar saaf sentence-case, safed, patli line */
+#sec-states-cm .data-table thead tr{background:#fff;border-bottom:1px solid #EDE6DC}
+#sec-states-cm .data-table th{background:#fff;text-transform:none;letter-spacing:.1px;font:600 12px 'DM Sans',sans-serif;color:#6E6156;padding:13px 12px 12px;border-bottom:1px solid #EDE6DC}
+#sec-states-cm .data-table th.num{color:#6E6156}
+#sec-states-cm .cf-bar{margin:0 0 10px;padding:0 2px}
+#sec-states-cm .cf-count{font:500 12px 'DM Sans',sans-serif;color:#8A7B6C}
+#sec-states-cm .cf-count b{font:700 12px 'DM Sans',sans-serif;color:#17120E}
 /* state analysis (row / state click) */
 .sc-sthead{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:4px 0 14px}
 .sc-sthead-l{display:flex;align-items:center;gap:12px}
@@ -3805,13 +3820,15 @@ body.ui-capture .ui-hero-mode{display:none!important}
   /* narm fade: chehra poora rahe, kandhe dheere-dheere ghulein (ek dum kinara nahi) */
   -webkit-mask-image:radial-gradient(ellipse 54% 82% at 50% 30%,#000 52%,rgba(0,0,0,.82) 66%,rgba(0,0,0,.45) 82%,rgba(0,0,0,.14) 93%,transparent 100%);
   mask-image:radial-gradient(ellipse 54% 82% at 50% 30%,#000 52%,rgba(0,0,0,.82) 66%,rgba(0,0,0,.45) 82%,rgba(0,0,0,.14) 93%,transparent 100%)}
-#sec-states-cm .sc-figs .f1{left:-6%;width:36%;height:90%;z-index:1}     /* Samrat */
-#sec-states-cm .sc-figs .f2{left:17%;width:31%;height:94%;z-index:2}     /* Fadnavis */
-#sec-states-cm .sc-figs .f3{left:41%;width:31%;height:92%;z-index:3}     /* Himanta */
-#sec-states-cm .sc-figs .f4{left:61%;width:34%;height:100%;z-index:4;    /* Yogi -- right side, sabse aage (photo patli hai -- oval bhi patla, warna kinara seedha dikhta) */
-  -webkit-mask-image:radial-gradient(ellipse 40% 82% at 50% 30%,#000 52%,rgba(0,0,0,.82) 66%,rgba(0,0,0,.45) 82%,rgba(0,0,0,.14) 93%,transparent 100%);
-  mask-image:radial-gradient(ellipse 40% 82% at 50% 30%,#000 52%,rgba(0,0,0,.82) 66%,rgba(0,0,0,.45) 82%,rgba(0,0,0,.14) 93%,transparent 100%)}
-@media(max-width:1100px){#sec-states-cm .sc-kpis{grid-template-columns:repeat(3,minmax(0,1fr))}.sc-sttiles{grid-template-columns:repeat(3,minmax(0,1fr))}}
+/* group right kinare tak; Samrat ke kandhe photo me hi poore -- sirf neeche fade. Yogi Himanta ke kandhe ke upar, side fade nahi */
+#sec-states-cm .sc-figs .f1{left:7%;width:36%;height:90%;z-index:1;     /* Samrat */
+  -webkit-mask-image:linear-gradient(to top,transparent 0,#000 24%);mask-image:linear-gradient(to top,transparent 0,#000 24%)}
+#sec-states-cm .sc-figs .f2{left:31%;width:31%;height:94%;z-index:2}     /* Fadnavis */
+#sec-states-cm .sc-figs .f3{left:54%;width:31%;height:92%;z-index:3;     /* Himanta -- right side fade nahi; wo kandha Yogi ke peeche (beech me gap nahi) */
+  -webkit-mask-image:linear-gradient(to top,transparent 0,#000 22%),linear-gradient(to right,transparent 6%,#000 22%);-webkit-mask-composite:source-in;
+  mask-image:linear-gradient(to top,transparent 0,#000 22%),linear-gradient(to right,transparent 6%,#000 22%);mask-composite:intersect}   /* neeche fade + left kinara Fadnavis par ghule; right Yogi ke peeche */
+#sec-states-cm .sc-figs .f4{left:auto;right:-1%;width:30%;height:100%;z-index:4;object-position:right bottom;   /* Yogi -- kandha Himanta ke upar */
+  -webkit-mask-image:linear-gradient(to top,transparent 0,#000 22%);mask-image:linear-gradient(to top,transparent 0,#000 22%)}@media(max-width:1100px){#sec-states-cm .sc-kpis{grid-template-columns:repeat(3,minmax(0,1fr))}.sc-sttiles{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:820px){#sec-states-cm .sc-figs{display:none}#sec-states-cm .sc-hero-txt,#sec-states-cm .sc-kpis{margin-right:0}}
 /* state list: photo poora, ring nahi, patti nahi */
 #sec-states-cm .sc-bar{display:none}
@@ -8958,7 +8975,7 @@ function scOrder(data){
 var _scFG={},_scFGw={},_scFGf={};
 function scGainTo(){var v=(document.getElementById('cmTo')||{}).value||'';if(v)return v;var D=window.PHD_DATES||[];return D[D.length-1]||'';}
 function scGainTd(h){var o=_scFG[scGainTo()],g=o&&o.g?(o.g[String(h||'').toLowerCase()]||null):null;
-  if(typeof _legGainCell==='function')return _legGainCell(g);
+  if(typeof window._legGainCell==='function')return window._legGainCell(g);
   return '<td class="num leg-g0">—</td>';}
 function scGainLoad(){var to=scGainTo();if(!to||_scFG[to]||_scFGw[to]||!window.fetch)return;if(_scFGf[to]&&Date.now()-_scFGf[to]<60000)return;_scFGw[to]=1;
   fetch('/api/fol-gain?to='+encodeURIComponent(to),{credentials:'same-origin',cache:'no-store'}).then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json();}).then(function(j){
@@ -8984,7 +9001,7 @@ function scRow(c,i){
     <td class="num"><span class="sc-v sc-strong">${fmt(c.views)}</span></td>
     <td class="num"><span class="sc-v">${fmt(avgViews)}</span></td>
     <td class="num"><span class="sc-v">${fmt(avgLikes)}</span></td>
-    <td class="r"><button class="sc-pf" onclick="event.stopPropagation();openProfile('${c.handle}')">Profile <span>&rarr;</span></button></td>
+    <td class="r"><button class="sc-pf" onclick="event.stopPropagation();openProfile('${c.handle}')">View profile <span>&rsaquo;</span></button></td>
   </tr>`;
 }
 function renderTableRows(data){
@@ -9381,6 +9398,7 @@ function _legDesig(h){
   if(!post.length&&house.length)post.push(house.shift());
   var cont=/contest/i.test(raw);
   return '<div class="leg-role'+(cont?' leg-cont':'')+'"><b>'+esc(post.join(' · ')||'—')+'</b>'+(house.length?'<small>'+esc(house.join(' · '))+'</small>':'')+'</div>';}
+try{window._legGainCell=_legGainCell;}catch(e){}   /* States & CM table bhi isi se 7-day gain banata hai (ye IIFE ke andar hai) */
 function mlaRow(h,i){
   const av=h.tw>0?Math.round(h.vw/h.tw):0,al=h.tw>0?Math.round(h.lk/h.tw):0;
   var P=String(h.party||'').trim(),PU=P.toUpperCase(),col=pc(P),noLogo=!P||/^(IND|-|OTHERS|UNKNOWN|NONE|NOMINATED)$/.test(PU);
