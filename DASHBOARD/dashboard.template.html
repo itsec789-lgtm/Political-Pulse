@@ -1000,16 +1000,33 @@ svg#indiaMap{width:100%;height:100%;max-width:100%;max-height:100%;display:block
 .pfx-nm{margin:0;font:700 31px/1.05 'Rajdhani',sans-serif;color:#17120E;letter-spacing:-.2px}
 .pfx-meta{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin-top:7px;font-size:13px;color:#6E6156}
 .pfx-meta i{width:3px;height:3px;border-radius:50%;background:#CDBFAE}.pfx-meta b{color:#17120E;font-weight:700}
-.pfx-tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
-.pfx-party,.pfx-seat{display:inline-flex;align-items:center;gap:7px;height:28px;padding:0 11px 0 6px;border-radius:999px;background:#fff;border:1px solid #EADFD2;
-  font:600 12px 'DM Sans',sans-serif;color:#17120E}
-.pfx-seat{padding-left:9px;color:#5A4D42}
-.pfx-party img{width:20px;height:20px;object-fit:contain}.pfx-party i{width:10px;height:10px;border-radius:50%;margin-left:4px}
-.pfx-seat svg{width:13px;height:13px;color:#C2410C}
-.pfx-go{display:inline-flex;align-items:center;gap:8px;margin-top:14px;height:36px;padding:0 14px;border-radius:999px;border:0;cursor:pointer;
-  background:#17120E;color:#fff;font:600 12.5px 'DM Sans',sans-serif;box-shadow:0 8px 18px -10px rgba(23,18,14,.8);transition:background .15s,transform .15s}
-.pfx-go svg{width:14px;height:14px;color:#FFB27A}.pfx-go span{font-size:17px;line-height:1;transition:transform .15s}
-.pfx-go:hover{background:#E8590C}.pfx-go:hover svg{color:#fff}.pfx-go:hover span{transform:translateX(3px)}
+/* 14-Nov: pill nahi -- party aur seat ek saaf line me; "View analysis" ek text link (CM table ke "Tap to view" jaisa) */
+.pfx-tags{display:flex;align-items:center;flex-wrap:wrap;gap:6px 10px;margin-top:12px;font:500 13px 'DM Sans',sans-serif;color:#5A4D42}
+.pfx-party,.pfx-seat{display:inline-flex;align-items:center;gap:7px}
+.pfx-party{font-weight:700;color:#17120E}
+.pfx-party img{width:22px;height:22px;object-fit:contain}.pfx-party i{width:10px;height:10px;border-radius:50%}
+.pfx-seat svg{width:14px;height:14px;color:#C2410C}
+.pfx-dot{width:4px;height:4px;border-radius:50%;background:#D9CBBB}
+/* 14-Nov: "View analysis" -- pill nahi: icon tile + do line (kya milega) + teer. Hover par tile saffron, bars ek-ek karke badhte, line bharti, teer aage */
+.pfx-go{display:inline-flex;align-items:center;gap:11px;margin-top:16px;padding:2px 4px 2px 0;border:0;background:none;cursor:pointer;text-align:left;border-radius:12px}
+.pfx-go-ic{flex:none;width:38px;height:38px;border-radius:12px;display:grid;place-items:center;color:#C2410C;
+  background:linear-gradient(140deg,#FFEBDC,#FFD6B8);box-shadow:inset 0 0 0 1px rgba(232,89,12,.18);transition:background .25s,color .25s,box-shadow .25s}
+.pfx-go-ic svg{width:18px;height:18px}
+.pfx-go-ic rect{transform-box:fill-box;transform-origin:50% 100%}
+.pfx-go-tx{display:flex;flex-direction:column;line-height:1.2}
+.pfx-go-t{align-self:flex-start;font:700 13.5px 'DM Sans',sans-serif;color:#17120E;padding-bottom:1px;
+  background:linear-gradient(#E8590C,#E8590C) left bottom/0 1.5px no-repeat;transition:background-size .3s cubic-bezier(.2,.8,.2,1)}
+.pfx-go-tx small{margin-top:3px;font:500 11.5px 'DM Sans',sans-serif;color:#8A7B6C}
+.pfx-go .pfx-go-ar{width:16px;height:16px;flex:none;color:#C2410C;transition:transform .3s cubic-bezier(.2,.8,.2,1)}
+.pfx-go:hover .pfx-go-ic,.pfx-go:focus-visible .pfx-go-ic{background:#E8590C;color:#fff;box-shadow:0 8px 16px -8px rgba(232,89,12,.8)}
+.pfx-go:hover .pfx-go-ic rect,.pfx-go:focus-visible .pfx-go-ic rect{animation:pfxBar .5s cubic-bezier(.2,.8,.2,1) both}
+.pfx-go:hover .pfx-go-ic rect:nth-child(2),.pfx-go:focus-visible .pfx-go-ic rect:nth-child(2){animation-delay:.07s}
+.pfx-go:hover .pfx-go-ic rect:nth-child(3),.pfx-go:focus-visible .pfx-go-ic rect:nth-child(3){animation-delay:.14s}
+@keyframes pfxBar{from{transform:scaleY(.25)}to{transform:scaleY(1)}}
+.pfx-go:hover .pfx-go-t,.pfx-go:focus-visible .pfx-go-t{background-size:100% 1.5px}
+.pfx-go:hover .pfx-go-ar,.pfx-go:focus-visible .pfx-go-ar{transform:translateX(4px)}
+.pfx-go:active .pfx-go-ic{transform:scale(.96)}
+@media (prefers-reduced-motion:reduce){.pfx-go-t,.pfx-go .pfx-go-ar,.pfx-go-ic{transition:none}.pfx-go-ic rect{animation:none!important}}
 /* 14-Nov: photo ke peeche party rang ki narm chamak -- gehraai; photo thodi badi. Photo na mile to chamak bhi nahi. */
 .pfx-hero:not(.has-cut) .pfx-glow{display:none}
 .pfx-glow{position:absolute;right:-10px;bottom:-70px;width:330px;height:330px;border-radius:50%;z-index:0;pointer-events:none;
@@ -9779,8 +9796,8 @@ function pfxHTML(o){
   x+='<h2 class="pfx-nm" id="pfxName">'+E(o.nm)+'</h2>';
   x+='<div class="pfx-meta"><span>@'+E(o.h)+'</span><i></i><span><b>'+o.fol+'</b> followers</span></div>';
   x+='<div class="pfx-tags"><span class="pfx-party">'+(o.logo?'<img src="'+E(o.logo)+'" alt="" onerror="this.remove()">':'<i style="background:'+E(o.pcol)+'"></i>')+E(o.party)+'</span>'
-    +(o.seat?'<span class="pfx-seat">'+I.pin+E(o.seat)+'</span>':'')+'</div>';
-  x+='<button class="pfx-go" type="button" data-h="'+E(o.h)+'" data-n="'+E(o.nm)+'" onclick="event.stopPropagation();haOpenHandle(this.getAttribute(\'data-h\'),this.getAttribute(\'data-n\'))">'+I.bars+'View analysis<span aria-hidden="true">›</span></button>';
+    +(o.seat?'<i class="pfx-dot" aria-hidden="true"></i><span class="pfx-seat">'+I.pin+E(o.seat)+'</span>':'')+'</div>';
+  x+='<button class="pfx-go" type="button" data-h="'+E(o.h)+'" data-n="'+E(o.nm)+'" onclick="event.stopPropagation();haOpenHandle(this.getAttribute(\'data-h\'),this.getAttribute(\'data-n\'))">'+'<span class="pfx-go-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="11" width="4" height="9" rx="1.3"/><rect x="10" y="5" width="4" height="15" rx="1.3"/><rect x="16" y="13" width="4" height="7" rx="1.3"/></svg></span><span class="pfx-go-tx"><b class="pfx-go-t">View analysis</b><small>Tweets, reach &amp; sentiment</small></span><svg class="pfx-go-ar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>';
   x+='</div></div>';
   if(cut)x+='<span class="pfx-glow" aria-hidden="true"></span><img class="pfx-cut" src="/assets/leaders/pf/'+encodeURIComponent(cutF)+'.webp" data-fb="/assets/leaders/'+encodeURIComponent(cutF)+'.webp" alt="" onerror="var fb=this.getAttribute(\'data-fb\');if(fb){this.removeAttribute(\'data-fb\');this.src=fb;return;}var c=this.parentNode;this.remove();if(c)c.classList.remove(\'has-cut\')">';
   x+='</div><div class="pfx-body">';
