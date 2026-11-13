@@ -3885,7 +3885,6 @@ body.ui-capture .ui-hero-mode{display:none!important}
 #sec-states-cm .data-table td.num,#sec-states-cm .data-table th.num{padding-left:7px;padding-right:7px}
 .sc-pp{display:flex;flex-direction:column;align-items:flex-end;line-height:1.25}
 .sc-pp b{font:600 12px 'DM Sans',sans-serif;color:#2A221C;font-variant-numeric:tabular-nums}.sc-pp small{font-size:10.5px;color:#9A8B7B;white-space:nowrap}
-#sec-states-cm td .sc-pf{padding:6px 11px 6px 12px}
 .sc-n{font:700 12px 'DM Sans',sans-serif;color:#B5A898;font-variant-numeric:tabular-nums}
 .sc-who{display:flex;align-items:center;gap:10px;min-width:200px}
 .sc-nm{display:flex;flex-direction:column;line-height:1.25;min-width:0}
@@ -3899,13 +3898,20 @@ body.ui-capture .ui-hero-mode{display:none!important}
 .sc-role small{font-size:10.5px;color:#9A8B7B}
 .sc-v{font:600 12px 'DM Sans',sans-serif;color:#2A221C;font-variant-numeric:tabular-nums}
 .sc-v.sc-strong{font-weight:700;color:#17120E}.sc-v.sc-mut{color:#8A7B6C;font-weight:500}
-/* sc-tbl v2 (05-Nov): profile button -- saaf outline pill; hover par saffron */
-.sc-pf{display:inline-flex;align-items:center;gap:6px;border:1px solid #E6DED3;background:#fff;color:#17120E;border-radius:999px;padding:7px 13px 7px 14px;
-  font:600 11.5px 'DM Sans',sans-serif;cursor:pointer;white-space:nowrap;transition:background .15s,border-color .15s,color .15s,box-shadow .15s}
-.sc-pf span{display:inline-grid;place-items:center;width:16px;height:16px;border-radius:50%;background:#FFF1E6;color:#E8590C;font-size:11px;line-height:1;transition:background .15s,color .15s,transform .15s}
-.sc-pf:hover{background:#E8590C;border-color:#E8590C;color:#fff;box-shadow:0 6px 14px -8px rgba(232,89,12,.7)}
-.sc-pf:hover span{background:#fff;color:#E8590C;transform:translateX(2px)}
-.sc-pf:focus-visible{outline:2px solid rgba(232,89,12,.55);outline-offset:2px}
+/* sc-tbl v3 (14-Nov): pill nahi -- saaf "Tap to view" text link. Row par hover/focus: text saffron,
+   neeche patli line left se bharti hai, teer aage khiskta hai. Sirf usi row par -- 55 rows me sab ek saath nahi hilte. */
+.sc-pf{display:inline-flex;align-items:center;gap:6px;border:0;background:none;padding:6px 2px;color:#8A7B6C;
+  font:600 12px 'DM Sans',sans-serif;cursor:pointer;white-space:nowrap;transition:color .2s ease}
+.sc-pf-t{padding-bottom:2px;background:linear-gradient(currentColor,currentColor) left bottom/0 1.5px no-repeat;
+  transition:background-size .3s cubic-bezier(.2,.8,.2,1)}
+.sc-pf svg{width:14px;height:14px;flex:none;transition:transform .3s cubic-bezier(.2,.8,.2,1)}
+.sc-tr:hover .sc-pf,.sc-tr:focus-visible .sc-pf,.sc-pf:hover,.sc-pf:focus-visible{color:#C2410C}
+.sc-tr:hover .sc-pf-t,.sc-tr:focus-visible .sc-pf-t,.sc-pf:hover .sc-pf-t,.sc-pf:focus-visible .sc-pf-t{background-size:100% 1.5px}
+.sc-tr:hover .sc-pf svg,.sc-tr:focus-visible .sc-pf svg,.sc-pf:hover svg,.sc-pf:focus-visible svg{transform:translateX(4px)}
+.sc-tr:active .sc-pf svg,.sc-pf:active svg{transform:translateX(7px)}
+.sc-pf:focus-visible{outline:2px solid rgba(232,89,12,.55);outline-offset:3px;border-radius:6px}
+@media (hover:none){.sc-pf{color:#C2410C}}   /* phone par hover nahi hota -- seedha saffron */
+@media (prefers-reduced-motion:reduce){.sc-pf-t,.sc-pf svg{transition:none}}
 /* badi photo (CM / Dy CM) */
 #sec-states-cm .data-table .sc-av.md{width:46px;height:46px}
 #sec-states-cm .data-table .sc-who{gap:12px}
@@ -9149,7 +9155,7 @@ function scRow(c,i,arr){
     <td class="num"><span class="sc-v">${fmt(c.rts)}</span></td>
     <td class="num"><span class="sc-v sc-strong">${fmt(c.views)}</span></td>
     <td class="num"><div class="sc-pp"><b>${fmt(avgViews)}</b><small>${fmt(avgLikes)} likes</small></div></td>
-    <td class="r"><button class="sc-pf" tabindex="-1" onclick="event.stopPropagation();openProfile('${hq}')">View profile <span>&rsaquo;</span></button></td>
+    <td class="r"><button class="sc-pf" tabindex="-1" aria-label="View profile" onclick="event.stopPropagation();openProfile('${hq}')"><span class="sc-pf-t">Tap to view</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button></td>
   </tr>`;
 }
 /* sc-v4 (13-Nov): list ke neeche -- jinhone is range me post nahi kiya unhe dikhane/chhupane ka button */
