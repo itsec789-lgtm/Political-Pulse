@@ -3844,7 +3844,36 @@ body.ui-capture .ui-hero-mode{display:none!important}
 #sec-states-cm .data-table tbody tr{border-bottom:0}
 #sec-states-cm .data-table tbody tr:hover{background:#FFF9F2}
 #sec-states-cm .data-table th.r,#sec-states-cm .data-table td.r{text-align:right}
-#sec-states-cm .sc-cmrow td:first-child{box-shadow:inset 3px 0 0 #E8590C}
+/* sc-v4 (13-Nov): orange patti nahi -- state group: naye state se pehle halki line, Dy CM apne CM se L-line se jude */
+#sec-states-cm .data-table tr.sc-grp td{border-top:1px solid #E6DBCD}
+#sec-states-cm tr.sc-sub .sc-who{position:relative;padding-left:22px}
+#sec-states-cm tr.sc-sub .sc-who::before{content:'';position:absolute;left:7px;top:-24px;height:calc(50% + 24px);width:11px;
+  border-left:1.5px solid #E0D2C1;border-bottom:1.5px solid #E0D2C1;border-bottom-left-radius:8px;pointer-events:none}
+#sec-states-cm tr.sc-idle td{color:#A4978A}
+#sec-states-cm tr.sc-idle .sc-av,#sec-states-cm tr.sc-idle .sc-plogo{opacity:.55;filter:grayscale(.6)}
+#sec-states-cm tr.sc-idle .sc-v,#sec-states-cm tr.sc-idle .sc-nm b{color:#8A7B6C}
+/* list ke neeche 'Show N more' */
+#sec-states-cm tr.sc-more td{padding:12px;border-bottom:0;background:#FCFAF7;text-align:center}
+#sec-states-cm tr.sc-more:hover{background:#FCFAF7}
+.sc-morebtn{display:inline-flex;align-items:center;gap:8px;height:34px;padding:0 14px 0 16px;border-radius:999px;border:1px solid #E6DED3;background:#fff;cursor:pointer;
+  font:600 12.5px 'DM Sans',sans-serif;color:#17120E;transition:background .15s,border-color .15s,color .15s}
+.sc-morebtn small{font-weight:500;font-size:11.5px;color:#8A7B6C}
+.sc-morebtn svg{width:15px;height:15px;color:#E8590C}
+.sc-morebtn:hover{border-color:#E8590C;color:#C2410C}.sc-morebtn:focus-visible{outline:2px solid rgba(232,89,12,.55);outline-offset:2px}
+/* scroll: table ke ant par pahunch kar page aage chale (pehle contain se atak jaata tha) */
+#sec-states-cm .table-scroll{overscroll-behavior:auto}
+/* 1366px par poori table bina side-scroll ke: thoda compact */
+#sec-states-cm .data-table td{padding:10px 9px}
+#sec-states-cm .data-table th{padding-left:9px;padding-right:9px;white-space:nowrap}
+#sec-states-cm .sc-who{min-width:0}
+#sec-states-cm .sc-nm{max-width:200px}#sec-states-cm .sc-nm b{white-space:normal}
+#sec-states-cm .sc-role{max-width:150px}#sec-states-cm .sc-role b{white-space:normal}
+#sec-states-cm .sc-loc{max-width:130px}
+#sec-states-cm .data-table td.num,#sec-states-cm .data-table th.num{padding-left:7px;padding-right:7px}
+.sc-pp{display:flex;flex-direction:column;align-items:flex-end;line-height:1.25}
+.sc-pp b{font:600 12px 'DM Sans',sans-serif;color:#2A221C;font-variant-numeric:tabular-nums}.sc-pp small{font-size:10.5px;color:#9A8B7B;white-space:nowrap}
+#sec-states-cm tr.sc-idle .sc-pp b{color:#8A7B6C}
+#sec-states-cm td .sc-pf{padding:6px 11px 6px 12px}
 .sc-n{font:700 12px 'DM Sans',sans-serif;color:#B5A898;font-variant-numeric:tabular-nums}
 .sc-who{display:flex;align-items:center;gap:10px;min-width:200px}
 .sc-nm{display:flex;flex-direction:column;line-height:1.25;min-width:0}
@@ -5265,7 +5294,7 @@ a.pe-btn:after{content:"";position:absolute;inset:0;z-index:1;background:linear-
         <tr>
           <th>#</th><th>Leader</th><th>State / Seat</th><th>Party</th><th>Designation</th>
           <th class="num">Followers</th><th class="num" title="Followers gained in the 7 days up to the To date">7-day gain</th><th class="num">Tweets</th><th class="num">Retweets</th>
-          <th class="num">Total Views</th><th class="num">Avg Views/Post</th><th class="num">Avg Likes/Post</th><th class="r"></th>
+          <th class="num">Total views</th><th class="num" title="Average views (and likes, below) per post">Per post</th><th class="r"></th>
         </tr>
       </thead>
       <tbody id="mainTableBody"></tbody>
@@ -9083,11 +9112,13 @@ function scGainLoad(){var to=scGainTo();if(!to||_scFG[to]||_scFGw[to]||!window.f
 
 /* sc-v2 (04-Nov): ek hi row-builder -- main table aur state table dono. Photo + naam, State/Seat, party logo,
    pad (text, pill nahi), numbers ek rang me. Hisaab wahi purana. */
-function scRow(c,i){
+function scRow(c,i,arr){
   const cp=pColor(c.party),seat=c.seat||(typeof AC_MAP!=='undefined'&&AC_MAP[c.name])||'';
   const avgViews=c.tweets>0?Math.round(c.views/c.tweets):0,avgLikes=c.tweets>0?Math.round(c.likes/c.tweets):0;
   const hq=String(c.handle).replace(/'/g,"\\'");   /* 13-Nov: row tap = View profile card (state block/overview nahi, upar scroll nahi) */
-  return `<tr class="sc-tr ${c.level==='Chief Minister'?'sc-cmrow':''}" tabindex="0" aria-label="Open profile of ${scEsc(c.name)}" onclick="openProfile('${hq}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openProfile('${hq}')}">
+  const prev=arr&&i>0?arr[i-1]:null,sub=!!(prev&&prev.state===c.state),grp=!!(prev&&prev.state!==c.state);   /* sc-v4: state group -- Dy CM apne CM ke neeche jude */
+  const idle=!((+c.tweets||0)||(+c.views||0)||(+c.likes||0)||(+c.rts||0));
+  return `<tr class="sc-tr ${c.level==='Chief Minister'?'sc-cmrow':''}${sub?' sc-sub':''}${grp?' sc-grp':''}${idle?' sc-idle':''}" tabindex="0" aria-label="Open profile of ${scEsc(c.name)}" onclick="openProfile('${hq}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openProfile('${hq}')}">
     <td><span class="sc-n">${i+1}</span></td>
     <td><div class="sc-who">${scAv(c.handle,c.name,cp,'md')}<span class="sc-nm"><b>${scEsc(c.name)}</b><small>@${scEsc(c.handle)}${c.noData?' · no tweets yet':''}</small></span></div></td>
     <td><div class="sc-loc"><b>${scEsc(c.state)}</b>${seat&&seat!=='—'?'<small>'+scEsc(seat)+'</small>':''}</div></td>
@@ -9098,15 +9129,22 @@ function scRow(c,i){
     <td class="num"><span class="sc-v">${(+c.tweets||0).toLocaleString('en-IN')}</span></td>
     <td class="num"><span class="sc-v">${fmt(c.rts)}</span></td>
     <td class="num"><span class="sc-v sc-strong">${fmt(c.views)}</span></td>
-    <td class="num"><span class="sc-v">${fmt(avgViews)}</span></td>
-    <td class="num"><span class="sc-v">${fmt(avgLikes)}</span></td>
+    <td class="num"><div class="sc-pp"><b>${fmt(avgViews)}</b><small>${fmt(avgLikes)} likes</small></div></td>
     <td class="r"><button class="sc-pf" tabindex="-1" onclick="event.stopPropagation();openProfile('${hq}')">View profile <span>&rsaquo;</span></button></td>
   </tr>`;
 }
+/* sc-v4 (13-Nov): list ke neeche -- jinhone is range me post nahi kiya unhe dikhane/chhupane ka button */
+function scMoreRow(){
+  var n=(window._scIdle||[]).length;if(!n)return '';
+  var on=!!window._scShowIdle,w=n===1?'leader':'leaders';
+  return '<tr class="sc-more"><td colspan="12"><button type="button" class="sc-morebtn" aria-expanded="'+on+'" onclick="event.stopPropagation();window._scShowIdle=!window._scShowIdle;filterTable();">'
+    +(on?'Hide the '+n+' '+w+' with no posts':'Show '+n+' more '+w)+'<small>no posts in this date range</small>'
+    +'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="'+(on?'M6 15l6-6 6 6':'M6 9l6 6 6-6')+'"/></svg></button></td></tr>';
+}
 function renderTableRows(data){
   const body=document.getElementById('mainTableBody');
-  if(!data.length){body.innerHTML=`<tr><td colspan="13" class="tbl-no-results">No results found</td></tr>`;return;}
-  body.innerHTML=data.map(scRow).join('')+emptyNote(window._tblHidden||0,13);
+  if(!data.length){body.innerHTML=`<tr><td colspan="12" class="tbl-no-results">No results found</td></tr>`+scMoreRow();return;}
+  body.innerHTML=data.map(scRow).join('')+scMoreRow();
   scGainLoad();
 }
 window.cmPreset=function(){var DD=window.PHD_DATES||[];if(!DD.length){filterTable();return;}var v=(document.getElementById('cmPreset')||{}).value;if(v==='custom'){filterTable();return;}var _r=window.pRange(v)||{f:DD[0],t:DD[DD.length-1]};var f=_r.f,t=_r.t;var fe=document.getElementById('cmFrom'),te=document.getElementById('cmTo');if(fe)fe.value=f;if(te)te.value=t;filterTable();};
@@ -9119,13 +9157,15 @@ function filterTable(){
   if(q) data=data.filter(c=>c.name.toLowerCase().includes(q)||c.handle.toLowerCase().includes(q)||c.state.toLowerCase().includes(q));
   if(party) data=data.filter(c=>c.party===party);
   if(desig) data=data.filter(c=>c.level===desig);
-  var _ao=activeOnly(data);window._tblHidden=_ao.hidden;data=_ao.rows;
+  var _ao=activeOnly(data);window._tblHidden=_ao.hidden;
+  window._scIdle=_ao.hidden?data.filter(function(c){return _ao.rows.indexOf(c)<0;}):[];   /* is range me jinhone post nahi kiya */
+  data=_ao.rows;if(window._scShowIdle&&window._scIdle.length)data=data.concat(window._scIdle);
   renderTableRows(data);
   if(typeof selectedState!=='undefined'&&selectedState){try{renderStateTable(selectedState);}catch(e){}}
 }
 
 
-function rowHTMLState(c,i){return scRow(c,i);}
+function rowHTMLState(c,i,a){return scRow(c,i,a);}
 function renderStateTable(s){
   const box=document.getElementById('stateAnalysisBox');if(!box)return;
   const sec=document.querySelector('.table-section');
@@ -9146,8 +9186,8 @@ function renderStateTable(s){
   h+=`<div class="sc-sttiles">${tile(fmt(tot.fo),'Followers')}${tile(tot.tw.toLocaleString('en-IN'),'Tweets')}${tile(fmt(tot.vw),'Total Views')}${tile(fmt(tot.lk),'Likes')}${tile(tot.pos,'Positive','pos')}${tile(tot.neg,'Negative','neg')}</div>`;
   const rows=[];if(cm)rows.push(cm);dys.forEach(x=>rows.push(x));cms.forEach(c=>{if(c!==cm&&dys.indexOf(c)<0)rows.push(c);});
   h+=`<div class="sc-stcap">Chief Minister &amp; Deputy CM${dys.length>1?'s':''}</div>`;
-  h+=`<div class="data-table-wrap"><table class="data-table"><thead><tr><th>#</th><th>Leader</th><th>State / Seat</th><th>Party</th><th>Designation</th><th class="num">Followers</th><th class="num">7-day gain</th><th class="num">Tweets</th><th class="num">Retweets</th><th class="num">Total Views</th><th class="num">Avg Views/Post</th><th class="num">Avg Likes/Post</th><th class="r"></th></tr></thead><tbody>`;
-  h+=rows.length?rows.map((c,i)=>rowHTMLState(c,i)).join(''):`<tr><td colspan="13" class="tbl-no-results">No CM/DyCM tracked for ${s}</td></tr>`;
+  h+=`<div class="data-table-wrap"><table class="data-table"><thead><tr><th>#</th><th>Leader</th><th>State / Seat</th><th>Party</th><th>Designation</th><th class="num">Followers</th><th class="num">7-day gain</th><th class="num">Tweets</th><th class="num">Retweets</th><th class="num">Total views</th><th class="num" title="Average views (and likes, below) per post">Per post</th><th class="r"></th></tr></thead><tbody>`;
+  h+=rows.length?rows.map((c,i,a)=>rowHTMLState(c,i,a)).join(''):`<tr><td colspan="12" class="tbl-no-results">No CM/DyCM tracked for ${s}</td></tr>`;
   h+=`</tbody></table></div>`;  box.innerHTML=h;box.style.display='block';
 }
 function restoreMainTable(){
