@@ -5226,7 +5226,7 @@ a.pe-btn:after{content:"";position:absolute;inset:0;z-index:1;background:linear-
   <div class="table-section-header">
     <div>
       <div class="ts-title">All Chief Ministers &amp; Deputy CMs</div>
-      <div class="ts-subtitle">State by state, CM first · Click a row to open the leader&rsquo;s profile</div>
+      <div class="ts-subtitle">State by state, CM first · Click a row to open that state on the map</div>
     </div>
     <div class="ts-search-bar">
       <input class="ts-search" id="tblSearch" type="text" placeholder="Search by name or handle&hellip;" oninput="filterTable()">
@@ -9084,7 +9084,7 @@ function scGainLoad(){var to=scGainTo();if(!to||_scFG[to]||_scFGw[to]||!window.f
 function scRow(c,i){
   const cp=pColor(c.party),seat=c.seat||(typeof AC_MAP!=='undefined'&&AC_MAP[c.name])||'';
   const avgViews=c.tweets>0?Math.round(c.views/c.tweets):0,avgLikes=c.tweets>0?Math.round(c.likes/c.tweets):0;
-  return `<tr class="${c.level==='Chief Minister'?'sc-cmrow':''}" onclick="openProfile('${String(c.handle).replace(/'/g,"\\'")}')" style="cursor:pointer">
+  return `<tr class="${c.level==='Chief Minister'?'sc-cmrow':''}" onclick="selectState('${String(c.state).replace(/'/g,"\\'")}');window.scrollTo({top:0,behavior:'smooth'})">
     <td><span class="sc-n">${i+1}</span></td>
     <td><div class="sc-who">${scAv(c.handle,c.name,cp,'md')}<span class="sc-nm"><b>${scEsc(c.name)}</b><small>@${scEsc(c.handle)}${c.noData?' · no tweets yet':''}</small></span></div></td>
     <td><div class="sc-loc"><b>${scEsc(c.state)}</b>${seat&&seat!=='—'?'<small>'+scEsc(seat)+'</small>':''}</div></td>
