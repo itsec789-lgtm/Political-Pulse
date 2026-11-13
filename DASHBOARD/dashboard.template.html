@@ -4055,6 +4055,21 @@ body.ui-capture .ui-hero-mode{display:none!important}
 #sec-states-cm .sc-figs .f3{left:54%;width:31%;height:92%;z-index:3;     /* Himanta -- right side fade nahi; wo kandha Yogi ke peeche (beech me gap nahi) */
   -webkit-mask-image:linear-gradient(to top,transparent 0,#000 22%),linear-gradient(to right,transparent 6%,#000 22%);-webkit-mask-composite:source-in;
   mask-image:linear-gradient(to top,transparent 0,#000 22%),linear-gradient(to right,transparent 6%,#000 22%);mask-composite:intersect}   /* neeche fade + left kinara Fadnavis par ghule; right Yogi ke peeche */
+/* 14-Nov: Delhi diagram */
+#sec-states-cm .sc-dmap{top:6px;bottom:6px;right:10px}
+#sec-states-cm .sc-dmap svg{width:100%;height:100%;display:block;overflow:visible;-webkit-mask-image:linear-gradient(90deg,transparent 0,#000 16%);mask-image:linear-gradient(90deg,transparent 0,#000 16%)}
+#sec-states-cm .sc-dmap path{vector-effect:non-scaling-stroke;stroke-linejoin:round}
+#sec-states-cm .sc-dmap .sd-far{fill:rgba(255,255,255,.35);stroke:#E3CCB6;stroke-width:1;stroke-dasharray:3 3}
+#sec-states-cm .sc-dmap .sd-near{fill:rgba(255,226,204,.8);stroke:#D9895A;stroke-width:1.6}
+#sec-states-cm .sc-dmap .sd-delhi{fill:#E8590C;stroke:#fff;stroke-width:2;filter:drop-shadow(0 .04px .12px rgba(150,50,10,.45))}
+#sec-states-cm .sc-dmap text{font-family:'DM Sans',sans-serif;paint-order:stroke;stroke:rgba(255,248,242,.9);stroke-width:.03px}
+#sec-states-cm .sc-dmap .sd-l{font-size:.12px;font-weight:700;letter-spacing:.03px;fill:#9A5A30}
+#sec-states-cm .sc-dmap .sd-lf{fill:#C4A68B;font-weight:600}
+#sec-states-cm .sc-dmap .sd-dl{font-size:.19px;font-weight:800;fill:#C2410C}
+#sec-states-cm .sc-dmap .sd-dot{fill:#fff;stroke:#C2410C;stroke-width:.02px}
+#sec-states-cm .sc-dmap .sd-ping{fill:none;stroke:#E8590C;stroke-width:.025px;transform-box:fill-box;transform-origin:center;animation:sdPing 2.4s ease-out infinite}
+@keyframes sdPing{0%{opacity:.9;transform:scale(.35)}100%{opacity:0;transform:scale(1.6)}}
+@media (prefers-reduced-motion:reduce){#sec-states-cm .sc-dmap .sd-ping{animation:none;opacity:.5}}
 #sec-states-cm .sc-figs .f4{left:auto;right:-1%;width:30%;height:100%;z-index:4;object-position:right bottom;   /* Yogi -- kandha Himanta ke upar */
   -webkit-mask-image:linear-gradient(to top,transparent 0,#000 22%);mask-image:linear-gradient(to top,transparent 0,#000 22%)}@media(max-width:1100px){#sec-states-cm .sc-kpis{grid-template-columns:repeat(3,minmax(0,1fr))}.sc-sttiles{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:820px){#sec-states-cm .sc-figs{display:none}#sec-states-cm .sc-hero-txt,#sec-states-cm .sc-kpis{margin-right:0}}
@@ -5358,13 +5373,8 @@ a.pe-btn:after{content:"";position:absolute;inset:0;z-index:1;background:linear-
       <h1 class="sc-title">Every state's government, <span>on X</span></h1>
       <p class="sc-sub">Chief Ministers &amp; Deputy CMs · Apr–Jul 2026</p>
     </div>
-    <!-- sc-v3 (04-Nov): char bade CM -- cut-out photos (Wikimedia Commons, GODL-India / CC BY-SA; credits.json) -->
-    <div class="sc-figs" aria-hidden="true">
-      <img class="f1" src="/assets/leaders/samrat4bjp.webp" alt="" title="Samrat Choudhary, Chief Minister, Bihar" loading="lazy" onerror="this.remove()">
-      <img class="f2" src="/assets/leaders/Dev_Fadnavis.webp" alt="" title="Devendra Fadnavis, Chief Minister, Maharashtra" loading="lazy" onerror="this.remove()">
-      <img class="f3" src="/assets/leaders/himantabiswa.webp" alt="" title="Himanta Biswa Sarma, Chief Minister, Assam" loading="lazy" onerror="this.remove()">
-      <img class="f4" src="/assets/leaders/myogiadityanath.webp" alt="" title="Yogi Adityanath, Chief Minister, Uttar Pradesh" loading="lazy" onerror="this.remove()">
-    </div>
+    <!-- 14-Nov: CM photos ki jagah Delhi + padosi states (Haryana, Uttar Pradesh) ka line-diagram -- GEOJSON se, scDrawDelhi() -->
+    <div class="sc-figs sc-dmap" aria-hidden="true"><svg id="scDelhiSvg" preserveAspectRatio="xMidYMid meet"></svg></div>
     <div class="sc-kpis kpi-row">
       <div class="kpi sc-k"><div class="kpi-lbl">CM + Dy CM</div><div class="kpi-val" id="cmkCount">—</div><div class="kpi-sub" id="cmkSub">—</div></div>
       <div class="kpi sc-k"><div class="kpi-lbl">Total Tweets</div><div class="kpi-val" id="cmkTweets">—</div><div class="kpi-sub" id="cmkTwSub">—</div></div>
@@ -8954,6 +8964,35 @@ function renderLegend(){
   }
 }
 
+/* 14-Nov: States & CM hero -- Delhi aur uske padosi states ka saaf line-diagram (bade map wale GEOJSON se) */
+function scDrawDelhi(){
+  var svg=document.getElementById('scDelhiSvg');if(!svg||typeof GEOJSON==='undefined')return;
+  var NS='http://www.w3.org/2000/svg',X0=75.15,X1=79.05,Y0=27.72,Y1=29.6;          /* lon/lat ki khidki: Delhi beech me, Haryana + pashchimi UP */
+  var ty=function(lat){return 42-(lat-6);};
+  svg.setAttribute('viewBox',X0+' '+ty(Y1)+' '+(X1-X0)+' '+(Y1-Y0));
+  var NEAR={'Haryana':1,'Uttar Pradesh':1},g=document.createElementNS(NS,'g');
+  GEOJSON.features.forEach(function(ft){
+    var dn=g2d(ft.properties.NAME_1),geo=ft.geometry,polys=geo.type==='MultiPolygon'?geo.coordinates:[geo.coordinates],d='',hit=false;
+    polys.forEach(function(poly){poly.forEach(function(ring){if(!ring||ring.length<3)return;
+      ring.forEach(function(p){if(p[0]>X0-.5&&p[0]<X1+.5&&p[1]>Y0-.5&&p[1]<Y1+.5)hit=true;});
+      d+='M'+ring.map(function(p){return p[0].toFixed(4)+','+ty(p[1]).toFixed(4);}).join('L')+'Z';});});
+    if(!hit||!d)return;
+    var el=document.createElementNS(NS,'path');el.setAttribute('d',d);
+    el.setAttribute('class',dn==='Delhi'?'sd-delhi':(NEAR[dn]?'sd-near':'sd-far'));
+    g.appendChild(el);
+  });
+  /* Delhi sabse upar */
+  var dl=g.querySelector('.sd-delhi');if(dl)g.appendChild(dl);
+  svg.innerHTML='';svg.appendChild(g);
+  var lbl=function(txt,lon,lat,cls){var e=document.createElementNS(NS,'text');e.setAttribute('x',lon);e.setAttribute('y',ty(lat));e.setAttribute('class',cls);e.setAttribute('text-anchor','middle');e.textContent=txt;svg.appendChild(e);};
+  lbl('HARYANA',76.2,29.2,'sd-l');lbl('UTTAR PRADESH',78.15,28.05,'sd-l');
+  lbl('RAJASTHAN',75.85,27.9,'sd-l sd-lf');lbl('UTTARAKHAND',78.4,29.48,'sd-l sd-lf');
+  if(dl){var bb=dl.getBBox(),cx=bb.x+bb.width/2,cy=bb.y+bb.height/2;
+    var ring=document.createElementNS(NS,'circle');ring.setAttribute('cx',cx);ring.setAttribute('cy',cy);ring.setAttribute('r',.2);ring.setAttribute('class','sd-ping');svg.appendChild(ring);
+    var dot=document.createElementNS(NS,'circle');dot.setAttribute('cx',cx);dot.setAttribute('cy',cy);dot.setAttribute('r',.035);dot.setAttribute('class','sd-dot');svg.appendChild(dot);
+    var t=document.createElementNS(NS,'text');t.setAttribute('x',cx+.26);t.setAttribute('y',cy-.2);t.setAttribute('class','sd-dl');t.textContent='Delhi';svg.appendChild(t);}
+}
+try{scDrawDelhi();}catch(e){console.warn('scDrawDelhi',e);}
 function buildMap(){
   const grp=document.getElementById('statesGroup');
   grp.innerHTML='';
