@@ -4070,6 +4070,29 @@ body.ui-capture .ui-hero-mode{display:none!important}
 .leg-pct{font-size:10px;color:#9A8B7B;margin-top:1px;font-variant-numeric:tabular-nums}
 td.leg-g0{color:#B5A898}
 #sec-mla-tracker .leg-tbl .rank{font:700 12px 'DM Sans',sans-serif;color:#C2410C}
+/* lg-v3 (14-Nov): filters ka card + table ka card (States & CM jaise); header sentence case */
+#sec-mla-tracker .lg-panel{background:#fff;border:1px solid #ECE4DA;border-radius:18px;padding:18px 20px 14px;margin-bottom:14px;
+  box-shadow:0 1px 0 #ECE4DA,0 18px 40px -30px rgba(60,30,10,.45)}
+#sec-mla-tracker .lg-head{margin-bottom:12px}
+#sec-mla-tracker .lg-title{font:700 18px 'DM Sans',sans-serif;letter-spacing:-.2px;color:#17120E}
+#sec-mla-tracker .lg-sub{margin-top:2px;font-size:12.5px;color:#8A7B6C}
+#sec-mla-tracker .mla-search{margin-bottom:0;gap:8px}
+#sec-mla-tracker .mla-input,#sec-mla-tracker .mla-search .filter-select{border:1px solid #E6DED3;border-radius:10px;background:#fff;padding:7px 12px;height:34px;font-size:12.5px;box-shadow:none}
+#sec-mla-tracker .mla-input{max-width:280px}
+#sec-mla-tracker .mla-input:focus,#sec-mla-tracker .mla-search .filter-select:focus{border-color:#E8590C;outline:0;box-shadow:0 0 0 3px rgba(232,89,12,.12)}
+/* 14-Nov: leaders table alag safed card par nahi -- seedhe page ke background par (States & CM ki map list jaisi).
+   Patli lines se rows alag; hover par halka safed gol highlight; chipka header page ke rang ka. */
+#sec-mla-tracker .tbl-box.leg-box{background:transparent;border:0;border-radius:0;padding:0;box-shadow:none}
+#sec-mla-tracker .leg-tbl thead th{background:var(--bg,#F7F5F2);text-transform:none;letter-spacing:.1px;font:600 12px 'DM Sans',sans-serif;color:#6E6156;padding:13px 10px 12px;
+  box-shadow:inset 0 -1px 0 rgba(60,30,10,.14)}
+#sec-mla-tracker .leg-tbl td{border-bottom:1px solid rgba(60,30,10,.07)}
+#sec-mla-tracker .leg-tbl tbody tr:hover{background:transparent}
+#sec-mla-tracker .leg-tbl tbody tr:hover td{background:rgba(255,255,255,.8)}
+#sec-mla-tracker .leg-tbl tbody tr:hover td:first-child{border-radius:12px 0 0 12px}
+#sec-mla-tracker .leg-tbl tbody tr:hover td:last-child{border-radius:0 12px 12px 0}
+#sec-mla-tracker .leg-tbl th.is-sorted{color:#C2410C}
+#sec-mla-tracker .mla-pager{margin-top:12px}
+@media(max-width:600px){#sec-mla-tracker .lg-panel{padding:14px 12px 12px;border-radius:16px}#sec-mla-tracker .mla-input{max-width:none;flex:1 1 100%}}
 body.ui-capture .ui-jump2{display:none!important}
 
 @media(min-width:1200px){#sec-dashboard main{padding-right:64px}}
@@ -5411,7 +5434,9 @@ a.pe-btn:after{content:"";position:absolute;inset:0;z-index:1;background:linear-
 <!-- 4. MLA TRACKER -->
 <div class="page-section" id="sec-mla-tracker">
 <main>
-  <div class="sec-title">Legislators Tracker — MP / MLA / MLC · Apr–Jul 2026</div>
+  <!-- lg-v3 (14-Nov): filters apne card me (title + saare filters); table alag card me -->
+  <section class="lg-panel">
+  <div class="lg-head"><div class="lg-title">Elected representatives</div><div class="lg-sub">MPs, MLAs &amp; MLCs on X · ranked by post · Apr–Jul 2026</div></div>
   <div class="mla-search">
     <input type="text" class="mla-input" id="mlaSearch" placeholder="Search by name or handle..." oninput="filterMLA()">
     <select class="filter-select" id="mlaPartyFilter" onchange="filterMLA()" style="min-width:110px">
@@ -5431,6 +5456,7 @@ a.pe-btn:after{content:"";position:absolute;inset:0;z-index:1;background:linear-
     <input type="date" id="mlaTo" class="filter-select" value="2026-07-01" min="2026-04-01" max="2026-07-01" onchange="var p=document.getElementById('mlaPreset');if(p)p.value='custom';renderMLA()" style="min-width:140px">
     <button class="filter-select" style="cursor:pointer;font-weight:700;color:#C2410C;border-color:#f0d0b0" onclick="mlaReset()">↺ Reset</button>
   </div>
+  </section>
   <!-- leg-v2 (02-Nov): leader photo + party logo, 7-day follower gain, har column par sahi (poori list ki) sorting,
        default kram pad ke hisaab se (PM, LoP, Union Cabinet, CM ...). "Last updated" column is table me nahi. -->
   <div class="tbl-box leg-box" style="margin-bottom:0">
@@ -15899,7 +15925,7 @@ W.__pfByParty = byParty; W.__pfMetrics = metrics; W.__pfCATS = CATS; W.__pfDAYS 
     /* sirf wahi control jinki apni id hai -- unhi ko wapas dhoondh sakte hain */
     return [].slice.call(D.querySelectorAll(
       'select[id], input[id][type="date"], input[id][type="search"], input[id][type="text"]'
-    )).filter(function (e) { return !e.closest('#sec-handle-req'); });
+    )).filter(function (e) { return !e.closest('#sec-handle-req') && !/^(mla|cm)(Preset|From|To)$/.test(e.id); });   /* 14-Nov: Elected Representatives + States & CM hamesha Full Range se khulen */
     /* Handle-Request form chhod dete hain -- wo bhara hua form hai, usme
        purani value wapas daalna ulta pad sakta hai. */
   }
@@ -19303,7 +19329,7 @@ function toggleModalLeader(handle) {
    badalta. Kaam wahi purane handler karte hain (change event), koi nayi logic nahi. */
 (function () {
   if (window.__defaultToday) return; window.__defaultToday = 1;
-  var SKIP = { 'sec-dashboard': 1, 'sec-handle-analytics': 1, 'sec-reports': 1, 'sec-states-cm': 1 };   /* 14-Nov: States & CM default Full Range */
+  var SKIP = { 'sec-dashboard': 1, 'sec-handle-analytics': 1, 'sec-reports': 1, 'sec-states-cm': 1, 'sec-mla-tracker': 1 };   /* 14-Nov: States & CM default Full Range */
   var EXTRA = { pfDate: 1, ngFilterRange: 1, ngLaDateRange: 1 };
   var done = {};
   function lastDay() {
