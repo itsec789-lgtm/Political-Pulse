@@ -5019,7 +5019,7 @@ a.pe-btn:after{content:"";position:absolute;inset:0;z-index:1;background:linear-
     </button>
     <script>(function(){var h=document.getElementById('uiHero'),b=document.getElementById('uiHeroMode');if(!h||!b)return;
       function set(d){h.classList.toggle('is-dark',d);b.setAttribute('aria-pressed',d?'true':'false');b.title=d?'Light hero':'Dark hero';b.setAttribute('aria-label',d?'Switch hero to light':'Switch hero to dark');}
-      set(true);   /* har reload par dark -- light sirf button dabane tak (yaad nahi rakhte) */
+      set(false);   /* 14-Nov: har reload par light (header dark hi rehta hai); dark sirf button dabane tak (yaad nahi rakhte) */
       try{localStorage.removeItem('ipp_hero_dark');}catch(e){}   /* purani save ki hui choice saaf */
       b.addEventListener('click',function(){set(!h.classList.contains('is-dark'));});})();</script>    <div class="ui-hero-figs" aria-hidden="true">
       <img class="hf2" src="/assets/leaders/NitinNabin.webp" alt="" title="Nitin Nabin, BJP National President" onerror="this.remove()">
