@@ -1,3 +1,4 @@
+import re
 # -*- coding: utf-8 -*-
 """
 scan_unmapped.py  --  EK BAAR chalao.
@@ -32,8 +33,9 @@ def log(m): print("[" + datetime.datetime.now().strftime("%H:%M:%S") + "]", m)
 
 def bucket(s):
     x = str(s).strip().lower()
+    if re.search(r'\b(ex|former)\b', x): return 'Others'  # purana pad
     if 'deputy chief minister' in x or x in ('dy cm', 'dycm', 'deputy cm'): return 'Dy CM'
-    if 'chief minister' in x and 'former' not in x and 'ex' not in x: return 'CM'
+    if 'chief minister' in x: return 'CM'
     if x in ('ls_mp', 'ls mp', 'ls_mp candidate'): return 'LS MP'
     if x in ('rs_mp', 'rs mp'): return 'RS MP'
     if x == 'mla': return 'MLA'

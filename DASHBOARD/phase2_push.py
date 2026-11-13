@@ -116,8 +116,9 @@ def _levels_from(vals):
     for v in vals:
         x = str(v or '').strip().lower()
         if not x or x == '-': continue
+        if re.search(r'\b(ex|former)\b', x): continue  # purana pad
         if 'deputy chief minister' in x: out.append('Dy CM')
-        elif 'chief minister' in x and 'former' not in x: out.append('CM')
+        elif 'chief minister' in x: out.append('CM')
         elif x in ('ls_mp', 'ls mp', 'ls_mp candidate'): out.append('LS MP')
         elif x in ('rs_mp', 'rs mp'): out.append('RS MP')
         elif x == 'mla': out.append('MLA')

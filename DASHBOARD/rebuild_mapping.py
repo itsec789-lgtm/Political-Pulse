@@ -110,19 +110,35 @@ def adm_buckets(v):
     low = t.lower()
     if low in ADM_EXACT:
         return [ADM_EXACT[low]]
+    import re as _re
+    # 'Ex-CM' jaisa chhota roop -- pura naam karo taaki niche wala niyam pakde
+    low = _re.sub(r'\b(ex|former)[\s.-]*cm\b', r'\1-chief minister', low)
     out, rest = [], low
     for key, name in ADM_RULES:
-        if key in rest:
-            rest = rest.replace(key, ' ')
-            if name not in out:
-                out.append(name)
-    import re as _re
+        # har jagah jahan ye pad aaya, alag se dekho: aage 'Ex-'/'Former'
+        # laga hai to wo PURANA pad hai ('Ex-Chief Minister' ab CM nahi gina
+        # jaata); 'Secretary to the Chief Minister' jaisa pad CM hai hi nahi.
+        # Dhyan: sirf pad ke theek pehle wala 'ex' dekhte hain -- 'Ex-Servicemen'
+        # ya 'Excise' jaise shabd se koi farak nahi padta.
+        for m in list(_re.finditer(_re.escape(key), rest)):
+            before = rest[:m.start()]
+            if _re.search(r'\bto\s+(the\s+)?$', before):
+                continue
+            nm = ('Former ' + name) if _re.search(
+                r'\b(ex|former|purv|पूर्व)[\s.-]*$', before) else name
+            if nm not in out:
+                out.append(nm)
+        rest = rest.replace(key, ' ' * len(key))
     if _re.search(r'\bmos\b', rest) and 'Minister of State' not in out:
         out.append('Minister of State')
     # kuch bhi nahi pakda -> Excel ki apni likhavat hi rakho
     if not out:
         return [t]
     return out
+
+
+import re as _re_mod
+_re_former = _re_mod.compile(r'(ex|former)\b[\s.-]*')
 
 
 def adm_group(v):
@@ -134,11 +150,14 @@ def adm_group(v):
     if n in ADM_RANK:
         return n
     low = n.lower()
+    if _re_former.match(low):
+        return 'Former Office Holder'
     if 'speaker' in low:
         return 'Speaker'
     if any(k in low for k in ADM_COMMITTEE):
         return 'Committee Role'
-    if 'minister' in low:
+    # 'Political Secretary to the Chief Minister' mantri nahi hai
+    if 'minister' in low and 'secretary' not in low:
         return 'Other Minister'
     return 'Other Admin'
 

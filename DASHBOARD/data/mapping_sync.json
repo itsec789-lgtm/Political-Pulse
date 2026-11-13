@@ -1,16 +1,197 @@
 {
   "ok": true,
   "why": "",
-  "rows": 5329,
+  "rows": 5379,
   "added": 0,
-  "modified": 0,
+  "modified": 18,
   "removed": 0,
-  "changed": false,
-  "mongo": false,
+  "changed": true,
+  "mongo": true,
   "check": false,
   "warnings": [],
   "addedList": [],
   "removedList": [],
-  "modifiedList": [],
-  "at": "2026-10-31 15:25:20"
+  "modifiedList": [
+    {
+      "handle": "A_L_Hek_",
+      "changes": [
+        {
+          "field": "Admin Designation",
+          "old": "Cabinet Minister",
+          "new": "Former Cabinet Minister"
+        }
+      ]
+    },
+    {
+      "handle": "ampareenlyngdoh",
+      "changes": [
+        {
+          "field": "Admin Designation",
+          "old": "Cabinet Minister",
+          "new": "Former Cabinet Minister"
+        }
+      ]
+    },
+    {
+      "handle": "ArvindKejriwal",
+      "changes": [
+        {
+          "field": "Admin Designation",
+          "old": "Chief Minister",
+          "new": "Former Chief Minister"
+        }
+      ]
+    },
+    {
+      "handle": "as_ponnanna",
+      "changes": [
+        {
+          "field": "Admin Designation",
+          "old": "Chief Minister",
+          "new": "Political Secretary to the Chief Minister"
+        }
+      ]
+    },
+    {
+      "handle": "BahPaul_Lyngdoh",
+      "changes": [
+        {
+          "field": "Admin Designation",
+          "old": "Cabinet Minister",
+          "new": "Former Cabinet Minister"
+        }
+      ]
+    },
+    {
+      "handle": "GeorgekurianBjp",
+      "changes": [
+        {
+          "field": "Admin Designation",
+          "old": "Minister of State",
+          "new": "Former Minister of State"
+        }
+      ]
+    },
+    {
+      "handle": "jitanrmanjhi",
+      "changes": [
+        {
+          "field": "Admin Designation",
+          "old": "Ex-CM",
+          "new": "Former Chief Minister"
+        }
+      ]
+    },
+    {
+      "handle": "kokate_manikrao",
+      "changes": [
+        {
+          "field": "Admin Designation",
+          "old": "Cabinet Minister",
+          "new": "Former Cabinet Minister"
+        }
+      ]
+    },
+    {
+      "handle": "mkstalin",
+      "changes": [
+        {
+          "field": "Admin Designation",
+          "old": "Chief Minister",
+          "new": "Former Chief Minister"
+        }
+      ]
+    },
+    {
+      "handle": "mukeshahlawatap",
+      "changes": [
+        {
+          "field": "Admin Designation",
+          "old": "Cabinet Minister",
+          "new": "Former Cabinet Minister"
+        }
+      ]
+    },
+    {
+      "handle": "NBirenSingh",
+      "changes": [
+        {
+          "field": "Admin Designation",
+          "old": "Chief Minister",
+          "new": "Former Chief Minister"
+        }
+      ]
+    },
+    {
+      "handle": "NitishKumar",
+      "changes": [
+        {
+          "field": "Admin Designation",
+          "old": "Ex-CM",
+          "new": "Former Chief Minister"
+        }
+      ]
+    },
+    {
+      "handle": "pinarayivijayan",
+      "changes": [
+        {
+          "field": "Admin Designation",
+          "old": "Chief Minister",
+          "new": "Former Chief Minister"
+        }
+      ]
+    },
+    {
+      "handle": "RakkamA_Sangma",
+      "changes": [
+        {
+          "field": "Admin Designation",
+          "old": "Cabinet Minister",
+          "new": "Former Cabinet Minister"
+        }
+      ]
+    },
+    {
+      "handle": "RavneetBittu",
+      "changes": [
+        {
+          "field": "Admin Designation",
+          "old": "Minister of State",
+          "new": "Former Minister of State"
+        }
+      ]
+    },
+    {
+      "handle": "satishsharmajnk",
+      "changes": [
+        {
+          "field": "Admin Designation",
+          "old": "Cabinet Minister",
+          "new": "Former Cabinet Minister"
+        }
+      ]
+    },
+    {
+      "handle": "shyllakyrmen",
+      "changes": [
+        {
+          "field": "Admin Designation",
+          "old": "Cabinet Minister",
+          "new": "Former Cabinet Minister"
+        }
+      ]
+    },
+    {
+      "handle": "siddaramaiah",
+      "changes": [
+        {
+          "field": "Admin Designation",
+          "old": "Chief Minister",
+          "new": "Former Chief Minister"
+        }
+      ]
+    }
+  ],
+  "at": "2026-11-13 17:49:24"
 }

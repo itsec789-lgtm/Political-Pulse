@@ -1,3 +1,4 @@
+import re
 r"""
 daily_report.py  --  Daily scraping report (All India + Uttar Pradesh).
 
@@ -59,8 +60,9 @@ def levels_of(desig):
     for part in s.split('|'):
         x = part.strip().lower()
         if not x: continue
-        if 'deputy chief minister' in x: out.append('Deputy Chief Minister')
-        elif 'chief minister' in x and 'former' not in x and 'ex' not in x: out.append('Chief Minister')
+        if re.search(r'\b(ex|former)\b', x): pass  # purana pad -- CM/Dy CM nahi
+        elif 'deputy chief minister' in x: out.append('Deputy Chief Minister')
+        elif 'chief minister' in x: out.append('Chief Minister')
         elif x in ('ls_mp', 'ls mp', 'ls_mp candidate'): out.append('LS MP')
         elif x in ('rs_mp', 'rs mp'): out.append('RS MP')
         elif x == 'mla': out.append('MLA')
