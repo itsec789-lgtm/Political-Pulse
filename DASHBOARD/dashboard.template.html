@@ -4487,6 +4487,16 @@ header.ui-hdr #updPill{display:none!important}
 #sec-parties .parties-filter-bar .filter-select:focus{border-color:#E8590C;outline:0;box-shadow:0 0 0 3px rgba(232,89,12,.12)}
 #sec-parties #pfDate,#sec-parties #pfLevel,#sec-parties #pfParty{width:140px}#sec-parties #pfState{width:170px}
 #sec-parties #pfCustom .filter-select{width:140px;padding-right:10px}
+/* 14-Nov: text-style Reset -- Parties aur Dashboard dono me (pill/dibba nahi) */
+.pf-reset{margin-left:6px;display:inline-flex;align-items:center;gap:6px;height:34px;padding:0 4px;border:0;background:none;cursor:pointer;
+  color:#C2410C;font:600 12.5px 'DM Sans',sans-serif}
+.pf-reset svg{width:15px;height:15px;transition:transform .45s cubic-bezier(.2,.8,.2,1)}
+.pf-reset span{padding-bottom:1px;background:linear-gradient(currentColor,currentColor) left bottom/0 1.5px no-repeat;transition:background-size .3s cubic-bezier(.2,.8,.2,1)}
+.pf-reset:hover,.pf-reset:focus-visible{color:#9A3412}
+.pf-reset:hover span,.pf-reset:focus-visible span{background-size:100% 1.5px}
+.pf-reset:hover svg,.pf-reset:focus-visible svg{transform:rotate(-200deg)}
+.pf-reset:focus-visible{outline:2px solid rgba(232,89,12,.5);outline-offset:2px;border-radius:6px}
+@media (prefers-reduced-motion:reduce){.pf-reset svg,.pf-reset span{transition:none}}
 @media(max-width:600px){#sec-parties .parties-filter-bar{width:calc(100% - 20px);margin-top:10px;border-radius:16px;padding:10px}
   #sec-parties #pfDate,#sec-parties #pfLevel,#sec-parties #pfState,#sec-parties #pfParty{flex:1 1 calc(50% - 8px);width:auto}}
 .ui-hero-sub #uiHeroUpd,.ui-hero-sub .ui-dot-sep{display:none}
@@ -5071,7 +5081,7 @@ a.pe-btn:after{content:"";position:absolute;inset:0;z-index:1;background:linear-
     </select>
     <span class="filter-label">From</span><input type="date" id="dashFrom" class="filter-select" value="2026-04-01" min="2026-04-01" max="2026-07-01" style="min-width:150px" onchange="dashCustom();try{window.renderDashDate&&window.renderDashDate()}catch(e){}try{window.ovRefresh&&window.ovRefresh()}catch(e){}try{window.updateLevelStrip&&window.updateLevelStrip()}catch(e){}">
     <span class="filter-label">To</span><input type="date" id="dashTo" class="filter-select" value="2026-07-01" min="2026-04-01" max="2026-07-01" style="min-width:150px" onchange="dashCustom();try{window.renderDashDate&&window.renderDashDate()}catch(e){}try{window.ovRefresh&&window.ovRefresh()}catch(e){}try{window.updateLevelStrip&&window.updateLevelStrip()}catch(e){}">
-    <button onclick="dashReset()" class="filter-select" style="cursor:pointer;font-weight:700;color:#C2410C;border-color:#f0d0b0">↺ Reset</button>
+    <button type="button" onclick="dashReset()" class="pf-reset" title="Back to All Parties and Full Range"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg><span>Reset</span></button>
     <span id="dashRangeNote" style="font-size:11px;color:var(--muted)">📅 Full Apr–Jul 2026</span>
   </div>
   <div class="kpi-row" id="dashKpis"></div>
@@ -5631,6 +5641,7 @@ a.pe-btn:after{content:"";position:absolute;inset:0;z-index:1;background:linear-
   <span class="filter-label">Party</span>
   <select class="filter-select" id="pfParty" style="min-width:150px"></select>
   <div class="filter-info" style="margin-left:auto" id="pfInfo">&mdash;</div>
+  <button type="button" class="pf-reset" id="pfReset" title="Back to Full Range, All Levels, All India, All Parties"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg><span>Reset</span></button>
 </div>
 <main>
   <div class="sec-title" id="pfOverviewTitle">Party Overview
@@ -15794,6 +15805,15 @@ on('pfChipX', 'click', function () {
   refresh();
 });
 on('pfMore', 'click', function () { PF.showAll = !PF.showAll; render(); });
+/* 14-Nov: Reset -- ek click me sab default: Full Range, All Levels, All India, All Parties (ek hi render) */
+on('pfReset', 'click', function () {
+  PF.dmode = 'all'; PF.from = null; PF.to = null; PF.level = ''; PF.state = 'ALL'; PF.party = ''; PF.card = null; PF.src = null;
+  if (pfDate) pfDate.value = 'all';
+  if (pfCustom) pfCustom.classList.remove('show');
+  if (pfFrom) pfFrom.value = ''; if (pfTo) pfTo.value = '';
+  if (pfLevel) pfLevel.value = ''; if (pfState) pfState.value = 'ALL'; if (pfParty) pfParty.value = '';
+  refresh();
+});
 on('pfCards', 'click', function (e) {
   var c = e.target && e.target.closest ? e.target.closest('.pcard') : null;
   if (!c) return;
