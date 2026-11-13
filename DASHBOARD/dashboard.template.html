@@ -1010,7 +1010,11 @@ svg#indiaMap{width:100%;height:100%;max-width:100%;max-height:100%;display:block
   background:#17120E;color:#fff;font:600 12.5px 'DM Sans',sans-serif;box-shadow:0 8px 18px -10px rgba(23,18,14,.8);transition:background .15s,transform .15s}
 .pfx-go svg{width:14px;height:14px;color:#FFB27A}.pfx-go span{font-size:17px;line-height:1;transition:transform .15s}
 .pfx-go:hover{background:#E8590C}.pfx-go:hover svg{color:#fff}.pfx-go:hover span{transform:translateX(3px)}
-.pfx-cut{position:absolute;right:30px;bottom:0;z-index:1;height:96%;max-width:260px;object-fit:contain;object-position:right bottom;pointer-events:none;
+/* 14-Nov: photo ke peeche party rang ki narm chamak -- gehraai; photo thodi badi. Photo na mile to chamak bhi nahi. */
+.pfx-hero:not(.has-cut) .pfx-glow{display:none}
+.pfx-glow{position:absolute;right:-10px;bottom:-70px;width:330px;height:330px;border-radius:50%;z-index:0;pointer-events:none;
+  background:radial-gradient(closest-side,color-mix(in srgb,var(--pc) 34%,transparent),color-mix(in srgb,var(--pc) 12%,transparent) 58%,transparent)}
+.pfx-cut{position:absolute;right:30px;bottom:0;z-index:1;height:100%;max-width:280px;object-fit:contain;object-position:right bottom;pointer-events:none;
   filter:drop-shadow(0 10px 14px rgba(40,20,5,.18));   /* States hero jaisa narm oval fade -- photo ke seedhe kinare nahi dikhte */
   -webkit-mask-image:radial-gradient(ellipse 56% 84% at 50% 32%,#000 54%,rgba(0,0,0,.8) 68%,rgba(0,0,0,.4) 84%,transparent 100%);mask-image:radial-gradient(ellipse 56% 84% at 50% 32%,#000 54%,rgba(0,0,0,.8) 68%,rgba(0,0,0,.4) 84%,transparent 100%)}
 /* body */
@@ -1059,7 +1063,7 @@ svg#indiaMap{width:100%;height:100%;max-width:100%;max-height:100%;display:block
 .pfx-note p{margin:0;font-size:13px;line-height:1.65;color:#3B322B}
 @media(max-width:720px){
   .pfx-hero{padding:22px 18px 20px}.pfx-body{padding:4px 18px 22px}
-  .pfx-hero.has-cut .pfx-id{max-width:100%}.pfx-hero.has-cut .pfx-av{display:grid}.pfx-cut{display:none}
+  .pfx-hero.has-cut .pfx-id{max-width:100%}.pfx-hero.has-cut .pfx-av{display:grid}.pfx-cut,.pfx-glow{display:none}
   .pfx-av{width:72px;height:72px}.pfx-nm{font-size:25px}
   .pfx-kpis,.pfx-ranks,.pfx-eng{grid-template-columns:repeat(2,minmax(0,1fr))}
   .pfx-e:nth-child(3){border-left:0}.pfx-e:nth-child(n+3){border-top:1px solid #EDE6DC}
@@ -9756,14 +9760,14 @@ function renderCMGrid(){var _pf=(document.getElementById('profFrom')||{}).value|
 var dz=(window.roleOf?window.roleOf(s.h,''):'')||((s.h==='narendramodi')?'PM':'CM');var avgV=s.tw?Math.round(s.vw/s.tw):0;var avgL=s.tw?Math.round(s.lk/s.tw):0;var fg=c.followings||0;return '<tr data-name="'+esc((nm+' '+s.state+' '+s.party+' @'+s.h).toLowerCase())+'" onclick="openProfile(\''+s.h+'\')">'+'<td>'+esc(s.state)+'</td>'+'<td><div class="cm-nmcell"><div class="cm-av" style="background:'+col+';position:relative;overflow:hidden">'+ini(s.name)+photoImg(s.h)+'</div><div><div class="nm">'+nm+'</div><div class="hd">@'+esc(s.h)+'</div></div></div></td>'+'<td><span class="cm-badge">'+dz+'</span></td>'+'<td><span class="party-chip" style="background:'+col+'18;color:'+col+'">'+esc(shortP(s.party))+'</span></td>'+'<td class="r cm-tnum">'+uf(s.followers)+'</td>'+'<td class="r cm-tnum">'+uf(fg)+'</td>'+'<td class="r cm-tnum">'+uf(s.tw)+'</td>'+'<td class="r cm-tnum">'+uf(avgV)+'</td>'+'<td class="r cm-tnum">'+uf(avgL)+'</td>'+'<td class="r"><button class="cm-pf-btn" onclick="event.stopPropagation();openProfile(\''+s.h+'\')">View Profile \u2192</button></td>'+'</tr>';}).join('');var _html='<table class="cm-table"><thead><tr><th>State</th><th>Name</th><th>Designation</th><th>Party</th><th class="r">Followers</th><th class="r">Following</th><th class="r">Tweets</th><th class="r">Avg Views/Post</th><th class="r">Avg Likes/Post</th><th class="r">Action</th></tr></thead><tbody>'+_rows+'</tbody></table>';var g=document.getElementById('cmGrid');if(g)g.innerHTML=_html;var cc=document.getElementById('cmCount');if(cc)cc.textContent=PROF.length;}
 /* pfx (13-Nov): leader profile card -- naya layout. Data openProfile hi nikalta hai; yahan sirf markup.
    Jin netaon ki cut-out photo assets/leaders me hai unke hero me wahi (right side), baaki ke liye gol X photo. */
-var PFX_CUT={};'AbhishekAITC,AnupriyaSPatel,ArvindKejriwal,asadowaisi,BhagwantMann,cm_nrangaswamy,ComradeDRaja,Dev_Fadnavis,draramadoss,EPSTamilNadu,hanumanbeniwal,HemantSorenJMM,himantabiswa,H_D_Devegowda,iChiragPaswan,jayantrld,KCRBRSPresident,kharge,KTRBRS,laluprasadrjd,Lal_Duhoma,MamataOfficial,Mayawati,MehboobaMufti,mieknathshinde,mkstalin,myogiadityanath,naralokesh,narendramodi,Naveen_Odisha,ncbn,Neiphiu_Rio,NitinNabin,NitishKumar,officeofssbadal,OmarAbdullah,oprajbhar,PawanKalyan,PawarSpeaks,pinarayivijayan,praful_patel,RahulGandhi,samrat4bjp,SangmaConrad,thirumaofficial,TVKVijayHQ,UddhavThackeray,Udhaystalin,yadavakhilesh,ysjagan,ZoramthangaMNF'.split(',').forEach(function(k){PFX_CUT[k]=1;});
+var PFX_CUT={};'AbhishekAITC,AnupriyaSPatel,ArvindKejriwal,asadowaisi,BhagwantMann,cm_nrangaswamy,ComradeDRaja,Dev_Fadnavis,draramadoss,EPSTamilNadu,hanumanbeniwal,HemantSorenJMM,himantabiswa,H_D_Devegowda,iChiragPaswan,jayantrld,KCRBRSPresident,kharge,KTRBRS,laluprasadrjd,Lal_Duhoma,MamataOfficial,Mayawati,MehboobaMufti,mieknathshinde,mkstalin,myogiadityanath,naralokesh,narendramodi,Naveen_Odisha,ncbn,Neiphiu_Rio,NitinNabin,NitishKumar,officeofssbadal,OmarAbdullah,oprajbhar,PawanKalyan,PawarSpeaks,pinarayivijayan,praful_patel,RahulGandhi,samrat4bjp,SangmaConrad,thirumaofficial,TVKVijayHQ,UddhavThackeray,Udhaystalin,yadavakhilesh,ysjagan,ZoramthangaMNF,PemaKhanduBJP,vishnudsai,gupta_rekha,DrPramodPSawant,Bhupendrapbjp,nayabsainibjp,SukhuSukhvinder,DKShivakumar,vdsatheesan,DrMohanYadav51,YKhemchandSingh,MohanMOdisha,BhajanlalBjp,PSTamangGolay,revanth_anumula,DrManikSaha2,pushkardhami,SuvenduWB'.split(',').forEach(function(k){PFX_CUT[k.toLowerCase()]=k;});   /* chhote/bade akshar ka farak na pade (data me nayabsainibjp, file NayabSainiBJP) */
 function pfxHTML(o){
   var E=function(x){return String(x==null?'':x).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});};
   var I={x:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>',
     bars:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>',
     pin:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>',
     chk:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>'};
-  var cut=!!PFX_CUT[o.h];
+  var cutF=PFX_CUT[String(o.h||'').toLowerCase()]||'',cut=!!cutF;
   var tile=function(l,v){return '<div class="pfx-k"><span>'+l+'</span><b>'+v+'</b></div>';};
   var cell=function(l,v){return '<div class="pfx-e"><b>'+v+'</b><span>'+l+'</span></div>';};
   var rk=function(n,l){return '<div class="pfx-r"><b>'+(n?'#'+n:'—')+'</b><span>'+l+'</span>'+(n?'<small>of '+o.NL+'</small>':'')+'</div>';};
@@ -9778,7 +9782,7 @@ function pfxHTML(o){
     +(o.seat?'<span class="pfx-seat">'+I.pin+E(o.seat)+'</span>':'')+'</div>';
   x+='<button class="pfx-go" type="button" data-h="'+E(o.h)+'" data-n="'+E(o.nm)+'" onclick="event.stopPropagation();haOpenHandle(this.getAttribute(\'data-h\'),this.getAttribute(\'data-n\'))">'+I.bars+'View analysis<span aria-hidden="true">›</span></button>';
   x+='</div></div>';
-  if(cut)x+='<img class="pfx-cut" src="/assets/leaders/'+encodeURIComponent(o.h)+'.webp" alt="" onerror="var c=this.parentNode;this.remove();if(c)c.classList.remove(\'has-cut\')">';
+  if(cut)x+='<span class="pfx-glow" aria-hidden="true"></span><img class="pfx-cut" src="/assets/leaders/pf/'+encodeURIComponent(cutF)+'.webp" data-fb="/assets/leaders/'+encodeURIComponent(cutF)+'.webp" alt="" onerror="var fb=this.getAttribute(\'data-fb\');if(fb){this.removeAttribute(\'data-fb\');this.src=fb;return;}var c=this.parentNode;this.remove();if(c)c.classList.remove(\'has-cut\')">';
   x+='</div><div class="pfx-body">';
   x+='<section><div class="pfx-h">Key stats<small>Apr–Jul 2026</small></div><div class="pfx-kpis">'+tile('Followers',o.fol)+tile('Tweets',o.tw)+tile('Total views',o.vw)+tile('Avg views / post',o.avg)+'</div></section>';
   x+='<section><div class="pfx-h">Standing<small>among '+o.NL+' tracked leaders</small></div><div class="pfx-ranks">'+rk(o.rf,'Followers rank')+rk(o.rv,'Views rank')+rk(o.rtk,'Tweets rank')
