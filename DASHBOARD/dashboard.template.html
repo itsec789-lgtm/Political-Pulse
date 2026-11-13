@@ -974,7 +974,7 @@ svg#indiaMap{width:100%;height:100%;max-width:100%;max-height:100%;display:block
 @media(max-width:600px){.pf-kpis{grid-template-columns:repeat(3,1fr)}}
 /* ===== pfx (13-Nov): leader profile card redesign ===== */
 .pf-overlay,.pf-card.pfx-on{overscroll-behavior:contain}
-#sec-states-cm tr.sc-tr{cursor:pointer}#sec-states-cm tr.sc-tr:focus-visible{outline:2px solid rgba(232,89,12,.55);outline-offset:-2px}
+#sec-states-cm tr.sc-row{cursor:pointer}#sec-states-cm tr.sc-row:focus-visible{outline:2px solid rgba(232,89,12,.55);outline-offset:-2px}
 .pf-card.pfx-on{max-width:820px;padding:0!important;border-radius:20px;overflow-x:hidden;overflow-y:auto;background:#fff;color:#17120E;
   font-family:'DM Sans',system-ui,sans-serif;box-shadow:0 30px 80px -20px rgba(20,10,2,.55);scrollbar-width:thin;scrollbar-color:#DCCFC0 transparent;
   animation:pfxIn .26s cubic-bezier(.2,.8,.2,1)}
@@ -3854,11 +3854,14 @@ body.ui-capture .ui-hero-mode{display:none!important}
 #sec-states-cm .cb-title,#sec-states-cm .cm-sec-title{font:700 11px 'DM Sans',sans-serif;letter-spacing:1px;color:#7A6E63}
 #sec-states-cm .back-btn{border:0;background:#17120E;color:#fff;font-weight:600}
 /* table */
-#sec-states-cm .table-section{padding:18px 0 0}
+/* 14-Nov: list wala hissa bhi map jaisa card -- grey par safed card, gol kone, wahi border/shadow; andar ki table bina alag shadow ke */
+#sec-states-cm .table-section{padding:22px 22px 20px;background:#fff;border:1px solid #ECE4DA;border-radius:18px;
+  box-shadow:0 1px 0 #ECE4DA,0 18px 40px -30px rgba(60,30,10,.45)}
+@media(max-width:600px){#sec-states-cm .table-section{padding:16px 12px 14px;border-radius:16px}}
 #sec-states-cm .ts-title{font:700 17px 'DM Sans',sans-serif;letter-spacing:-.2px;text-transform:none;color:#17120E}
 #sec-states-cm .ts-subtitle{font-size:12px;color:#8A7B6C}
 #sec-states-cm .ts-search,#sec-states-cm .ts-filter-sel{border:1px solid #E6DED3;border-radius:10px;background:#fff;padding:7px 12px}
-#sec-states-cm .data-table-wrap{border:1px solid #ECE4DA;border-radius:16px;background:#fff;box-shadow:0 18px 40px -32px rgba(60,30,10,.45)}
+#sec-states-cm .data-table-wrap{border:1px solid #EFE7DD;border-radius:14px;background:#fff;box-shadow:none}
 #sec-states-cm .data-table thead tr{background:#FBF8F4;border-bottom:1px solid #EDE6DC}
 #sec-states-cm .data-table th{position:sticky;top:0;background:#FBF8F4;z-index:1;color:#7A6E63;font-size:10px;letter-spacing:.7px;padding:11px 12px}
 #sec-states-cm .data-table td{padding:10px 12px;border-bottom:1px solid #F4EFE8}
@@ -3929,10 +3932,10 @@ body.ui-capture .ui-hero-mode{display:none!important}
 .sc-pf-t{padding-bottom:2px;background:linear-gradient(currentColor,currentColor) left bottom/0 1.5px no-repeat;
   transition:background-size .3s cubic-bezier(.2,.8,.2,1)}
 .sc-pf svg{width:14px;height:14px;flex:none;transition:transform .3s cubic-bezier(.2,.8,.2,1)}
-.sc-tr:hover .sc-pf,.sc-tr:focus-visible .sc-pf,.sc-pf:hover,.sc-pf:focus-visible{color:#C2410C}
-.sc-tr:hover .sc-pf-t,.sc-tr:focus-visible .sc-pf-t,.sc-pf:hover .sc-pf-t,.sc-pf:focus-visible .sc-pf-t{background-size:100% 1.5px}
-.sc-tr:hover .sc-pf svg,.sc-tr:focus-visible .sc-pf svg,.sc-pf:hover svg,.sc-pf:focus-visible svg{transform:translateX(4px)}
-.sc-tr:active .sc-pf svg,.sc-pf:active svg{transform:translateX(7px)}
+.sc-row:hover .sc-pf,.sc-row:focus-visible .sc-pf,.sc-pf:hover,.sc-pf:focus-visible{color:#C2410C}
+.sc-row:hover .sc-pf-t,.sc-row:focus-visible .sc-pf-t,.sc-pf:hover .sc-pf-t,.sc-pf:focus-visible .sc-pf-t{background-size:100% 1.5px}
+.sc-row:hover .sc-pf svg,.sc-row:focus-visible .sc-pf svg,.sc-pf:hover svg,.sc-pf:focus-visible svg{transform:translateX(4px)}
+.sc-row:active .sc-pf svg,.sc-pf:active svg{transform:translateX(7px)}
 .sc-pf:focus-visible{outline:2px solid rgba(232,89,12,.55);outline-offset:3px;border-radius:6px}
 @media (hover:none){.sc-pf{color:#C2410C}}   /* phone par hover nahi hota -- seedha saffron */
 @media (prefers-reduced-motion:reduce){.sc-pf-t,.sc-pf svg{transition:none}}
@@ -9167,7 +9170,7 @@ function scRow(c,i,arr){
   const hq=String(c.handle).replace(/'/g,"\\'");   /* 13-Nov: row tap = View profile card (state block/overview nahi, upar scroll nahi) */
   const prev=arr&&i>0?arr[i-1]:null,sub=!!(prev&&prev.state===c.state),grp=!!(prev&&prev.state!==c.state);   /* sc-v4: state group -- Dy CM apne CM ke neeche jude */
   const idle=!((+c.tweets||0)||(+c.views||0)||(+c.likes||0)||(+c.rts||0));
-  return `<tr class="sc-tr ${c.level==='Chief Minister'?'sc-cmrow':''}${sub?' sc-sub':''}${grp?' sc-grp':''}${idle?' sc-idle':''}" tabindex="0" aria-label="Open profile of ${scEsc(c.name)}" onclick="openProfile('${hq}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openProfile('${hq}')}">
+  return `<tr class="sc-row ${c.level==='Chief Minister'?'sc-cmrow':''}${sub?' sc-sub':''}${grp?' sc-grp':''}${idle?' sc-idle':''}" tabindex="0" aria-label="Open profile of ${scEsc(c.name)}" onclick="openProfile('${hq}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openProfile('${hq}')}">
     <td><span class="sc-n">${i+1}</span></td>
     <td><div class="sc-who">${scAv(c.handle,c.name,cp,'md')}<span class="sc-nm"><b>${scEsc(c.name)}</b><small>@${scEsc(c.handle)}${c.noData?' · no tweets yet':''}</small></span></div></td>
     <td><div class="sc-loc"><b>${scEsc(c.state)}</b>${seat&&seat!=='—'?'<small>'+scEsc(seat)+'</small>':''}</div></td>
