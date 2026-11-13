@@ -528,6 +528,10 @@ def build(csv_path):
             return fresh
         if fresh == 'MLA Contestent' or old == 'MLA Contestent':
             return fresh
+        # 13-Nov: CM / Dy CM ka pad Mapping (Admin Designation) se aata hai -- wo badle
+        # (koi CM bana, ya Dy CM se hata) to purana level chipka nahi rehna chahiye
+        if fresh in ('Chief Minister', 'Dy CM') or old in ('Chief Minister', 'Dy CM'):
+            return fresh
         return old
 
     # ---------- handles ----------
