@@ -3803,7 +3803,11 @@ body.ui-capture .ui-hero-mode{display:none!important}
 #sec-states-cm .sc-title{color:#17120E}
 #sec-states-cm .sc-title span{color:#E8590C}
 #sec-states-cm .sc-sub{color:#6E6156}
-#sec-states-cm .sc-k{background:rgba(255,255,255,.92)!important;border:1px solid #EADFD2!important;color:#17120E}
+/* KPI tiles: Dashboard ke KPI cards wali ring -- baayein gehra bhoora, daayein kesariya (gradient) */
+#sec-states-cm .sc-k{border:1.5px solid transparent!important;border-radius:14px;color:#17120E;
+  background:linear-gradient(#fff,#fff) padding-box,linear-gradient(110deg,#2B1407 0%,#5A2A0E 45%,#E8590C 100%) border-box!important;
+  box-shadow:0 2px 12px -4px rgba(43,20,7,.3);transition:box-shadow .2s,transform .2s}
+#sec-states-cm .sc-k:hover{transform:translateY(-2px);box-shadow:0 10px 24px -10px rgba(43,20,7,.45)}
 #sec-states-cm .sc-k .kpi-lbl{color:#8A7B6C!important}
 #sec-states-cm .sc-k .kpi-val{color:#17120E!important;-webkit-text-fill-color:#17120E;font-size:22px}
 #sec-states-cm .sc-k .kpi-sub{color:#9A8B7B!important}
