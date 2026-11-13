@@ -4062,12 +4062,12 @@ body.ui-capture .ui-hero-mode{display:none!important}
 #sec-states-cm .sc-dmap .sd-far{fill:rgba(255,255,255,.35);stroke:#E3CCB6;stroke-width:1;stroke-dasharray:3 3}
 #sec-states-cm .sc-dmap .sd-near{fill:rgba(255,226,204,.8);stroke:#D9895A;stroke-width:1.6}
 #sec-states-cm .sc-dmap .sd-delhi{fill:#E8590C;stroke:#fff;stroke-width:2;filter:drop-shadow(0 .04px .12px rgba(150,50,10,.45))}
-#sec-states-cm .sc-dmap text{font-family:'DM Sans',sans-serif;paint-order:stroke;stroke:rgba(255,248,242,.9);stroke-width:.03px}
-#sec-states-cm .sc-dmap .sd-l{font-size:.12px;font-weight:700;letter-spacing:.03px;fill:#9A5A30}
+#sec-states-cm .sc-dmap text{font-family:'DM Sans',sans-serif;paint-order:stroke;stroke:rgba(255,248,242,.9);stroke-width:.025px}
+#sec-states-cm .sc-dmap .sd-l{font-size:.1px;font-weight:700;letter-spacing:.025px;fill:#9A5A30}
 #sec-states-cm .sc-dmap .sd-lf{fill:#C4A68B;font-weight:600}
-#sec-states-cm .sc-dmap .sd-dl{font-size:.19px;font-weight:800;fill:#C2410C}
+#sec-states-cm .sc-dmap .sd-dl{font-size:.09px;font-weight:800;fill:#fff;stroke:rgba(150,50,10,.4)!important;stroke-width:.012px!important}
 #sec-states-cm .sc-dmap .sd-dot{fill:#fff;stroke:#C2410C;stroke-width:.02px}
-#sec-states-cm .sc-dmap .sd-ping{fill:none;stroke:#E8590C;stroke-width:.025px;transform-box:fill-box;transform-origin:center;animation:sdPing 2.4s ease-out infinite}
+#sec-states-cm .sc-dmap .sd-ping{fill:none;stroke:#E8590C;stroke-width:.02px;transform-box:fill-box;transform-origin:center;animation:sdPing 2.4s ease-out infinite}
 @keyframes sdPing{0%{opacity:.9;transform:scale(.35)}100%{opacity:0;transform:scale(1.6)}}
 @media (prefers-reduced-motion:reduce){#sec-states-cm .sc-dmap .sd-ping{animation:none;opacity:.5}}
 #sec-states-cm .sc-figs .f4{left:auto;right:-1%;width:30%;height:100%;z-index:4;object-position:right bottom;   /* Yogi -- kandha Himanta ke upar */
@@ -8967,7 +8967,7 @@ function renderLegend(){
 /* 14-Nov: States & CM hero -- Delhi aur uske padosi states ka saaf line-diagram (bade map wale GEOJSON se) */
 function scDrawDelhi(){
   var svg=document.getElementById('scDelhiSvg');if(!svg||typeof GEOJSON==='undefined')return;
-  var NS='http://www.w3.org/2000/svg',X0=75.15,X1=79.05,Y0=27.72,Y1=29.6;          /* lon/lat ki khidki: Delhi beech me, Haryana + pashchimi UP */
+  var NS='http://www.w3.org/2000/svg',X0=75.5,X1=78.7,Y0=27.85,Y1=29.4;          /* lon/lat ki khidki: Delhi beech me, Haryana + pashchimi UP */
   var ty=function(lat){return 42-(lat-6);};
   svg.setAttribute('viewBox',X0+' '+ty(Y1)+' '+(X1-X0)+' '+(Y1-Y0));
   var NEAR={'Haryana':1,'Uttar Pradesh':1},g=document.createElementNS(NS,'g');
@@ -8985,12 +8985,11 @@ function scDrawDelhi(){
   var dl=g.querySelector('.sd-delhi');if(dl)g.appendChild(dl);
   svg.innerHTML='';svg.appendChild(g);
   var lbl=function(txt,lon,lat,cls){var e=document.createElementNS(NS,'text');e.setAttribute('x',lon);e.setAttribute('y',ty(lat));e.setAttribute('class',cls);e.setAttribute('text-anchor','middle');e.textContent=txt;svg.appendChild(e);};
-  lbl('HARYANA',76.2,29.2,'sd-l');lbl('UTTAR PRADESH',78.15,28.05,'sd-l');
-  lbl('RAJASTHAN',75.85,27.9,'sd-l sd-lf');lbl('UTTARAKHAND',78.4,29.48,'sd-l sd-lf');
+  lbl('HARYANA',76.35,29.12,'sd-l');lbl('UTTAR PRADESH',78.05,28.1,'sd-l');
+  lbl('RAJASTHAN',76.05,27.98,'sd-l sd-lf');lbl('UTTARAKHAND',78.05,29.27,'sd-l sd-lf');
   if(dl){var bb=dl.getBBox(),cx=bb.x+bb.width/2,cy=bb.y+bb.height/2;
-    var ring=document.createElementNS(NS,'circle');ring.setAttribute('cx',cx);ring.setAttribute('cy',cy);ring.setAttribute('r',.2);ring.setAttribute('class','sd-ping');svg.appendChild(ring);
-    var dot=document.createElementNS(NS,'circle');dot.setAttribute('cx',cx);dot.setAttribute('cy',cy);dot.setAttribute('r',.035);dot.setAttribute('class','sd-dot');svg.appendChild(dot);
-    var t=document.createElementNS(NS,'text');t.setAttribute('x',cx+.26);t.setAttribute('y',cy-.2);t.setAttribute('class','sd-dl');t.textContent='Delhi';svg.appendChild(t);}
+    var ring=document.createElementNS(NS,'circle');ring.setAttribute('cx',cx);ring.setAttribute('cy',cy);ring.setAttribute('r',Math.max(bb.width,bb.height)*.75);ring.setAttribute('class','sd-ping');svg.insertBefore(ring,svg.firstChild.nextSibling);
+    var t=document.createElementNS(NS,'text');t.setAttribute('x',cx);t.setAttribute('y',cy+.032);t.setAttribute('text-anchor','middle');t.setAttribute('class','sd-dl');t.textContent='Delhi';svg.appendChild(t);}
 }
 try{scDrawDelhi();}catch(e){console.warn('scDrawDelhi',e);}
 function buildMap(){
