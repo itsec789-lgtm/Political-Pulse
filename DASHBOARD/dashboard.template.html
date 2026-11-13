@@ -8970,11 +8970,11 @@ function scDrawDelhi(){
   var NS='http://www.w3.org/2000/svg',X0=75.5,X1=78.7,Y0=27.85,Y1=29.4;          /* lon/lat ki khidki: Delhi beech me, Haryana + pashchimi UP */
   var ty=function(lat){return 42-(lat-6);};
   svg.setAttribute('viewBox',X0+' '+ty(Y1)+' '+(X1-X0)+' '+(Y1-Y0));
-  var NEAR={'Haryana':1,'Uttar Pradesh':1},g=document.createElementNS(NS,'g');
+  var NEAR={'Haryana':1,'Uttar Pradesh':1},g=document.createElementNS(NS,'g'),db=[1e9,1e9,-1e9,-1e9];   /* Delhi ka bbox coordinates se -- section chhupa ho to getBBox() 0 deta hai */
   GEOJSON.features.forEach(function(ft){
     var dn=g2d(ft.properties.NAME_1),geo=ft.geometry,polys=geo.type==='MultiPolygon'?geo.coordinates:[geo.coordinates],d='',hit=false;
     polys.forEach(function(poly){poly.forEach(function(ring){if(!ring||ring.length<3)return;
-      ring.forEach(function(p){if(p[0]>X0-.5&&p[0]<X1+.5&&p[1]>Y0-.5&&p[1]<Y1+.5)hit=true;});
+      ring.forEach(function(p){if(p[0]>X0-.5&&p[0]<X1+.5&&p[1]>Y0-.5&&p[1]<Y1+.5)hit=true;if(dn==='Delhi'){var y=ty(p[1]);if(p[0]<db[0])db[0]=p[0];if(y<db[1])db[1]=y;if(p[0]>db[2])db[2]=p[0];if(y>db[3])db[3]=y;}});
       d+='M'+ring.map(function(p){return p[0].toFixed(4)+','+ty(p[1]).toFixed(4);}).join('L')+'Z';});});
     if(!hit||!d)return;
     var el=document.createElementNS(NS,'path');el.setAttribute('d',d);
@@ -8987,7 +8987,7 @@ function scDrawDelhi(){
   var lbl=function(txt,lon,lat,cls){var e=document.createElementNS(NS,'text');e.setAttribute('x',lon);e.setAttribute('y',ty(lat));e.setAttribute('class',cls);e.setAttribute('text-anchor','middle');e.textContent=txt;svg.appendChild(e);};
   lbl('HARYANA',76.35,29.12,'sd-l');lbl('UTTAR PRADESH',78.05,28.1,'sd-l');
   lbl('RAJASTHAN',76.05,27.98,'sd-l sd-lf');lbl('UTTARAKHAND',78.05,29.27,'sd-l sd-lf');
-  if(dl){var bb=dl.getBBox(),cx=bb.x+bb.width/2,cy=bb.y+bb.height/2;
+  if(dl&&db[2]>db[0]){var bb={width:db[2]-db[0],height:db[3]-db[1]},cx=(db[0]+db[2])/2,cy=(db[1]+db[3])/2;
     var ring=document.createElementNS(NS,'circle');ring.setAttribute('cx',cx);ring.setAttribute('cy',cy);ring.setAttribute('r',Math.max(bb.width,bb.height)*.75);ring.setAttribute('class','sd-ping');svg.insertBefore(ring,svg.firstChild.nextSibling);
     var t=document.createElementNS(NS,'text');t.setAttribute('x',cx);t.setAttribute('y',cy+.032);t.setAttribute('text-anchor','middle');t.setAttribute('class','sd-dl');t.textContent='Delhi';svg.appendChild(t);}
 }
