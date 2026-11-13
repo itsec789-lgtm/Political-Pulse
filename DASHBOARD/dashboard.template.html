@@ -3846,6 +3846,9 @@ body.ui-capture .ui-hero-mode{display:none!important}
 #sec-states-cm .data-table th.r,#sec-states-cm .data-table td.r{text-align:right}
 /* sc-v4 (13-Nov): orange patti nahi -- state group: naye state se pehle halki line, Dy CM apne CM se L-line se jude */
 #sec-states-cm .data-table tr.sc-grp td{border-top:1px solid #E6DBCD}
+/* 14-Nov: jis state me Dy CM hain, us group ke baad agle state se pehle thodi saans (CM->CM wali doori waisi hi) */
+#sec-states-cm .data-table tr.sc-sub:has(+ tr.sc-grp) td{padding-bottom:16px}
+#sec-states-cm .data-table tr.sc-sub + tr.sc-grp td{padding-top:16px}
 #sec-states-cm tr.sc-sub .sc-who{position:relative;padding-left:22px}
 #sec-states-cm tr.sc-sub .sc-who::before{content:'';position:absolute;left:7px;top:-24px;height:calc(50% + 24px);width:11px;
   border-left:1.5px solid #E0D2C1;border-bottom:1.5px solid #E0D2C1;border-bottom-left-radius:8px;pointer-events:none}
