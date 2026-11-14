@@ -513,6 +513,9 @@ th.cf-open .cf-btn{opacity:1;background:rgba(0,0,0,.07)}
 .pf-chip i{font-style:normal;cursor:pointer;font-weight:700;opacity:.65;padding:0 4px}
 .pf-chip i:hover{opacity:1}
 .pf-chiprow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 12px}
+/* 14-Nov: Party Overview heading -- naam bold, range halke rang me usi line par, neeche thoda hi gap */
+.sec-title.pf-ovt{margin-bottom:12px}
+.pf-ovr{font-family:'DM Sans',sans-serif;font-size:11.5px;font-weight:600;letter-spacing:0;text-transform:none;color:var(--muted);margin-left:2px}
 
 /* khaali natija */
 .pf-empty{grid-column:1/-1;padding:28px 16px;text-align:center;color:var(--muted);
@@ -5742,12 +5745,10 @@ a.pe-btn:after{content:"";position:absolute;inset:0;z-index:1;background:linear-
   <button type="button" class="pf-reset" id="pfReset" title="Back to Full Range, All Levels, All India, All Parties"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg><span>Reset</span></button>
 </div>
 <main>
-  <div class="sec-title" id="pfOverviewTitle">Party Overview
-    <span style="font-size:9px;font-weight:400;color:var(--muted);text-transform:none;letter-spacing:0;margin-left:4px">
-      Click a party card to filter the charts below</span>
-  </div>
+  <!-- 14-Nov: sirf saaf heading -- hint line aur "Showing" chip wali patti hata di (chip JS ke liye chhupi rehti hai) -->
+  <div class="sec-title pf-ovt" id="pfOverviewTitle">Party Overview <span class="pf-ovr" id="pfOvSub"></span></div>
 
-  <div class="pf-chiprow">
+  <div class="pf-chiprow" style="display:none">
     <span class="pf-chip" id="pfChip"><span class="pf-dot"></span><span id="pfChipTxt">Showing: All Parties</span><i id="pfChipX" title="Clear" style="display:none">&#10005;</i></span>
     <span style="font-size:10.5px;color:var(--muted2)" id="pfRangeTxt"></span>
   </div>
@@ -16461,7 +16462,9 @@ function render() {
   (sel ? selRows : handlesFor({ party:'', range:r })).forEach(function (q) { tw += q.m.tw; n++; });
   $('pfInfo').innerHTML = '<span>' + nf(tw) + '</span> tweets &middot; <span>' + nf(n) + '</span> handles';
   var ttl = $('pfOverviewTitle');
-  if (ttl && ttl.firstChild) ttl.firstChild.nodeValue = 'Party Overview — ' + rangeLabel() + ' ';
+  if (ttl && ttl.firstChild) ttl.firstChild.nodeValue = 'Party Overview ';
+  var osub = $('pfOvSub');
+  if (osub) osub.textContent = rangeLabel() + (sel ? ' · ' + sel : '');
 
   drawDaily(selRows); drawHourly(); drawTop(selRows);
   drawViews(allRows, sel); drawTweets(allRows, sel); drawSent(allRows, sel);
