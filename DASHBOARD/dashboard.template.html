@@ -13750,7 +13750,30 @@ setTimeout(hExec,600);
         y: { beginAtZero: true, border: { display: false }, grid: { color: '#F1ECE4' }, ticks: { maxTicksLimit: 5, color: '#78716C', font: { family: "'DM Sans',sans-serif", size: 11 }, callback: function (v) { return U.cmp(v); } } } } } });
   }
 
+  /* 14-Nov: 'latest tak' -- jis laptop par tweets ka database peeche hai (sirf live server par roz aata hai),
+     wahan dashboard ka roz ka hisaab (PHD: posts / likes / retweets / views, Atlas se taaza) aage ke din jod deta hai.
+     Sirf 'All' period par, aur sirf un dino ke liye jo tweets ke aakhri din ke BAAD hain. Comments PHD me nahi -> 0. */
+  function haPhdTail(r) {
+    var P = window.PHD, DD = window.PHD_DATES; r._tail = null;
+    if (!P || !DD || !DD.length || !CUR) return;
+    if (((el('haPeriod') || {}).value || 'all') !== 'all') return;
+    var lc = String(CUR).toLowerCase(), key = null;
+    for (var k in P) { if (String(k).toLowerCase() === lc) { key = k; break; } }
+    if (!key) return;
+    var o = P[key], d = r.daily || [], last = d.length ? String(d[d.length - 1].date) : '', add = [];
+    DD.forEach(function (dt, i) {
+      if (dt <= last) return;
+      var tw = +(o.t || [])[i] || 0, lk = +(o.k || [])[i] || 0, rt = +(o.r || [])[i] || 0, vw = +(o.v || [])[i] || 0;
+      add.push({ date: dt, posts: tw, likes: lk, comments: 0, views: vw, shares: rt, engagement: lk + rt, engagementRate: null, followers: null, following: null, _tail: 1 });
+    });
+    if (!add.some(function (x) { return x.posts > 0; })) return;
+    r.daily = d.concat(add);
+    var wk = r.week || {};
+    r.week = { from: wk.from, to: DD[DD.length - 1], daily: (wk.daily || d).concat(add), collected: (wk.collected || []).concat(add.map(function (x) { return x.date; })) };
+    r._tail = { from: add[0].date, to: DD[DD.length - 1], last: last };
+  }
   function render(r) {
+    try { haPhdTail(r); } catch (e) { console.warn('ha tail', e); }
     var p = r.profile, s = r.summary, d = r.daily || [], c = col(p.party);
 
     /* ---- banner + profile  (xlive-front) ---- */
@@ -13803,7 +13826,7 @@ setTimeout(hExec,600);
     var tot = have.reduce(function (a, x) { return a + (Number(map[x].engagement) || 0); }, 0);
     var posts = have.reduce(function (a, x) { return a + (Number(map[x].posts) || 0); }, 0);
     var views = have.reduce(function (a, x) { return a + (Number(map[x].views) || 0); }, 0);
-    if (note) note.textContent = nice(from) + ' – ' + nice(to) + ' · last 7 days of collected data';
+    if (note) note.textContent = nice(from) + ' – ' + nice(to) + ' · last 7 days of collected data' + (dAll.some(function (x) { return x._tail; }) ? ' · days after the last saved tweet use the dashboard’s daily totals (no comment counts)' : '');
     var yr = el('haDailyYr'), y0 = from.slice(0, 4), y1 = to.slice(0, 4);
     if (yr) yr.textContent = y0 === y1 ? y1 : y0 + ' – ' + y1;
     function tile(k, v, s, c) { return '<div class="db-tile' + (c ? ' ' + c : '') + '"><span class="k">' + k + '</span><b>' + v + '</b><span class="s">' + s + '</span></div>'; }
