@@ -8249,17 +8249,194 @@ a.pe-btn:after{content:"";position:absolute;inset:0;z-index:1;background:linear-
 .nt-chip.on{background:#E65100;border-color:#E65100;color:#fff}
 .nt-feed{display:flex;flex-direction:column;gap:10px}
 .nt-card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:13px 15px}
-/* ---- TWEET INTELLIGENCE (merge v1) ---- */
-.ti-tabs{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:10px 22px 0}
-.ti-tab{border:1px solid var(--border);background:#fff;color:#6B5443;border-radius:9px 9px 0 0;
-  padding:9px 20px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit;
-  border-bottom-color:transparent;transition:.15s}
-.ti-tab:hover{color:#C2410C}
-.ti-tab.on{background:linear-gradient(150deg,#E9701C,#C0430D);border-color:#C0430D;color:#fff}
-.ti-note{font-size:11px;color:var(--muted);margin-left:auto;padding-right:4px}
+/* ---- TWEET INTELLIGENCE v2 (14-Nov) : hero + hot topics + tweet cards ---- */
+#sec-tweets .ti-main{padding-top:14px}
 .ti-pane{display:none}
 .ti-pane.on{display:block}
-@media(max-width:600px){.ti-tabs{padding:8px 10px 0}.ti-tab{padding:8px 14px;font-size:12px}}
+.ti-hero{position:relative;overflow:hidden;isolation:isolate;display:flex;align-items:stretch;justify-content:space-between;gap:18px;
+  min-height:168px;padding:22px 26px 0;border-radius:18px;color:#fff;margin-bottom:16px;
+  background:radial-gradient(120% 140% at 88% 0%,#F07A2B 0%,rgba(240,122,43,0) 55%),linear-gradient(118deg,#2A1408 0%,#4A220C 46%,#A9410F 100%);
+  box-shadow:0 14px 32px -22px rgba(43,20,7,.7)}
+.ti-hero::before{content:"";position:absolute;inset:0;z-index:-1;opacity:.5;pointer-events:none;
+  background-image:radial-gradient(rgba(255,255,255,.12) 1px,transparent 1.2px);background-size:16px 16px;
+  -webkit-mask-image:linear-gradient(90deg,transparent 30%,#000 90%);mask-image:linear-gradient(90deg,transparent 30%,#000 90%)}
+.ti-hero-l{display:flex;flex-direction:column;min-width:0;padding-bottom:0}
+.ti-eyebrow{display:flex;align-items:center;gap:8px;font:700 11px 'DM Sans',sans-serif;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,236,220,.88)}
+.ti-eyebrow b{color:#FFD9B8;font-weight:800}
+.ti-eb-sep{opacity:.5}
+.ti-live{width:8px;height:8px;border-radius:50%;background:#FF5A1F;box-shadow:0 0 0 0 rgba(255,90,31,.6);animation:tiPulse 1.8s infinite}
+@keyframes tiPulse{0%{box-shadow:0 0 0 0 rgba(255,90,31,.55)}70%{box-shadow:0 0 0 9px rgba(255,90,31,0)}100%{box-shadow:0 0 0 0 rgba(255,90,31,0)}}
+.ti-h{margin:8px 0 4px;font:700 28px/1.08 Rajdhani,sans-serif;letter-spacing:.2px;color:#fff}
+.ti-sub{margin:0;font:500 12.5px/1.5 'DM Sans',sans-serif;color:rgba(255,236,220,.82);max-width:520px}
+.ti-tabs{display:flex;gap:22px;margin-top:auto;padding-top:14px}
+.ti-tab{position:relative;border:0;background:none;padding:10px 0 12px;color:rgba(255,236,220,.7);font:700 13px 'DM Sans',sans-serif;cursor:pointer;letter-spacing:.02em}
+.ti-tab:hover{color:#fff}
+.ti-tab.on{color:#fff}
+.ti-tab.on::after{content:"";position:absolute;left:0;right:0;bottom:0;height:3px;border-radius:3px 3px 0 0;background:#FF8A3D}
+/* ti-v3 (14-Nov): hero final -- Live (Dashboard jaisa), heading, tabs + Time frame / Party isi panel me; 5 neta barabar kataar */
+.ti-hero{min-height:186px;padding:22px 0 0 28px;gap:0}
+.ti-hero-l{flex:1 1 auto;padding-right:8px}
+.ti-eyebrow{gap:12px}
+.ti-eyebrow > span{color:rgba(255,220,190,.9)}
+.ti-livebtn{display:inline-flex;align-items:center;gap:7px;height:24px;padding:0 11px 0 9px;border:0;border-radius:999px;cursor:pointer;
+  background:rgba(34,197,94,.16);color:#86EFAC;font:800 10.5px 'DM Sans',sans-serif;letter-spacing:.12em;text-transform:uppercase;
+  box-shadow:inset 0 0 0 1px rgba(134,239,172,.28);transition:background .2s ease}
+.ti-livebtn:hover{background:rgba(34,197,94,.26)}
+.ti-livebtn i{width:7px;height:7px;border-radius:50%;background:#22C55E;box-shadow:0 0 0 0 rgba(34,197,94,.6);animation:tiPing 1.8s ease-out infinite}
+@keyframes tiPing{0%{box-shadow:0 0 0 0 rgba(34,197,94,.6)}75%{box-shadow:0 0 0 8px rgba(34,197,94,0)}100%{box-shadow:0 0 0 0 rgba(34,197,94,0)}}
+.ti-h{margin:12px 0 0;font:700 34px/1.04 Rajdhani,sans-serif;letter-spacing:.2px}
+.ti-h span{background:linear-gradient(90deg,#FFB077,#FF7A2F);-webkit-background-clip:text;background-clip:text;color:transparent}
+.ti-hero-bot{display:flex;align-items:flex-end;justify-content:flex-start;gap:26px;flex-wrap:wrap;margin-top:auto;padding-top:16px}
+.ti-hero-ctl{display:flex;align-items:center;gap:10px;padding:0 0 18px}
+/* ti-v4: tabs upar daayein kone me (shishe ki patti, likha hua -- pill nahi) */
+.ti-hero > .ti-hero-l > .ti-tabs{position:absolute;top:16px;right:20px;z-index:5;display:flex;gap:2px;margin:0;padding:3px;border-radius:11px;
+  background:rgba(20,8,2,.32);box-shadow:inset 0 0 0 1px rgba(255,255,255,.16);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+.ti-hero > .ti-hero-l > .ti-tabs .ti-tab{padding:7px 16px;border-radius:8px;font-size:12.5px;color:rgba(255,232,214,.78)}
+.ti-hero > .ti-hero-l > .ti-tabs .ti-tab.on{background:rgba(255,255,255,.16);color:#fff}
+.ti-hero > .ti-hero-l > .ti-tabs .ti-tab.on::after{display:none}
+/* ti-v5 (14-Nov): patla hero -- photo ki unchai wahi (150), khaali gap hataya; tabs photo ke upar-daayein */
+.ti-hero{min-height:188px;padding-top:18px}   /* photo (150) ke upar jagah -- Modi ka sar na kate */
+.ti-hero .ti-h{margin-top:8px}
+.ti-hotline{margin-top:6px}
+.ti-hero-bot{padding-top:12px;margin-top:auto}
+.ti-hero-ctl{padding-bottom:16px}
+.ti-hero .ti-faces{height:150px;margin-top:0;padding-right:58px}
+/* cut-out ka seedha kata kinara (Akhilesh ka kandha Rahul par, Uddhav ka Mamata par) -- kinara dheere ghule, overlap kam */
+.ti-hero .ti-faces .f:nth-child(2){margin-left:-14px;-webkit-mask-image:linear-gradient(90deg,transparent 0,#000 20%);mask-image:linear-gradient(90deg,transparent 0,#000 20%)}
+.ti-hero .ti-faces .f:nth-child(4){-webkit-mask-image:linear-gradient(270deg,transparent 0,#000 20%);mask-image:linear-gradient(270deg,transparent 0,#000 20%)}
+.ti-hero .ti-faces .f:nth-child(5){margin-left:-14px}
+.ti-faces .f.o{height:100px}.ti-faces .f.i{height:120px}.ti-faces .f.c{height:150px}
+/* heading ke neeche: AI ke 2 garam mudde -- click par us card tak */
+.ti-hotline{display:flex;align-items:center;gap:8px 18px;flex-wrap:wrap;margin-top:10px;min-height:22px}
+.ti-hotline .lb{font:700 10px 'DM Sans',sans-serif;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,220,190,.6)}
+.ti-hotline a{display:inline-flex;align-items:center;gap:7px;color:#FFE6D2;font:700 13.5px 'DM Sans',sans-serif;text-decoration:none;cursor:pointer;max-width:340px}
+.ti-hotline a span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ti-hotline a svg{flex:none;width:14px;height:14px;color:#FF8A3D}
+.ti-hotline a:hover span{text-decoration:underline;text-underline-offset:3px}
+.tih.flash{animation:tihFlash 1.4s ease}
+@keyframes tihFlash{0%,30%{box-shadow:0 0 0 3px rgba(232,89,12,.45)}100%{}}
+.ti-gl{display:inline-flex;align-items:center;gap:8px;height:34px;padding:0 10px 0 12px;border-radius:10px;cursor:pointer;
+  background:rgba(255,255,255,.1);box-shadow:inset 0 0 0 1px rgba(255,255,255,.22);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);transition:background .2s ease}
+.ti-gl:hover,.ti-gl:focus-within{background:rgba(255,255,255,.17)}
+.ti-gl > span{font:700 9.5px 'DM Sans',sans-serif;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,220,190,.75)}
+.ti-gl select{border:0;background:none;color:#fff;font:700 12.5px 'DM Sans',sans-serif;outline:none;cursor:pointer;max-width:150px}
+.ti-gl select option{color:#2B1A10}
+.ti-hero[data-p="explorer"] .ti-hero-ctl{display:none}
+.ti-hero[data-p="trending"] .ti-cats{display:none}
+/* hero ke andar categories -- gehre rang par likhe hue tab, chuni hui ke neeche narangi rekha */
+.ti-hero .ti-cats{border:0;margin:0;gap:2px 16px;overflow:visible;padding-bottom:4px;flex-wrap:nowrap}
+.ti-hero .ti-cats button{padding:8px 0 10px;color:rgba(255,226,204,.68);font-size:12.5px}
+.ti-hotline{flex-wrap:nowrap;overflow:hidden}
+.ti-hotline .lb{flex:none}
+.ti-hotline a{min-width:0;max-width:280px}
+.ti-hero .ti-cats button:hover{color:#fff}
+.ti-hero .ti-cats button.on{color:#fff}
+.ti-hero .ti-cats button.on::after{bottom:0;height:3px;background:#FF8A3D}
+.ti-hotline.loading{opacity:.45;transition:opacity .2s ease}
+.ti-faces{position:relative;flex:0 0 auto;align-self:flex-end;display:flex;align-items:flex-end;height:176px;padding:0 18px 0 6px;pointer-events:none}
+.ti-faces::before{content:"";position:absolute;left:50%;bottom:-70px;width:430px;height:280px;transform:translateX(-50%);border-radius:50%;
+  background:radial-gradient(closest-side,rgba(255,176,119,.5),rgba(255,176,119,0))}
+.ti-faces .f{position:relative;width:auto;margin-left:-26px;filter:drop-shadow(0 10px 16px rgba(0,0,0,.42))}
+.ti-faces .f:first-child{margin-left:0}
+.ti-faces .f.o{height:116px;z-index:1;filter:drop-shadow(0 10px 16px rgba(0,0,0,.42)) brightness(.94)}
+.ti-faces .f.i{height:138px;z-index:2}
+.ti-faces .f.c{height:176px;z-index:3;filter:drop-shadow(0 14px 22px rgba(0,0,0,.55))}
+.ti-bar{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin:0 0 14px}
+.ti-ctl{display:inline-flex;align-items:center;gap:8px;height:38px;padding:0 12px;background:#fff;border:1px solid #EAE1D6;border-radius:10px;
+  font:600 12.5px 'DM Sans',sans-serif;color:#2B1A10}
+.ti-ctl > span{font:700 10px 'DM Sans',sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#9A8B7D}
+.ti-ctl select,.ti-ctl input{border:0;background:none;font:600 12.5px 'DM Sans',sans-serif;color:#2B1A10;outline:none;cursor:pointer}
+.ti-ctl:focus-within{border-color:#E8590C;box-shadow:0 0 0 3px rgba(232,89,12,.12)}
+.ti-q{flex:1 1 240px;max-width:340px}.ti-q svg{width:16px;height:16px;color:#9A8B7D;flex:none}.ti-q input{flex:1;min-width:0;cursor:text}
+.ti-dates{display:none;align-items:center;gap:6px;font:600 12px 'DM Sans',sans-serif;color:#7A6B5E}
+.ti-dates.on{display:inline-flex}
+.ti-dates input{height:38px;border:1px solid #EAE1D6;border-radius:10px;padding:0 8px;font:600 12px 'DM Sans',sans-serif;color:#2B1A10;background:#fff}
+.ti-info{margin-left:auto;font:600 11.5px 'DM Sans',sans-serif;color:#8A7B6E;display:flex;align-items:center;gap:6px}
+.ti-info .ai{display:inline-flex;align-items:center;gap:5px;color:#C2410C;font-weight:700}
+.ti-info .ai svg{width:13px;height:13px}
+/* 2 hot mudde */
+.ti-hot{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:22px}
+.tih{position:relative;overflow:hidden;border-radius:16px;padding:16px 18px 14px;background:#fff;border:1px solid #F0E3D4;
+  box-shadow:0 10px 26px -20px rgba(120,50,10,.55);display:flex;flex-direction:column;gap:10px;animation:tiIn .45s ease both}
+.tih::before{content:"";position:absolute;inset:0 0 auto 0;height:4px;background:linear-gradient(90deg,#E8590C,#FF9F5A)}
+.tih:nth-child(2)::before{background:linear-gradient(90deg,#B4231C,#F0623E)}
+.tih-top{display:flex;align-items:center;gap:10px;font:800 10.5px 'DM Sans',sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#C2410C}
+.tih:nth-child(2) .tih-top{color:#B4231C}
+.tih-top svg{width:15px;height:15px}
+.tih-top .m{margin-left:auto;font-weight:600;letter-spacing:0;text-transform:none;color:#9A8B7D;font-size:11.5px}
+.tih h3{margin:0;font:700 21px/1.15 Rajdhani,sans-serif;color:#1E130C}
+.tih p{margin:-4px 0 0;font:500 12.5px/1.5 'DM Sans',sans-serif;color:#6E5F52}
+.tih .tc{border:0;box-shadow:none;padding:12px 0 0;border-top:1px dashed #EEDFCF;border-radius:0;animation:none}
+.tih .tc-tx{-webkit-line-clamp:3}
+@keyframes tiIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+/* ti-head v2 (14-Nov): icon + "Top 20" rang me + patli rekha + range daayein */
+.ti-head{display:flex;align-items:center;gap:14px;margin:4px 0 14px}
+.ti-head h3{display:inline-flex;align-items:center;gap:0;margin:0;font:700 23px/1 Rajdhani,sans-serif;letter-spacing:.2px;color:#1E130C;white-space:nowrap}
+.ti-head h3 svg{width:20px;height:20px;padding:6px;box-sizing:content-box;border-radius:10px;color:#fff;
+  background:linear-gradient(135deg,#F07A2B,#C2410C);box-shadow:0 6px 14px -8px rgba(194,65,12,.8)}
+.ti-head h3 em{font-style:normal;color:#C2410C;margin:0 .26em 0 12px}
+.ti-head .ln{flex:1;height:1px;background:linear-gradient(90deg,#E6D6C5,rgba(230,214,197,0))}
+.ti-head span{font:600 12px 'DM Sans',sans-serif;color:#9A8B7D;white-space:nowrap}
+/* tweet card */
+.ti-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.ti-grid > .nt-msg{grid-column:1/-1}
+.tc{position:relative;background:#fff;border:1px solid #EFE6DC;border-radius:14px;padding:14px 16px 12px;display:flex;flex-direction:column;gap:10px;
+  box-shadow:0 6px 18px -16px rgba(60,30,10,.5);transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease;animation:tiIn .4s ease both}
+.tc:hover{transform:translateY(-2px);border-color:#E9D3BE;box-shadow:0 14px 28px -20px rgba(120,50,10,.55)}
+.tc-hd{display:flex;align-items:center;gap:10px;min-width:0}
+.tc-av{position:relative;flex:none;width:40px;height:40px;border-radius:50%;overflow:hidden;background:var(--pc,#B45309);color:#fff;
+  display:flex;align-items:center;justify-content:center;font:700 15px 'DM Sans',sans-serif;box-shadow:0 0 0 2px #fff,0 0 0 3.5px var(--pc,#E8D9C8)}
+.tc-av img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.tc-who{min-width:0;flex:1}
+.tc-nm{display:flex;align-items:center;gap:6px;font:700 13.5px 'DM Sans',sans-serif;color:#1E130C;min-width:0}
+.tc-nm b{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tc-pt{flex:none;font:800 10px 'DM Sans',sans-serif;letter-spacing:.06em;color:var(--pc,#8A7B6E)}
+.tc-sub{font:500 11.5px 'DM Sans',sans-serif;color:#8A7B6E;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tc-rk{flex:none;align-self:flex-start;font:700 22px/1 Rajdhani,sans-serif;color:#EADBCB}
+.tc-rk.top{color:#F2B184}
+.tc-tx{font:500 13.5px/1.55 'DM Sans','Noto Sans Devanagari',sans-serif;color:#2B1A10;white-space:pre-line;word-break:break-word;
+  display:-webkit-box;-webkit-line-clamp:6;-webkit-box-orient:vertical;overflow:hidden}
+.tc.open .tc-tx{-webkit-line-clamp:unset;display:block}
+.tc-more{align-self:flex-start;margin-top:-6px;border:0;background:none;padding:0;color:#C2410C;font:700 12px 'DM Sans',sans-serif;cursor:pointer}
+.tc-tag{align-self:flex-start;display:inline-flex;align-items:center;gap:6px;font:700 11px 'DM Sans',sans-serif;color:#B4231C}
+.tc-tag::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
+.tc-ft{display:flex;align-items:center;gap:16px;padding-top:9px;border-top:1px solid #F4ECE3;font:600 12px 'DM Sans',sans-serif;color:#7A6B5E}
+.tc-ft span{display:inline-flex;align-items:center;gap:5px}
+.tc-ft svg{width:14px;height:14px;color:#A8988A}
+.tc-ft b{color:#2B1A10;font-weight:700}
+.tc-ft a{margin-left:auto;display:inline-flex;align-items:center;gap:5px;color:#C2410C;text-decoration:none;font-weight:700}
+.tc-ft a:hover{text-decoration:underline;text-underline-offset:3px}
+.tc-ft a svg{color:currentColor;width:13px;height:13px}
+/* Explorer categories -- likha hua tab, pill nahi */
+.ti-cats{display:flex;gap:4px 22px;flex-wrap:wrap;border-bottom:1px solid #EADFD3;margin:0 0 14px;overflow-x:auto}
+.ti-cats button{position:relative;border:0;background:none;padding:10px 0 11px;font:700 12.5px 'DM Sans',sans-serif;color:#8A7B6E;cursor:pointer;white-space:nowrap}
+.ti-cats button:hover{color:#2B1A10}
+.ti-cats button.on{color:#C2410C}
+.ti-cats button.on::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:3px;border-radius:3px 3px 0 0;background:#E8590C}
+/* Explorer toolbar (14-Nov): ek hi safed patti -- search badi, baaki ke beech patli rekha; ginti neeche daayein */
+.ti-bar-ex{gap:0;flex-wrap:nowrap;background:#fff;border:1px solid #EAE1D6;border-radius:14px;padding:4px;margin-bottom:16px;
+  box-shadow:0 6px 18px -16px rgba(60,30,10,.5)}
+.ti-bar-ex .ti-ctl{border:0;background:none;border-radius:10px;height:40px;box-shadow:none}
+.ti-bar-ex .ti-ctl:focus-within{background:#FBF4EC;box-shadow:none}
+.ti-bar-ex .ti-ctl + .ti-ctl,.ti-bar-ex .ti-dates + .ti-ctl,.ti-bar-ex .ti-ctl + .ti-dates{position:relative;margin-left:1px}
+.ti-bar-ex .ti-ctl + .ti-ctl::before,.ti-bar-ex .ti-dates + .ti-ctl::before,.ti-bar-ex .ti-ctl + .ti-dates::before{content:"";position:absolute;left:-1px;top:9px;bottom:9px;width:1px;background:#EEE3D7}
+.ti-bar-ex .ti-q{flex:1 1 auto;max-width:none}
+.ti-bar-ex .ti-ctl:not(.ti-q){flex:none}
+.ti-bar-ex .ti-ctl select{max-width:150px}
+.ti-bar-ex .ti-dates{padding:0 8px;height:40px}
+.ti-bar-ex .ti-dates input{height:32px;border-color:#EEE3D7}
+.ti-info-ex{justify-content:flex-end;margin:0 4px 14px;font-size:11.5px}
+@media (max-width:820px){.ti-bar-ex{flex-wrap:wrap}.ti-bar-ex .ti-q{flex-basis:100%}}
+.ti-more{text-align:center;margin-top:16px}
+.ti-more button{border:1px solid #EAD7C4;background:#fff;color:#C2410C;font:700 12.5px 'DM Sans',sans-serif;padding:10px 26px;border-radius:10px;cursor:pointer}
+.ti-more button:hover{border-color:#E8590C}
+.ti-skel{height:150px;border-radius:14px;background:linear-gradient(90deg,#F6EFE7 0%,#FBF6F0 50%,#F6EFE7 100%);background-size:200% 100%;animation:tiSk 1.2s linear infinite}
+.tih.ti-skel{height:210px}
+@keyframes tiSk{to{background-position:-200% 0}}
+@media (max-width:1180px){.ti-faces{zoom:.8}}
+@media (max-width:960px){.ti-faces{zoom:.66}}
+@media (max-width:820px){.ti-hero{padding:18px 18px 0}.ti-faces{display:none}.ti-hero-ctl{padding-bottom:16px;flex-wrap:wrap}.ti-hero > .ti-hero-l > .ti-tabs{top:12px;right:12px}.ti-h{margin-top:26px}.ti-hot,.ti-grid{grid-template-columns:1fr}.ti-h{font-size:24px}.ti-info{margin-left:0;width:100%}}
+@media (prefers-reduced-motion:reduce){.tc,.tih{animation:none}.ti-live{animation:none}}
 
 /* ---- BREAKING NEWS (news v2) ---- */
 .bn-scope-tabs{display:flex;background:var(--card,#fff);border:1.5px solid var(--border,#E5D9CD);border-radius:12px;padding:4px;gap:6px;margin-bottom:16px;box-shadow:0 1px 4px rgba(60,30,10,0.03)}
@@ -8399,70 +8576,75 @@ body.dark .bn-metrics b{color:#F0F6FC}
 
 <!-- 11. TRENDING & VIRAL TWEETS -->
 <div class="page-section" id="sec-tweets">
-  <div class="ti-tabs">
-    <button class="ti-tab on" data-p="trending">Trending</button>
-    <button class="ti-tab" data-p="explorer">Explorer</button>
-    <span class="ti-note">Both run on the same tweet data (MongoDB)</span>
+<main class="ti-main">
+  <!-- ti-v2 (14-Nov): chhota hero -- naam, "abhi garam" aur bade netaon ki photo; Trending / Explorer usi me -->
+  <!-- ti-v3 (14-Nov): hero me Live + naam + bada heading; neeche tabs aur (Trending par) Time frame / Party; daayein 5 neta -->
+  <div class="ti-hero" id="tiHero" data-p="trending">
+    <div class="ti-hero-l">
+      <div class="ti-eyebrow">
+        <button type="button" class="ti-livebtn" onclick="window.ntTrend && window.ntTrend()" title="Live — refresh the trending posts now"><i aria-hidden="true"></i>Live</button>
+        <span>Tweet Intelligence</span>
+      </div>
+      <h2 class="ti-h">What&rsquo;s <span>hot</span> in Indian politics</h2>
+      <div class="ti-hotline" id="tiHotLine" aria-live="polite"></div>
+      <!-- ti-v4: Trending / Explorer upar daayein kone me; Time frame + Party neeche baayein -->
+      <div class="ti-tabs" role="tablist">
+        <button class="ti-tab on" data-p="trending" role="tab">Trending</button>
+        <button class="ti-tab" data-p="explorer" role="tab">Explorer</button>
+      </div>
+      <div class="ti-hero-bot">
+        <!-- Explorer ki categories isi panel me; "Hot right now" chuni category ke hisaab se badalta hai -->
+        <div class="ti-cats" id="exCats" role="tablist">
+          <button class="on" data-c="all">Mix</button><button data-c="leaders">Top leaders</button><button data-c="mps">MPs</button>
+          <button data-c="mlas">MLAs</button><button data-c="pages">Party pages</button><button data-c="media">Media houses</button>
+          <button data-c="journalists">Journalists</button><button data-c="others" title="Independent voices and others">Others</button>
+        </div>
+        <div class="ti-hero-ctl">
+          <label class="ti-gl"><span>Time frame</span>
+            <select id="trWin" onchange="ntTrend()">
+              <option value="today" selected>Latest day</option><option value="3">Last 3 days</option>
+              <option value="7">Last 7 days</option><option value="30">Last 30 days</option><option value="all">Full range</option>
+            </select></label>
+          <label class="ti-gl"><span>Party</span>
+            <select id="trParty" onchange="ntTrend()"><option value="all">All parties</option></select></label>
+        </div>
+      </div>
+    </div>
+    <div class="ti-faces" aria-hidden="true">
+      <img class="f o" src="/assets/leaders/RahulGandhi.webp" alt="" onerror="this.remove()">
+      <img class="f i" src="/assets/leaders/yadavakhilesh.webp" alt="" onerror="this.remove()">
+      <img class="f c" src="/assets/leaders/narendramodi.webp" alt="" onerror="this.remove()">
+      <img class="f i" src="/assets/leaders/UddhavThackeray.webp" alt="" onerror="this.remove()">
+      <img class="f o" src="/assets/leaders/MamataOfficial.webp" alt="" onerror="this.remove()">
+    </div>
   </div>
+
   <div class="ti-pane on" id="ti-trending">
+    <div class="ti-hot" id="trHot"></div>
+    <div class="ti-head"><h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg><em>Top 20</em> trending posts</h3><i class="ln" aria-hidden="true"></i><span id="trRange"></span></div>
+    <div class="ti-grid" id="trFeed"><div class="nt-msg">Loading&hellip;</div></div>
+  </div>
 
-<div class="parties-filter-bar">
-  <span class="filter-label">Party</span>
-  <select id="trParty" class="filter-select" style="min-width:130px" onchange="ntTrend()"><option value="all">All Parties</option></select>
-  <div class="filter-divider"></div>
-  <span class="filter-label">Quick</span>
-  <select id="trPreset" class="filter-select" style="min-width:150px" onchange="ntPreset('tr')">
-    <option value="today">Today</option><option value="all" selected>Full Range</option>
-    <option value="3">Last 3 Days</option><option value="7">Last 7 Days</option>
-    <option value="30">Last 30 Days</option><option value="custom">Custom</option></select>
-  <span class="filter-label">From</span><input type="date" id="trFrom" class="filter-select" onchange="ntCustom('tr')">
-  <span class="filter-label">To</span><input type="date" id="trTo" class="filter-select" onchange="ntCustom('tr')">
-  <span class="filter-label">Show</span>
-  <select id="trLimit" class="filter-select" style="min-width:90px" onchange="ntTrend()">
-    <option value="30" selected>Top 30</option><option value="50">Top 50</option><option value="100">Top 100</option></select>
-  <div class="filter-info" style="margin-left:auto" id="trInfo">&mdash;</div>
-</div>
-<main>
-  <div class="sec-title">Trending &amp; Viral Tweets</div>
-  <div class="nt-bar" id="trTabs">
-    <button class="nt-chip on" data-m="views">Highest Views</button>
-    <button class="nt-chip" data-m="likes">Highest Likes</button>
-    <button class="nt-chip" data-m="retweets">Highest Retweets</button>
-    <button class="nt-chip" data-m="comments">Highest Comments</button>
-    <button class="nt-chip" data-m="engagement">Highest Engagement</button>
-  </div>
-  <div class="nt-feed" id="trFeed"><div class="nt-msg">Loading&hellip;</div></div>
-</main>
-  </div>
   <div class="ti-pane" id="ti-explorer">
-
-<div class="parties-filter-bar">
-  <input type="text" id="exQ" class="filter-select" style="min-width:230px" placeholder="Search tweet text, handle, candidate&hellip;">
-  <span class="filter-label">Party</span>
-  <select id="exParty" class="filter-select" style="min-width:130px" onchange="ntExplore(true)"><option value="all">All Parties</option></select>
-  <div class="filter-divider"></div>
-  <span class="filter-label">Quick</span>
-  <select id="exPreset" class="filter-select" style="min-width:150px" onchange="ntPreset('ex')">
-    <option value="today">Today</option><option value="all" selected>Full Range</option>
-    <option value="3">Last 3 Days</option><option value="7">Last 7 Days</option>
-    <option value="30">Last 30 Days</option><option value="custom">Custom</option></select>
-  <span class="filter-label">From</span><input type="date" id="exFrom" class="filter-select" onchange="ntCustom('ex')">
-  <span class="filter-label">To</span><input type="date" id="exTo" class="filter-select" onchange="ntCustom('ex')">
-  <span class="filter-label">Sort</span>
-  <select id="exSort" class="filter-select" style="min-width:130px" onchange="ntExplore(true)">
-    <option value="date">Latest</option><option value="eng">Likes</option>
-    <option value="views">Views</option><option value="retweets">Retweets</option></select>
-  <button class="filter-select" style="cursor:pointer;font-weight:700;color:#1B5E20;border-color:#b9d9b9" onclick="ntExplore(true)">Search</button>
-  <div class="filter-info" style="margin-left:auto" id="exInfo">&mdash;</div>
-</div>
-<main>
-  <div class="sec-title">Tweet Explorer</div>
-  <div class="nt-feed" id="exFeed"><div class="nt-msg">Press Search or change a filter&hellip;</div></div>
-  <div style="text-align:center;margin-top:14px">
-    <button id="exMore" class="filter-select" style="display:none;cursor:pointer;font-weight:700;padding:9px 26px" onclick="ntExplore(false)">Load more</button>
+    <div class="ti-bar ti-bar-ex">
+      <label class="ti-ctl ti-q"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <input type="text" id="exQ" placeholder="Search text, handle or name&hellip;"></label>
+      <label class="ti-ctl"><span>Time frame</span>
+        <select id="exRange" onchange="ntPreset('ex')">
+          <option value="today">Latest day</option><option value="3">Last 3 days</option><option value="7">Last 7 days</option>
+          <option value="30">Last 30 days</option><option value="all" selected>Full range</option><option value="custom">Custom</option></select></label>
+      <span class="ti-dates" id="exDates"><input type="date" id="exFrom" onchange="ntCustom('ex')"><span>to</span><input type="date" id="exTo" onchange="ntCustom('ex')"></span>
+      <label class="ti-ctl"><span>Party</span>
+        <select id="exParty" onchange="ntExplore(true)"><option value="all">All parties</option></select></label>
+      <label class="ti-ctl"><span>Sort</span>
+        <select id="exSort" onchange="ntExplore(true)">
+          <option value="date" selected>Latest</option><option value="hot">Trending</option><option value="views">Views</option>
+          <option value="eng">Likes</option><option value="retweets">Retweets</option></select></label>
+    </div>
+  <div class="ti-grid" id="exFeed"><div class="nt-msg">Loading&hellip;</div></div>
+    <div class="ti-more"><button id="exMore" type="button" style="display:none" onclick="ntExplore(false)">Load more posts</button></div>
   </div>
 </main>
-  </div>
 </div>
 
 
@@ -8599,8 +8781,11 @@ window.WORDCLOUD = "__MONGO_WORDCLOUD__";
     if (f && !f.value) f.value = D[0];
     if (t && !t.value) t.value = D[D.length - 1];
   }
+  /* ti-v2: Explorer ka select 'exRange' hai (…Preset nahi) -- warna global range-note uske bagal me poori tareekh
+     chipka deta tha aur options badal deta tha */
   window.ntPreset = function (pfx) {
-    var D = dates(), v = ($(pfx + 'Preset') || {}).value;
+    var D = dates(), v = ($(pfx + 'Preset') || $(pfx + 'Range') || {}).value;
+    var dw = $(pfx + 'Dates'); if (dw) dw.classList.toggle('on', v === 'custom');
     if (v !== 'custom' && D.length) {
       var _r = window.pRange(v, D) || { f: D[0], t: D[D.length - 1] };
       if ($(pfx + 'From')) $(pfx + 'From').value = _r.f;
@@ -8609,7 +8794,7 @@ window.WORDCLOUD = "__MONGO_WORDCLOUD__";
     (pfx === 'tr' ? window.ntTrend : function () { window.ntExplore(true); })();
   };
   window.ntCustom = function (pfx) {
-    var p = $(pfx + 'Preset'); if (p) p.value = 'custom';
+    var p = $(pfx + 'Preset') || $(pfx + 'Range'); if (p) p.value = 'custom';
     (pfx === 'tr' ? window.ntTrend : function () { window.ntExplore(true); })();
   };
   function qs(pfx) {
@@ -8638,28 +8823,68 @@ window.WORDCLOUD = "__MONGO_WORDCLOUD__";
     });
   }
 
-  /* ---------- ek tweet ka card ---------- */
-  function card(r) {
-    var nm = r.cn || r.h || '?';
-    var sn = String(r.sn || '').toLowerCase();
-    var cls = sn.indexOf('pos') === 0 ? ' pos' : (sn.indexOf('neg') === 0 ? ' neg' : '');
-    return '<div class="nt-card">'
-      + '<div class="nt-top">'
-      +   '<div class="nt-av">' + esc(nm.charAt(0).toUpperCase()) + '</div>'
-      +   '<div><div class="nt-nm">' + esc(nm) + '</div>'
-      +   '<div class="nt-sub">@' + esc(r.h) + (r.dg ? ' &middot; ' + esc(r.dg) : '')
-      +     (r.st ? ' &middot; ' + esc(r.st) : '') + ' &middot; ' + esc(r.d) + '</div></div>'
-      +   (r.pt ? '<span class="nt-pill">' + esc(r.pt) + '</span>' : '')
-      +   (r.sn ? '<span class="nt-pill' + cls + '">' + esc(r.sn) + '</span>' : '')
-      + '</div>'
-      + '<div class="nt-tx">' + esc(r.tx) + '</div>'
-      + '<div class="nt-mt"><span>&#128065; <b>' + nf(r.vw) + '</b></span>'
-      +   '<span>&#10084; <b>' + nf(r.lk) + '</b></span>'
-      +   '<span>&#128257; <b>' + nf(r.rt) + '</b></span>'
-      +   '<span>&#128172; <b>' + nf(r.cm) + '</b></span>'
-      +   (r.u ? '<a href="' + esc(r.u) + '" target="_blank" rel="noopener">Open &#8599;</a>' : '')
-      + '</div></div>';
+  /* ---------- ek tweet ka card (ti-v2, 14-Nov) : X jaisa -- photo, naam, party rang, poora text, aankde ---------- */
+  function sv(p) { return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + p + '</svg>'; }
+  var TIC = {
+    vw: sv('<path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>'),
+    lk: sv('<path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l1 1.1L12 21l7.8-7.5 1-1.1a5.5 5.5 0 0 0 0-7.8z"/>'),
+    rt: sv('<path d="M17 2l4 4-4 4"/><path d="M3 11V9a3 3 0 0 1 3-3h15"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v2a3 3 0 0 1-3 3H3"/>'),
+    cm: sv('<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>'),
+    x: sv('<path d="M7 17L17 7"/><path d="M8 7h9v9"/>'),
+    fire: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13.5 1.7s.7 2.6.7 4.7c0 2-1.3 3.6-3.3 3.6S7.5 8.4 7.5 6.4l.1-.7C5.6 8.1 4.4 11.2 4.4 14.5 4.4 18.7 7.8 22 12 22s7.6-3.3 7.6-7.5c0-5-2.4-9.5-6.1-12.8zM11.7 19c-1.8 0-3.2-1.4-3.2-3.2 0-1.7 1.1-2.9 2.9-3.3 1.9-.4 3.8-1.3 4.9-2.7.4 1.4.7 2.8.7 4.3 0 2.7-2.4 4.9-5.3 4.9z"/></svg>',
+    ai: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l1.8 5.4L19 9l-5.2 1.6L12 16l-1.8-5.4L5 9l5.2-1.6zM19 14l.9 2.6 2.6.9-2.6.9L19 21l-.9-2.6-2.6-.9 2.6-.9zM5 15l.7 1.8 1.8.7-1.8.7L5 20l-.7-1.8-1.8-.7 1.8-.7z"/></svg>'
+  };
+  var CATN = { leaders: 'Top leader', mps: 'MP', mlas: 'MLA', pages: 'Party page', media: 'Media house', journalists: 'Journalist', others: 'Independent' };
+  var MOS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  var TOPICS = [];
+  function cmp(n) { n = +n || 0; if (n >= 1e7) return (n / 1e7).toFixed(n >= 1e8 ? 0 : 1) + ' Cr'; if (n >= 1e5) return (n / 1e5).toFixed(n >= 1e6 ? 0 : 1) + ' L'; if (n >= 1e3) return (n / 1e3).toFixed(n >= 1e4 ? 0 : 1) + 'K'; return String(Math.round(n)); }
+  function pcol(p) { try { if (p && p !== '-' && typeof partyColorOf === 'function') return partyColorOf(p) || '#B45309'; } catch (e) {} return '#B45309'; }
+  function deent(s) { return String(s || '').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#0?39;/g, "'"); }
+  function when(r) {
+    var s = String(r.tm || r.d || ''), d = s.slice(0, 10), t = s.slice(11, 16);
+    var nice = d ? (+d.slice(8, 10)) + ' ' + MOS[(+d.slice(5, 7) || 1) - 1] : '';
+    return nice + (t && t !== '00:00' ? ', ' + t : '');
   }
+  function card(r) {
+    var nm = r.cn || r.h || '?', c = pcol(r.pt), tx = deent(r.tx);
+    var ini = nm.replace(/^(Shri|Smt|Dr)\.?\s+/i, '').charAt(0).toUpperCase();
+    var rk = r.rank ? '<span class="tc-rk' + (r.rank <= 3 ? ' top' : '') + '">' + (r.rank < 10 ? '0' : '') + r.rank + '</span>' : '';
+    var tag = (r.topic != null && TOPICS[r.topic]) ? '<span class="tc-tag">' + esc(TOPICS[r.topic]) + '</span>' : '';
+    var pt = r.pt && r.pt !== '-' ? '<span class="tc-pt">' + esc(r.pt) + '</span>' : '';
+    return '<article class="tc" style="--pc:' + c + '">'
+      + '<div class="tc-hd"><span class="tc-av">' + esc(ini)
+      +   (r.h ? '<img src="/api/avatar/' + encodeURIComponent(r.h) + '" alt="" loading="lazy" onerror="this.remove()">' : '') + '</span>'
+      +   '<div class="tc-who"><div class="tc-nm"><b title="' + esc(nm) + '">' + esc(nm) + '</b>' + pt + '</div>'
+      +   '<div class="tc-sub">@' + esc(r.h) + (CATN[r.cg] ? ' · ' + CATN[r.cg] : '') + ' · ' + esc(when(r)) + '</div></div>' + rk + '</div>'
+      + tag
+      + '<div class="tc-tx">' + esc(tx) + '</div>'
+      + (tx.length > 260 || (tx.match(/\n/g) || []).length > 5 ? '<button type="button" class="tc-more">Show more</button>' : '')
+      + '<div class="tc-ft"><span title="Views ' + nf(r.vw) + '">' + TIC.vw + '<b>' + cmp(r.vw) + '</b></span>'
+      +   '<span title="Likes ' + nf(r.lk) + '">' + TIC.lk + '<b>' + cmp(r.lk) + '</b></span>'
+      +   '<span title="Reposts ' + nf(r.rt) + '">' + TIC.rt + '<b>' + cmp(r.rt) + '</b></span>'
+      +   '<span title="Replies ' + nf(r.cm) + '">' + TIC.cm + '<b>' + cmp(r.cm) + '</b></span>'
+      +   (r.u ? '<a href="' + esc(r.u) + '" target="_blank" rel="noopener">View on X' + TIC.x + '</a>' : '')
+      + '</div></article>';
+  }
+  function hotCard(h, i) {
+    var title = h.title || (i === 0 ? 'Most-engaged post' : 'Also drawing attention');
+    return '<section class="tih"><div class="tih-top">' + TIC.fire + 'Hot topic ' + (i + 1)
+      + '<span class="m">' + h.n + ' post' + (h.n === 1 ? '' : 's') + ' · ' + cmp(h.views) + ' views</span></div>'
+      + '<h3>' + esc(title) + '</h3>' + (h.why ? '<p>' + esc(h.why) + '</p>' : '')
+      + (h.lead ? card(h.lead) : '') + '</section>';
+  }
+  document.addEventListener('click', function (e) {
+    var a = e.target.closest && e.target.closest('#tiHotLine a[data-i]');
+    if (a && a.getAttribute('data-u')) { window.open(a.getAttribute('data-u'), '_blank', 'noopener'); return; }
+    if (a) {
+      if (window.tiPane) window.tiPane('trending');
+      var c = document.querySelectorAll('#trHot .tih')[+a.getAttribute('data-i')];
+      if (c) { c.scrollIntoView({ behavior: 'smooth', block: 'center' }); c.classList.remove('flash'); void c.offsetWidth; c.classList.add('flash'); }
+      return;
+    }
+    var b = e.target.closest && e.target.closest('#sec-tweets .tc-more'); if (!b) return;
+    var c = b.closest('.tc'); c.classList.toggle('open'); b.textContent = c.classList.contains('open') ? 'Show less' : 'Show more';
+  });
   /* Server purana ho to naye route hote hi nahi -- Express HTML bhejta hai
      aur r.json() "<!DOCTYPE" par toot jaata hai. Pehle jaanch lo. */
   function ntJson(r) {
@@ -8842,35 +9067,153 @@ window.WORDCLOUD = "__MONGO_WORDCLOUD__";
       }).catch(function () {});
   }
 
-  /* ---------- 1. TRENDING ---------- */
-  var trMetric = 'views', trBusy = false;
-  window.ntTrend = function () {
-    var box = $('trFeed'); if (!box || trBusy) return;
-    trBusy = true;
-    box.innerHTML = '<div class="nt-msg">Loading&hellip;</div>';
-    var lim = ($('trLimit') || {}).value || 30;
-    fetch('/api/tw/top' + qs('tr') + '&metric=' + trMetric + '&limit=' + lim, { cache: 'no-store' })
-      .then(ntJson)
-      .then(function (j) {
-        trBusy = false;
-        if (j.error) throw new Error(j.error);
-        var info = $('trInfo');
-        if (info) info.textContent = j.n + ' tweets · ' + trMetric;
-        box.innerHTML = j.rows && j.rows.length
-          ? j.rows.map(card).join('')
-          : '<div class="nt-msg">No tweet matched this filter.</div>';
-      })
-      .catch(function (e) { trBusy = false; fail(box, e); });
+  /* ---------- 1. TRENDING (ti-v2) ----------
+     /api/tw/trending: data ke aakhri din se window, hot-score + AI (server par cache) -> 2 hot mudde + top 20.
+     Page khula ho to har 10 min chupchaap taaza (mudde din bhar badalte rehte hain). */
+  var trMetric = 'views', trBusy = false, trTimer = null, trSeq = 0, trHotLast = [];
+  function heroMode() { var h = $('tiHero'); return (h && h.getAttribute('data-p')) || 'trending'; }
+  /* "Hot today" line (14-Nov v3): aakhri tweet se pichhle 24 ghante ke 2 mudde, har category ke DIN ME EK BAAR
+     (server /api/tw/trending?hl=1 -- AI din me ek baar, din bhar wahi). Click = mudde ki sabse badi post X par. */
+  function hotLine(hot, cat) {
+    var hl = $('tiHotLine'); if (!hl) return;
+    hl.classList.remove('loading');
+    var has = (hot || []).filter(function (h) { return h.title; });
+    hl.innerHTML = has.length ? '<span class="lb">Hot today' + (cat && cat !== 'all' || heroMode() === 'explorer' ? ' · ' + (EXN[cat] || 'Mix') : '') + '</span>' + has.map(function (h, i) {
+      var u = h.lead && h.lead.u ? ' data-u="' + esc(h.lead.u) + '"' : '';
+      return '<a data-i="' + i + '"' + u + ' title="' + esc(h.why || h.title) + '">' + TIC.fire + '<span>' + esc(h.title) + '</span></a>';
+    }).join('') : '';
+  }
+  /* Explorer: chuni category (+ time frame, party) ke hot mudde -- server par cache; key na badle to dobara nahi */
+  var EXN = { all: 'Mix', leaders: 'Top leaders', mps: 'MPs', mlas: 'MLAs', pages: 'Party pages', media: 'Media houses', journalists: 'Journalists', others: 'Others' };
+  /* client cache: category -> din ke mudde. Server ka AI "gap" (12 s) ki wajah se na mile to 14 s baad dobara.
+     Explorer pehli baar khule to baaki categories ke mudde peeche-peeche (14 s faasle) -- server par har category
+     ka AI din me ek hi baar chalta hai, isliye ye kharcha din me max 8 call. */
+  var hotC = {}, hotSeq = 0, hotRetry = null, hotWarmed = false;
+  var EX_CATS = ['all', 'leaders', 'mps', 'mlas', 'pages', 'media', 'journalists', 'others'];
+  /* ti-fast: pichhla jawab browser me bhi (localStorage) -- page khulte hi wahi turant, phir taaza */
+  function lsGet(k) { try { return JSON.parse(localStorage.getItem('ti3:' + k) || 'null'); } catch (e) { return null; } }
+  function lsSet(k, v) { try { localStorage.setItem('ti3:' + k, JSON.stringify(v)); } catch (e) {} }
+  function hotGet(cat) {
+    return fetch('/api/tw/trending?scope=' + scope() + '&hl=1' + (cat !== 'all' ? '&cat=' + cat : ''), { cache: 'no-store' })
+      .then(ntJson).then(function (j) {
+        var ok = !!(j.ai && j.ai.used);
+        if (ok || !hotC[cat]) { hotC[cat] = { hot: j.hot || [], ai: ok, day: j.to }; lsSet('hot:' + scope() + ':' + cat, hotC[cat]); }
+        return { hot: j.hot || [], ai: ok, gap: !ok && j.ai && (j.ai.why === 'gap' || j.ai.pending) };
+      });
+  }
+  function curHotCat() { return heroMode() === 'explorer' ? exCat : 'all'; }
+  function hotFor(cat) {
+    clearTimeout(hotRetry);
+    var c = hotC[cat] || lsGet('hot:' + scope() + ':' + cat);
+    if (c) { hotLine(c.hot, cat); if (c.ai && hotC[cat]) { if (heroMode() === 'explorer') hotWarm(); return; } }
+    var seq = ++hotSeq, hl = $('tiHotLine');
+    if (hl && !c) hl.classList.add('loading');
+    hotGet(cat).then(function (r) {
+      if (seq !== hotSeq || curHotCat() !== cat) return;
+      if (r.ai || !c || !c.ai) hotLine(r.hot, cat);   /* browser wala AI jawab, server ke score wale se na badle */
+      if (r.gap) hotRetry = setTimeout(function () { if (curHotCat() === cat) hotFor(cat); }, 9000);
+      else if (heroMode() === 'explorer') hotWarm();
+    }).catch(function () { if (seq === hotSeq && !c) hotLine([], cat); });
+  }
+  function hotWarm() {
+    if (hotWarmed) return; hotWarmed = true;
+    var todo = EX_CATS.filter(function (c) { return !(hotC[c] || {}).ai; });
+    (function next(i, tries) {
+      if (i >= todo.length) return;
+      if ((hotC[todo[i]] || {}).ai) return next(i + 1, 0);
+      setTimeout(function () {
+        hotGet(todo[i]).then(function (r) {
+          if (curHotCat() === todo[i]) hotLine(r.hot, todo[i]);
+          if (r.gap && tries < 3) next(i, tries + 1); else next(i + 1, 0);
+        }).catch(function () { next(i + 1, 0); });
+      }, 14000);
+    })(0, 0);
+  }
+  /* din badle (page raat bhar khula) to naye din ke mudde */
+  setInterval(function () { hotC = {}; hotWarmed = false; if ($('tiHotLine')) hotFor(curHotCat()); }, 3 * 3600e3);
+  window.tiHotFor = function (name) { hotFor(name === 'explorer' ? exCat : 'all'); };
+  function niceD(d) { return d ? (+d.slice(8, 10)) + ' ' + MOS[(+d.slice(5, 7) || 1) - 1] + ' ' + d.slice(0, 4) : ''; }
+  /* ti-fast: Trending ka jawab memory + browser me; khulte hi wahi turant (skeleton nahi), phir taaza.
+     Server ka AI peeche chal raha ho (ai.pending) to 9 s baad chupchaap dobara -- AI wala kram aa jaata hai. */
+  var trMem = {}, trPend = 0;
+  function trUrl(win, p) { return '/api/tw/trending?scope=' + scope() + '&win=' + encodeURIComponent(win) + (p !== 'all' ? '&party=' + encodeURIComponent(p) : ''); }
+  function trGet(win, p) {
+    return fetch(trUrl(win, p), { cache: 'no-store' }).then(ntJson).then(function (j) {
+      if (j && !j.error) { trMem[win + '|' + p] = j; if (p === 'all') lsSet('tr:' + scope() + ':' + win, j); }
+      return j;
+    });
+  }
+  /* page khulne ke kuch der baad (idle) -- Tweet Intelligence khulne se pehle hi data taiyaar */
+  window.ntPrefetch = function () {
+    if (window.__tiPre) return; window.__tiPre = 1;
+    trGet('today', 'all').catch(function () {});
+    hotGet('all').catch(function () {});
   };
+  window.addEventListener('load', function () {
+    var go = function () { try { window.ntPrefetch(); } catch (e) {} };
+    setTimeout(function () { if (window.requestIdleCallback) requestIdleCallback(go, { timeout: 4000 }); else go(); }, 2500);
+  });
+  window.ntTrend = function (quiet) {
+    var box = $('trFeed'), hot = $('trHot'); if (!box || !hot) return;
+    var seq = ++trSeq;
+    var win = ($('trWin') || {}).value || 'today', p = ($('trParty') || {}).value || 'all';
+    var have = trMem[win + '|' + p] || (p === 'all' ? lsGet('tr:' + scope() + ':' + win) : null);
+    if (have && !quiet) { try { trRender(have, win, true); } catch (e) {} }
+    else if (!quiet) {
+      trShown = '';
+      hot.innerHTML = '<div class="tih ti-skel"></div><div class="tih ti-skel"></div>';
+      box.innerHTML = new Array(7).join('<div class="ti-skel"></div>');
+    }
+    if (heroMode() === 'trending' && !quiet) hotFor('all');   /* panel ki line turant (cache se) */
+    trGet(win, p)
+      .then(function (j) {
+        if (seq !== trSeq) return;
+        if (j.error) throw new Error(j.error);
+        trRender(j, win, false);
+        if (j.ai && j.ai.pending && trPend < 4) { trPend++; setTimeout(function () { if (seq === trSeq) window.ntTrend(true); }, 9000); }
+        else trPend = 0;
+      })
+      .catch(function (e) { if (seq !== trSeq || have) return; hot.innerHTML = ''; fail(box, e); })
+      .then(function () {
+        clearTimeout(trTimer);
+        trTimer = setTimeout(function tick() {
+          var sec = document.getElementById('sec-tweets'), pn = $('ti-trending');
+          if (sec && sec.classList.contains('active') && pn && pn.classList.contains('on') && !document.hidden) window.ntTrend(true);
+          else trTimer = setTimeout(tick, 60000);
+        }, 600000);
+      });
+  };
+  var trShown = '';
+  function trRender(j, win, fromCache) {
+    var box = $('trFeed'), hot = $('trHot');
+    {
+      {
+        /* wahi data dobara aaye to DOM mat chhedo (padhte waqt jhatka nahi) */
+        var sig = win + JSON.stringify([(j.hot || []).map(function (h) { return h.title + (h.lead ? h.lead.id : ''); }), (j.rows || []).map(function (r) { return r.id; })]);
+        if (sig === trShown) return; trShown = sig;
+        TOPICS = (j.hot || []).map(function (h) { return h.title || ''; });
+        hot.innerHTML = (j.hot || []).map(hotCard).join('');
+        hot.style.display = (j.hot || []).length ? '' : 'none';
+        box.innerHTML = j.rows && j.rows.length ? j.rows.map(card).join('')
+          : '<div class="nt-msg">' + esc(j.note || 'No posts in this time frame yet.') + '</div>';
+        var rg = win === 'today' ? 'Latest day · ' + niceD(j.to) : (win === 'all' ? 'Full range · up to ' + niceD(j.to) : niceD(j.from) + ' – ' + niceD(j.to));
+        var rr = $('trRange'); if (rr) rr.textContent = rg;
+        var sub = $('tiSub');
+        if (sub) sub.textContent = 'The 20 posts driving Indian politics' + (win === 'today' ? ' on ' + niceD(j.to) : (win === 'all' ? ' up to ' + niceD(j.to) : ', ' + niceD(j.from) + ' – ' + niceD(j.to))) + ' — from leaders, parties, MPs, MLAs and media.';
+      }
+    }
+  }
 
-  /* ---------- 2. TWEET EXPLORER ---------- */
-  var exSkip = 0, exBusy = false;
+  /* ---------- 2. TWEET EXPLORER ---------- (ti-v2: category tabs -- Mix default) */
+  var exSkip = 0, exBusy = false, exCat = 'all';
   window.ntExplore = function (reset) {
     var box = $('exFeed'); if (!box || exBusy) return;
     exBusy = true;
-    if (reset) { exSkip = 0; box.innerHTML = '<div class="nt-msg">Loading&hellip;</div>'; }
+    if (reset) { exSkip = 0; box.innerHTML = new Array(7).join('<div class="ti-skel"></div>'); }
+    if (reset && heroMode() === 'explorer') { try { hotFor(exCat); } catch (e) {} }   /* category badli to panel ke din ke mudde (cache se turant) */
     var term = (($('exQ') || {}).value || '').trim();
     var url = '/api/tw/list' + qs('ex') + '&sort=' + (($('exSort') || {}).value || 'date')
+            + (exCat !== 'all' ? '&cat=' + exCat : '')
             + '&limit=40&skip=' + exSkip + (term ? '&q=' + encodeURIComponent(term) : '');
     fetch(url, { cache: 'no-store' })
       .then(ntJson)
@@ -8882,7 +9225,7 @@ window.WORDCLOUD = "__MONGO_WORDCLOUD__";
         else box.insertAdjacentHTML('beforeend', html);
         exSkip += (j.rows || []).length;
         var info = $('exInfo');
-        if (info) info.textContent = (j.n < 0 ? '?' : nf(j.n) + (j.capped ? '+' : '')) + ' tweets · ' + nf(exSkip) + ' shown';
+        if (info) info.textContent = (j.n < 0 ? '?' : nf(j.n) + (j.capped ? '+' : '')) + ' posts · ' + nf(exSkip) + ' shown';
         var more = $('exMore');
         if (more) more.style.display = ((j.rows || []).length === 40) ? '' : 'none';
       })
@@ -9071,6 +9414,14 @@ window.WORDCLOUD = "__MONGO_WORDCLOUD__";
     });
     var q = $('exQ');
     if (q) q.addEventListener('keydown', function (e) { if (e.key === 'Enter') window.ntExplore(true); });
+    var qT = null;
+    if (q) q.addEventListener('input', function () { clearTimeout(qT); qT = setTimeout(function () { window.ntExplore(true); }, 450); });
+    var cats = $('exCats');
+    if (cats) cats.addEventListener('click', function (e) {
+      var b = e.target.closest('button[data-c]'); if (!b || b.classList.contains('on')) return;
+      Array.prototype.forEach.call(cats.querySelectorAll('button'), function (x) { x.classList.toggle('on', x === b); });
+      exCat = b.dataset.c; window.ntExplore(true);
+    });
     /* ---- Breaking News Event Listeners ---- */
     ['bnPrimaryCats', 'bnDrawerCats'].forEach(function (boxId) {
       var box = $(boxId);
@@ -12805,6 +13156,8 @@ setTimeout(hExec,600);
   function pane(name) {
     if (name !== 'trending' && name !== 'explorer') name = cur || 'trending';
     cur = name;
+    var hero = document.getElementById('tiHero'); if (hero) hero.setAttribute('data-p', name);   /* Trending ke filter sirf Trending par */
+    try { if (window.tiHotFor) window.tiHotFor(name); } catch (e) {}
     var ps = document.querySelectorAll('#sec-tweets .ti-pane');
     Array.prototype.forEach.call(ps, function (p) {
       p.classList.toggle('on', p.id === 'ti-' + name);

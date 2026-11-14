@@ -2111,11 +2111,10 @@ async function buildHtml(scope, role, who) {
     +   "var _nv=document.getElementById('mainNav');"
     +   "if(_nv){"
     /* 1. kram -- jo yahan nahi hai wo apni jagah par peechhe lag jaata hai */
-    +     "var _ORD=['dashboard','top-leaders','states-cm','mla-tracker','parties',"
-    /* growth-off (13-Oct): 'growth' is list se nikal diya -- uska tab ab
-       hai hi nahi. Ye list sirf kram lagati hai, isliye na hone par bhi
-       kuch toot-ta nahi tha; saaf rakhne ke liye nikala. */
-    +       "'narrative-groups','handle-analytics','profiles','tweets','breaking','hashtags',"
+    /* 14-Nov: naya kram -- Dashboard, Parties, States & CM, Handle Analytics, Narrative Groups,
+       Tweet Intelligence, Elected Representatives, Leader Board, phir baaki sab */
+    +     "var _ORD=['dashboard','parties','states-cm','handle-analytics','narrative-groups','tweets',"
+    +       "'mla-tracker','profiles','top-leaders','breaking','hashtags',"
     +       "'sentiment','reports','wordcloud'];"
     +     "var _tabs=[].slice.call(_nv.querySelectorAll('.mnav-tab'));"
     /* 2. Handles To Be Added yahan se hat gaya -- ab wo sirf upar daayein
@@ -3690,6 +3689,8 @@ function twFilter(req) {
   }
   var party = String(req.query.party || '').trim();
   if (party && party !== 'all') q.Party = party;
+  var cat = String(req.query.cat || '').trim();
+  if (TW_CATS[cat]) q.Category = { $in: TW_CATS[cat] };
   q['Tweet Text'] = NOT_RT;                       // rt-split: own posts only
 
   var term = String(req.query.q || '').trim();
@@ -3703,14 +3704,27 @@ function twFilter(req) {
 }
 
 const TW_PROJ = {
-  _id: 1, Handle: 1, 'Candidate Name': 1, Party: 1, State: 1, Designation: 1,
+  _id: 1, Handle: 1, 'Candidate Name': 1, Party: 1, State: 1, Designation: 1, Category: 1,
   'Tweet Date': 1, 'Tweet Text': 1, 'Tweet URL': 1, Sentiment: 1,
   'Total Views': 1, 'Total Likes': 1, 'Total Retweets': 1, 'Total Comments': 1
 };
 
+/* ti-cat (14-Nov): Tweet Intelligence ki category -- mapping ki Category ko kuch saaf groups me */
+const TW_CATS = {
+  leaders: ['Top Leaders', 'Other Party Leaders'],
+  mps: ['LS_MP', 'RS_MP', 'Ex-RSMP', 'LSMP_Constant'],
+  mlas: ['MLA', 'MLC', 'MLA Contestent', 'MLA_Constant', 'Ex-MLA'],
+  pages: ['Page'],
+  media: ['Media House'],
+  journalists: ['Journalist'],
+  others: ['NOB']
+};
+function twCatGroup(c) { for (var k in TW_CATS) if (TW_CATS[k].indexOf(c) >= 0) return k; return 'others'; }
+
 function twRow(d) {
   return {
     id: d._id, h: d.Handle || '', cn: d['Candidate Name'] || '', pt: d.Party || '',
+    cg: twCatGroup(d.Category || ''), tm: String(d['Tweet Date'] || '').slice(0, 16),
     st: d.State || '', dg: d.Designation || '', d: String(d['Tweet Date'] || '').slice(0, 10),
     tx: d['Tweet Text'] || '', u: d['Tweet URL'] || '', sn: d.Sentiment || '',
     vw: +d['Total Views'] || 0, lk: +d['Total Likes'] || 0,
@@ -4135,6 +4149,18 @@ app.get('/api/tw/list', dashGuard, async function (req, res) {
   var q = twFilter(req);
   var key = 'list|' + sort + '|' + limit + '|' + skip + '|' + JSON.stringify(q);
   try {
+    /* ti-hot (14-Nov): Explorer ka "Trending" sort -- wahi hot-score jo Trending page ka (AI ke bina) */
+    if (sort === 'hot') {
+      var hv = await twCached(key, 120000, async function () {
+        var pool = await onTweets(twFrom(req), async function (c) { return twPool(c, q, 160); });
+        var lat = pool.reduce(function (m, d) { var t = twTs(d['Tweet Date']); return t > m ? t : m; }, 0);
+        var win = (function () { var f = twFrom(req), t = String(req.query.to || '').slice(0, 10);
+          if (!f) return 'all'; var n = Math.round((Date.parse(t || f) - Date.parse(f)) / 864e5) + 1; return n <= 1 ? 'today' : (n <= 7 ? '7' : (n <= 31 ? '30' : 'all')); })();
+        var ranked = twRank(pool, lat, win, 2, 99);
+        return { n: ranked.length, capped: false, rows: ranked.slice(skip, skip + limit).map(twRowHot(lat)), source: 'hot-score' };
+      });
+      return res.json(hv);
+    }
     var out = await twCached(key, 60000, async function () {
       return onTweets(twFrom(req), async function (c, store) {
         var s = {};
@@ -4157,6 +4183,320 @@ app.get('/api/tw/list', dashGuard, async function (req, res) {
     res.status(500).json({ error: e.message });
   }
 });
+
+/* ==================================================================
+ *  TRENDING v2 (14-Nov)  --  "abhi Indian politics me kya garam hai"
+ *  ------------------------------------------------------------------
+ *  1. Data ka aakhri din (latest tweet) se window: today / 3 / 7 / 30 / all.
+ *  2. Candidate pool = window ke top views / likes / retweets / comments (indexed sort).
+ *  3. Hot-score = engagement (likes + 2*RT + 3*comments + views*1.5%) x taazgi (purana jaldi dhalta).
+ *     Ek handle se max 2, Media House max 6 -- feed ek hi aawaaz se na bhare.
+ *  4. AI (Groq, OPTIONAL): top 40 me se Indian politics ke 2 sabse garam mudde + top 20 ka kram.
+ *     Reports / Assistant ka model nahi chheda jaata: halka alag model (alag free limit),
+ *     har window ka jawab 20-60 min cache, do AI call me kam se kam 40 s, din me max 200.
+ *     AI na mile / fail -> hashtag + score se wahi kaam (page kabhi khaali nahi).
+ * ================================================================== */
+function twTs(s) { s = String(s || ''); var t = Date.parse(s.slice(0, 19).replace(' ', 'T') + '+05:30'); return isNaN(t) ? 0 : t; }
+async function twPool(c, q, n) {
+  var cols = ['Total Views', 'Total Likes', 'Total Retweets', 'Total Comments'];
+  var lists = await Promise.all(cols.map(function (f, i) {
+    var s = {}; s[f] = -1;
+    return c.find(q, { projection: TW_PROJ }).sort(s).limit(i < 2 ? n : Math.round(n * 0.6)).maxTimeMS(40000).toArray()
+      .catch(function () { return []; });
+  }));
+  var by = new Map();
+  lists.forEach(function (L) { L.forEach(function (d) { if (d && d._id) by.set(String(d._id), d); }); });
+  return Array.from(by.values());
+}
+function twScore(d, latest, win) {
+  var lk = +d['Total Likes'] || 0, rt = +d['Total Retweets'] || 0, cm = +d['Total Comments'] || 0, vw = +d['Total Views'] || 0;
+  var base = lk + 2 * rt + 3 * cm + vw * 0.015;
+  var ageH = Math.max(0, (latest - twTs(d['Tweet Date'])) / 36e5);
+  var ex = win === 'today' ? 1.15 : (win === '3' || win === '7') ? 1.0 : win === '30' ? 0.6 : 0.15;
+  return base * Math.pow(1 + ageH / 12, -ex) * twPolitical(d);
+}
+/* rajneeti ka vazan: janamdin / tyohaar ki badhai aur bina India-zikr wali videshi khabar neeche */
+var TW_GREET = /birthday|greetings|best wishes|warm wishes|good morning|happy (diwali|holi|eid|navratri|janmashtami|new year)|शुभकामना|बधाई|जन्मदिन|जयंती|पुण्यतिथि|जन्माष्टमी|दीपावली|होली|नवरात्रि|सुप्रभात|नमः|ఉ?శుభాకాంక్ష|வாழ்த்து/i;
+var TW_INDIA = /india|indian|bharat|modi|bjp|congress|rahul|parliament|lok sabha|rajya sabha|minister|government|govt|election|delhi|mumbai|bihar|uttar pradesh|kerala|tamil|bengal|punjab|gujarat|maharashtra|karnataka|telangana|andhra|assam|odisha|rajasthan|madhya pradesh|haryana|jharkhand|kashmir|supreme court|pakistan|china/i;
+function twPolitical(d) {
+  var t = String(d['Tweet Text'] || ''), m = 1;
+  if (TW_GREET.test(t)) m *= 0.35;
+  if (d.Category === 'Media House' && !/[ऀ-෿]/.test(t) && !TW_INDIA.test(t)) m *= 0.3;
+  return m;
+}
+/* score se kram + vividhta (ek handle max perH, Media House max perMedia) */
+function twRank(pool, latest, win, perH, perMedia, order) {
+  var sc = new Map(); pool.forEach(function (d) { sc.set(String(d._id), twScore(d, latest, win)); });
+  var list = pool.slice().sort(function (a, b) { return sc.get(String(b._id)) - sc.get(String(a._id)); });
+  if (order && order.length) {
+    var pos = new Map(); order.forEach(function (id, i) { pos.set(String(id), i); });
+    list.sort(function (a, b) {
+      var pa = pos.has(String(a._id)) ? pos.get(String(a._id)) : 1e6, pb = pos.has(String(b._id)) ? pos.get(String(b._id)) : 1e6;
+      return pa - pb || sc.get(String(b._id)) - sc.get(String(a._id));
+    });
+  }
+  var nH = {}, nM = 0, out = [];
+  list.forEach(function (d) {
+    var h = String(d.Handle || '').toLowerCase(), media = d.Category === 'Media House';
+    if ((nH[h] || 0) >= perH) return;
+    if (media && nM >= perMedia) return;
+    nH[h] = (nH[h] || 0) + 1; if (media) nM++;
+    d._score = sc.get(String(d._id)); out.push(d);
+  });
+  return out;
+}
+function twRowHot(latest) {
+  return function (d) {
+    var r = twRow(d); r.sc = Math.round(d._score || 0);
+    r.ago = Math.max(0, Math.round((latest - twTs(d['Tweet Date'])) / 6e4));   /* minute, data ke aakhri tweet se */
+    return r;
+  };
+}
+/* data ka aakhri tweet (hot aur cold dono me se jo naya) -- 5 min cache */
+var _twLatest = { at: 0, v: '' };
+async function twLatest(scope) {
+  if (Date.now() - _twLatest.at < 300000 && _twLatest.v) return _twLatest.v;
+  var q = scope === 'up' ? { State: 'Uttar Pradesh' } : {}, best = '';
+  async function one(col) {
+    try { var d = await col.find(q, { projection: { 'Tweet Date': 1 } }).sort({ 'Tweet Date': -1 }).limit(1).maxTimeMS(15000).toArray();
+      var v = d[0] ? String(d[0]['Tweet Date'] || '').slice(0, 19) : ''; if (v > best) best = v; } catch (e) {}
+  }
+  if (MP.hotHealthy()) { try { var h = MP.hotClient(); await h.connect(); await one(h.db().collection('tweets')); } catch (e) {} }
+  var cli = MP.client();
+  try { await cli.connect(); await one(cli.db(MASTER_DB).collection(MASTER_COLL)); } finally { try { await cli.close(); } catch (e) {} }
+  _twLatest = { at: Date.now(), v: best };
+  return best;
+}
+/* AI ka darwaza -- doosre AI kaam (reports, assistant) par asar na pade */
+var _trAi = { last: 0, day: '', n: 0, busy: null, model: '' };
+async function trAiPick(cfg) {
+  if (_trAi.model) return _trAi.model;
+  var ids = _aiModels.length ? _aiModels : await groqModels(cfg.key);
+  if (ids.length) _aiModels = ids;
+  var pref = [/llama-4-scout/i, /gpt-oss-20b/i, /llama-3\.1-8b-instant/i, /instant|8b|20b|scout|mini/i];
+  for (var i = 0; i < pref.length; i++) {
+    var m = ids.filter(function (x) { return pref[i].test(x) && !/whisper|guard|tts|embed|vision/i.test(x); })[0];
+    if (m) { _trAi.model = m; return m; }
+  }
+  return 'llama-3.1-8b-instant';
+}
+/* Gemini (translate_config.json ki key) -- aisa model jo summary / translation ki chain me NAHI hai,
+   taaki unki free limit par asar na pade. 429 / 503 par 2 min aaram. */
+var TR_GEM = ['gemini-3-flash-preview', 'gemini-3.1-flash-lite'], _trGemCool = new Map();   /* pehla kisi aur chain me nahi; doosra wahan sirf aakhri fallback */
+function trGemKey() {
+  try { return (JSON.parse(fs.readFileSync(path.join(__dirname, 'translate_config.json'), 'utf8')).gemini_key || '').trim(); } catch (e) { return ''; }
+}
+async function trGemini(sys, user) {
+  var k = trGemKey(); if (!k) return { error: 'no-gemini-key' };
+  var last = 'gemini-skip';
+  for (var i = 0; i < TR_GEM.length; i++) {
+    var m = TR_GEM[i];
+    if ((_trGemCool.get(m) || 0) > Date.now()) continue;
+    var ctl = new AbortController(), tmr = setTimeout(function () { ctl.abort(); }, 25000);
+    try {
+      var r = await fetch('https://generativelanguage.googleapis.com/v1beta/models/' + m + ':generateContent', {
+        method: 'POST', signal: ctl.signal, headers: { 'Content-Type': 'application/json', 'x-goog-api-key': k },
+        body: JSON.stringify({ systemInstruction: { parts: [{ text: sys }] }, contents: [{ role: 'user', parts: [{ text: user }] }],
+          generationConfig: Object.assign({ temperature: 0.1, maxOutputTokens: 3000, responseMimeType: 'application/json' },
+            /gemini-3/.test(m) ? { thinkingConfig: { thinkingLevel: /lite/.test(m) ? 'minimal' : 'low' } } : {}) })
+      });
+      var j = await r.json().catch(function () { return null; });
+      if (!r.ok) { last = m + ':' + r.status; if (r.status === 429 || r.status === 503) _trGemCool.set(m, Date.now() + 120000); if (r.status === 404) _trGemCool.set(m, Date.now() + 6 * 3600e3); continue; }
+      var c = ((j && j.candidates) || [])[0] || {};
+      var txt = ((c.content || {}).parts || []).filter(function (p) { return !p.thought; }).map(function (p) { return p.text || ''; }).join('');
+      var o = JSON.parse(txt.slice(txt.indexOf('{'), txt.lastIndexOf('}') + 1));
+      return { hot: Array.isArray(o.hot) ? o.hot : [], rank: Array.isArray(o.rank) ? o.rank : [], model: m };
+    } catch (e) { last = m + ':' + (e && e.name === 'AbortError' ? 'timeout' : 'bad'); }
+    finally { clearTimeout(tmr); }
+  }
+  return { error: last };
+}
+async function trAi(cands) {
+  if (typeof fetch !== 'function') return { error: 'no-fetch' };
+  var today = new Date().toISOString().slice(0, 10);
+  if (_trAi.day !== today) { _trAi.day = today; _trAi.n = 0; }
+  if (_trAi.n >= 200) return { error: 'daily-cap' };
+  if (Date.now() - _trAi.last < 12000) return { error: 'gap' };   /* Explorer ki har category ke liye -- 12 s ka faasla, din ki 200 wali seema wahi */
+  _trAi.last = Date.now(); _trAi.n++;
+  var cfg = aiConfig();
+  var lines = cands.map(function (d) {
+    return JSON.stringify({ id: String(d._id), who: (d['Candidate Name'] || d.Handle) + ' (' + (d.Party || '-') + ', ' + (d.Category || '-') + ')',
+      text: String(d['Tweet Text'] || '').replace(/\s+/g, ' ').slice(0, 230),
+      likes: +d['Total Likes'] || 0, rts: +d['Total Retweets'] || 0, replies: +d['Total Comments'] || 0, views: +d['Total Views'] || 0 });
+  }).join('\n');
+  var sys = 'You are an Indian political news editor. You get recent X (Twitter) posts from Indian politicians, parties, '
+    + 'media houses and journalists, one JSON per line. Decide what is HOT in Indian politics right now. '
+    + 'Reply with ONLY a JSON object, no prose: {"hot":[{"title":"...","why":"...","ids":["..."]},{"title":"...","why":"...","ids":["..."]}],"rank":["id", ...]}. '
+    + 'Rules: "hot" = exactly the 2 biggest political issues/events in these posts (not greetings, birthdays, festivals or routine schedules unless they are the big story); '
+    + 'title = 2-6 plain English words naming the issue; why = one short English line (max 14 words) using only facts in the posts; '
+    + 'ids = ids of the posts about that issue (most important first). "rank" = up to 20 ids ordered by political importance and public '
+    + 'engagement together; skip spam, greetings and non-political posts. Use only ids given.';
+  var g = await trGemini(sys, lines);
+  if (!g.error) return g;
+  if (!cfg || !cfg.key || _trAi.groqBad) return { error: g.error };
+  var model = await trAiPick(cfg);
+  var ctl = new AbortController(), tmr = setTimeout(function () { ctl.abort(); }, 25000);
+  try {
+    var r = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST', signal: ctl.signal,
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + cfg.key },
+      body: JSON.stringify(Object.assign({ model: model, temperature: 0.1, max_tokens: 700,
+        messages: [{ role: 'system', content: sys }, { role: 'user', content: lines }] },
+        _trAi.noJson ? {} : { response_format: { type: 'json_object' } }))
+    });
+    var body = await r.text();
+    if (!r.ok) {
+      if (r.status === 400 && /response_format|json/i.test(body)) { _trAi.noJson = true; _trAi.last = 0; }   /* agli baar bina json mode */
+      if (r.status === 404) _trAi.model = '';
+      if (r.status === 401) _trAi.groqBad = true;   /* galat key -- baar baar mat maaro */
+      return { error: g.error + ' / groq HTTP ' + r.status };
+    }
+    var txt = ((((JSON.parse(body).choices || [])[0] || {}).message || {}).content) || '';
+    var m = txt.indexOf('{'), e = txt.lastIndexOf('}');
+    var j = JSON.parse(txt.slice(m, e + 1));
+    return { hot: Array.isArray(j.hot) ? j.hot : [], rank: Array.isArray(j.rank) ? j.rank : [], model: model };
+  } catch (e) {
+    return { error: String(e.message || e).slice(0, 80) };
+  } finally { clearTimeout(tmr); }
+}
+/* AI na ho to: hashtag (score ke vazan se) -> do mudde; hashtag na mile to sabse garam do post */
+function trHeuristicHot(list) {
+  var tags = new Map();
+  list.slice(0, 60).forEach(function (d) {
+    var seen = {};
+    (String(d['Tweet Text'] || '').match(/#[\p{L}\p{N}_]{3,40}/gu) || []).forEach(function (t) {
+      var k = t.toLowerCase(); if (seen[k]) return; seen[k] = 1;
+      var o = tags.get(k) || { tag: t, w: 0, ids: [], hs: {} };
+      o.w += d._score || 0; o.ids.push(String(d._id)); o.hs[String(d.Handle).toLowerCase()] = 1; tags.set(k, o);
+    });
+  });
+  var top = Array.from(tags.values()).filter(function (o) { return Object.keys(o.hs).length >= 2; })
+    .sort(function (a, b) { return b.w - a.w; }).slice(0, 2);
+  return top.map(function (o) { return { title: o.tag, why: o.ids.length + ' top posts from ' + Object.keys(o.hs).length + ' accounts use this tag', ids: o.ids }; });
+}
+var _trCache = new Map(), _trAiMemo = new Map(), _trAiBusy = new Map();
+app.get('/api/tw/trending', dashGuard, async function (req, res) {
+  res.set('Cache-Control', 'no-store');
+  try {
+    res.json(await trCompute({
+      scope: req.query.scope === 'up' ? 'up' : 'all', win: String(req.query.win || ''), party: String(req.query.party || '').trim(),
+      cat: String(req.query.cat || ''), hl: String(req.query.hl) === '1', noAi: String(req.query.ai) === '0', wait: false }));
+  } catch (e) {
+    console.log('  [/api/tw/trending] ' + e.message);
+    res.status(500).json({ error: e.message });
+  }
+});
+/* ti-fast (14-Nov): jawab KABHI AI ka intezaar nahi karta -- pehle score wala turant, AI peeche chalta hai
+   (_trAiBusy), poora hote hi cache hata deta hai; page chupchaap 9 s baad dobara poochh kar AI wala le leta hai.
+   Server khulte hi aur har 20 min "trWarm" latest day + panel ki 8 categories pehle se bana kar rakhta hai,
+   isliye page khulte hi cache se milta hai. */
+async function trCompute(o) {
+  var scope = o.scope === 'up' ? 'up' : 'all';
+  var win = ['today', '3', '7', '30', 'all'].indexOf(o.win) >= 0 ? o.win : 'today';
+  var party = o.party || '';
+  var cat = TW_CATS[o.cat] ? o.cat : '';   /* Explorer ki category ke hot mudde */
+  /* hl (14-Nov): panel ki "Hot today" line -- aakhri tweet se pichhle 24 ghante, har category ke liye
+     DIN ME EK BAAR AI; din bhar wahi (stable). Data ka naya din aaye tabhi naya AI. Party / time frame se nahi badalta. */
+  var hl = !!o.hl;
+  if (hl) { win = 'today'; party = ''; }
+  {
+    var latest = await twLatest(scope);
+    if (!latest) return { ok: true, rows: [], hot: [], note: 'No tweets in the database yet.' };
+    var lastDay = latest.slice(0, 10), from = '', from24 = '';
+    if (hl) {
+      var t24 = new Date(twTs(latest) - 864e5 + 5.5 * 36e5).toISOString();   /* IST me 24 ghante pehle */
+      from24 = t24.slice(0, 10) + ' ' + t24.slice(11, 19); from = from24.slice(0, 10);
+    }
+    else if (win === 'today') from = lastDay;
+    else if (win !== 'all') from = new Date(Date.parse(lastDay + 'T00:00:00Z') - (parseInt(win, 10) - 1) * 864e5).toISOString().slice(0, 10);
+    var key = (hl ? 'hl|' : '') + scope + '|' + win + '|' + party + '|' + cat + '|' + lastDay;
+    var ttl = hl ? 24 * 3600e3 : win === 'today' ? 1800000 : 3600000;
+    var hit = _trCache.get(key);
+    if (hit && Date.now() - hit.at < (hit.ttl || ttl)) return hit.v;
+    var q = { 'Tweet Text': NOT_RT };
+    if (from24) q['Tweet Date'] = { $gte: from24, $lte: lastDay + '~' };
+    else if (from) q['Tweet Date'] = { $gte: from, $lte: lastDay + '~' };
+    if (scope === 'up') q.State = 'Uttar Pradesh';
+    if (party && party !== 'all') q.Party = party;
+    if (cat) q.Category = { $in: TW_CATS[cat] };
+    var src = '';
+    var pool = await onTweets(from, async function (c, store) { src = store; return twPool(c, q, cat ? 160 : 220); });
+    var lat = twTs(latest);
+    var base = twRank(pool, lat, win, 2, cat === 'media' ? 99 : 6);
+    /* AI -- same window ka pichhla jawab (30 min) ho to wahi */
+    var ai = null, aiNote = '';
+    /* AI kharcha kam: panel (hl) = din me ek baar; Trending page = latest day 2 ghante, baaki windows 6 ghante */
+    var mKey = key.replace(/\|[^|]*$/, '');
+    var memo = _trAiMemo.get(mKey);
+    var memoTtl = hl ? Infinity : (win === 'today' ? 2 * 3600e3 : 6 * 3600e3);
+    if (memo && Date.now() - memo.at < memoTtl && memo.day === lastDay) ai = memo.v;
+    else if (base.length >= 8 && !o.noAi) {
+      var job = _trAiBusy.get(mKey);
+      if (!job) {
+        job = trAi(base.slice(0, 40)).then(function (got) {
+          if (got && !got.error) { _trAiMemo.set(mKey, { at: Date.now(), v: got, day: lastDay }); _trCache.delete(key); }
+          return got;
+        }).catch(function (e) { return { error: String(e && e.message || e) }; })
+          .finally(function () { _trAiBusy.delete(mKey); });
+        _trAiBusy.set(mKey, job);
+      }
+      if (o.wait) {
+        var got = await job;
+        if (got && !got.error) ai = got; else { aiNote = got && got.error; if (memo && memo.day === lastDay) ai = memo.v; }
+      } else {
+        aiNote = 'pending';
+        if (memo && memo.day === lastDay) ai = memo.v;   /* purana AI jawab (usi din ka) tab tak dikhao */
+      }
+    }
+    var valid = new Set(base.map(function (d) { return String(d._id); }));
+    var order = ai ? (ai.rank || []).map(String).filter(function (id) { return valid.has(id); }) : [];
+    var ranked = twRank(base, lat, win, 2, cat === 'media' ? 99 : 6, order).slice(0, 24);
+    var byId = new Map(base.map(function (d) { return [String(d._id), d]; }));
+    var hot = [];
+    var topics = ai && ai.hot && ai.hot.length ? ai.hot : trHeuristicHot(base);
+    topics.slice(0, 2).forEach(function (t) {
+      var ids = (t.ids || []).map(String).filter(function (id) { return byId.has(id); });
+      if (!ids.length) return;
+      var lead = ids.map(function (id) { return byId.get(id); }).sort(function (a, b) { return (b._score || 0) - (a._score || 0); })[0];
+      var vw = ids.reduce(function (s, id) { return s + (+byId.get(id)['Total Views'] || 0); }, 0);
+      hot.push({ title: String(t.title || '').slice(0, 60), why: String(t.why || '').slice(0, 140), n: ids.length, views: vw, ids: ids, lead: twRowHot(lat)(lead) });
+    });
+    if (hot.length < 2) {   /* AI / hashtag se do na mile to sabse garam post khud mudda */
+      ranked.forEach(function (d) {
+        if (hot.length >= 2 || hot.some(function (h) { return h.ids.indexOf(String(d._id)) >= 0; })) return;
+        hot.push({ title: '', why: '', n: 1, views: +d['Total Views'] || 0, ids: [String(d._id)], lead: twRowHot(lat)(d) });
+      });
+    }
+    var tIdx = {}; hot.forEach(function (h, i) { h.ids.forEach(function (id) { if (!(id in tIdx)) tIdx[id] = i; }); });
+    /* hot card ka lead post neeche list me dobara nahi */
+    var leadIds = {}; hot.forEach(function (h) { if (h.lead) leadIds[String(h.lead.id)] = 1; });
+    var rows = ranked.filter(function (d) { return !leadIds[String(d._id)]; }).slice(0, 20)
+      .map(function (d, i) { var r = twRowHot(lat)(d); r.rank = i + 1; if (String(d._id) in tIdx) r.topic = tIdx[String(d._id)]; return r; });
+    var v = { ok: true, win: win, from: from || (pool.length ? '' : ''), to: lastDay, latest: latest, source: src, pool: pool.length,
+      ai: ai ? { used: true, model: ai.model || '', at: (memo && memo.v === ai) ? memo.at : Date.now(), pending: aiNote === 'pending' }
+             : { used: false, why: aiNote || 'heuristic', pending: aiNote === 'pending' },
+      hot: hot, rows: rows };
+    /* AI chal raha ho / "gap" se chhoota ho to jawab thodi der hi rakho -- agli baar AI wala aa jaaye */
+    _trCache.set(key, { at: Date.now(), v: v, ttl: aiNote === 'pending' ? 8000 : (!ai && aiNote === 'gap') ? 60000 : (hl && !ai ? 300000 : 0) });
+    if (_trCache.size > 40) _trCache.delete(_trCache.keys().next().value);
+    return v;
+  }
+}
+/* pehle se taiyaar: latest day (Mix) + panel ki 8 categories. AI ke liye har kaam ke beech 13 s (trAi ka 12 s faasla). */
+var _trWarmBusy = false;
+async function trWarm() {
+  if (_trWarmBusy) return; _trWarmBusy = true;
+  var specs = [{ win: 'today' }, { hl: true, cat: '' }].concat(Object.keys(TW_CATS).map(function (c) { return { hl: true, cat: c }; }));
+  try {
+    for (var i = 0; i < specs.length; i++) {
+      var s = specs[i], t0 = Date.now();
+      try { await trCompute({ scope: 'all', win: s.win || 'today', party: '', cat: s.cat || '', hl: !!s.hl, wait: true }); }
+      catch (e) { console.log('  [trWarm] ' + e.message); }
+      if (Date.now() - t0 > 2000) await new Promise(function (r) { setTimeout(r, 13000); });   /* AI chala tha -- faasla */
+    }
+  } finally { _trWarmBusy = false; }
+}
+setTimeout(function () { trWarm(); setInterval(trWarm, 20 * 60 * 1000); }, 20000);
 
 /* ---- AI assistant (right-bottom wala chat) ----
    Wahi free Groq key jo reports ka AI use karta hai (ai_config.json).
