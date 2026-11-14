@@ -2745,14 +2745,16 @@ svg#indiaMap{width:100%;height:100%;max-width:100%;max-height:100%;display:block
 .roster-btn.rc-pill:hover .rc-go{transform:translateX(3px)}
 .roster-item.rc-flash{animation:rcFlash 1.6s ease}
 @keyframes rcFlash{0%,40%{background:color-mix(in srgb,var(--pc,#E65100) 12%,#fff);border-color:var(--pc,#E65100)}100%{}}
-/* comparison: wapas directory ka teer -- dibba nahi */
-.pc-back{display:inline-flex;align-items:center;gap:6px;margin:0 0 6px -2px;padding:2px 0;border:0;background:none;cursor:pointer;
-  color:#C2410C;font:600 12px 'DM Sans',sans-serif}
+/* comparison: heading ke bagal sirf teer (text / dibba / pill nahi) -- directory se aaye hon tabhi */
+.comp-title-line{display:flex;align-items:center;gap:8px}
+.pc-back{flex:none;display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;margin-left:-5px;padding:0;border:0;background:none;
+  cursor:pointer;color:#1E1B16;border-radius:8px;transition:color .2s ease,transform .2s ease}
 .pc-back[hidden]{display:none}
-.pc-back svg{width:16px;height:16px;transition:transform .2s ease}
-.pc-back:hover svg{transform:translateX(-3px)}
-.pc-back:hover span{text-decoration:underline;text-underline-offset:3px}
-.leader-card.lc-flash{animation:lcFlash 1.8s ease}
+.pc-back svg{width:22px;height:22px}
+.pc-back:hover{color:#C2410C;transform:translateX(-3px)}
+.pc-back:focus-visible{outline:2px solid rgba(232,89,12,.5);outline-offset:1px}
+.comp-title-block h3#partyCompTitle{font-size:22px;line-height:1.15;letter-spacing:.2px}
+.comp-title-block .comp-subtitle{margin-top:4px}.leader-card.lc-flash{animation:lcFlash 1.8s ease}
 @keyframes lcFlash{0%{transform:translateY(-4px);box-shadow:0 0 0 4px color-mix(in srgb,var(--accent-color,#E65100) 30%,transparent)}100%{}}
 .comp-chart-empty{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;color:#8A8178;font:500 13px 'DM Sans',sans-serif;pointer-events:none}
 
@@ -6051,8 +6053,10 @@ a.pe-btn:after{content:"";position:absolute;inset:0;z-index:1;background:linear-
       <div class="comp-header-row">
         <div class="comp-title-block">
           <!-- 14-Nov: directory ke "Tap to compare" se aaye hon to wapas usi neta tak le jaane wala teer -->
-          <button type="button" class="pc-back" id="pcBack" hidden onclick="partyCompBack()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg><span>Back to directory</span></button>
-          <h3 id="partyCompTitle">Leader Comparison &ndash; BJP</h3>
+          <div class="comp-title-line">
+            <button type="button" class="pc-back" id="pcBack" hidden onclick="partyCompBack()" title="Back to the leaders directory" aria-label="Back to the leaders directory"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg></button>
+            <h3 id="partyCompTitle">Leader Comparison &ndash; BJP</h3>
+          </div>
           <div class="comp-subtitle" id="partyCompSubtitle">Compare engagement and activity of key leaders</div>
         </div>
 
@@ -19665,6 +19669,7 @@ function openPartyDetail(partyName) {
   partyName = (partyName || 'BJP').trim().toUpperCase();
   _activePartyKey = partyName;
   _partyActiveHandles = [];
+  if (typeof partyCompResetFilters === 'function') partyCompResetFilters();   /* naya party = Full Range se */
 
   var dirView = document.getElementById('partiesDirectoryView');
   var detailView = document.getElementById('partyDetailView');
@@ -20020,11 +20025,13 @@ var _pcFrom = null, _pcFlash = null;
 function openComparisonWithLeader(handle) {
   var k = String(handle).toLowerCase(), pName = _activePartyKey;
   var handles = getPartyHandlesList(pName);
-  var defs = pinnedFirst(handles, PARTY_DEFAULT_COMPARE[pName] || PARTY_PINNED[pName]).slice(0, 4)
+  /* 14-Nov v2: sirf 2 -- chuna neta + party ka sabse upar wala (wahi ho to doosra); range hamesha Full Range */
+  var defs = pinnedFirst(handles, PARTY_DEFAULT_COMPARE[pName] || PARTY_PINNED[pName]).slice(0, 3)
     .map(function (l) { return String(l.handle).toLowerCase(); });
   var sel = [k];
-  defs.forEach(function (d) { if (sel.length < 4 && sel.indexOf(d) < 0) sel.push(d); });
+  defs.forEach(function (d) { if (sel.length < 2 && sel.indexOf(d) < 0) sel.push(d); });
   _partyActiveHandles = sel;
+  partyCompResetFilters();
   _pcFlash = k;
   switchPartySubTab('leaders');
   _pcFrom = { h: k, y: window.scrollY };
@@ -20034,6 +20041,11 @@ function openComparisonWithLeader(handle) {
     var top = row.getBoundingClientRect().top + window.scrollY - ((parseInt(getComputedStyle(document.documentElement).getPropertyValue('--header-h'), 10) || 70) + 12);
     window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
   }
+}
+function partyCompResetFilters() {
+  _partyCompDays = 'all'; _partyCompSentiment = 'all';
+  var d = document.getElementById('partyCompDateSelect'); if (d) d.value = 'all';
+  var s = document.getElementById('partyCompSentimentSelect'); if (s) s.value = 'all';
 }
 function partyCompBack() {
   var from = _pcFrom;
@@ -20063,10 +20075,11 @@ function renderLeaderComparison() {
   var handles = getPartyHandlesList(pName);
 
   // Default: party ke key leaders (BJP: Modi, Amit Shah, Yogi); na mile to top 3 by tweets
+  /* 14-Nov v2: default sirf upar ke 2 neta (zyada lines me graph uljhta tha) */
   if (!_partyActiveHandles || !_partyActiveHandles.length) {
-    var _def = pinnedFirst(handles, PARTY_DEFAULT_COMPARE[pName]).slice(0, (PARTY_DEFAULT_COMPARE[pName] || []).length || 3)
+    var _def = pinnedFirst(handles, PARTY_DEFAULT_COMPARE[pName]).slice(0, 2)
       .filter(function (l) { return !PARTY_DEFAULT_COMPARE[pName] || isPinnedLeader(pName, l.handle); });
-    if (!_def.length) _def = handles.slice(0, 3);
+    if (!_def.length) _def = handles.slice(0, 2);
     _partyActiveHandles = _def.map(function(l) { return l.handle.toLowerCase(); });
   }
 
