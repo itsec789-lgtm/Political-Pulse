@@ -7980,6 +7980,41 @@ a.pe-btn:after{content:"";position:absolute;inset:0;z-index:1;background:linear-
     @media (prefers-reduced-motion:reduce){.htb-exp .htc-row{animation:none}}
     .htb-pg{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:12px;font-size:12.5px;color:#6B5E50;flex-wrap:wrap}
     .htb-pg div{display:flex;gap:8px}
+    /* htb-v4 (14-Nov): panel ke andar panel nahi -- table seedha card me; DM Sans; saaf section headings,
+       halki din ki patti, best-of-week ki narm highlight; Newer / Older saaf buttons */
+    .htb-wrap{border:0;border-radius:0;background:none;overflow:visible}
+    .htb{font-family:'DM Sans',sans-serif;color:#17120E}
+    .htb th{background:none;padding:6px 12px 10px;font:700 10px 'DM Sans',sans-serif;letter-spacing:.9px;color:#7A6E63;border-bottom:1px solid #EFE7DD}
+    .htb td{padding:14px 12px;border-bottom:1px solid #F3EEE7}
+    .htb-txt{font:500 13.5px/1.55 'DM Sans',sans-serif;color:#17120E}
+    .htb-en b{font:700 16px 'DM Sans',sans-serif;letter-spacing:-.3px;color:#17120E}
+    .htb-vw b{font:600 13.5px 'DM Sans',sans-serif}
+    .htb-dt b{font:600 13px 'DM Sans',sans-serif;color:#17120E}
+    .htb-dt span,.htb-sub{font-size:11px;color:#9A8B7B}
+    .htb-bd{font-size:11.5px}
+    .htb-pill{font:500 12.5px 'DM Sans',sans-serif}
+    .htb-vf{font:600 12px 'DM Sans',sans-serif;color:#C2410C}
+    .htb tr.htb-r:hover{background:#FFFBF6}
+    .htb tr.htb-r.open{background:#FFF8F0}
+    .htb tr.htb-sec td{background:none;padding:24px 12px 10px;border-bottom:1px solid #EFE7DD}
+    .htb tbody tr.htb-sec:first-child td{padding-top:12px}
+    .htb tr.htb-sec td span{font:700 16px 'DM Sans',sans-serif;letter-spacing:-.2px;text-transform:none;color:#17120E}
+    .htb tr.htb-sec td em{display:inline-block;margin-left:10px;font:500 12px 'DM Sans',sans-serif;color:#8A7B6C}
+    .htb tr.htb-day td{background:none;padding:14px 12px 6px;border-bottom:1px solid #F3EEE7;font:500 11.5px 'DM Sans',sans-serif;color:#8A7B6C}
+    .htb tr.htb-day td b{font:700 10.5px 'DM Sans',sans-serif;letter-spacing:1px;text-transform:uppercase;color:#5E5148;margin-right:12px}
+    .htb tr.htb-day td span{margin-right:12px}
+    .htb tr.htb-best{background:linear-gradient(90deg,#FFF6EA,#FFFCF8 70%)}
+    .htb tr.htb-best:hover{background:linear-gradient(90deg,#FFF0DD,#FFF9F1 70%)}
+    .htb tr.htb-best td:first-child{box-shadow:inset 3px 0 0 #E8590C}
+    .htb-bw{display:none}   /* upar heading 'Best of the week' kaafi -- row me dobara nahi */
+    .htb-est{font:700 9px 'DM Sans',sans-serif;background:#F4EEE6}
+    .htb-pg{margin-top:14px;padding-top:12px;border-top:1px solid #F3EEE7;font:500 12.5px 'DM Sans',sans-serif;color:#8A7B6C}
+    .htb-nb{display:inline-flex;align-items:center;gap:6px;height:34px;padding:0 14px;border:1px solid #E6DED3;border-radius:10px;background:#fff;cursor:pointer;
+      font:600 12.5px 'DM Sans',sans-serif;color:#3A2E25;transition:border-color .15s,color .15s,background .15s}
+    .htb-nb svg{width:14px;height:14px}
+    .htb-nb:hover:not(:disabled){border-color:#E8590C;color:#C2410C;background:#FFF8F2}
+    .htb-nb:disabled{opacity:.35;cursor:default}
+    .htb-nb:focus-visible{outline:2px solid rgba(232,89,12,.5);outline-offset:2px}
     </style>
     <div class="htb-wrap"><table class="htb">
       <colgroup><col class="c-tw"><col class="c-dt"><col class="c-en"><col class="c-vw"><col class="c-fo"><col class="c-st"></colgroup>
@@ -7990,8 +8025,8 @@ a.pe-btn:after{content:"";position:absolute;inset:0;z-index:1;background:linear-
       <tbody id="haTwBody"><tr><td colspan="6" class="htc-empty">Ek handle chuno.</td></tr></tbody>
     </table></div>
     <div class="htb-pg"><span id="haTwInfo"></span><div>
-      <button class="filter-select" id="haPrev" onclick="window.haPrev()">&larr; Newer</button>
-      <button class="filter-select" id="haNext" onclick="window.haNext()">More &rarr;</button></div></div>
+      <button class="htb-nb" id="haPrev" onclick="window.haPrev()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>Newer</button>
+      <button class="htb-nb" id="haNext" onclick="window.haNext()">Older<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button></div></div>
   </div>
 
   <!-- cp-v2 (31-Oct): Content Performance -- Dashboard ke analysis panel jaisa. Upar 5 metric card
@@ -12892,7 +12927,7 @@ setTimeout(hExec,600);
    Na aaye to initials dikhte hain aur neeche ek line asli wajah batati hai. */
 (function () {
   'use strict';
-  var CUR = null, OFFSET = 0, PAGE = 6, LIST = [], LOADING = false;
+  var CUR = null, OFFSET = 0, PAGE = 4, LIST = [], LOADING = false;   /* 14-Nov: har page 4 tweet (pehle 6) */
 
   function el(id) { return document.getElementById(id); }
   function esc(s) {
@@ -14006,6 +14041,8 @@ setTimeout(hExec,600);
     return null;
   }
   function twHtml(s) {
+    /* 14-Nov: data me text pehle se escape hai (&amp;) -- pehle wapas, phir ek hi baar escape */
+    s = String(s == null ? '' : s).replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'");
     return esc(s)
       .replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener">$1</a>')
       .replace(/(^|[\s(])([#@][\wऀ-ൿ]+)/g, '$1<span class="ht">$2</span>');
