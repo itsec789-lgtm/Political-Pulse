@@ -13813,7 +13813,8 @@ setTimeout(hExec,600);
       /* db-day v2 (31-Oct): dibba hataya -- saaf text: "4 Sep" bold, neeche "Friday"; saal upar title me */
       return '<div class="db-day"><b>' + x.getUTCDate() + ' ' + MO[x.getUTCMonth()] + (extra || '') + '</b><span>' + WDL[x.getUTCDay()] + '</span></div>';
     }
-    box.innerHTML = days.map(function (s) {
+    /* 14-Nov: list me sirf sabse naye 5 din (upar ke tiles poore 7 din ke) -- list chhoti */
+    box.innerHTML = days.slice(0, 5).map(function (s) {
       var x = map[s];
       if (!x) {
         var why = coll[s] ? 'No posts this day' : 'Data for this day was not fully collected';
