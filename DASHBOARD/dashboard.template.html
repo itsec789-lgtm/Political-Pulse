@@ -6920,6 +6920,63 @@ a.pe-btn:after{content:"";position:absolute;inset:0;z-index:1;background:linear-
       #sec-narrative-groups .ngd-st{flex:1 1 40%;margin-bottom:10px}#sec-narrative-groups .ngd-mhead{display:none}
       #sec-narrative-groups .ngd-m{grid-template-columns:20px minmax(0,1fr) 60px 14px}#sec-narrative-groups .ngd-m .ngd-mv:not(:nth-of-type(3)){display:none}}
     </style>
+    <style>
+    /* ===== ngs (14-Nov): BJP watch -- page ke background par (safed panel nahi) ===== */
+    #sec-narrative-groups .ngs{--p:#E8590C;--a:#B42318;margin:30px 2px 10px}
+    #sec-narrative-groups .ngs-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap}
+    #sec-narrative-groups .ngs-kick{display:flex;align-items:center;gap:8px;font:700 11px 'DM Sans',sans-serif;letter-spacing:1.4px;text-transform:uppercase;color:#7A6E63}
+    #sec-narrative-groups .ngs-kick span:not(.ngs-live){letter-spacing:.3px;text-transform:none;font-weight:600;color:#8A7B6C}
+    #sec-narrative-groups .ngs-live{width:7px;height:7px;border-radius:50%;background:#16A34A;box-shadow:0 0 0 3px rgba(22,163,74,.16);animation:ngxLive 2s ease-in-out infinite}
+    #sec-narrative-groups .ngs-title{margin:8px 0 4px;font:700 30px/1.1 'Rajdhani',sans-serif;color:#17120E;letter-spacing:.2px}
+    #sec-narrative-groups .ngs-title em{font-style:normal}
+    #sec-narrative-groups .ngs-title em.p{color:var(--p)}
+    #sec-narrative-groups .ngs-title em.a{color:var(--a)}
+    #sec-narrative-groups .ngs-sub{margin:0;font-size:12.5px;color:#6E6156}
+    #sec-narrative-groups .ngs-seg{background:rgba(23,18,14,.06)}
+    /* balance */
+    #sec-narrative-groups .ngs-bal{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:16px;margin:20px 0 22px}
+    #sec-narrative-groups .ngs-bl b{display:block;font:700 30px/1 'DM Sans',sans-serif;letter-spacing:-1px;color:var(--p)}
+    #sec-narrative-groups .ngs-bl span{display:block;margin-top:3px;font:700 10px 'DM Sans',sans-serif;letter-spacing:1.2px;text-transform:uppercase;color:#8A7B6C}
+    #sec-narrative-groups .ngs-bl.r{text-align:right}
+    #sec-narrative-groups .ngs-bl.r b{color:var(--a)}
+    #sec-narrative-groups .ngs-bar{display:flex;gap:4px;height:14px}
+    #sec-narrative-groups .ngs-bar i{display:block;height:100%;border-radius:999px;min-width:6px;transition:width .8s cubic-bezier(.2,.8,.2,1)}
+    #sec-narrative-groups .ngs-bar i.p{background:linear-gradient(90deg,#F59E0B,var(--p))}
+    #sec-narrative-groups .ngs-bar i.a{background:linear-gradient(90deg,var(--a),#7F1D1D)}
+    /* columns */
+    #sec-narrative-groups .ngs-cols{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:34px}
+    #sec-narrative-groups .ngs-col{min-width:0;--c:var(--p)}
+    #sec-narrative-groups .ngs-col.anti{--c:var(--a)}
+    #sec-narrative-groups .ngs-ch{display:flex;align-items:center;gap:12px;padding:0 0 12px;border-bottom:2px solid var(--c)}
+    #sec-narrative-groups .ngs-dot{width:12px;height:12px;border-radius:4px;background:var(--c);flex:none}
+    #sec-narrative-groups .ngs-ch b{display:block;font:700 19px 'DM Sans',sans-serif;letter-spacing:-.3px;color:#17120E}
+    #sec-narrative-groups .ngs-ch small{display:block;margin-top:2px;font-size:11.5px;color:#7A6E63}
+    #sec-narrative-groups .ngs-spark{margin-left:auto;width:120px;height:30px;flex:none}
+    #sec-narrative-groups .ngs-lbl{margin:18px 0 8px;font:700 10px 'DM Sans',sans-serif;letter-spacing:1.2px;text-transform:uppercase;color:var(--c)}
+    #sec-narrative-groups .ngs-a{display:grid;grid-template-columns:18px 34px minmax(0,1fr) 110px;align-items:center;gap:10px;padding:8px 4px;border-bottom:1px solid rgba(60,30,10,.08);text-decoration:none;color:inherit;transition:background .15s}
+    #sec-narrative-groups .ngs-a:hover{background:rgba(255,255,255,.6);border-radius:10px}
+    #sec-narrative-groups .ngs-ar{font:700 13px 'Rajdhani',sans-serif;color:#B3A595;text-align:center}
+    #sec-narrative-groups .ngs-a:first-child .ngs-ar{color:var(--c)}
+    #sec-narrative-groups .ngs-av{width:34px;height:34px;border-radius:50%;overflow:hidden;background:#EFE7DC;box-shadow:0 0 0 2px #fff}
+    #sec-narrative-groups .ngs-av img{width:100%;height:100%;object-fit:cover;display:block}
+    #sec-narrative-groups .ngs-an{min-width:0}
+    #sec-narrative-groups .ngs-an b{display:block;font:700 12.5px 'DM Sans',sans-serif;color:#17120E;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    #sec-narrative-groups .ngs-an small{display:block;font-size:10.5px;color:#8A7B6C;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    #sec-narrative-groups .ngs-a:hover .ngs-an b{color:var(--c)}
+    #sec-narrative-groups .ngs-av2{display:flex;flex-direction:column;align-items:flex-end;gap:5px}
+    #sec-narrative-groups .ngs-av2 b{font:700 13px 'DM Sans',sans-serif;color:#17120E;font-variant-numeric:tabular-nums}
+    #sec-narrative-groups .ngs-av2 i{display:block;height:4px;border-radius:9px;background:var(--c);opacity:.75}
+    #sec-narrative-groups .ngs-tags{display:flex;flex-wrap:wrap;gap:6px 18px}
+    #sec-narrative-groups .ngs-tags span{display:inline-flex;align-items:baseline;gap:6px;font:500 11.5px 'DM Sans',sans-serif;color:#8A7B6C;font-variant-numeric:tabular-nums}
+    #sec-narrative-groups .ngs-tags b{font:700 13px 'DM Sans',sans-serif;color:#1D4ED8}
+    #sec-narrative-groups .ngs-none{font-size:12px;color:#8A7B6C}
+    #sec-narrative-groups .ngs-feed .htc-row{grid-template-columns:1fr}
+    #sec-narrative-groups .ngs-feed .htc-sent{display:none}
+    #sec-narrative-groups .ngs-feed .htc-tw{border-color:rgba(60,30,10,.1)}
+    #sec-narrative-groups .ngs-feed .htc-av{width:38px;height:38px}
+    #sec-narrative-groups .ngs .ngd-empty0{background:rgba(255,255,255,.5)}
+    @media(max-width:1000px){#sec-narrative-groups .ngs-cols{grid-template-columns:1fr}}
+    </style>
     <div class="ngr" id="ngRace">
       <div class="ngr-glow"></div>
       <div class="ngr-top">
@@ -6951,6 +7008,23 @@ a.pe-btn:after{content:"";position:absolute;inset:0;z-index:1;background:linear-
     <section class="ngx-voices" id="ngxVoicesCard">
       <div class="ngx-vhead"><div><div class="ngr-kick">Loudest voices</div><div class="ngx-vtitle">Members carrying each group&rsquo;s narrative</div><div class="ngr-sub" id="ngxVSub"></div></div></div>
       <div class="ngx-vgrid" id="ngxVoices"></div>
+    </section>
+    <!-- ngs (14-Nov): BJP watch -- kaun BJP ke paksh me, kaun virodh me (data ke aakhri 7 din, khud aage khiskta hai).
+         Safed panel nahi -- seedha page ke background par. Top accounts, trending hashtags, sabse zyada dekha post,
+         taaza posts (Handle Analytics wala tweet template). Data /api/narrative-groups/stance se. -->
+    <section class="ngs" id="ngxStance">
+      <div class="ngs-head">
+        <div>
+          <div class="ngs-kick"><span class="ngs-live"></span>BJP watch &middot; <span id="ngsWin">last 7 days</span></div>
+          <h2 class="ngs-title">Who is speaking <em class="p">for</em> BJP, and who <em class="a">against</em></h2>
+          <p class="ngs-sub" id="ngsSub">Only narrative groups and their members &middot; posts and reposts &middot; read from the tone of each post &middot; moves on as new data arrives</p>
+        </div>
+      </div>
+      <div class="ngs-bal" id="ngsBal"></div>
+      <div class="ngs-cols">
+        <div class="ngs-col pro" id="ngsPro"></div>
+        <div class="ngs-col anti" id="ngsAnti"></div>
+      </div>
     </section>
     <!-- ng-race (29-Oct): table ab nahi dikhti -- Narrative Race hi directory hai. Table DOM me rehti hai
          (renderNarrativeGroupsTable usi se race ko bhi chalata hai), bas chhupi hui. -->
@@ -17275,6 +17349,7 @@ function ngxPaint(list, lbl) {
     (g.handles || []).forEach(function (h) { _hs[String(h || '').toLowerCase()] = 1; }); });
   delete _hs['']; mem = Object.keys(_hs).length;
   ngxPlaceFilters();
+  try { ngsLoad(); } catch (e) {}
   var sub = document.getElementById('ngxSub');
   if (sub) sub.textContent = 'Political groups, student wings & creator networks · ' + (lbl || 'Full Range');
   var k0 = _ngr.k, lab = { tweets: 'Tweets', likes: 'Likes', rts: 'Retweets', views: 'Views' };
@@ -17360,6 +17435,75 @@ function ngxPaint(list, lbl) {
   }
 }/* 14-Nov: filter + hero EK panel -- directory dikh rahi ho to filter card hero ke upar wale khaane me,
    warna (group / leader page) apni purani jagah par, taaki wahan bhi date badal sakein */
+/* ===== ngs (14-Nov): BJP watch -- paksh / virodh ===== */
+var _ngs = { who: 'voices', t: 0, data: null, busy: false };
+function ngsAv(h, name) {
+  var e = encodeURIComponent(h || ''), n = encodeURIComponent(name || h || '?');
+  return '<img src="/api/avatar/' + e + '" alt="" loading="lazy" onerror="this.onerror=null;this.src=\'https://ui-avatars.com/api/?name=' + n + '&background=EEE6DA&color=4B4439&size=64\'">';
+}
+function ngsGroupOf(h) {
+  var lh = String(h || '').toLowerCase(), g = (window.NARRATIVE_GROUPS_DATA || []).filter(function (g) {
+    return (g.leaders || []).some(function (m) { return String(m.handle || '').toLowerCase() === lh; }) || (g.handles || []).some(function (x) { return String(x).toLowerCase() === lh; });
+  })[0];
+  return g ? g.acronym : '';
+}
+function ngsSpark(daily, k, col) {
+  if (!daily || daily.length < 2) return '';
+  var v = daily.map(function (d) { return +d[k] || 0; }), mx = Math.max.apply(null, v) || 1, W = 120, H = 30;
+  var pts = v.map(function (x, i) { return (i * W / (v.length - 1)).toFixed(1) + ',' + (H - 3 - x / mx * (H - 6)).toFixed(1); }).join(' ');
+  return '<svg class="ngs-spark" viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="none" aria-hidden="true"><polyline points="' + pts + '" fill="none" stroke="' + col + '" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/></svg>';
+}
+function ngsCol(d, s) {
+  var T = (d.totals || {})[s] || {}, A = (d.accounts || {})[s] || [], G = (d.tags || {})[s] || [], L = (d.latest || {})[s] || [], top = (d.top || {})[s];
+  var col = s === 'pro' ? '#E8590C' : '#B42318', amx = A.length ? A[0].n : 1;
+  var head = '<div class="ngs-ch"><span class="ngs-dot"></span><div><b>' + (s === 'pro' ? 'For BJP' : 'Against BJP') + '</b>'
+    + '<small>' + Number(T.n || 0).toLocaleString('en-IN') + ' posts &middot; ' + Number(T.accounts || 0).toLocaleString('en-IN') + ' accounts &middot; ' + _ngrFmt(+T.views || 0) + ' views</small></div>'
+    + ngsSpark(d.daily, s, col) + '</div>';
+  var acc = A.length ? A.map(function (a, i) {
+    var g = ngsGroupOf(a.h), meta = [a.party && a.party !== '-' ? a.party : '', a.cat && a.cat !== '-' ? a.cat : '', g ? g + ' group' : ''].filter(Boolean).join(' · ');
+    return '<a class="ngs-a" href="https://x.com/' + encodeURIComponent(a.h) + '" target="_blank" rel="noopener">'
+      + '<span class="ngs-ar">' + (i + 1) + '</span><span class="ngs-av">' + ngsAv(a.h, a.name) + '</span>'
+      + '<span class="ngs-an"><b>' + _ngrEsc(a.name && a.name !== '-' ? a.name : '@' + a.h) + '</b><small>@' + _ngrEsc(a.h) + (meta ? ' · ' + _ngrEsc(meta) : '') + '</small></span>'
+      + '<span class="ngs-av2"><b>' + Number(a.n).toLocaleString('en-IN') + '</b><i style="width:' + Math.max(8, a.n / amx * 100).toFixed(0) + '%"></i></span></a>';
+  }).join('') : '<div class="ngd-empty0">No posts in this window</div>';
+  var tags = G.length ? '<div class="ngs-tags">' + G.slice(0, 10).map(function (t) { return '<span><b>' + _ngrEsc(t.tag) + '</b>' + t.n + '</span>'; }).join('') + '</div>' : '<div class="ngs-none">No hashtags yet</div>';
+  var tw = function (t) { return ngmTweetHtml(t, null, (t['Candidate Name'] && t['Candidate Name'] !== '-') ? t['Candidate Name'] : t.Handle, t.Handle); };
+  return head
+    + '<div class="ngs-lbl">Leading voices</div><div class="ngs-accs">' + acc + '</div>'
+    + '<div class="ngs-lbl">Trending hashtags</div>' + tags
+    + (top ? '<div class="ngs-lbl">Most viewed post</div><div class="htc-feed ngs-feed">' + tw(top) + '</div>' : '')
+    + (L.length ? '<div class="ngs-lbl">Latest posts</div><div class="htc-feed ngs-feed">' + L.slice(0, 3).map(tw).join('') + '</div>' : '');
+}
+function ngsRender() {
+  var d = _ngs.data, bal = document.getElementById('ngsBal'), P = document.getElementById('ngsPro'), A = document.getElementById('ngsAnti'), win = document.getElementById('ngsWin');
+  document.querySelectorAll('#ngsSeg button').forEach(function (b) { b.classList.toggle('on', b.getAttribute('data-w') === _ngs.who); });
+  if (!d) { if (P) P.innerHTML = '<div class="ngd-empty0">Loading&hellip;</div>'; if (A) A.innerHTML = ''; return; }
+  if (!d.ok) { if (bal) bal.innerHTML = ''; if (P) P.innerHTML = '<div class="ngd-empty0">Could not load right now</div>'; if (A) A.innerHTML = ''; return; }
+  if (win) win.textContent = 'latest ' + d.days + ' days · ' + ngdDay(d.from) + ' – ' + ngdDay(d.to);
+  var p = +((d.totals || {}).pro || {}).n || 0, a = +((d.totals || {}).anti || {}).n || 0, tot = p + a, pp = tot ? p * 100 / tot : 50;
+  if (bal) bal.innerHTML = '<div class="ngs-bl"><b>' + (tot ? pp.toFixed(0) : 0) + '%</b><span>for</span></div>'
+    + '<div class="ngs-bar"><i class="p" style="width:' + pp.toFixed(2) + '%"></i><i class="a" style="width:' + (100 - pp).toFixed(2) + '%"></i></div>'
+    + '<div class="ngs-bl r"><b>' + (tot ? (100 - pp).toFixed(0) : 0) + '%</b><span>against</span></div>';
+  if (P) { P.innerHTML = ngsCol(d, 'pro'); ngmMore(P); }
+  if (A) { A.innerHTML = ngsCol(d, 'anti'); ngmMore(A); }
+}
+function ngsLoad(force) {
+  if (_ngs.busy) return;
+  if (!force && _ngs.data && Date.now() - _ngs.t < 300000) return;
+  _ngs.busy = true; var who = _ngs.who;
+  if (!_ngs.data || force) { _ngs.data = _ngs.data && _ngs.data.who === who ? _ngs.data : null; ngsRender(); }
+  fetch('/api/narrative-groups/stance?days=7', { credentials: 'same-origin', cache: 'no-store' })
+    .then(function (r) { return r.json(); })
+    .then(function (d) { if (who !== _ngs.who) return; _ngs.data = d || { ok: false }; _ngs.t = Date.now(); ngsRender(); })
+    .catch(function () { if (who !== _ngs.who) return; _ngs.data = { ok: false }; ngsRender(); })
+    .then(function () { _ngs.busy = false; });
+}
+document.addEventListener('click', function (e) {
+  var b = e.target && e.target.closest ? e.target.closest('#ngsSeg button') : null;
+  if (!b) return;
+  var w = b.getAttribute('data-w'); if (w === _ngs.who) return;
+  _ngs.who = w; _ngs.data = null; _ngs.busy = false; ngsLoad(true);
+});
 function ngxPlaceFilters() {
   var fb = document.getElementById('ngxFBar'), slot = document.getElementById('ngxFSlot'), home = document.getElementById('ngxFHome');
   if (!fb || !slot || !home) return;

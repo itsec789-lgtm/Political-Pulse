@@ -4379,6 +4379,101 @@ app.get('/api/narrative-groups/leader-analysis/:handle', async function (req, re
   }
 });
 
+// ---------- Narrative Groups: BJP ke paksh / virodh me kaun -- data ke aakhri N din (default 7) ----------
+// 14-Nov: 'Sentiment' label se -- Pro-BJP + Pro-Govt = paksh, Anti-BJP + Anti-Govt = virodh. Har account (sirf
+// narrative groups nahi). Window data ke AAKHRI tweet ke din se peeche, isliye naya data aate hi khud aage
+// khiskta hai. 5 min cache.
+var _stanceCache = {};
+app.get('/api/narrative-groups/stance', async function (req, res) {
+  res.set('Cache-Control', 'no-store');
+  try {
+    var days = Math.min(30, Math.max(1, parseInt(req.query.days, 10) || 7));
+    var who = 'groups';
+    var ck = String(days), hit = _stanceCache[ck];
+    if (hit && Date.now() - hit.t < 300000) return res.json(hit.v);
+    /* 14-Nov: SIRF Narrative Groups -- groups ke official handles + unke members (baaki neta nahi) */
+    var ngCfg = path.join(__dirname, 'data', 'narrative_groups_config.json'), ngH = [];
+    if (fs.existsSync(ngCfg)) JSON.parse(fs.readFileSync(ngCfg, 'utf8')).forEach(function (g) {
+      (g.handles || []).forEach(function (h) { if (h) ngH.push(h); });
+      (g.leaders || []).forEach(function (l) { if (l && l.handle) ngH.push(l.handle); });
+    });
+    if (!ngH.length) return res.json({ ok: false, error: 'Narrative groups config missing' });
+    ngH = await ML.handleSpellings(MP, MASTER_DB, MASTER_COLL, ngH);
+    var PRO = /^\s*pro[\s_-]*(bjp|govt?|government)\s*$/i, ANTI = /^\s*anti[\s_-]*(bjp|govt?|government)\s*$/i;
+    /* posts + reposts dono (group apna narrative repost se bhi chalata hai) */
+    var base = { Handle: { $in: ngH }, Sentiment: { $in: [PRO, ANTI] } };
+    /* window: in handles ke AAKHRI pro/anti post ke din se N din peeche -- naya data aate hi khud aage.
+       Bahut kam post hon (< 40) to window apne aap 30, phir 90 din tak chaudi. */
+    var last = await onTweets('', async function (coll) {
+      var r = await coll.find(base, { projection: { 'Tweet Date': 1 } }).sort({ 'Tweet Date': -1 }).limit(1).toArray();
+      return r.length ? String(r[0]['Tweet Date'] || '').slice(0, 10) : '';
+    });
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(last)) return res.json({ ok: false, error: 'no data' });
+    var from = ML.addDays(last, -(days - 1));
+    var tries = [days, 30, 90].filter(function (n, i, A) { return n >= days && A.indexOf(n) === i; });
+    for (var ti = 0; ti < tries.length; ti++) {
+      from = ML.addDays(last, -(tries[ti] - 1));
+      var cnt = await onTweets('', async function (coll) { return coll.countDocuments(Object.assign({}, base, { 'Tweet Date': ML.dateCond(from, last) })); });
+      days = tries[ti];
+      if (cnt >= 40) break;
+    }
+    var match = Object.assign({}, base, { 'Tweet Date': ML.dateCond(from, last) });
+    /* paksh = Pro-BJP + Pro-Govt (sirf BJP account -- warna Karnataka me Congress ki apni sarkar); vipaksh party ke
+       account ka "Pro-BJP" model ki galti maante hain (Youth Congress ka Congress-wala retweet Pro-BJP tag ho jaata hai).
+       virodh = Anti-BJP + Anti-Govt (sirf gair-BJP account -- BJP ka Congress sarkar par hamla virodh nahi) */
+    var S = { $ifNull: ['$Sentiment', ''] }, isBJP = { $regexMatch: { input: { $ifNull: ['$Party', ''] }, regex: '^\\s*bjp\\s*$', options: 'i' } };
+    var isOpp = { $regexMatch: { input: { $ifNull: ['$Party', ''] }, regex: '^\\s*(inc|aap|sp|aitc|tmc|dmk|cpi|cpi\\(m\\)|cpm|cpi\\(ml\\)|rjd|jmm|bsp|aimim|ncp\\(sp\\)|ss\\(ubt\\)|shs\\(ubt\\)|iuml|vck|kc\\(m\\)|jknc|azad samaj party|asp\\(kr\\))\\s*$', options: 'i' } };
+    var rx = function (r) { return { $regexMatch: { input: S, regex: r, options: 'i' } }; };
+    var sideOf = { $switch: { branches: [
+      { case: { $and: [rx('^\\s*pro[\\s_-]*bjp'), { $not: [isOpp] }] }, then: 'pro' },
+      { case: { $and: [rx('^\\s*pro[\\s_-]*gov'), isBJP] }, then: 'pro' },
+      /* BJP ka apna account "Anti-BJP" -- model ki galti (AAP / Congress par hamla); virodh me nahi ginte */
+      { case: { $and: [rx('^\\s*anti[\\s_-]*bjp'), { $not: [isBJP] }] }, then: 'anti' },
+      { case: { $and: [rx('^\\s*anti[\\s_-]*gov'), { $not: [isBJP] }] }, then: 'anti' }
+    ], default: '' } };
+    var TWF = { _id: 0, Handle: 1, 'Candidate Name': 1, Party: 1, Category: 1, Sentiment: 1, 'Tweet Date': 1, 'Tweet Text': 1, 'Tweet URL': 1,
+      'Total Likes': 1, 'Total Retweets': 1, 'Total Views': 1, 'Total Comments': 1 };
+    var acc = function (s) {
+      return [{ $match: { side: s } },
+        { $group: { _id: { $toLower: '$Handle' }, h: { $first: '$Handle' }, name: { $first: '$Candidate Name' }, party: { $first: '$Party' },
+          cat: { $first: '$Category' }, n: { $sum: 1 }, views: ML.sumOf('Total Views'), likes: ML.sumOf('Total Likes') } },
+        { $sort: { n: -1, views: -1 } }, { $limit: 8 }];
+    };
+    var lat = function (s) { return [{ $match: { side: s } }, { $sort: { 'Tweet Date': -1 } }, { $limit: 6 }, { $project: TWF }]; };
+    var top = function (s) { return [{ $match: { side: s } }, { $sort: { 'Total Views': -1 } }, { $limit: 1 }, { $project: TWF }]; };
+    var tags = function (s) {
+      return [{ $match: { side: s } },
+        { $project: { m: { $regexFindAll: { input: { $ifNull: ['$Tweet Text', ''] }, regex: '#[^\\s#.,!?:;"\'()\\[\\]{}<>|/\\\\@]{2,40}' } } } },
+        { $unwind: '$m' }, { $group: { _id: { $toLower: '$m.match' }, tag: { $first: '$m.match' }, n: { $sum: 1 } } },
+        { $sort: { n: -1 } }, { $limit: 12 }];
+    };
+    var _src = 'cold';
+    var out = await onTweets(from, async function (coll, store) {
+      _src = store;
+      return coll.aggregate([{ $match: match }, { $addFields: { side: sideOf } }, { $match: { side: { $ne: '' } } }, { $facet: {
+        totals: [{ $group: { _id: '$side', n: { $sum: 1 }, views: ML.sumOf('Total Views'), accounts: { $addToSet: { $toLower: '$Handle' } } } },
+          { $project: { n: 1, views: 1, accounts: { $size: '$accounts' } } }],
+        daily: [{ $group: { _id: { d: { $substr: ['$Tweet Date', 0, 10] }, s: '$side' }, n: { $sum: 1 } } }, { $sort: { '_id.d': 1 } }],
+        accPro: acc('pro'), accAnti: acc('anti'), latPro: lat('pro'), latAnti: lat('anti'), topPro: top('pro'), topAnti: top('anti'),
+        tagPro: tags('pro'), tagAnti: tags('anti')
+      } }], { allowDiskUse: true }).toArray();
+    });
+    var f = (out && out[0]) || {}, T = { pro: { n: 0, views: 0, accounts: 0 }, anti: { n: 0, views: 0, accounts: 0 } };
+    (f.totals || []).forEach(function (r) { if (T[r._id]) T[r._id] = { n: r.n || 0, views: r.views || 0, accounts: r.accounts || 0 }; });
+    var dmap = {};
+    (f.daily || []).forEach(function (r) { var d = r._id.d; dmap[d] = dmap[d] || { d: d, pro: 0, anti: 0 }; dmap[d][r._id.s] = r.n; });
+    var v = { ok: true, source: _src, days: days, who: who, from: from, to: last, totals: T,
+      daily: Object.keys(dmap).sort().map(function (k) { return dmap[k]; }),
+      accounts: { pro: f.accPro || [], anti: f.accAnti || [] }, latest: { pro: f.latPro || [], anti: f.latAnti || [] },
+      top: { pro: (f.topPro || [])[0] || null, anti: (f.topAnti || [])[0] || null },
+      tags: { pro: f.tagPro || [], anti: f.tagAnti || [] }, timestamp: new Date().toISOString() };
+    _stanceCache[ck] = { t: Date.now(), v: v };
+    res.json(v);
+  } catch (e) {
+    res.json({ ok: false, error: e.message });
+  }
+});
+
 // ---------- Narrative Groups: LIVE MongoDB Leader Comparison Endpoint ----------
 app.get('/api/narrative-groups/comparison', async function (req, res) {
   res.set('Cache-Control', 'no-store');
