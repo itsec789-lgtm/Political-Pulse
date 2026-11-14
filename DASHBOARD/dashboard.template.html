@@ -6105,7 +6105,8 @@ a.pe-btn:after{content:"";position:absolute;inset:0;z-index:1;background:linear-
 <!-- 7.5. NARRATIVE GROUPS -->
 <div class="page-section" id="sec-narrative-groups">
 <!-- ngx (14-Nov): filter card -- Parties jaisa safed card; Full Range default; text Reset; live sync daayein -->
-<div class="ng-filter-bar ngx-fbar">
+<span id="ngxFHome" hidden></span>
+<div class="ng-filter-bar ngx-fbar" id="ngxFBar">
   <div class="ngx-fl">
     <label class="ngx-selw"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4.5" width="18" height="16.5" rx="2.5"/><path d="M16 3v3M8 3v3M3 10h18"/></svg>
     <select class="ngx-sel" id="ngFilterRange" onchange="onNgFilterChange()" aria-label="Date range">
@@ -6143,8 +6144,8 @@ a.pe-btn:after{content:"";position:absolute;inset:0;z-index:1;background:linear-
          daayein "share of voice" ring: har group ka hissa uske rang me, logo ring ke bahar, beech me kul ginti.
          Ring wahi metric dikhata hai jo race me chuna hai (Tweets / Likes / Retweets / Views). -->
     <section class="ngx-h2" id="ngxHero">
+      <div class="ngx-h2-f" id="ngxFSlot"></div>
       <div class="ngx-h2-l">
-        <div class="ngx-h2-eb"><span class="ngx-h2-live"><i></i>Live</span><span>Narrative Groups</span></div>
         <h1 class="ngx-h2-t">Who&rsquo;s shaping the <em>conversation</em></h1>
         <p class="ngx-h2-s" id="ngxSub">Political groups, student wings &amp; creator networks</p>
         <div class="ngx-h2-lead" id="ngxLead"></div>
@@ -6346,6 +6347,28 @@ a.pe-btn:after{content:"";position:absolute;inset:0;z-index:1;background:linear-
     #sec-narrative-groups .ngx-h2::after{width:300px}
     @media(max-width:1180px){#sec-narrative-groups .ngx-h2{grid-template-columns:minmax(0,1fr) 210px}#sec-narrative-groups .ngx-ring{transform:scale(.64);margin:-54px}
       #sec-narrative-groups .ngx-h2-t{font-size:28px}}
+    /* ngx-merge (14-Nov): filter card hero ke andar (upar ki patti), hero aur patla -- eyebrow nahi, ring chhota */
+    #sec-narrative-groups .ngx-h2{grid-template-columns:minmax(0,1fr) 172px!important;row-gap:0;column-gap:20px;padding:10px 20px 14px 22px!important}
+    #sec-narrative-groups .ngx-h2-f{grid-column:1/-1}
+    #sec-narrative-groups .ngx-h2-f:empty{display:none}
+    #sec-narrative-groups .ngx-h2-f .ngx-fbar{width:auto;margin:0 -8px 10px -10px;padding:0 0 10px;background:none;border:0;border-bottom:1px solid #F1EAE1;border-radius:0;box-shadow:none}
+    #sec-narrative-groups .ngx-h2-f .ngx-fl{padding-left:10px}
+    #sec-narrative-groups .ngx-h2-f .ngx-fr{padding-right:8px}
+    #sec-narrative-groups .ngx-h2-eb{display:none}
+    #sec-narrative-groups .ngx-h2-t{margin:0 0 3px!important;font-size:28px!important}
+    #sec-narrative-groups .ngx-h2-stats{margin-top:10px!important;padding-top:10px!important}
+    #sec-narrative-groups .ngx-st b{font-size:21px!important}
+    #sec-narrative-groups .ngx-st span{margin-top:4px!important}
+    #sec-narrative-groups .ngx-st small{display:none}
+    #sec-narrative-groups .ngx-st:first-child{flex:1.5 1 0}
+    #sec-narrative-groups .ngx-st span{white-space:nowrap}
+    #sec-narrative-groups .ngx-h2-r{align-self:center}
+    #sec-narrative-groups .ngx-ring{transform:scale(.54)!important;margin:-69px!important}
+    #sec-narrative-groups .ngx-h2::after{width:240px}
+    #sec-narrative-groups .ngx-h2::before{width:360px;height:360px;top:-60px;right:-40px}
+    @media(max-width:1180px){#sec-narrative-groups .ngx-h2{grid-template-columns:minmax(0,1fr) 150px!important}#sec-narrative-groups .ngx-ring{transform:scale(.48)!important;margin:-78px!important}
+      #sec-narrative-groups .ngx-h2-t{font-size:25px!important}}
+    @media(max-width:900px){#sec-narrative-groups .ngx-h2{grid-template-columns:1fr!important}#sec-narrative-groups .ngx-h2-r{display:none}}
     /* --- race card --- */
     #sec-narrative-groups .ngr{margin-top:0;border:1px solid #ECE4DA;border-radius:18px;box-shadow:0 1px 0 #ECE4DA,0 18px 40px -30px rgba(60,30,10,.45)}
     #sec-narrative-groups .ngr-glow{opacity:.55}
@@ -6504,7 +6527,22 @@ a.pe-btn:after{content:"";position:absolute;inset:0;z-index:1;background:linear-
     #sec-narrative-groups .ngx-vc-foot{flex-wrap:wrap;gap:4px 10px;margin-top:-2px}
     #sec-narrative-groups .ngx-vc-go{opacity:1}
     #sec-narrative-groups .ngx-vc-share{background:rgba(23,18,14,.08)}
-    /* spotlight banner */
+    /* 14-Nov: pill nahi -- rank, group, crown, lead, live sab saadi typography (dibba / kinara / bharav nahi) */
+    #sec-narrative-groups .ngx-vc-rk{width:auto;height:auto;border-radius:0;background:none!important;color:#17120E;font:700 22px/1 'Rajdhani',sans-serif;letter-spacing:.5px}
+    #sec-narrative-groups .ngx-vc:first-child .ngx-vc-rk{color:#E8590C}
+    #sec-narrative-groups .ngx-vc-top{gap:10px;align-items:center}
+    #sec-narrative-groups .ngx-vtag{padding:0;border-radius:0;background:none;box-shadow:none;gap:6px;font:700 11px 'DM Sans',sans-serif;letter-spacing:.6px;text-transform:uppercase;
+      color:color-mix(in srgb,var(--gc) 80%,#000);padding-left:10px;border-left:1px solid rgba(23,18,14,.14)}
+    #sec-narrative-groups .ngx-vtag-lg{width:16px;height:16px}
+    #sec-narrative-groups .ngr-spot:not(.empty) .ngr-crown{padding:0;border-radius:0;background:none;box-shadow:none;color:#fff;font:700 10.5px 'DM Sans',sans-serif;letter-spacing:1.4px;
+      text-shadow:0 1px 6px rgba(0,0,0,.45)}
+    #sec-narrative-groups .ngr-spot:not(.empty) .ngr-crown svg{filter:drop-shadow(0 1px 3px rgba(0,0,0,.4));color:#FFC24B}
+    #sec-narrative-groups .ngr-spot-lead{display:flex;align-items:center;gap:6px;width:auto;padding:0;margin-top:8px;border:0;border-radius:0;background:none;
+      font:600 12px 'DM Sans',sans-serif;color:#3A2E25}
+    #sec-narrative-groups .ngr-spot-lead::before{content:'';width:14px;height:14px;flex:none;background:currentColor;color:#15803D;
+      -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 17l6-6 4 4 8-8M15 7h6v6'/%3E%3C/svg%3E") center/contain no-repeat;
+      mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 17l6-6 4 4 8-8M15 7h6v6'/%3E%3C/svg%3E") center/contain no-repeat}
+    #sec-narrative-groups .ngx-h2-live{padding:0;background:none;border-radius:0;color:#15803D}    /* spotlight banner */
     #sec-narrative-groups .ngr-spot:not(.empty){padding-top:0}
     #sec-narrative-groups .ngx-spot-ban{position:relative;height:150px;margin:0 -18px;overflow:hidden;border-radius:15px 15px 0 0;background:color-mix(in srgb,var(--sc,#E8590C) 14%,#fff)}
     #sec-narrative-groups .ngx-spot-ban img{width:100%;height:100%;object-fit:cover;object-position:center 22%;display:block;transition:transform .6s cubic-bezier(.2,.8,.2,1);
@@ -16905,7 +16943,7 @@ function fetchLiveNarrativeGroupStats(showNotice){
     .then(function(res){ return res.json(); })
     .then(function(data){
       if(data && data.ok && data.stats){
-        var statsMap = data.stats;
+        var statsMap = data.stats, _ngAllH = {};
         var grandTw = 0, grandHandles = 0;
         NARRATIVE_GROUPS_DATA.forEach(function(g){
           var gTw = 0, gLk = 0, gRt = 0, gVw = 0;
@@ -16930,7 +16968,7 @@ function fetchLiveNarrativeGroupStats(showNotice){
           });
           g.stats = { tweets: gTw, likes: gLk, rts: gRt, views: gVw };
           grandTw += gTw;
-          grandHandles += Object.keys(_seenH).length;
+          Object.keys(_seenH).forEach(function(x){ if(x) _ngAllH[x] = 1; }); grandHandles = Object.keys(_ngAllH).length;   /* ek handle do group me ho to ek hi baar */
 
           (g.leaders || []).forEach(function(m){
             m.sharePct = gTw > 0 ? Math.round((m.tweets / gTw) * 100) : 0;
@@ -17154,15 +17192,19 @@ function _ngrTween(el, from, to, ms) {
 }
 /* ngx (14-Nov): hero KPI tiles, logo strip aur "Loudest voices" -- har race render ke saath (wahi list, wahi metric) */
 function ngxPaint(list, lbl) {
-  var K = { tweets: 0, likes: 0, rts: 0, views: 0 }, mem = 0;
-  list.forEach(function (g) { var s = g.stats || {}; for (var x in K) K[x] += (+s[x] || 0); mem += (g.leaders || []).length; });
+  var K = { tweets: 0, likes: 0, rts: 0, views: 0 }, mem = 0, _hs = {};
+  list.forEach(function (g) { var s = g.stats || {}; for (var x in K) K[x] += (+s[x] || 0);
+    (g.leaders || []).forEach(function (m) { _hs[String(m.handle || '').toLowerCase()] = 1; });
+    (g.handles || []).forEach(function (h) { _hs[String(h || '').toLowerCase()] = 1; }); });
+  delete _hs['']; mem = Object.keys(_hs).length;
+  ngxPlaceFilters();
   var sub = document.getElementById('ngxSub');
   if (sub) sub.textContent = 'Political groups, student wings & creator networks · ' + (lbl || 'Full Range');
   var k0 = _ngr.k, lab = { tweets: 'Tweets', likes: 'Likes', rts: 'Retweets', views: 'Views' };
   var kp = document.getElementById('ngxKpis');
   if (kp) {
     var st = function (l, v, s, on) { return '<div class="ngx-st' + (on ? ' on' : '') + '"><b>' + v + '</b><span>' + l + '</span>' + (s ? '<small>' + s + '</small>' : '') + '</div>'; };
-    kp.innerHTML = st('Groups', list.length, mem + ' handles', false)
+    kp.innerHTML = st('Groups &middot; ' + mem + ' handles', list.length, '', false)
       + ['tweets', 'likes', 'rts', 'views'].map(function (x) { return st(lab[x], _ngrFmt(K[x]), '', x === k0); }).join('');
   }
   /* share of voice -- chune metric par */
@@ -17215,7 +17257,7 @@ function ngxPaint(list, lbl) {
         var p = pct(r.v);
         return '<button type="button" class="ngx-vc" style="--gc:' + (r.g.color || '#E8590C') + '" onclick="ngxOpenVoice(\'' + esc1(r.m.handle) + '\')" title="Open ' + _ngrEsc(r.m.name) + '">'
           + '<span class="ngx-vc-ph" aria-hidden="true">' + _ngrImg(r.m.avatar, r.m.handle, r.m.name) + '</span>'
-          + '<span class="ngx-vc-top"><span class="ngx-vc-rk">' + (i + 1) + '</span>' + tag(r.g) + '</span>'
+          + '<span class="ngx-vc-top"><span class="ngx-vc-rk">' + ('0' + (i + 1)) + '</span>' + tag(r.g) + '</span>'
           + '<span class="ngx-vc-who"><span class="ngx-vc-nm"><b>' + _ngrEsc(r.m.name) + '</b><small>@' + _ngrEsc(r.m.handle) + '</small></span></span>'
           + '<span class="ngx-vc-num"><b>' + _ngrFmt(r.v) + '</b><small>' + _ngr.l + '</small></span>'
           + '<span class="ngx-vc-share"><i style="width:' + Math.max(2, Math.min(100, p)).toFixed(1) + '%"></i></span>'
@@ -17233,7 +17275,24 @@ function ngxPaint(list, lbl) {
       vg.innerHTML = '<div class="ngx-vcards n' + Math.min(3, rows.length) + '">' + cards + '</div>' + (rest ? '<div class="ngx-vlist">' + rest + '</div>' : '');
     }
   }
-}window.ngxOpenVoice = function (h) {
+}/* 14-Nov: filter + hero EK panel -- directory dikh rahi ho to filter card hero ke upar wale khaane me,
+   warna (group / leader page) apni purani jagah par, taaki wahan bhi date badal sakein */
+function ngxPlaceFilters() {
+  var fb = document.getElementById('ngxFBar'), slot = document.getElementById('ngxFSlot'), home = document.getElementById('ngxFHome');
+  if (!fb || !slot || !home) return;
+  var dir = document.getElementById('ngDirectoryView'), inDir = !dir || dir.style.display !== 'none';
+  if (inDir) { if (fb.parentNode !== slot) slot.appendChild(fb); }
+  else if (fb.parentNode !== home.parentNode || fb.previousSibling !== home) home.parentNode.insertBefore(fb, home.nextSibling);
+}
+window.ngxPlaceFilters = ngxPlaceFilters;
+(function () {
+  ['openNarrativeGroup', 'openLeaderAnalysis'].forEach(function (n) {
+    var o = window[n]; if (typeof o !== 'function' || o._ngx) return;
+    var w = function () { var r = o.apply(this, arguments); try { ngxPlaceFilters(); } catch (e) {} return r; };
+    w._ngx = 1; window[n] = w;
+  });
+})();
+window.ngxOpenVoice = function (h) {
   if (typeof openLeaderAnalysis === 'function') { try { openLeaderAnalysis(h); return; } catch (e) {} }
   if (typeof openProfile === 'function') openProfile(h);
 };
