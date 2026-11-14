@@ -5023,6 +5023,51 @@ async function plResolve(p, full) {
   }
   return null;
 }
+/* ---- party-cover (14-Nov): Party detail ke hero ka banner = party ke official X handle ka cover ----
+   Handle: ?h= (page ka diya, sirf \w{1,15}) warna plOfficial(p). Cover x_profiles se (haProfile -- purani ho to
+   X se taaza), image ek baar laakar pulse_master.party_covers me (7 din); na mile to 1 din dobara nahi.
+   Na mile to 404 -- page tab party ke netaon ki photo / rang wala banner dikhata hai. */
+var _pcBusy = new Map();
+async function pcResolve(h) {
+  var pr = await haProfile(h, false);
+  var cv = pr && pr.prof && pr.prof.cover;
+  if (!cv || !/^https:\/\/pbs\.twimg\.com\/profile_banners\//.test(cv)) return null;
+  var u = /\/\d+x\d+$/.test(cv) ? cv : cv.replace(/\/+$/, '') + '/1500x500';
+  var im = await plGet(u);
+  if (!im && u !== cv) im = await plGet(cv);
+  return im ? { buf: im.buf, ct: im.ct, src: '@' + h } : null;
+}
+app.get('/api/party-cover', dashGuard, async function (req, res) {
+  var p = String(req.query.p || '').trim().toUpperCase().slice(0, 40);
+  var qh = String(req.query.h || '').replace(/^@/, '').trim();
+  var h = /^\w{1,15}$/.test(qh) ? qh : plOfficial(p);
+  if (!h || PL_NONE[p]) return res.status(404).end();
+  try {
+    var cli = MP.client(); await cli.connect();
+    try {
+      var coll = cli.db(MASTER_DB).collection('party_covers');
+      var id = h.toLowerCase();
+      var doc = await coll.findOne({ _id: id });
+      var age = doc ? Date.now() - new Date(doc.at).getTime() : Infinity;
+      var fresh = doc && (doc.none ? age < 86400e3 : age < 7 * 86400e3);
+      if (!fresh) {
+        var job = _pcBusy.get(id);
+        if (!job) { job = pcResolve(h).catch(function () { return null; }).finally(function () { _pcBusy.delete(id); }); _pcBusy.set(id, job); }
+        var got = await job;
+        if (got) { doc = { _id: id, ct: got.ct, data: got.buf, src: got.src, at: new Date() }; console.log('  [party-cover] ' + p + ' <- ' + got.src); }
+        else if (doc && doc.data) doc.at = new Date();
+        else doc = { _id: id, none: true, at: new Date() };
+        await coll.replaceOne({ _id: id }, doc, { upsert: true });
+      }
+      if (!doc || doc.none || !doc.data) return res.status(404).set('Cache-Control', 'private, max-age=3600').end();
+      var buf = Buffer.isBuffer(doc.data) ? doc.data : Buffer.from(doc.data.buffer || doc.data);
+      res.set('Content-Type', doc.ct || 'image/jpeg').set('Cache-Control', 'private, max-age=86400').send(buf);
+    } finally { try { await cli.close(); } catch (e) {} }
+  } catch (e) {
+    console.log('  [/api/party-cover] ' + e.message);
+    res.status(404).end();
+  }
+});
 app.get('/api/party-logo', dashGuard, async function (req, res) {
   var p = String(req.query.p || '').trim().toUpperCase().slice(0, 40);
   var full = String(req.query.n || '').trim().slice(0, 120);

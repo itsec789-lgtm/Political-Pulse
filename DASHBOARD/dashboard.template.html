@@ -5862,9 +5862,43 @@ a.pe-btn:after{content:"";position:absolute;inset:0;z-index:1;background:linear-
     .pd-lbl{color:#6B6B6B}.pd-val,.pd-card.pd-main .pd-val{color:#141414!important}.pd-per{color:#8A8A8A}.pd-per b{color:#141414}
     @media (max-width:820px){.pd-band{padding-bottom:76px!important}}
     @media (max-width:820px){.pd-stats{grid-template-columns:1fr 1fr}.pd-band{padding:20px 18px 60px}.pd-band .ph-watermark{display:none!important}}
+    /* pd-art (14-Nov): hero me tasveer -- 1) party ke official X handle ka banner (daayein, baayein taraf rang me
+       ghulta hua), 2) banner na ho to party ke netaon ki khadi photo, 3) dono na ho to bada halka party naam.
+       Upar party-rang ki parat, taaki baayein ka text hamesha saaf padha jaaye. */
+    .pd-band{isolation:isolate}
+    .pd-band .pd-cover{position:absolute;top:0;right:0;bottom:0;width:72%;z-index:-2;background:center/cover no-repeat;opacity:0;
+      transform:scale(1.04);transition:opacity .7s ease,transform 1.2s cubic-bezier(.2,.8,.2,1);
+      -webkit-mask-image:linear-gradient(90deg,transparent 0,rgba(0,0,0,.55) 22%,#000 48%);mask-image:linear-gradient(90deg,transparent 0,rgba(0,0,0,.55) 22%,#000 48%)}
+    .pd-band.has-cover .pd-cover{opacity:1;transform:none}
+    .pd-band .pd-shade{position:absolute;inset:0;z-index:-1;pointer-events:none;
+      background:linear-gradient(90deg,color-mix(in srgb,var(--pc) 62%,#000) 0%,color-mix(in srgb,var(--pc) 78%,#000) 30%,color-mix(in srgb,var(--pc) 35%,transparent) 62%,transparent 100%),
+                 linear-gradient(180deg,rgba(0,0,0,0) 45%,rgba(0,0,0,.28) 100%)}
+    .pd-band.has-cover::after,.pd-band.has-figs::after{display:none}
+    .pd-band:not(.has-cover) .pd-shade{background:radial-gradient(120% 140% at 85% 10%,color-mix(in srgb,var(--pc) 55%,#fff) 0%,transparent 55%),
+                 linear-gradient(180deg,rgba(0,0,0,0) 50%,rgba(0,0,0,.22) 100%)}
+    .pd-band .pd-figs{position:absolute;right:34px;bottom:0;height:calc(100% - 14px);display:flex;align-items:flex-end;z-index:0;pointer-events:none}
+    .pd-band .pd-figs::before{content:"";position:absolute;left:50%;bottom:-30px;width:300px;height:300px;transform:translateX(-50%);border-radius:50%;
+      background:radial-gradient(circle,rgba(255,255,255,.34),rgba(255,255,255,0) 66%)}
+    .pd-band .pd-figs img{position:relative;height:100%;width:auto;object-fit:contain;filter:drop-shadow(0 10px 18px rgba(0,0,0,.35));
+      opacity:0;transform:translateY(10px);transition:opacity .6s ease,transform .8s cubic-bezier(.2,.8,.2,1)}
+    .pd-band .pd-figs img.on{opacity:1;transform:none}
+    .pd-band .pd-figs img.p2{height:84%;margin-right:-34px;filter:drop-shadow(0 10px 18px rgba(0,0,0,.35)) saturate(.92) brightness(.94)}
+    .pd-band .pd-mark{position:absolute;right:28px;bottom:58px;z-index:-1;font:700 150px/0.8 Rajdhani,sans-serif;letter-spacing:-.02em;
+      color:transparent;-webkit-text-stroke:1.5px rgba(255,255,255,.22);pointer-events:none;white-space:nowrap}
+    .pd-band.has-cover .pd-mark,.pd-band.has-figs .pd-mark{display:none}
+    .pd-band .pd-row{max-width:62%}
+    .pd-info .ph-desc{text-shadow:0 1px 2px rgba(0,0,0,.25);max-width:540px}
+    .pd-title .ph-name,.pd-info .ph-sub{text-shadow:0 2px 10px rgba(0,0,0,.28)}
+    @media (max-width:820px){.pd-band .pd-row{max-width:none}.pd-band .pd-cover{width:100%;opacity:.0}.pd-band.has-cover .pd-cover{opacity:.45}
+      .pd-band .pd-figs{display:none}.pd-band .pd-mark{font-size:96px;bottom:40px}}
+    @media (prefers-reduced-motion:reduce){.pd-band .pd-cover,.pd-band .pd-figs img{transition:none}}
     </style>
     <div class="pd-hero" id="partyHeroCard">
-      <div class="pd-band">
+      <div class="pd-band" id="partyHeroBand">
+        <div class="pd-cover" id="partyHeroCover" aria-hidden="true"></div>
+        <div class="pd-shade" aria-hidden="true"></div>
+        <div class="pd-mark" id="partyHeroMark" aria-hidden="true"></div>
+        <div class="pd-figs" id="partyHeroFigs" aria-hidden="true"></div>
         <div class="ph-watermark" id="partyHeroWatermark"></div>
         <div class="pd-row">
           <div class="ph-logo-circle" id="partyHeroLogo"></div>
@@ -16187,6 +16221,7 @@ var PC_LEAD = {
   "PMK": [["draramadoss", "Anbumani Ramadoss", "Party President", "Ministry of Health and Family Welfare \u00b7 GODL-India", "Ramadoss"]],
   "MNF": [["ZoramthangaMNF", "Zoramthanga", "Party President", "Planning Commission \u00b7 GODL-India", "Zoramthanga"]]
 };
+try { window.PC_LEAD = PC_LEAD; } catch (e) {}   /* pd-art: party detail hero bhi yahi photo use karta hai */
 function pcLeadFigs(L) {
   var two = L.length > 1;
   var img = function (l, cls) {
@@ -19557,6 +19592,43 @@ window.partyLogoUrl = window.partyLogoUrl || function(p) {
   return window.PARTY_LOGOS[p] || '';
 };
 
+/* pd-art (14-Nov): hero ki tasveer. Kram: official X banner (/api/party-cover) -> netaon ki khadi photo
+   (PC_LEAD, party card wali) -> bada halka party naam. Tez party badalne par purani image ka jawab na chadhe (_pdArtSeq). */
+var _pdArtSeq = 0;
+function partyHeroArt(partyName, cfg) {
+  var band = document.getElementById('partyHeroBand'), cov = document.getElementById('partyHeroCover');
+  var figs = document.getElementById('partyHeroFigs'), mark = document.getElementById('partyHeroMark');
+  if (!band) return;
+  var seq = ++_pdArtSeq;
+  band.classList.remove('has-cover', 'has-figs');
+  if (cov) cov.style.backgroundImage = '';
+  if (figs) figs.innerHTML = '';
+  if (mark) mark.textContent = cfg.name || partyName;
+  function showFigs() {
+    var L = (window.PC_LEAD || {})[partyName];
+    if (!figs || !L || !L.length) return;
+    var two = L.length > 1, n = 0;
+    figs.innerHTML = (two ? '<img class="p2" alt="" src="/assets/leaders/' + L[1][0] + '.webp">' : '')
+      + '<img class="p1" alt="" src="/assets/leaders/' + L[0][0] + '.webp">';
+    Array.prototype.forEach.call(figs.querySelectorAll('img'), function (im, i) {
+      var who = L[two && i === 0 ? 1 : 0];
+      im.title = who[1] + ' — photo: ' + who[3] + ', via Wikimedia Commons';
+      im.onload = function () { if (seq !== _pdArtSeq) return; im.classList.add('on'); if (!n++) band.classList.add('has-figs'); };
+      im.onerror = function () { im.remove(); };
+    });
+  }
+  var h = ((cfg.links || [])[0] || {}).label || '';
+  var im = new Image();
+  im.onload = function () {
+    if (seq !== _pdArtSeq) return;
+    if (im.naturalWidth < 300) { showFigs(); return; }
+    cov.style.backgroundImage = 'url("' + im.src + '")';
+    requestAnimationFrame(function () { band.classList.add('has-cover'); });
+  };
+  im.onerror = function () { if (seq === _pdArtSeq) showFigs(); };
+  im.src = '/api/party-cover?p=' + encodeURIComponent(partyName) + (h ? '&h=' + encodeURIComponent(h.replace(/^@/, '')) : '');
+}
+
 function openPartyDetail(partyName) {
   partyName = (partyName || 'BJP').trim().toUpperCase();
   _activePartyKey = partyName;
@@ -19596,6 +19668,7 @@ function openPartyDetail(partyName) {
   }
 
   var _hc = document.getElementById('partyHeroCard'); if (_hc) _hc.style.setProperty('--pc', cfg.color);
+  try { partyHeroArt(partyName, cfg); } catch (e) { console.warn('party hero art', e); }
   var nm = document.getElementById('partyHeroName');
   if (nm) nm.textContent = (cfg.fullName && cfg.fullName !== cfg.name) ? cfg.fullName : cfg.name;
 
