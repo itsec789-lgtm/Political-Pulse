@@ -6151,7 +6151,7 @@ a.pe-btn:after{content:"";position:absolute;inset:0;z-index:1;background:linear-
         <div class="ngx-h2-lead" id="ngxLead"></div>
         <div class="ngx-h2-stats" id="ngxKpis"></div>
       </div>
-      <div class="ngx-h2-r"><div class="ngx-ring" id="ngxRing"></div></div>
+      <div class="ngx-h2-r"><div class="ngx-rleg" id="ngxRingLeg"></div><div class="ngx-ring" id="ngxRing"></div></div>
     </section>
 
     <!-- ng-race (29-Oct): Narrative Race -- groups ek race me, chuna hua metric (Tweets/Likes/Retweets/Views).
@@ -6360,15 +6360,192 @@ a.pe-btn:after{content:"";position:absolute;inset:0;z-index:1;background:linear-
     #sec-narrative-groups .ngx-st b{font-size:21px!important}
     #sec-narrative-groups .ngx-st span{margin-top:4px!important}
     #sec-narrative-groups .ngx-st small{display:none}
-    #sec-narrative-groups .ngx-st:first-child{flex:1.5 1 0}
+    #sec-narrative-groups .ngx-st:first-child{flex:.7 1 0}
     #sec-narrative-groups .ngx-st span{white-space:nowrap}
     #sec-narrative-groups .ngx-h2-r{align-self:center}
     /* 14-Nov: neeche ki khaali jagah kam -- ring chhota, card ki unchai ab baayein content se tay; neeche wala race panel pehli nazar me zyada dikhe */
     #sec-narrative-groups .ngx-h2{grid-template-columns:minmax(0,1fr) 150px!important;padding-bottom:10px!important;margin-bottom:12px!important}
     #sec-narrative-groups .ngx-h2-f .ngx-fbar{margin-bottom:8px!important;padding-bottom:8px!important}
-    #sec-narrative-groups .ngx-ring{transform:scale(.46)!important;margin:-81px!important}
     #sec-narrative-groups .ngx-h2-stats{margin-top:8px!important;padding-top:8px!important}
-    #sec-narrative-groups .ngx-ring{transform:scale(.54)!important;margin:-69px!important}
+    /* compact-v2 (14-Nov): hero ek line -- title | numbers | chhota ring; race ki lines patli -- pehli screen par poori race (AISF tak) */
+    #sec-narrative-groups .ngx-h2{grid-template-columns:minmax(0,1fr) 92px!important;padding:8px 18px 10px 22px!important}
+    #sec-narrative-groups .ngx-h2-l{display:grid;grid-template-columns:auto minmax(0,1fr);column-gap:26px;align-items:center}
+    #sec-narrative-groups .ngx-h2-t{grid-column:1;font-size:24px!important;margin:0 0 2px!important;white-space:nowrap}
+    #sec-narrative-groups .ngx-h2-s{grid-column:1;font-size:12px;white-space:nowrap}
+    #sec-narrative-groups .ngx-h2-stats{grid-column:2;grid-row:1 / span 2;margin:0!important;padding:0 0 0 22px!important;border-top:0!important;border-left:1px solid #F1EAE1;flex-wrap:nowrap}
+    #sec-narrative-groups .ngx-st{padding:0 14px;min-width:0}
+    #sec-narrative-groups .ngx-st b{font-size:20px!important}
+    #sec-narrative-groups .ngx-ring{transform:scale(.3)!important;margin:-105px!important}
+    #sec-narrative-groups .ngx-pin{display:none}
+    #sec-narrative-groups .ngx-ring-c span,#sec-narrative-groups .ngx-ring-c small{display:none}
+    #sec-narrative-groups .ngx-ring-c b{font-size:56px;margin:0}
+    #sec-narrative-groups .ngx-track,#sec-narrative-groups .ngx-arc{stroke-width:30}
+    #sec-narrative-groups .ngx-h2::before{width:240px;height:240px;top:-40px;right:-30px}
+    #sec-narrative-groups .ngx-h2::after{display:none}
+    @media(max-width:1240px){#sec-narrative-groups .ngx-h2-l{grid-template-columns:1fr}#sec-narrative-groups .ngx-h2-stats{grid-column:1;grid-row:auto;border-left:0!important;padding:8px 0 0!important;margin-top:8px!important;border-top:1px solid #F1EAE1!important}
+      #sec-narrative-groups .ngx-st:first-child{padding-left:0}}
+    #sec-narrative-groups .ngr-top{padding:12px 22px 6px}
+    #sec-narrative-groups .ngr-title{font-size:16px}
+    #sec-narrative-groups .ngr-body{padding:4px 22px 12px}
+    #sec-narrative-groups .ngr-lane{height:48px;border-radius:12px}
+    #sec-narrative-groups .ngx-cat{display:none}
+    #sec-narrative-groups .ngr-lg{width:32px;height:32px}
+    #sec-narrative-groups .ngr-acr{font-size:13px}
+    #sec-narrative-groups .ngr-full{font-size:10.5px}
+    #sec-narrative-groups .ngr-rk{font-size:16px}
+    #sec-narrative-groups .ngr-val{font-size:14px}
+    #sec-narrative-groups .ngr-share{font-size:10px;margin-top:1px}
+    #sec-narrative-groups .ngr-mem img,#sec-narrative-groups .ngr-mem .more{width:24px;height:24px}
+    #sec-narrative-groups .ngr-cnt{display:none}
+    #sec-narrative-groups .ngx-spot-ban{height:110px}
+    #sec-narrative-groups .ngr-spot:not(.empty) .ngr-spot-val{font-size:30px;margin-top:10px}
+    #sec-narrative-groups .ngr-spot:not(.empty) .ngx-spot-row{margin-top:-26px}
+    #sec-narrative-groups .ngr-spot:not(.empty) .ngr-spot-logo{width:52px;height:52px}
+    #sec-narrative-groups .ngx-spot-top{margin-top:8px;padding:7px 10px}
+    #sec-narrative-groups .ngx-spot-mini{margin-top:8px}
+    #sec-narrative-groups .ngx-spot-mini div{padding:6px 8px}
+    #sec-narrative-groups .ngx-spot-cta{padding-top:8px}
+    #sec-narrative-groups .ngr-foot{padding:9px 22px 10px}
+    /* 14-Nov: ring hero ki poori unchai me (filter line se neeche tak), daayein; live ginti + Sync button nahi -- data khud sync hota hai */
+    #sec-narrative-groups .ngx-h2{grid-template-columns:minmax(0,1fr) auto!important;column-gap:18px!important;padding:8px 14px 10px 22px!important}
+    #sec-narrative-groups .ngx-h2-f{grid-column:1;grid-row:1}
+    #sec-narrative-groups .ngx-h2-l{grid-column:1;grid-row:2}
+    #sec-narrative-groups .ngx-h2-r{grid-column:2;grid-row:1 / span 2;align-self:center;justify-self:center}
+    #sec-narrative-groups .ngx-ring{transform:scale(.42)!important;margin:-87px!important}
+    #sec-narrative-groups .ngx-ring-c b{font-size:50px}
+    #sec-narrative-groups .ngx-h2-f .ngx-fbar{margin-right:0!important}
+    #sec-narrative-groups .ngx-fr{display:none!important}
+    #sec-narrative-groups .ngx-h2-r{display:flex;align-items:center;justify-content:center;width:300px;padding:0;border-left:1px solid #F1EAE1}
+    /* 14-Nov: ring bina scale ke 122px; top 2 ke logo ring par, naam + % bagal ki khaali jagah me */
+    #sec-narrative-groups .ngx-ring{transform:none!important;margin:0!important;width:122px;height:122px}
+    #sec-narrative-groups .ngx-ring svg{inset:0;width:100%;height:100%}
+    #sec-narrative-groups .ngx-pin{display:block!important;width:28px;height:28px;margin:-14px 0 0 -14px;z-index:2;
+      box-shadow:0 0 0 2px #fff,0 0 0 3.5px var(--gc),0 6px 12px -6px rgba(43,20,7,.6)}
+    #sec-narrative-groups .ngx-pin em{position:absolute;top:50%;bottom:auto;left:auto;transform:translateY(-50%);display:flex;flex-direction:column;line-height:1.15;
+      padding:0;background:none;box-shadow:none;border-radius:0;font:700 13px 'DM Sans',sans-serif;font-style:normal;color:#17120E;white-space:nowrap;font-variant-numeric:tabular-nums}
+    #sec-narrative-groups .ngx-pin em b{font:700 10px 'DM Sans',sans-serif;letter-spacing:.8px;text-transform:uppercase;color:color-mix(in srgb,var(--gc) 80%,#000)}
+    #sec-narrative-groups .ngx-pin.l em{right:calc(100% + 8px);text-align:right;align-items:flex-end}
+    #sec-narrative-groups .ngx-pin.r em{left:calc(100% + 8px)}
+    #sec-narrative-groups .ngx-ring-c b{font-size:20px!important;letter-spacing:-.5px}
+    #sec-narrative-groups .ngx-track,#sec-narrative-groups .ngx-arc{stroke-width:26}
+    #sec-narrative-groups .ngx-rleg{display:none!important}
+    /* ring final (14-Nov): beech ki seedhi lakeer nahi; patla gol-kinare wala ring, beech me number + metric, logo par safed ghera */
+    #sec-narrative-groups .ngx-h2-r{border-left:0!important}
+    #sec-narrative-groups .ngx-ring{width:128px;height:128px}
+    #sec-narrative-groups .ngx-ring::before{content:'';position:absolute;inset:22%;border-radius:50%;background:radial-gradient(circle,#fff 55%,rgba(255,255,255,0) 72%);box-shadow:0 8px 22px -14px rgba(43,20,7,.45)}
+    #sec-narrative-groups .ngx-track{stroke:#F1EAE1;stroke-width:16}
+    #sec-narrative-groups .ngx-arc{stroke-width:16}
+    #sec-narrative-groups .ngx-ring-c b{font-size:21px!important;margin:0 0 1px}
+    #sec-narrative-groups .ngx-ring-c small{display:block!important;font:700 8.5px 'DM Sans',sans-serif;letter-spacing:1.2px;text-transform:uppercase;color:#9A8B7B}
+    #sec-narrative-groups .ngx-pin{width:30px;height:30px;margin:-15px 0 0 -15px;box-shadow:0 0 0 2.5px #fff,0 4px 12px -4px rgba(43,20,7,.55)}
+    #sec-narrative-groups .ngx-pin em{font-size:14px;gap:1px}
+    #sec-narrative-groups .ngx-pin em b{font-size:10px}
+    #sec-narrative-groups .ngx-rleg{display:flex;flex-direction:column;gap:7px;min-width:132px}
+    #sec-narrative-groups .ngx-rleg:empty{display:none}
+    #sec-narrative-groups .ngx-rleg-h{font:700 9.5px 'DM Sans',sans-serif;letter-spacing:1.2px;text-transform:uppercase;color:#9A8B7B}
+    #sec-narrative-groups .ngx-rleg-i{display:grid;grid-template-columns:22px minmax(0,1fr) auto;align-items:center;gap:8px;padding-left:8px;border-left:3px solid var(--gc)}
+    #sec-narrative-groups .ngx-rleg-lg{width:22px;height:22px;border-radius:50%;overflow:hidden;background:#fff;box-shadow:0 0 0 1.5px color-mix(in srgb,var(--gc) 40%,#fff)}
+    #sec-narrative-groups .ngx-rleg-lg img{width:100%;height:100%;object-fit:cover;display:block}
+    #sec-narrative-groups .ngx-rleg-n{font:700 12px 'DM Sans',sans-serif;color:#3A2E25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    #sec-narrative-groups .ngx-rleg-i b{font:700 15px 'DM Sans',sans-serif;color:#17120E;font-variant-numeric:tabular-nums}
+    @media(max-width:1240px){#sec-narrative-groups .ngx-rleg{display:none}#sec-narrative-groups .ngx-h2-r{border-left:0;padding-left:0}}
+    /* 14-Nov: race -- pehle 5 group badi lines me (spotlight ki unchai bhar ke), baaki isi box me scroll */
+    #sec-narrative-groups .ngr-body{align-items:start}
+    #sec-narrative-groups .ngx-lwrap{position:relative;max-height:calc(var(--H,66px) * 5);overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#E3D7C8 transparent;padding-right:4px}
+    #sec-narrative-groups .ngx-lwrap::-webkit-scrollbar{width:6px}
+    #sec-narrative-groups .ngx-lwrap::-webkit-scrollbar-thumb{background:#E3D7C8;border-radius:6px}
+    #sec-narrative-groups .ngx-lwrap.more{-webkit-mask-image:linear-gradient(180deg,#000 calc(100% - 26px),rgba(0,0,0,.25));mask-image:linear-gradient(180deg,#000 calc(100% - 26px),rgba(0,0,0,.25))}
+    #sec-narrative-groups .ngx-lwrap.more.end{-webkit-mask-image:none;mask-image:none}
+    #sec-narrative-groups .ngr-lane{height:58px!important;grid-template-columns:26px minmax(170px,1.3fr) repeat(4,minmax(64px,.7fr)) 118px 16px!important;border-radius:12px!important;gap:12px!important}
+    #sec-narrative-groups .ngr-lane .ngr-track,#sec-narrative-groups .ngr-lane .ngx-num{display:none!important}
+    #sec-narrative-groups .ngx-ms{display:contents}
+    #sec-narrative-groups .ngx-mc{text-align:right;min-width:0}
+    #sec-narrative-groups .ngx-mc b{display:block;font:700 14.5px 'DM Sans',sans-serif;letter-spacing:-.3px;color:#3A2E25;font-variant-numeric:tabular-nums;white-space:nowrap}
+    #sec-narrative-groups .ngx-mc small{display:block;margin-top:2px;font:700 9px 'DM Sans',sans-serif;letter-spacing:.9px;text-transform:uppercase;color:#A8998A;white-space:nowrap}
+    #sec-narrative-groups .ngx-mc.on b{font-size:16.5px;color:#17120E}
+    #sec-narrative-groups .ngx-mc.on small{color:#C2410C;letter-spacing:.3px;text-transform:none;font-size:10.5px;font-weight:600}
+    #sec-narrative-groups .ngx-mc.z b{color:#C9BDB0;font-weight:600}
+    #sec-narrative-groups .ngx-mc.on.z small{color:#A8998A;text-transform:uppercase;letter-spacing:.9px;font-size:9px;font-weight:700}
+    #sec-narrative-groups .ngr-lane.lead .ngx-mc.on b{color:#C2410C}
+
+    #sec-narrative-groups .ngr-lg{width:38px!important;height:38px!important}
+    #sec-narrative-groups .ngr-acr{font-size:14.5px!important}
+    #sec-narrative-groups .ngr-full{font-size:11.5px!important;margin-top:1px!important}
+    #sec-narrative-groups .ngx-cat{display:block!important;font-size:9.5px}
+    #sec-narrative-groups .ngr-rk{font-size:18px!important}
+    #sec-narrative-groups .ngr-track{height:14px!important}
+    #sec-narrative-groups .ngr-lane.dim .ngr-track{height:0!important}
+    #sec-narrative-groups .ngr-val{font-size:19px!important;letter-spacing:-.4px}
+    #sec-narrative-groups .ngr-share{font-size:11px!important;margin-top:2px!important}
+    #sec-narrative-groups .ngr-mem img,#sec-narrative-groups .ngr-mem .more{width:26px!important;height:26px!important}
+    /* spotlight: neeche ke 3 chhote stats nahi (ab har line me Posts/Likes/Retweets/Views hain) -- card 5 lines ke barabar */
+    #sec-narrative-groups .ngx-spot-mini{display:none!important}
+    #sec-narrative-groups .ngx-spot-ban{height:96px!important}
+    #sec-narrative-groups .ngr-top{padding:10px 22px 4px!important}
+    #sec-narrative-groups .ngx-h2{margin-bottom:10px!important}
+    #sec-narrative-groups .ngr-cnt{display:block!important;font-size:10.5px}
+    @media(max-width:1240px){#sec-narrative-groups .ngr-lane{grid-template-columns:24px minmax(140px,1.2fr) repeat(4,minmax(56px,.7fr)) 16px!important}}
+    @media(max-width:640px){#sec-narrative-groups .ngr-lane{grid-template-columns:22px minmax(0,1fr) 70px 14px!important}#sec-narrative-groups .ngx-mc:not(.on){display:none}}
+    /* 14-Nov (final): column naam upar ek baar (Posts / Likes / Retweets / Views / Share), lines me sirf number;
+       neeche ki footer patti nahi; #1 card -- badi photo, top voice saadi line, 'open' kone ka teer */
+    #sec-narrative-groups .ngx-lcol{min-width:0}
+    #sec-narrative-groups .ngx-lhead{display:grid;grid-template-columns:26px minmax(170px,1.3fr) repeat(5,minmax(58px,.62fr)) 118px 16px;gap:12px;align-items:end;
+      margin-bottom:4px;font:700 9.5px 'DM Sans',sans-serif;letter-spacing:1px;text-transform:uppercase;color:#A8998A}
+    #sec-narrative-groups .ngx-lhead span:nth-child(n+3):nth-child(-n+7){text-align:right}
+    #sec-narrative-groups .ngx-lhead span.on{color:#C2410C}
+    #sec-narrative-groups .ngr-lane{grid-template-columns:26px minmax(170px,1.3fr) repeat(5,minmax(58px,.62fr)) 118px 16px!important}
+    #sec-narrative-groups .ngx-mc b{font-size:14.5px}
+    #sec-narrative-groups .ngx-mc.on b{font-size:15.5px}
+    #sec-narrative-groups .ngx-sh b{color:#6E6156;font-weight:600}
+    #sec-narrative-groups .ngr-lane.lead .ngx-sh b{color:#C2410C;font-weight:700}
+    #sec-narrative-groups .ngr-foot{display:none!important}
+    #sec-narrative-groups .ngr-body{padding-bottom:16px!important}
+    @media(max-width:1240px){#sec-narrative-groups .ngx-lhead,#sec-narrative-groups .ngr-lane{grid-template-columns:24px minmax(140px,1.2fr) repeat(5,minmax(52px,.6fr)) 16px!important}
+      #sec-narrative-groups .ngx-lh-mem{display:none}}
+    @media(max-width:640px){#sec-narrative-groups .ngx-lhead{display:none}}
+    /* header ab scroll box ke andar (sticky) -- lines jitni hi chaudai, isliye har naam apne number ke theek upar; neeche lakeer nahi */
+    #sec-narrative-groups .ngx-lhead{position:static;padding:0 26px 8px 12px;margin:0!important;border-bottom:0!important;background:none!important;
+      font-size:10px!important;letter-spacing:.9px!important;color:#7A6E63!important}
+    #sec-narrative-groups .ngx-lhead span.on{color:#C2410C!important}
+    #sec-narrative-groups .ngx-lwrap{max-height:calc(var(--H,66px) * 5)!important}
+    /* #1 card */
+    #sec-narrative-groups .ngr-spot:not(.empty){padding:0 16px 14px}
+    #sec-narrative-groups .ngx-spot-ban{height:150px!important;margin:0 -16px}
+    #sec-narrative-groups .ngx-spot-ban img{object-position:center 28%!important;-webkit-mask-image:linear-gradient(180deg,#000 60%,transparent 100%)!important;mask-image:linear-gradient(180deg,#000 60%,transparent 100%)!important}
+    #sec-narrative-groups .ngr-spot:not(.empty) .ngx-spot-row{margin-top:-34px!important}
+    #sec-narrative-groups .ngr-spot:not(.empty) .ngr-spot-logo{width:52px!important;height:52px!important}
+    #sec-narrative-groups .ngr-spot:not(.empty) .ngx-spot-row>div:last-child{padding-top:20px!important}
+    #sec-narrative-groups .ngr-spot:not(.empty) .ngr-spot-val{margin-top:8px!important;font-size:30px!important}
+    #sec-narrative-groups .ngr-spot-lbl{margin-top:3px}
+    #sec-narrative-groups .ngr-spot-lead{margin-top:6px}
+    #sec-narrative-groups .ngx-spot-top{margin-top:10px!important;padding:10px 0 0!important;background:none!important;border:0!important;border-top:1px solid color-mix(in srgb,var(--sc,#E8590C) 18%,#EFE7DD)!important;border-radius:0!important}
+    #sec-narrative-groups .ngx-spot-top img{width:28px;height:28px}
+    #sec-narrative-groups .ngx-spot-top>span{display:flex;flex-direction:column;align-items:flex-end;line-height:1.1}
+    #sec-narrative-groups .ngx-spot-top>span i{font:700 8.5px 'DM Sans',sans-serif;font-style:normal;letter-spacing:.9px;text-transform:uppercase;color:#9A8B7B;margin-top:2px}
+    #sec-narrative-groups .ngx-spot-cta{position:absolute!important;top:12px;right:12px;z-index:3;margin:0!important;padding:0!important;width:32px;height:32px;border-radius:50%;
+      display:grid!important;place-items:center;background:rgba(255,255,255,.92);color:#17120E!important;box-shadow:0 6px 14px -8px rgba(0,0,0,.6);transition:transform .2s,background .2s}
+    #sec-narrative-groups .ngx-spot-cta span{display:none}
+    #sec-narrative-groups .ngx-spot-cta svg{width:16px!important;height:16px!important}
+    #sec-narrative-groups .ngr-spot:hover .ngx-spot-cta{background:#fff;transform:translateX(2px)}
+    /* teer bina gol dibbe ke -- safed, photo par halki chhaya se saaf dikhe */
+    #sec-narrative-groups .ngx-spot-cta{background:none!important;box-shadow:none!important;border-radius:0!important;color:#fff!important;width:24px!important;height:24px!important;filter:drop-shadow(0 1px 4px rgba(0,0,0,.55))}
+    #sec-narrative-groups .ngx-spot-cta svg{width:22px!important;height:22px!important;stroke-width:2.6}
+    #sec-narrative-groups .ngr-spot:hover .ngx-spot-cta{background:none!important;color:#FFC24B!important;transform:translateX(3px)}
+    /* #1 card race ke poore khaane jitna lamba -- photo badh kar khaali jagah bharti hai */
+    #sec-narrative-groups .ngr-spot:not(.empty){align-self:stretch!important}
+    #sec-narrative-groups .ngr-spot:not(.empty) .ngx-spot-ban{flex:1 1 150px;height:auto!important;min-height:150px}
+    /* race header ek line: title + search + metric; kicker / sub nahi (jagah bachao) */
+    #sec-narrative-groups .ngr-top{align-items:center;padding:12px 22px 8px}
+    #sec-narrative-groups .ngr-top .ngr-kick,#sec-narrative-groups .ngr-top .ngr-sub{display:none}
+    #sec-narrative-groups .ngr-title{margin:0;font-size:17px}
+    #sec-narrative-groups .ngx-search input,#sec-narrative-groups .ngr-seg{height:34px}
+    #sec-narrative-groups .ngr-seg{padding:3px;box-sizing:border-box}
+    #sec-narrative-groups .ngr-seg button{padding:5px 13px}
+    #sec-narrative-groups .ngr-seg .ngr-pill{top:3px;bottom:3px}
+    #sec-narrative-groups .ngr-lane{height:42px}
+    #sec-narrative-groups .ngr-lg{width:30px;height:30px}
+    #sec-narrative-groups .ngr-mem img,#sec-narrative-groups .ngr-mem .more{width:22px;height:22px}
+    #sec-narrative-groups .ngr-full{margin-top:0}
     #sec-narrative-groups .ngx-h2::after{width:240px}
     #sec-narrative-groups .ngx-h2::before{width:360px;height:360px;top:-60px;right:-40px}
     @media(max-width:1180px){#sec-narrative-groups .ngx-h2{grid-template-columns:minmax(0,1fr) 150px!important}#sec-narrative-groups .ngx-ring{transform:scale(.48)!important;margin:-78px!important}
@@ -6571,6 +6748,164 @@ a.pe-btn:after{content:"";position:absolute;inset:0;z-index:1;background:linear-
       #sec-narrative-groups .ngx-v{grid-template-columns:18px 34px minmax(0,1fr) 70px}#sec-narrative-groups .ngx-vg{display:none}}
     </style>
 
+    <style>
+    /* ===== ngd / ngm (14-Nov): group page + member page -- directory jaisi bhasha (safed card, gol kone, saaf typography) ===== */
+    #sec-narrative-groups .ngd-top{display:flex;align-items:center;gap:14px;margin:2px 0 12px}
+    #sec-narrative-groups .ngd-back{display:inline-flex;align-items:center;gap:7px;height:32px;padding:0 4px;border:0;background:none;cursor:pointer;
+      font:600 13px 'DM Sans',sans-serif;color:#C2410C}
+    #sec-narrative-groups .ngd-back svg{width:16px;height:16px;transition:transform .2s}
+    #sec-narrative-groups .ngd-back:hover svg{transform:translateX(-3px)}
+    #sec-narrative-groups .ngd-back:hover{color:#9A3412}
+    #sec-narrative-groups .ngd-crumb{font:500 12px 'DM Sans',sans-serif;color:#9A8B7B;display:flex;align-items:center;gap:7px;min-width:0}
+    #sec-narrative-groups .ngd-crumb a{color:#8A7B6C;cursor:pointer;text-decoration:none}
+    #sec-narrative-groups .ngd-crumb a:hover{color:#C2410C}
+    #sec-narrative-groups .ngd-crumb i{font-style:normal;color:#D6CCC0}
+    #sec-narrative-groups .ngd-crumb b{color:#17120E;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    /* hero */
+    #sec-narrative-groups .ngd-hero{--gc:#E8590C;position:relative;overflow:hidden;isolation:isolate;margin:0 0 14px;background:#fff;border:1px solid #ECE4DA;border-radius:20px;
+      box-shadow:0 1px 0 #ECE4DA,0 22px 44px -32px rgba(60,30,10,.5)}
+    #sec-narrative-groups .ngd-cover{position:absolute;z-index:-1;right:0;top:0;width:50%;height:100%;
+      -webkit-mask-image:linear-gradient(90deg,transparent 0%,rgba(0,0,0,.55) 22%,#000 48%);mask-image:linear-gradient(90deg,transparent 0%,rgba(0,0,0,.55) 22%,#000 48%)}
+    #sec-narrative-groups .ngd-cover:not(.on){background:linear-gradient(120deg,transparent,color-mix(in srgb,var(--gc) 20%,#fff))}
+    #sec-narrative-groups .ngd-cover img{width:100%;height:100%;object-fit:cover;object-position:center;display:block;opacity:0;transition:opacity .5s;
+      }
+    #sec-narrative-groups .ngd-cover.on img{opacity:1}
+    #sec-narrative-groups .ngd-hero::before{content:'';position:absolute;inset:0;z-index:-1;pointer-events:none;
+      background:linear-gradient(90deg,#fff 0%,#fff 50%,rgba(255,255,255,.6) 60%,rgba(255,255,255,0) 74%)}
+    #sec-narrative-groups .ngd-hero-in{display:flex;align-items:center;gap:18px;padding:22px 24px 18px;max-width:640px}
+    #sec-narrative-groups .ngd-logo{flex:none;width:84px;height:84px;border-radius:50%;overflow:hidden;background:#fff;
+      box-shadow:0 0 0 3px #fff,0 0 0 5.5px color-mix(in srgb,var(--gc) 45%,#fff),0 14px 26px -14px rgba(43,20,7,.55)}
+    #sec-narrative-groups .ngd-logo img{width:100%;height:100%;object-fit:cover;display:block}
+    #sec-narrative-groups .ngd-id{min-width:0}
+    #sec-narrative-groups .ngd-cat{font:700 10.5px 'DM Sans',sans-serif;letter-spacing:1.4px;text-transform:uppercase;color:color-mix(in srgb,var(--gc) 80%,#000);
+      background:none!important;border:0!important;padding:0!important;box-shadow:none!important}
+    #sec-narrative-groups .ngd-name{margin:4px 0 2px;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;font:700 32px/1.05 'Rajdhani',sans-serif;color:#17120E}
+    #sec-narrative-groups .ngd-name em{font:600 15px 'DM Sans',sans-serif;font-style:normal;color:#5E5148}
+    #sec-narrative-groups .ngd-sub{margin:0;font:600 12.5px 'DM Sans',sans-serif;color:#3A2E25;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+    #sec-narrative-groups .ngd-desc{margin:6px 0 0;font-size:12.5px;line-height:1.5;color:#6E6156;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;max-width:560px}
+    #sec-narrative-groups .ngd-links{display:flex;gap:16px;margin-top:9px;flex-wrap:wrap}
+    #sec-narrative-groups .ngd-links a,#sec-narrative-groups .ngd-sub a{display:inline-flex;align-items:center;gap:6px;font:600 12px 'DM Sans',sans-serif;color:#17120E;text-decoration:none}
+    #sec-narrative-groups .ngd-links a:hover,#sec-narrative-groups .ngd-sub a:hover{color:#C2410C}
+    #sec-narrative-groups .ngd-links svg,#sec-narrative-groups .ngd-sub svg{width:13px;height:13px}
+    #sec-narrative-groups .ngd-links a:empty,#sec-narrative-groups #ngHeroWeb:has(span:empty){display:none}
+    #sec-narrative-groups .ngd-stats{display:flex;flex-wrap:wrap;margin:0 24px;padding:14px 0 16px;border-top:1px solid #F1EAE1;max-width:calc(56% - 24px)}
+    #sec-narrative-groups .ngd-st{position:relative;flex:1 1 0;min-width:110px;padding:0 18px}
+    #sec-narrative-groups .ngd-st:first-child{padding-left:0}
+    #sec-narrative-groups .ngd-st+.ngd-st::before{content:'';position:absolute;left:0;top:3px;bottom:3px;width:1px;background:#EFE7DD}
+    #sec-narrative-groups .ngd-st b{display:block;font:700 24px/1 'DM Sans',sans-serif;letter-spacing:-.7px;color:#17120E;font-variant-numeric:tabular-nums;white-space:nowrap}
+    #sec-narrative-groups .ngd-st span{display:block;margin-top:6px;font:700 10px 'DM Sans',sans-serif;letter-spacing:1.2px;text-transform:uppercase;color:#9A8B7B}
+    #sec-narrative-groups .ngd-st small{display:block;margin-top:2px;font-size:11px;color:#A8998A;white-space:nowrap}
+    #sec-narrative-groups .ngd-st small b{display:inline;font-size:11px;letter-spacing:0;color:#6E6156}
+    /* tabs */
+    #sec-narrative-groups .ngd-tabs{display:flex;gap:4px;margin:0 0 14px;padding:4px;width:max-content;background:#F4EEE5;border-radius:12px;border:0}
+    #sec-narrative-groups .ngd-tabs .ng-subtab{border:0;background:none;padding:7px 16px;border-radius:9px;font:600 12.5px 'DM Sans',sans-serif;color:#6E6156;cursor:pointer;box-shadow:none;margin:0}
+    #sec-narrative-groups .ngd-tabs .ng-subtab.active{background:#17120E;color:#fff;box-shadow:0 6px 14px -8px rgba(23,18,14,.7)}
+    #sec-narrative-groups .ngd-tabs .ng-subtab::after{display:none}
+    /* cards */
+    #sec-narrative-groups .ngd-grid{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(0,1fr);gap:14px;margin-bottom:14px}
+    #sec-narrative-groups .ngd-grid2{grid-template-columns:minmax(0,1.65fr) minmax(0,1fr)}
+    #sec-narrative-groups .ngd-card{min-width:0;padding:18px 20px;background:#fff;border:1px solid #ECE4DA;border-radius:18px;box-shadow:0 1px 0 #ECE4DA,0 18px 40px -30px rgba(60,30,10,.45)}
+    #sec-narrative-groups .ngd-ch{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:12px;flex-wrap:wrap}
+    #sec-narrative-groups .ngd-ct{font:700 16px 'DM Sans',sans-serif;letter-spacing:-.2px;color:#17120E}
+    #sec-narrative-groups .ngd-cs{margin-top:2px;font-size:11.5px;color:#8A7B6C}
+    #sec-narrative-groups .ngd-seg{display:flex;padding:3px;border-radius:10px;background:#F4EEE5}
+    #sec-narrative-groups .ngd-seg button{border:0;background:none;padding:5px 11px;border-radius:8px;font:600 11.5px 'DM Sans',sans-serif;color:#6E6156;cursor:pointer}
+    #sec-narrative-groups .ngd-seg button.on{background:#17120E;color:#fff}
+    #sec-narrative-groups .ngd-empty0{padding:22px 12px;text-align:center;font:500 12.5px 'DM Sans',sans-serif;color:#8A7B6C;background:#FBF8F4;border:1px dashed #E3D7C8;border-radius:12px}
+    /* members table */
+    #sec-narrative-groups .ngd-mhead,#sec-narrative-groups .ngd-m{display:grid;grid-template-columns:22px minmax(150px,1.6fr) repeat(5,minmax(52px,.6fr)) 14px;gap:10px;align-items:center}
+    #sec-narrative-groups .ngd-mhead{padding:0 10px 8px;font:700 9.5px 'DM Sans',sans-serif;letter-spacing:.9px;text-transform:uppercase;color:#7A6E63}
+    #sec-narrative-groups .ngd-mhead span:nth-child(n+3){text-align:right}
+    #sec-narrative-groups .ngd-mlist{max-height:372px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:#E3D7C8 transparent}
+    #sec-narrative-groups .ngd-m{width:100%;box-sizing:border-box;margin:0;padding:8px 10px;border:0;border-top:1px solid #F5EFE7;background:none;text-align:left;cursor:pointer;font:inherit;color:inherit;border-radius:0;transition:background .15s}
+    #sec-narrative-groups .ngd-m:first-child{border-top:0}
+    #sec-narrative-groups .ngd-m:hover,#sec-narrative-groups .ngd-m:focus-visible{background:#FBF7F1;border-radius:10px;outline:0}
+    #sec-narrative-groups .ngd-mr{font:700 14px 'Rajdhani',sans-serif;color:#C9B8A6;text-align:center}
+    #sec-narrative-groups .ngd-m:first-child .ngd-mr{color:#E8590C}
+    #sec-narrative-groups .ngd-mw{display:flex;align-items:center;gap:10px;min-width:0}
+    #sec-narrative-groups .ngd-ma{flex:none;width:34px;height:34px;border-radius:50%;overflow:hidden;background:#F4EEE6}
+    #sec-narrative-groups .ngd-ma img{width:100%;height:100%;object-fit:cover;display:block}
+    #sec-narrative-groups .ngd-mn{min-width:0}
+    #sec-narrative-groups .ngd-mn b{display:block;font:700 12.5px 'DM Sans',sans-serif;color:#17120E;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    #sec-narrative-groups .ngd-mn small{display:block;font-size:10.5px;color:#9A8B7B;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    #sec-narrative-groups .ngd-mv{text-align:right;font:600 13px 'DM Sans',sans-serif;color:#2A221C;font-variant-numeric:tabular-nums;white-space:nowrap}
+    #sec-narrative-groups .ngd-msh{color:#6E6156}
+    #sec-narrative-groups .ngd-m:first-child .ngd-msh{color:#C2410C;font-weight:700}
+    #sec-narrative-groups .ngd-m.z .ngd-mv{color:#C9BDB0}
+    #sec-narrative-groups .ngd-mgo{width:14px;height:14px;color:#C9B8A6;transition:transform .2s,color .2s}
+    #sec-narrative-groups .ngd-m:hover .ngd-mgo{color:#E8590C;transform:translateX(2px)}
+    #sec-narrative-groups .ngd-m:hover .ngd-mn b{color:#C2410C}
+    /* donut + legend */
+    #sec-narrative-groups .ngd-donut{position:relative;height:190px;margin:4px 0 12px}
+    #sec-narrative-groups .ngd-donut-c{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none}
+    #sec-narrative-groups .ngd-donut-c b{font:700 26px/1 'DM Sans',sans-serif;letter-spacing:-.6px;color:#17120E}
+    #sec-narrative-groups .ngd-donut-c span{margin-top:4px;font:700 9.5px 'DM Sans',sans-serif;letter-spacing:1.2px;text-transform:uppercase;color:#9A8B7B}
+    #sec-narrative-groups .ngd-li,#sec-narrative-groups .ngd-tr{display:grid;grid-template-columns:10px minmax(0,1fr) auto 52px;gap:9px;align-items:center;padding:6px 2px;border-top:1px solid #F5EFE7}
+    #sec-narrative-groups .ngd-li:first-child,#sec-narrative-groups .ngd-tr:first-child{border-top:0}
+    #sec-narrative-groups .ngd-td{width:9px;height:9px;border-radius:3px}
+    #sec-narrative-groups .ngd-ln,#sec-narrative-groups .ngd-tn{font:600 12px 'DM Sans',sans-serif;color:#3A2E25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    #sec-narrative-groups .ngd-lv,#sec-narrative-groups .ngd-tc{font:500 11.5px 'DM Sans',sans-serif;color:#9A8B7B;font-variant-numeric:tabular-nums}
+    #sec-narrative-groups .ngd-li b,#sec-narrative-groups .ngd-tr b{text-align:right;font:700 12.5px 'DM Sans',sans-serif;color:#17120E;font-variant-numeric:tabular-nums}
+    /* activity + tone */
+    #sec-narrative-groups .ngd-chart{position:relative;height:270px}
+    #sec-narrative-groups .ngd-chart .ngd-empty{position:absolute;inset:0;display:grid;place-items:center;font:500 12.5px 'DM Sans',sans-serif;color:#8A7B6C;background:#FBF8F4;border:1px dashed #E3D7C8;border-radius:12px}
+    #sec-narrative-groups .ngd-chart .ngd-empty[hidden]{display:none}
+    #sec-narrative-groups .ngd-tbar{display:flex;height:12px;border-radius:999px;overflow:hidden;background:#F3ECE2;margin:4px 0 12px;gap:2px}
+    #sec-narrative-groups .ngd-tbar i{display:block;height:100%}
+    /* member page */
+    #sec-narrative-groups .ngm-av{width:96px;height:96px}
+    #sec-narrative-groups .ngm-grp{display:inline-flex;align-items:center;gap:7px;padding-left:12px;border-left:1px solid #E6DBCC;font:600 12px 'DM Sans',sans-serif;color:#5E5148}
+    #sec-narrative-groups .ngm-glg{width:18px;height:18px;border-radius:50%;overflow:hidden;display:inline-block}
+    #sec-narrative-groups .ngm-glg img{width:100%;height:100%;object-fit:cover;display:block}
+    #sec-narrative-groups .ngm-hero .ngd-stats{max-width:calc(58% - 24px)}
+    #sec-narrative-groups .ngd-st{min-width:92px;padding:0 14px}
+    #sec-narrative-groups .ngd-hero-in{max-width:calc(58% - 24px)}
+    #sec-narrative-groups .ngd-cat{margin:0!important}
+    #sec-narrative-groups .ngm-grid2{align-items:start}
+    #sec-narrative-groups .ngm-chart{height:290px}
+    #sec-narrative-groups .ngm-sub{margin:18px 0 8px;font-size:13px}
+    #sec-narrative-groups .ngm-f{display:flex;justify-content:space-between;gap:10px;padding:7px 2px;border-top:1px solid #F5EFE7;font:500 12px 'DM Sans',sans-serif;color:#6E6156}
+    #sec-narrative-groups .ngm-f:first-child{border-top:0}
+    #sec-narrative-groups .ngm-f b{font-weight:700;color:#17120E;font-variant-numeric:tabular-nums;text-align:right}
+    #sec-narrative-groups .ngm-grid2{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+    #sec-narrative-groups .ngd-xl{display:inline-flex;align-items:center;gap:4px;font:600 12px 'DM Sans',sans-serif;color:#C2410C;text-decoration:none}
+    #sec-narrative-groups .ngd-xl svg{width:13px;height:13px}
+    #sec-narrative-groups .ngm-tw{display:block;padding:12px 14px;border:1px solid #F0E8DD;border-radius:14px;background:#FFFCF8;text-decoration:none;color:inherit;transition:border-color .2s,background .2s}
+    #sec-narrative-groups .ngm-tw:hover{border-color:color-mix(in srgb,var(--gc,#E8590C) 35%,#F0E8DD);background:#fff}
+    #sec-narrative-groups .ngm-tw+.ngm-tw{margin-top:8px}
+    #sec-narrative-groups .ngm-tw-h{display:flex;align-items:center;gap:9px}
+    #sec-narrative-groups .ngm-tw-av{flex:none;width:30px;height:30px;border-radius:50%;overflow:hidden;background:#F4EEE6}
+    #sec-narrative-groups .ngm-tw-av img{width:100%;height:100%;object-fit:cover;display:block}
+    #sec-narrative-groups .ngm-tw-h b{display:block;font:700 12.5px 'DM Sans',sans-serif;color:#17120E}
+    #sec-narrative-groups .ngm-tw-h small{display:block;font-size:10.5px;color:#9A8B7B}
+    #sec-narrative-groups .ngm-tw-t{display:block;margin:9px 0 10px;font:500 12.5px/1.5 'DM Sans',sans-serif;color:#2A221C;white-space:pre-line;word-break:break-word}
+    #sec-narrative-groups .ngm-tw.big .ngm-tw-t{font-size:14px;line-height:1.55}
+    #sec-narrative-groups .ngm-tw-m{display:block;margin:0 0 10px;border-radius:12px;overflow:hidden}
+    #sec-narrative-groups .ngm-tw-m img{width:100%;max-height:260px;object-fit:cover;display:block}
+    #sec-narrative-groups .ngm-tw-s{display:flex;gap:16px;font:600 11.5px 'DM Sans',sans-serif;color:#6E6156;font-variant-numeric:tabular-nums}
+    #sec-narrative-groups .ngm-tw-s span{display:inline-flex;align-items:center;gap:5px}
+    #sec-narrative-groups .ngm-tw-s svg{width:13px;height:13px;color:#A8998A}
+    #sec-narrative-groups .ngm-recent{max-height:430px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:#E3D7C8 transparent;padding-right:2px}
+    #sec-narrative-groups .ng-comp-date-select{display:none!important}
+    #sec-narrative-groups .ngm-posts-wrap{margin-bottom:14px}
+    #sec-narrative-groups .ngm-lbl{display:flex;align-items:center;gap:6px;margin:2px 0 8px;font:700 10px 'DM Sans',sans-serif;letter-spacing:1.1px;text-transform:uppercase;color:#C2410C}
+    #sec-narrative-groups .ngm-lbl svg{width:12px;height:12px;color:#F59E0B}
+    #sec-narrative-groups .ngm-lbl span{color:#8A7B6C;letter-spacing:.4px;text-transform:none;font-weight:600;font-size:11px}
+    #sec-narrative-groups .ngm-lbl2{margin-top:18px;color:#7A6E63}
+    #sec-narrative-groups .ngm-posts #ngmTop .ngm-tw{border-color:color-mix(in srgb,var(--gc,#E8590C) 28%,#F0E8DD);background:linear-gradient(160deg,color-mix(in srgb,var(--gc,#E8590C) 6%,#fff),#fff 60%)}
+    #sec-narrative-groups .ngm-feed{max-height:640px;overflow-y:auto;overscroll-behavior:contain;padding-right:8px;scrollbar-width:thin;scrollbar-color:#E3D7C8 transparent}
+    #sec-narrative-groups .ngm-feed::-webkit-scrollbar{width:6px}#sec-narrative-groups .ngm-feed::-webkit-scrollbar-thumb{background:#E3D7C8;border-radius:6px}
+    #sec-narrative-groups .ngm-feed .htc-row{grid-template-columns:minmax(0,1fr) 120px}
+    #sec-narrative-groups .ngm-feed .htc-av{width:40px;height:40px}
+    #sec-narrative-groups .ngm-posts #ngLaTopTweetLink{display:none!important}
+    #sec-narrative-groups .ngm-feed .htc-av[src]{display:block}
+    #sec-narrative-groups #ngmTop .htc-tw{border-color:color-mix(in srgb,var(--gc,#E8590C) 30%,#E7E2D9);box-shadow:0 10px 24px -20px color-mix(in srgb,var(--gc,#E8590C) 80%,#000)}
+    @media(max-width:700px){#sec-narrative-groups .ngm-feed .htc-row{grid-template-columns:1fr}}
+    @media(max-width:1100px){#sec-narrative-groups .ngd-grid,#sec-narrative-groups .ngm-grid2{grid-template-columns:1fr}#sec-narrative-groups .ngd-cover{width:80%}}
+    @media(max-width:640px){#sec-narrative-groups .ngd-hero-in{flex-direction:column;align-items:flex-start}#sec-narrative-groups .ngd-stats{margin:0 16px}
+      #sec-narrative-groups .ngd-st{flex:1 1 40%;margin-bottom:10px}#sec-narrative-groups .ngd-mhead{display:none}
+      #sec-narrative-groups .ngd-m{grid-template-columns:20px minmax(0,1fr) 60px 14px}#sec-narrative-groups .ngd-m .ngd-mv:not(:nth-of-type(3)){display:none}}
+    </style>
     <div class="ngr" id="ngRace">
       <div class="ngr-glow"></div>
       <div class="ngr-top">
@@ -6594,7 +6929,7 @@ a.pe-btn:after{content:"";position:absolute;inset:0;z-index:1;background:linear-
       </div>
       <div class="ngr-body">
         <div class="ngr-spot" id="ngrSpot"></div>
-        <div class="ngr-lanes" id="ngrLanes"></div>
+        <div class="ngx-lcol"><div class="ngx-lhead" id="ngxLHead"><span></span><span>Group</span><span data-k="tweets">Posts</span><span data-k="likes">Likes</span><span data-k="rts">Retweets</span><span data-k="views">Views</span><span>Share</span><span class="ngx-lh-mem">Key members</span><span></span></div><div class="ngx-lwrap" id="ngxLWrap"><div class="ngr-lanes" id="ngrLanes"></div></div></div>
       </div>
       <div class="ngr-foot"><span id="ngrFootL"></span><span>Tap any group to open its full analysis</span></div>
     </div>
@@ -6637,152 +6972,63 @@ a.pe-btn:after{content:"";position:absolute;inset:0;z-index:1;background:linear-
 
   <!-- VIEW 2: Detail Overview View -->
   <div id="ngDetailView" style="display:none">
-    <!-- Breadcrumb & Action Row -->
-    <div class="ng-detail-top">
-      <div class="ng-breadcrumb">
-        <span class="ng-crumb-link" onclick="closeNarrativeGroup()">Narrative Groups</span>
-        <span class="ng-crumb-sep">&gt;</span>
-        <span class="ng-crumb-active" id="ngDetailCrumb">CJP</span>
-      </div>
-      <div class="ng-detail-actions">
-        <button class="ng-btn-compare" onclick="closeNarrativeGroup()">
-          &larr; Back to Groups Directory
-        </button>
-      </div>
+    <!-- ngd (14-Nov): group page -- upar saada back + raasta; hero me group ka X cover (official banner), logo, naam,
+         category, tagline, links; neeche asli numbers. Tabs sirf do (jo sach me kaam karte hain). -->
+    <div class="ngd-top">
+      <button type="button" class="ngd-back" onclick="closeNarrativeGroup()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M11 18l-6-6 6-6"/></svg>All groups</button>
+      <span class="ngd-crumb"><a onclick="closeNarrativeGroup()">Narrative Groups</a><i>/</i><b id="ngDetailCrumb">Group</b></span>
     </div>
-
-    <!-- Hero Profile Card -- option-d (29-Oct): Parties tab jaisa -- group rang ka banner + tairte KPI cards.
-         IDs wahi (openNarrativeGroup inhe bharta hai). Styles .pd-* Parties tab ke header wale. -->
-    <style>
-    .pd-hero .ng-logo-cover{padding:0!important}
-    .pd-hero .ng-logo-cover img{width:100%;height:100%;object-fit:cover;border-radius:50%}
-    .pd-title .ng-acr{font-family:Rajdhani;font-weight:700;font-size:28px;line-height:1.05;color:#fff;letter-spacing:.5px}
-    .pd-title .ng-full{font-size:15px;font-weight:600;color:rgba(255,255,255,.9)}
-    </style>
-    <div class="pd-hero" id="ngHeroCard">
-      <div class="pd-band">
-        <div class="pd-row">
-          <div class="ph-logo-circle ng-logo-cover" id="ngHeroLogo"></div>
-          <div class="pd-info">
-            <div class="pd-title">
-              <span class="ng-acr" id="ngHeroAcronym"></span>
-              <span class="ng-full" id="ngHeroName"></span>
-              <span class="ph-badge" id="ngHeroBadge"></span>
-            </div>
-            <div class="ph-sub" id="ngHeroSubtitle"></div>
-            <div class="ph-desc" id="ngHeroDesc"></div>
-            <div class="ph-links">
-              <a href="https://x.com/Cockroachisback" target="_blank" class="ph-link-pill" id="ngHeroHandle"><svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 22.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg> <span id="ngHeroHandleText">@Cockroachisback</span></a>
-              <a href="https://x.com/CJP_is_back" target="_blank" class="ph-link-pill" id="ngHeroWeb"><svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 22.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg> <span id="ngHeroWebText">@CJP_is_back</span></a>
-            </div>
+    <section class="ngd-hero" id="ngHeroCard">
+      <div class="ngd-cover" id="ngdCover" aria-hidden="true"></div>
+      <div class="ngd-hero-in">
+        <div class="ngd-logo" id="ngHeroLogo"></div>
+        <div class="ngd-id">
+          <div class="ngd-cat" id="ngHeroBadge"></div>
+          <h1 class="ngd-name"><span id="ngHeroAcronym"></span><em id="ngHeroName"></em></h1>
+          <p class="ngd-sub" id="ngHeroSubtitle"></p>
+          <p class="ngd-desc" id="ngHeroDesc"></p>
+          <div class="ngd-links">
+            <a href="#" target="_blank" rel="noopener" id="ngHeroHandle"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 22.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg><span id="ngHeroHandleText"></span></a>
+            <a href="#" target="_blank" rel="noopener" id="ngHeroWeb"><span id="ngHeroWebText"></span></a>
           </div>
         </div>
       </div>
-      <div class="pd-stats">
-        <div class="pd-card pd-main"><div class="pd-lbl">Tweets</div><div class="pd-val" id="ngKpiTwVal">&mdash;</div><div class="pd-per" id="ngKpiTwPer">own posts</div></div>
-        <div class="pd-card"><div class="pd-lbl">Likes</div><div class="pd-val" id="ngKpiLkVal">&mdash;</div><div class="pd-per" id="ngKpiLkPer"></div></div>
-        <div class="pd-card"><div class="pd-lbl">Reposts</div><div class="pd-val" id="ngKpiRtVal">&mdash;</div><div class="pd-per" id="ngKpiRtPer"></div></div>
-        <div class="pd-card"><div class="pd-lbl">Views</div><div class="pd-val" id="ngKpiVwVal">&mdash;</div><div class="pd-per" id="ngKpiVwPer"></div></div>
+      <div class="ngd-stats">
+        <div class="ngd-st"><b id="ngKpiTwVal">&mdash;</b><span>Posts</span><small id="ngKpiTwPer"></small></div>
+        <div class="ngd-st"><b id="ngKpiLkVal">&mdash;</b><span>Likes</span><small id="ngKpiLkPer"></small></div>
+        <div class="ngd-st"><b id="ngKpiRtVal">&mdash;</b><span>Retweets</span><small id="ngKpiRtPer"></small></div>
+        <div class="ngd-st"><b id="ngKpiVwVal">&mdash;</b><span>Views</span><small id="ngKpiVwPer"></small></div>
       </div>
+    </section>
+
+    <div class="ngd-tabs ng-subtabs-row">
+      <button type="button" class="ng-subtab active" data-sub="overview" onclick="switchNarrativeSubTab('overview')">Overview</button>
+      <button type="button" class="ng-subtab" data-sub="leaders" onclick="switchNarrativeSubTab('leaders')">Leader comparison</button>
     </div>
 
-    <!-- Sub-tabs Navigation -->
-    <div class="ng-subtabs-row">
-      <button class="ng-subtab active" data-sub="overview" onclick="switchNarrativeSubTab('overview')">
-        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-        Overview
-      </button>
-      <button class="ng-subtab" data-sub="engagement" onclick="switchNarrativeSubTab('engagement')">
-        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
-        Engagement Analysis
-      </button>
-      <button class="ng-subtab" data-sub="narratives" onclick="switchNarrativeSubTab('narratives')">
-        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-        Narrative Analysis
-      </button>
-      <button class="ng-subtab" data-sub="toptweets" onclick="switchNarrativeSubTab('toptweets')">
-        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-        Top Tweets
-      </button>
-      <button class="ng-subtab" data-sub="leaders" onclick="switchNarrativeSubTab('leaders')">
-        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-        Leader Comparison
-      </button>
-    </div>
-
-    <!-- Sub-tab Panel: Overview -->
     <div class="ng-subpanel" id="ngSubPanel-overview">
-      
-      <!-- PHASE 1: ROW 1 -> MEMBER ROSTER TABLE (LEFT) + OVERALL CONTRIBUTION DONUT (RIGHT) -->
-      <div class="ng-donut-split-grid">
-        <!-- Card 1A: Member Roster Table/List (Left of Donut Chart) -->
-        <div class="ng-card ng-roster-box">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:6px">
-            <div>
-              <div class="ng-card-title" id="ngRosterTitle">Members &amp; Key Accounts Directory</div>
-              <div class="ng-card-sub" id="ngRosterSub">Click any member row to open live individual profile analysis</div>
-            </div>
-            <span class="ng-tag-pill active" id="ngRosterCount">Members</span>
-          </div>
-          <div class="ng-roster-list" id="ngMemberRosterList">
-            <!-- Populated dynamically via JS -->
-          </div>
-        </div>
-
-        <!-- Card 1B: Overall Contribution Donut Chart (Right) -->
-        <div class="ng-card">
-          <div class="ng-card-title">Overall Contribution</div>
-          <div class="ng-card-sub" id="ngDonutSub">Share of tweets across key leaders &amp; members</div>
-          <div style="position:relative;height:220px;margin-top:14px;display:flex;align-items:center;justify-content:center">
-            <canvas id="ngDonutChart"></canvas>
-            <div style="position:absolute;text-align:center;pointer-events:none">
-              <div style="font-size:16px;font-weight:900;color:#1A1A1A;font-family:'Rajdhani',sans-serif" id="ngDonutCenterVal">0</div>
-              <div style="font-size:10px;color:#757575">Total Tweets</div>
-            </div>
-          </div>
-          <div class="ng-donut-legend" id="ngDonutLegend" style="margin-top:12px"></div>
-        </div>
+      <div class="ngd-grid">
+        <section class="ngd-card">
+          <div class="ngd-ch"><div><div class="ngd-ct">Members</div><div class="ngd-cs" id="ngdMemSub">Tap a member for their full analysis</div></div></div>
+          <div class="ngd-mhead"><span></span><span>Member</span><span>Posts</span><span>Likes</span><span>Retweets</span><span>Views</span><span>Share</span><span></span></div>
+          <div class="ngd-mlist" id="ngdMembers"></div>
+        </section>
+        <section class="ngd-card">
+          <div class="ngd-ch"><div><div class="ngd-ct">Who carries the group</div><div class="ngd-cs">Share of the group&rsquo;s posts, by member</div></div></div>
+          <div class="ngd-donut"><canvas id="ngDonutChart"></canvas><div class="ngd-donut-c"><b id="ngDonutCenterVal">0</b><span>posts</span></div></div>
+          <div class="ngd-leg" id="ngDonutLegend"></div>
+        </section>
       </div>
-
-      <!-- ROW 2: TIMELINE ACTIVITY + TOP NARRATIVES -->
-      <div class="ng-mid-charts-grid" style="display:grid;grid-template-columns:1.4fr 1fr;gap:14px;margin-top:14px">
-        <!-- Card 2: Timeline Activity Bar Chart -->
-        <div class="ng-card">
-          <div style="display:flex;align-items:center;justify-content:space-between">
-            <div>
-              <div class="ng-card-title">Timeline Activity</div>
-              <div class="ng-card-sub">Daily volume breakdown across official &amp; key handles</div>
-            </div>
-            <div style="display:flex;align-items:center;gap:4px">
-              <span class="ng-tag-pill active">Tweets</span>
-            </div>
-          </div>
-          <div style="height:280px;margin-top:12px">
-            <canvas id="ngTimelineChart"></canvas>
-          </div>
-        </div>
-
-        <!-- Card 3: Top Narratives / Topics -->
-        <div class="ng-card">
-          <div class="ng-card-title">Top Narratives / Topics</div>
-          <div class="ng-card-sub">Key thematic issues driving group engagement</div>
-          <div style="margin-top:16px" id="ngTopicsList"></div>
-        </div>
-      </div>
-
-      <!-- Associated Leaders Card (with Mapping URLs) KEPT INTACT -->
-      <div class="ng-card" style="margin-top:16px">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px">
-          <div>
-            <div class="ng-card-title">Associated Leaders &amp; Key Accounts</div>
-            <div class="ng-card-sub">Official handles &amp; designations from Mapping.xlsx with direct X profile links</div>
-          </div>
-          <div class="ng-search-sm">
-            <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-            <input type="text" placeholder="Filter leaders..." id="ngMemberFilterInput" oninput="filterGroupMembers()">
-          </div>
-        </div>
-        <div class="ng-members-row" id="ngMembersRow"></div>
+      <div class="ngd-grid ngd-grid2">
+        <section class="ngd-card">
+          <div class="ngd-ch"><div><div class="ngd-ct">Daily activity</div><div class="ngd-cs" id="ngdActSub">Posts per day, by member</div></div>
+            <div class="ngd-seg" id="ngdActSeg"><button type="button" data-k="tweets" class="on">Posts</button><button type="button" data-k="likes">Likes</button><button type="button" data-k="views">Views</button></div></div>
+          <div class="ngd-chart"><canvas id="ngTimelineChart"></canvas><div class="ngd-empty" id="ngdActEmpty" hidden>No posts in this range</div></div>
+        </section>
+        <section class="ngd-card">
+          <div class="ngd-ch"><div><div class="ngd-ct">Tone of posts</div><div class="ngd-cs">How the group&rsquo;s posts read, from sentiment tagging</div></div></div>
+          <div id="ngdTone"></div>
+        </section>
       </div>
     </div>
 
@@ -6948,245 +7194,56 @@ a.pe-btn:after{content:"";position:absolute;inset:0;z-index:1;background:linear-
   <!-- VIEW 3: INDIVIDUAL LEADER DEEP-DIVE ANALYSIS VIEW (SCREENSHOT 1)          -->
   <!-- ========================================================================= -->
   <div id="ngLeaderAnalysisView" style="display:none">
-    <!-- Top Breadcrumb & Return Action -->
-    <div class="ng-detail-top">
-      <div class="ng-breadcrumb">
-        <span class="ng-crumb-link" onclick="closeLeaderAnalysis()">Narrative Groups</span>
-        <span class="ng-crumb-sep">&gt;</span>
-        <span class="ng-crumb-link" onclick="closeLeaderAnalysis()" id="ngLaCrumbGroup">Creators Hub</span>
-        <span class="ng-crumb-sep">&gt;</span>
-        <span class="ng-crumb-active" id="ngLaCrumbLeader">Leader Analysis</span>
+    <!-- ngm (14-Nov): member page -- group page jaisa hero (member ka X cover + photo), asli numbers; activity chart ek metric
+         par (chunne layak); tone + engagement asli; top post + recent posts. Nakli topics / audience hataye. -->
+    <div class="ngd-top">
+      <button type="button" class="ngd-back" id="ngLaBtnBack" onclick="closeLeaderAnalysis()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M11 18l-6-6 6-6"/></svg><span>Back</span></button>
+      <span class="ngd-crumb"><a onclick="closeNarrativeGroup()">Narrative Groups</a><i>/</i><a id="ngLaCrumbGroup" onclick="ngmOpenGroup()">Group</a><i>/</i><b id="ngLaCrumbLeader">Member</b></span>
+    </div>
+    <section class="ngd-hero ngm-hero" id="ngmHero">
+      <div class="ngd-cover" id="ngmCover" aria-hidden="true"></div>
+      <div class="ngd-hero-in">
+        <div class="ngd-logo ngm-av" id="ngmAv"></div>
+        <div class="ngd-id">
+          <div class="ngd-cat" id="ngLaRole"></div>
+          <h1 class="ngd-name"><span id="ngLaName">Member</span></h1>
+          <p class="ngd-sub"><a href="#" target="_blank" rel="noopener" id="ngLaXLink"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 22.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg><span id="ngLaXLinkTxt">@handle</span></a><span class="ngm-grp" id="ngmGroupTag"></span></p>
+        </div>
       </div>
-      <div class="ng-detail-actions">
-        <button class="ng-btn-compare" onclick="closeLeaderAnalysis()" id="ngLaBtnBack">
-          &larr; Back to Group
-        </button>
+      <div class="ngd-stats">
+        <div class="ngd-st"><b id="ngLaKpiTw">0</b><span>Posts</span><small id="ngmTwSub"></small></div>
+        <div class="ngd-st"><b id="ngLaKpiLk">0</b><span>Likes</span><small id="ngmLkSub"></small></div>
+        <div class="ngd-st"><b id="ngLaKpiRt">0</b><span>Retweets</span><small id="ngmRtSub"></small></div>
+        <div class="ngd-st"><b id="ngLaKpiVw">0</b><span>Views</span><small id="ngmVwSub"></small></div>
+        <div class="ngd-st"><b id="ngmKpiCm">0</b><span>Replies</span><small id="ngmCmSub"></small></div>
       </div>
+    </section>
+
+    <div class="ngd-grid ngm-grid">
+      <section class="ngd-card">
+        <div class="ngd-ch"><div><div class="ngd-ct">Activity over time</div><div class="ngd-cs" id="ngmActSub">Per day</div></div>
+          <div class="ngd-seg" id="ngmSeg"><button type="button" data-k="views" class="on">Views</button><button type="button" data-k="likes">Likes</button><button type="button" data-k="reposts">Retweets</button><button type="button" data-k="tweets">Posts</button></div></div>
+        <div class="ngd-chart ngm-chart"><canvas id="ngLaTrendChart"></canvas><div class="ngd-empty" id="ngmEmpty" hidden>No posts in this range</div></div>
+      </section>
+      <section class="ngd-card">
+        <div class="ngd-ch"><div><div class="ngd-ct">Tone of posts</div><div class="ngd-cs">From sentiment tagging</div></div></div>
+        <div id="ngLaSentimentBody"></div>
+        <div class="ngd-ct ngm-sub">Engagement</div>
+        <div class="ngm-facts" id="ngLaEngagementBody"></div>
+      </section>
     </div>
 
-    <!-- Leader Profile Hero Card & 4 Big KPIs Grid -->
-    <div class="ng-la-hero-grid">
-      <!-- Profile Bio Card -->
-      <div class="ng-la-bio-card">
-        <div class="ng-la-avatar-box">
-          <img id="ngLaAvatar" src="" alt="Leader Photo">
+    <!-- 14-Nov: posts ek hi panel -- upar pichhle 7 din (data ke aakhri din se) ka top post, neeche taaza posts -->
+    <div class="ngm-posts-wrap">
+      <section class="ngd-card ngm-posts">
+        <div class="ngd-ch"><div><div class="ngd-ct">Posts</div><div class="ngd-cs" id="ngmPostsSub">Top post of the last 7 days, then the latest posts</div></div><a href="#" target="_blank" rel="noopener" class="ngd-xl" id="ngLaTopTweetLink">Open on X<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg></a></div>
+        <div class="ngm-feed" id="ngmFeed">
+          <div class="ngm-lbl"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 7l4.5 4L12 4l4.5 7L21 7l-2 12H5z"/></svg>Top post &middot; <span id="ngmTopWin">last 7 days</span></div>
+          <div class="htc-feed" id="ngmTop"></div>
+          <div class="ngm-lbl ngm-lbl2">Latest posts</div>
+          <div class="htc-feed" id="ngLaRecentList"></div>
         </div>
-        <div class="ng-la-bio-info">
-          <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
-            <span class="ng-la-name" id="ngLaName">Leader Name</span>
-            <svg class="ng-la-verified-badge" viewBox="0 0 24 24" width="17" height="17" fill="#1D9BF0"><path d="M22.5 12.5c0-1.58-.875-2.95-2.148-3.6.154-.435.238-.905.238-1.4 0-2.21-1.79-4-4-4-.495 0-.965.084-1.4.238C14.55 2.475 13.18 1.6 11.6 1.6c-1.58 0-2.95.875-3.6 2.148-.435-.154-.905-.238-1.4-.238-2.21 0-4 1.79-4 4 0 .495.084.965.238 1.4C1.575 9.55.7 10.92.7 12.5c0 1.58.875 2.95 2.148 3.6-.154.435-.238.905-.238 1.4 0 2.21 1.79 4 4 4 .495 0 .965-.084 1.4-.238.65 1.273 2.02 2.148 3.6 2.148 1.58 0 2.95-.875 3.6-2.148.435.154.905.238 1.4.238 2.21 0 4-1.79 4-4 0-.495-.084-.965-.238-1.4 1.273-.65 2.148-2.02 2.148-3.6zm-12.7 4.29l-4.29-4.29 1.41-1.41 2.88 2.88 6.18-6.18 1.41 1.41-7.59 7.59z"/></svg>
-          </div>
-          <div class="ng-la-handle" id="ngLaHandle">@handle</div>
-          <div class="ng-la-role" id="ngLaRole">Role | Group Name</div>
-          <p class="ng-la-desc" id="ngLaDesc">Key political leader and digital influencer.</p>
-          <div class="ng-la-links">
-            <a href="#" target="_blank" id="ngLaXLink" class="ng-meta-link">
-              <svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 22.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg> <span id="ngLaXLinkTxt">@handle</span>
-            </a>
-            <a href="#" target="_blank" id="ngLaWebLink" class="ng-meta-link">
-              🔗 <span id="ngLaWebLinkTxt">Profile Link</span>
-            </a>
-          </div>
-        </div>
-      </div>
-
-      <!-- 4 KPI Metric Cards with Trends (Screenshot 1) -->
-      <div class="ng-la-kpis-quad">
-        <div class="ng-la-kpi-card">
-          <div class="ng-la-kpi-left">
-            <div class="ng-la-kpi-icon tw">𝕏</div>
-            <div>
-              <div class="ng-la-kpi-val" id="ngLaKpiTw">0</div>
-              <div class="ng-la-kpi-lbl">Total Tweets</div>
-            </div>
-          </div>
-          <span class="ng-la-trend-pill" id="ngLaTrTw">&uarr; Live</span>
-        </div>
-
-        <div class="ng-la-kpi-card">
-          <div class="ng-la-kpi-left">
-            <div class="ng-la-kpi-icon lk">❤️</div>
-            <div>
-              <div class="ng-la-kpi-val" id="ngLaKpiLk">0</div>
-              <div class="ng-la-kpi-lbl">Total Likes</div>
-            </div>
-          </div>
-          <span class="ng-la-trend-pill" id="ngLaTrLk">&uarr; Live</span>
-        </div>
-
-        <div class="ng-la-kpi-card">
-          <div class="ng-la-kpi-left">
-            <div class="ng-la-kpi-icon rt">🔁</div>
-            <div>
-              <div class="ng-la-kpi-val" id="ngLaKpiRt">0</div>
-              <div class="ng-la-kpi-lbl">Total Reposts</div>
-            </div>
-          </div>
-          <span class="ng-la-trend-pill" id="ngLaTrRt">&uarr; Live</span>
-        </div>
-
-        <div class="ng-la-kpi-card">
-          <div class="ng-la-kpi-left">
-            <div class="ng-la-kpi-icon vw">📊</div>
-            <div>
-              <div class="ng-la-kpi-val" id="ngLaKpiVw">0</div>
-              <div class="ng-la-kpi-lbl">Total Views</div>
-            </div>
-          </div>
-          <span class="ng-la-trend-pill" id="ngLaTrVw">&uarr; Live</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- Sub-tabs Row (Screenshot 1) -->
-    <div class="ng-subtabs-row" style="margin-top:16px;justify-content:space-between;align-items:center">
-      <div style="display:flex;gap:6px">
-        <button class="ng-subtab active" onclick="switchLaTab('overview', this)">
-          <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-          Overview
-        </button>
-        <button class="ng-subtab" onclick="switchLaTab('tweets', this)">🐦 Tweets</button>
-        <button class="ng-subtab" onclick="switchLaTab('engagement', this)">⚡ Engagement</button>
-        <button class="ng-subtab" onclick="switchLaTab('narratives', this)">📢 Narratives / Topics</button>
-        <button class="ng-subtab" onclick="switchLaTab('sentiment', this)">🎭 Sentiment</button>
-      </div>
-      <div style="display:flex;align-items:center;gap:6px;font-size:11.5px;font-weight:700;color:#616161">
-        <span>📅 Range:</span>
-        <select class="filter-select" id="ngLaDateRange" style="padding:3px 8px;font-size:11.5px" onchange="changeLaDateRange(this.value)">
-          <option value="all">Full Range</option>
-          <option value="today" selected>Today</option>
-          <option value="yest">Yesterday</option>
-          <option value="3d">Last 3 Days</option>
-          <option value="7d">Last 7 Days</option>
-          <option value="14d">Last 14 Days</option>
-          <option value="30d">Last 30 Days</option>
-          <option value="custom">Custom</option>
-        </select>
-      </div>
-    </div>
-
-    <!-- MAIN MIDDLE GRID: MULTI-LINE ENGAGEMENT TREND CHART + ACCORDION TOPICS -->
-    <div class="ng-la-main-grid" style="display:grid;grid-template-columns:1.75fr 1.25fr;gap:14px;margin-top:14px">
-      <!-- Multi-Line Trend Chart -->
-      <div class="ng-card">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px">
-          <div>
-            <div class="ng-card-title">Engagement Trend</div>
-            <div class="ng-card-sub">Daily volume of Views, Likes, Reposts and Tweets from MongoDB</div>
-          </div>
-          <div style="display:flex;gap:10px;font-size:11px;font-weight:700">
-            <span style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:50%;background:#3B82F6"></span> Tweets</span>
-            <span style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:50%;background:#EF4444"></span> Likes</span>
-            <span style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:50%;background:#10B981"></span> Reposts</span>
-            <span style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:50%;background:#8B5CF6"></span> Views</span>
-          </div>
-        </div>
-        <div style="height:270px;position:relative">
-          <canvas id="ngLaTrendChart"></canvas>
-        </div>
-      </div>
-
-      <!-- Accordion Drilldowns -->
-      <div class="ng-la-accordion-col" style="display:flex;flex-direction:column;gap:10px">
-        <!-- Accordion 1: Top Narratives / Topics -->
-        <div class="ng-la-acc-panel expanded" id="ngLaAccTopics">
-          <div class="ng-la-acc-head" onclick="toggleNgLaAcc('ngLaAccTopics')">
-            <div style="display:flex;align-items:center;gap:8px">
-              <span class="ng-la-acc-icon">💬</span>
-              <span style="font-size:13px;font-weight:800;color:#1A1A1A">Top Narratives / Topics</span>
-            </div>
-            <span class="ng-la-acc-arrow">▼</span>
-          </div>
-          <div class="ng-la-acc-body" id="ngLaTopicsBody">
-            <!-- Topics bars populated dynamically -->
-          </div>
-        </div>
-
-        <!-- Accordion 2: Sentiment Analysis -->
-        <div class="ng-la-acc-panel" id="ngLaAccSentiment">
-          <div class="ng-la-acc-head" onclick="toggleNgLaAcc('ngLaAccSentiment')">
-            <div style="display:flex;align-items:center;gap:8px">
-              <span class="ng-la-acc-icon">🎭</span>
-              <span style="font-size:13px;font-weight:800;color:#1A1A1A">Sentiment Analysis</span>
-            </div>
-            <span class="ng-la-acc-arrow">▼</span>
-          </div>
-          <div class="ng-la-acc-body" id="ngLaSentimentBody" style="display:none">
-            <!-- Populated dynamically -->
-          </div>
-        </div>
-
-        <!-- Accordion 3: Engagement Breakdown -->
-        <div class="ng-la-acc-panel" id="ngLaAccEngagement">
-          <div class="ng-la-acc-head" onclick="toggleNgLaAcc('ngLaAccEngagement')">
-            <div style="display:flex;align-items:center;gap:8px">
-              <span class="ng-la-acc-icon">📈</span>
-              <span style="font-size:13px;font-weight:800;color:#1A1A1A">Engagement Breakdown</span>
-            </div>
-            <span class="ng-la-acc-arrow">▼</span>
-          </div>
-          <div class="ng-la-acc-body" id="ngLaEngagementBody" style="display:none">
-            <!-- Populated dynamically -->
-          </div>
-        </div>
-
-        <!-- Accordion 4: Audience Insights -->
-        <div class="ng-la-acc-panel" id="ngLaAccAudience">
-          <div class="ng-la-acc-head" onclick="toggleNgLaAcc('ngLaAccAudience')">
-            <div style="display:flex;align-items:center;gap:8px">
-              <span class="ng-la-acc-icon">👥</span>
-              <span style="font-size:13px;font-weight:800;color:#1A1A1A">Audience Insights</span>
-            </div>
-            <span class="ng-la-acc-arrow">▼</span>
-          </div>
-          <div class="ng-la-acc-body" id="ngLaAudienceBody" style="display:none">
-            <!-- Populated dynamically -->
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- BOTTOM ROW: TOP PERFORMING TWEET + RECENT TWEETS -->
-    <div class="ng-la-bottom-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px">
-      <!-- Top Performing Tweet -->
-      <div class="ng-card">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
-          <div class="ng-card-title">Top Performing Tweet</div>
-          <a href="#" target="_blank" id="ngLaTopTweetLink" class="ng-meta-link" style="font-size:11.5px">View on X &rarr;</a>
-        </div>
-        <div class="ng-la-top-tweet-card" id="ngLaTopTweetCard">
-          <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
-            <img class="ng-la-tweet-av" id="ngLaTtAvatar" src="">
-            <div>
-              <div style="font-size:12.5px;font-weight:800;color:#1A1A1A" id="ngLaTtName">Author</div>
-              <div style="font-size:11px;color:#757575" id="ngLaTtDate">Date</div>
-            </div>
-          </div>
-          <div style="font-size:12.5px;color:#263238;line-height:1.45;margin-bottom:12px" id="ngLaTtText">
-            Loading top performing tweet from MongoDB...
-          </div>
-          <div class="ng-la-tweet-media" id="ngLaTtMedia" style="background:#F5F5F5;border-radius:8px;height:140px;display:flex;align-items:center;justify-content:center;color:#9E9E9E;font-size:12px;margin-bottom:12px">
-            <span>🖼️ Live Media &amp; Video Attachment Preview</span>
-          </div>
-          <div style="display:flex;align-items:center;justify-content:space-between;padding-top:10px;border-top:1px solid #F0F0F0;font-size:12px;font-weight:700;color:#616161">
-            <span>💬 <span id="ngLaTtComments">0</span></span>
-            <span>🔁 <span id="ngLaTtRts">0</span></span>
-            <span>❤️ <span id="ngLaTtLikes">0</span></span>
-            <span>👁️ <span id="ngLaTtViews">0</span></span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Recent Tweets -->
-      <div class="ng-card">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
-          <div class="ng-card-title">Recent Tweets</div>
-          <span style="font-size:11px;color:#757575">Live from MongoDB</span>
-        </div>
-        <div class="ng-la-recent-list" id="ngLaRecentList" style="display:flex;flex-direction:column;gap:8px;max-height:300px;overflow-y:auto">
-          <!-- Populated dynamically via JS -->
-        </div>
-      </div>
+      </section>
     </div>
   </div>
 </main>
@@ -16984,7 +17041,10 @@ function fetchLiveNarrativeGroupStats(showNotice){
         if(stElem) stElem.textContent = fmtNgNum(grandTw) + ' tweets · ' + grandHandles + ' handles (' + rangeLbl + ')';
         
         // Re-render directory or detail if active
-        if(_ngActiveGroup){
+        var _laVis = document.getElementById('ngLeaderAnalysisView');
+        if(_laVis && _laVis.style.display !== 'none'){
+          /* member page khula hai -- wahi rehne do */
+        } else if(_ngActiveGroup){
           openNarrativeGroup(_ngActiveGroup.id);
         } else {
           renderNarrativeGroupsTable();
@@ -17209,7 +17269,7 @@ function ngxPaint(list, lbl) {
   var kp = document.getElementById('ngxKpis');
   if (kp) {
     var st = function (l, v, s, on) { return '<div class="ngx-st' + (on ? ' on' : '') + '"><b>' + v + '</b><span>' + l + '</span>' + (s ? '<small>' + s + '</small>' : '') + '</div>'; };
-    kp.innerHTML = st('Groups &middot; ' + mem + ' handles', list.length, '', false)
+    kp.innerHTML = '<div class="ngx-st" title="' + mem + ' handles tracked"><b>' + list.length + '</b><span>Groups</span></div>'
       + ['tweets', 'likes', 'rts', 'views'].map(function (x) { return st(lab[x], _ngrFmt(K[x]), '', x === k0); }).join('');
   }
   /* share of voice -- chune metric par */
@@ -17229,18 +17289,24 @@ function ngxPaint(list, lbl) {
     var R = 96, C = 2 * Math.PI * R, gap = segs.length > 1 ? 3 : 0, acc = 0, arcs = '', pins = '';
     segs.forEach(function (x, i) {
       var frac = x.v / tot, len = Math.max(frac * C - gap, 1.5), mid = (acc + frac / 2) * 2 * Math.PI - Math.PI / 2;
-      arcs += '<circle class="ngx-arc" cx="130" cy="130" r="' + R + '" stroke="' + (x.g.color || '#E8590C') + '" stroke-dasharray="' + len.toFixed(2) + ' ' + C.toFixed(2)
+      arcs += '<circle class="ngx-arc" cx="130" cy="130" r="' + R + '" stroke="' + (x.g.color || '#E8590C') + '" stroke-linecap="round" stroke-dasharray="' + len.toFixed(2) + ' ' + C.toFixed(2)
         + '" stroke-dashoffset="' + (-(acc * C)).toFixed(2) + '" style="--len:' + len.toFixed(2) + ';--d:' + (i * 70) + 'ms"><title>' + _ngrEsc(x.g.acronym) + ' · ' + (frac * 100).toFixed(1) + '%</title></circle>';
-      if (frac >= 0.025) {
-        var px = 130 + Math.cos(mid) * 132, py = 130 + Math.sin(mid) * 132;
-        pins += '<span class="ngx-pin" style="left:' + ((px + 20) / 3).toFixed(2) + '%;top:' + ((py + 20) / 3).toFixed(2) + '%;--gc:' + (x.g.color || '#E8590C') + ';--d:' + (200 + i * 70) + 'ms" title="'
-          + _ngrEsc(x.g.acronym) + ' · ' + (frac * 100).toFixed(1) + '%">' + _ngrImg(x.g.logoUrl, x.g.handle, x.g.acronym) + '<em>' + Math.round(frac * 100) + '%</em></span>';
+      if (i < 2) {   /* 14-Nov: top 2 ka logo ring ke upar hi (apne hisse ke beech), naam + % bahar ki taraf */
+        var px = 130 + Math.cos(mid) * R, py = 130 + Math.sin(mid) * R, side = px < 130 ? 'l' : 'r';
+        pins += '<span class="ngx-pin ' + side + '" style="left:' + (px / 2.6).toFixed(2) + '%;top:' + (py / 2.6).toFixed(2) + '%;--gc:' + (x.g.color || '#E8590C') + ';--d:' + (200 + i * 70) + 'ms" title="'
+          + _ngrEsc(x.g.acronym) + ' · ' + (frac * 100).toFixed(1) + '%">' + _ngrImg(x.g.logoUrl, x.g.handle, x.g.acronym) + '<em><b>' + _ngrEsc(x.g.acronym) + '</b>' + (frac * 100).toFixed(1) + '%</em></span>';
       }
       acc += frac;
     });
     rg.innerHTML = '<svg viewBox="0 0 260 260" aria-hidden="true"><circle class="ngx-track" cx="130" cy="130" r="' + R + '"/>' + arcs + '</svg>' + pins
-      + '<div class="ngx-ring-c"><span>Share of voice</span><b>' + (tot ? _ngrFmt(tot) : '0') + '</b><small>' + _ngr.l + ' &middot; ' + segs.length + ' of ' + list.length + ' groups</small></div>';
+      + '<div class="ngx-ring-c"><span>Share of voice</span><b>' + (tot ? _ngrFmt(tot) : '0') + '</b><small>' + _ngr.l + '</small></div>';
     rg.classList.toggle('is-empty', !segs.length);
+    /* 14-Nov: ring ke bagal me top 2 -- logo, naam, hissa (chune metric / date / group ke saath badalta hai) */
+    var lg2 = document.getElementById('ngxRingLeg');
+    if (lg2) lg2.innerHTML = segs.length ? '<div class="ngx-rleg-h">Share of ' + _ngr.l + '</div>' + segs.slice(0, 2).map(function (x) {
+      return '<div class="ngx-rleg-i" style="--gc:' + (x.g.color || '#E8590C') + '"><span class="ngx-rleg-lg">' + _ngrImg(x.g.logoUrl, x.g.handle, x.g.acronym) + '</span>'
+        + '<span class="ngx-rleg-n">' + _ngrEsc(x.g.acronym) + '</span><b>' + (tot ? (x.v * 100 / tot).toFixed(1) : '0') + '%</b></div>';
+    }).join('') : '';
   }  /* Loudest voices */
   var k = _ngr.k, rows = [];
   list.forEach(function (g) { (g.leaders || []).forEach(function (m) { if ((+m[k] || 0) > 0) rows.push({ m: m, g: g, v: +m[k] || 0 }); }); });
@@ -17290,6 +17356,15 @@ function ngxPlaceFilters() {
   else if (fb.parentNode !== home.parentNode || fb.previousSibling !== home) home.parentNode.insertBefore(fb, home.nextSibling);
 }
 window.ngxPlaceFilters = ngxPlaceFilters;
+document.addEventListener('scroll', function (e) { var w = e.target; if (w && w.id === 'ngxLWrap') w.classList.toggle('end', w.scrollTop + w.clientHeight >= w.scrollHeight - 4); }, true);
+/* auto-sync: Narrative Groups khula ho aur tab saamne ho to har 5 minute nayi ginti (Sync button ki zaroorat nahi) */
+setInterval(function () {
+  try {
+    var sec = document.getElementById('sec-narrative-groups');
+    if (!sec || !sec.classList.contains('active') || document.hidden) return;
+    if (typeof fetchLiveNarrativeGroupStats === 'function') fetchLiveNarrativeGroupStats(false);
+  } catch (e) {}
+}, 300000);
 (function () {
   ['openNarrativeGroup', 'openLeaderAnalysis'].forEach(function (n) {
     var o = window[n]; if (typeof o !== 'function' || o._ngx) return;
@@ -17314,7 +17389,7 @@ window.ngReset = function () {
 function renderNgRace() {
   var box = document.getElementById('ngRace'), lanes = document.getElementById('ngrLanes');
   if (!box || !lanes) return;
-  var list = getFilteredNarrativeGroups(), k = _ngr.k, H = 70;
+  var list = getFilteredNarrativeGroups(), k = _ngr.k, H = 66;   /* 14-Nov: badi lines -- 5 dikhti hain, baaki box ke andar scroll */   /* 14-Nov: patli lines -- saare 7 group pehli screen par */
   var vals = list.map(function (g) { return +((g.stats || {})[k]) || 0; });
   var max = Math.max.apply(null, vals.concat([0])) || 1, sum = vals.reduce(function (a, b) { return a + b; }, 0);
   var order = list.map(function (g, i) { return i; }).sort(function (a, b) { return vals[b] - vals[a] || a - b; });
@@ -17325,7 +17400,7 @@ function renderNgRace() {
   var sub = document.getElementById('ngrSub');
   if (sub) sub.textContent = 'Ranked by ' + _ngr.l + (lbl ? ' · ' + lbl : '') + ' · ' + list.length + ' groups';
   var foot = document.getElementById('ngrFootL');
-  if (foot) foot.textContent = 'Total ' + _ngr.l + ': ' + _ngrFmt(sum) + '  ·  bar length is relative to the #1 group';
+  if (foot) foot.textContent = 'Total ' + _ngr.l + ': ' + _ngrFmt(sum) + '  ·  ranked by ' + _ngr.l + ', highlighted column';
   box.style.setProperty('--mc', _ngr.c);
 
   /* lanes (keyed by group id) */
@@ -17348,6 +17423,7 @@ function renderNgRace() {
         + '<div style="min-width:0"><div class="ngr-acr">' + _ngrEsc(g.acronym) + ' <span class="ngr-mv"></span></div><div class="ngr-full">' + _ngrEsc(g.name) + '</div><div class="ngx-cat">' + _ngrEsc(g.category || '') + '</div></div></div>'
         + '<div class="ngr-track"><div class="ngr-fill"></div><div class="ngr-zero" style="display:none">No posts in this range</div></div>'
         + '<div class="ngx-num"><div class="ngr-val">0</div><div class="ngr-share"></div></div>'
+        + '<div class="ngx-ms"></div>'
         + '<div class="ngr-memcol"><div class="ngr-mem">' + mem + (extra > 0 ? '<span class="more">+' + extra + '</span>' : '') + '</div>'
         + '<div class="ngr-cnt">' + (g.leaders || []).length + ((g.leaders || []).length === 1 ? ' member' : ' members') + '</div></div>'
         + '<div class="ngx-go" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></div>';
@@ -17374,6 +17450,12 @@ function renderNgRace() {
     var ve = el.querySelector('.ngr-val'), z = el.querySelector('.ngr-zero');
     z.style.display = v ? 'none' : '';
     el.querySelector('.ngr-share').textContent = sum && v ? (v * 100 / sum).toFixed(1) + '% share' : '—';
+    /* 14-Nov: bar ki jagah Leader Board jaisa -- Posts / Likes / Retweets / Views; chuna metric gehra + hissa */
+    var _st = g.stats || {}, _ms = el.querySelector('.ngx-ms');
+    if (_ms) _ms.innerHTML = [['tweets', 'Posts'], ['likes', 'Likes'], ['rts', 'Retweets'], ['views', 'Views']].map(function (x) {
+      var on = x[0] === k, n = +_st[x[0]] || 0;
+      return '<div class="ngx-mc' + (on ? ' on' : '') + (n ? '' : ' z') + '"><b>' + (n ? _ngrFmt(n) : '0') + '</b></div>';
+    }).join('') + '<div class="ngx-mc ngx-sh' + (v ? '' : ' z') + '"><b>' + (sum && v ? (v * 100 / sum).toFixed(1) + '%' : '&mdash;') + '</b></div>';
     _ngrTween(ve, _ngr.prevVal[g.id] || 0, v, 950);
     _ngr.prevVal[g.id] = v;
   });
@@ -17404,15 +17486,19 @@ function renderNgRace() {
         + '<div style="min-width:0"><div class="ngr-spot-name">' + _ngrEsc(tg.acronym) + '</div><div class="ngr-spot-full">' + _ngrEsc(tg.name) + '</div></div></div>'
         + '<div class="ngr-spot-val">0</div><div class="ngr-spot-lbl">' + _ngr.l + ' &middot; ' + (sum ? (tv * 100 / sum).toFixed(1) : 0) + '% of all groups</div>'
         + '<div class="ngr-spot-lead">' + lead + '</div>'
-        + (_tv && (+_tv[k] || 0) ? '<div class="ngx-spot-top">' + _ngrImg(_tv.avatar, _tv.handle, _tv.name) + '<div style="min-width:0"><small>Top voice</small><b>' + _ngrEsc(_tv.name) + '</b></div><span>' + _ngrFmt(+_tv[k] || 0) + '</span></div>' : '')
+        + (_tv && (+_tv[k] || 0) ? '<div class="ngx-spot-top">' + _ngrImg(_tv.avatar, _tv.handle, _tv.name) + '<div style="min-width:0"><small>Top voice</small><b>' + _ngrEsc(_tv.name) + '</b></div><span>' + _ngrFmt(+_tv[k] || 0) + '<i>' + _ngr.l + '</i></span></div>' : '')
         + '<div class="ngx-spot-mini">' + [['tweets', 'Tweets'], ['likes', 'Likes'], ['rts', 'Retweets'], ['views', 'Views']].filter(function (x) { return x[0] !== k; }).map(function (x) { return '<div><b>' + _ngrFmt(+(tg.stats || {})[x[0]] || 0) + '</b><span>' + x[1] + '</span></div>'; }).join('') + '</div>'
-        + '<div class="ngx-spot-cta">Open analysis <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>';
+        + '<div class="ngx-spot-cta" title="Open analysis"><span>Open analysis</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>';
       _ngrTween(spot.querySelector('.ngr-spot-val'), 0, tv, 1100);
     }
   }
   box.classList.remove('shine'); void box.offsetWidth; box.classList.add('shine');
   _ngr.built = true;
   try { ngxPaint(list, lbl); } catch (e) { console.warn('ngx', e); }
+  try { document.querySelectorAll('#ngxLHead [data-k]').forEach(function (x) { x.classList.toggle('on', x.getAttribute('data-k') === k); }); } catch (e) {}
+  try { var _lw0 = document.getElementById('ngxLWrap'), _lh0 = document.getElementById('ngxLHead');
+    if (_lw0 && _lh0) _lh0.style.paddingRight = (12 + 4 + Math.max(0, _lw0.offsetWidth - _lw0.clientWidth)) + 'px'; } catch (e) {}
+  try { var _lw = document.getElementById('ngxLWrap'); if (_lw) { _lw.style.setProperty('--H', H + 'px'); _lw.classList.toggle('more', list.length > 5); } } catch (e) {}
 
   /* metric switch pill */
   var seg = document.getElementById('ngrSeg');
@@ -17477,7 +17563,7 @@ function openNarrativeGroup(id){
   var bd = document.getElementById('ngHeroBadge');
   if(bd){
     bd.textContent = g.category;
-    bd.className = 'ph-badge';
+    bd.className = 'ngd-cat';
   }
   var hdlTxt = document.getElementById('ngHeroHandleText');
   var hdlLnk = document.getElementById('ngHeroHandle');
@@ -17515,12 +17601,9 @@ function openNarrativeGroup(id){
   if(vwV) vwV.textContent = fmtNgNum(g.stats.views);
   ngHeroExtras(g);
 
-  // Render Charts & Cards
-  renderGroupMemberRoster(g.leaders || []);
-  renderGroupDonutChart(g);
-  renderGroupTimelineChart(g);
-  renderGroupTopicsList(g);
-  renderGroupMembersCards(g.leaders || []);
+  /* 14-Nov: naya group page -- members, donut, asli rozana activity + tone */
+  var _laV0 = document.getElementById('ngLeaderAnalysisView'); if (_laV0) _laV0.style.display = 'none';
+  ngdRender(g);
 }
 window.openNarrativeGroup = openNarrativeGroup;
 /* option-d (29-Oct): banner ka rang = group ka rang; har card ke neeche per-tweet, aur Tweets card par chuni
@@ -17528,12 +17611,12 @@ window.openNarrativeGroup = openNarrativeGroup;
 function ngHeroExtras(g) {
   var hc = document.getElementById('ngHeroCard'); if (hc && g.color) hc.style.setProperty('--pc', g.color);
   var st = g.stats || {}, tw = +st.tweets || 0;
-  function per(id, v) { var e = document.getElementById(id); if (e) e.innerHTML = tw ? '<b>' + Math.round((+v || 0) / tw).toLocaleString('en-IN') + '</b> per tweet' : '&mdash;'; }
+  function per(id, v) { var e = document.getElementById(id); if (e) e.innerHTML = tw ? '<b>' + Math.round((+v || 0) / tw).toLocaleString('en-IN') + '</b> per post' : ''; }
   per('ngKpiLkPer', st.likes); per('ngKpiRtPer', st.rts); per('ngKpiVwPer', st.views);
   var sel = document.getElementById('ngFilterRange'), lbl = '';
   try { lbl = sel && sel.options[sel.selectedIndex] ? sel.options[sel.selectedIndex].text : ''; } catch (e) {}
   var t = document.getElementById('ngKpiTwPer');
-  if (t) t.textContent = 'own posts' + (lbl ? ' \u00b7 ' + lbl : '') + ' \u00b7 ' + (g.leaders || []).length + ' members';
+  if (t) t.textContent = (lbl || 'Full Range') + ' \u00b7 ' + (g.leaders || []).length + ' members';
 }
 window.ngHeroExtras = ngHeroExtras;
 
@@ -17795,236 +17878,305 @@ function changeLaDateRange(val){
 }
 window.changeLaDateRange = changeLaDateRange;
 
-function closeLeaderAnalysis(){
-  var laView = document.getElementById('ngLeaderAnalysisView');
-  var detView = document.getElementById('ngDetailView');
-  if(laView) laView.style.display = 'none';
-  if(detView) detView.style.display = 'block';
-  _ngCurrentLeaderHandle = null;
+/* ===== ngd / ngm (14-Nov): group page + member page -- sab number asli (Mongo), nakli timeline / topics / audience hataye =====
+   Group: hero me official X cover, members ki table, kaun group chalata hai (donut), rozana activity (comparison API), tone.
+   Member: hero me apna X cover + photo, activity chart (ek metric, chunne layak), tone, engagement, top post, recent posts.
+   Back: member page jahan se khula (group ya directory) wahin wapas. */
+var NGD_PAL = ['#1E88E5', '#43A047', '#8E24AA', '#FB8C00', '#00ACC1', '#E53935', '#3949AB', '#6D4C41'];
+var NGD_TONE = { 'Positive': '#16A34A', 'Neutral': '#B8AA9A', 'Negative': '#DC2626', 'Anti-Govt': '#AD1457', 'Anti-BJP': '#6A1B9A', 'Pro-Govt': '#1565C0', 'Pro-BJP': '#E65100', 'No-Sentiment': '#D6CCC0' };
+var _ngdAct = { k: 'tweets', data: null, gid: null };
+var _ngLaFrom = 'dir', _ngmK = 'views', _ngmTL = null, _ngmGroup = null, _ngmColor = '#E8590C';
+function ngdRangeQS() {
+  var dr = (typeof getNgDateRange === 'function') ? getNgDateRange() : { mode: 'all' }, p = [];
+  if (dr.from) p.push('from=' + encodeURIComponent(dr.from));
+  if (dr.to) p.push('to=' + encodeURIComponent(dr.to));
+  return p.join('&');
 }
-window.closeLeaderAnalysis = closeLeaderAnalysis;
-
-function openLeaderAnalysis(handle, defaultName){
-  if(!handle) return;
-  _ngCurrentLeaderHandle = handle;
-
-  var dirView = document.getElementById('ngDirectoryView');
-  var detView = document.getElementById('ngDetailView');
-  var laView = document.getElementById('ngLeaderAnalysisView');
-  if(dirView) dirView.style.display = 'none';
-  if(detView) detView.style.display = 'none';
-  if(laView) laView.style.display = 'block';
-
-  window.scrollTo({ top: 120, behavior: 'smooth' });
-
-  // Find leader metadata from active group or fallback
-  var leaderMeta = null;
-  if(_ngActiveGroup && Array.isArray(_ngActiveGroup.leaders)){
-    leaderMeta = _ngActiveGroup.leaders.find(function(m){
-      return (m.handle||'').toLowerCase() === handle.toLowerCase();
-    });
-  }
-  var leaderName = leaderMeta ? leaderMeta.name : (defaultName || handle);
-  var groupName = _ngActiveGroup ? _ngActiveGroup.name : 'Creators Hub';
-  var groupAcr = _ngActiveGroup ? _ngActiveGroup.acronym : 'Creators';
-
-  // Set breadcrumbs & back button
-  var crGroup = document.getElementById('ngLaCrumbGroup');
-  if(crGroup) crGroup.textContent = groupAcr;
-  var crLeader = document.getElementById('ngLaCrumbLeader');
-  if(crLeader) crLeader.textContent = leaderName;
-  var btnBack = document.getElementById('ngLaBtnBack');
-  if(btnBack) btnBack.innerHTML = '&larr; Back to ' + groupAcr + ' Group';
-
-  // Set Profile Hero Card Details
-  var avElem = document.getElementById('ngLaAvatar');
-  if(avElem){
-    avElem.src = leaderMeta && leaderMeta.avatar ? leaderMeta.avatar : ('/api/avatar/' + encodeURIComponent(handle));
-  }
-  var nmElem = document.getElementById('ngLaName');
-  if(nmElem) nmElem.textContent = leaderName;
-  var hdElem = document.getElementById('ngLaHandle');
-  if(hdElem) hdElem.textContent = '@' + handle;
-  var rlElem = document.getElementById('ngLaRole');
-  if(rlElem) rlElem.textContent = (leaderMeta && leaderMeta.role ? leaderMeta.role : 'Key Member') + ' | ' + groupName;
-  var dsElem = document.getElementById('ngLaDesc');
-  if(dsElem){
-    dsElem.textContent = (leaderMeta && leaderMeta.desc) ? leaderMeta.desc : 
-      (leaderName + ' is an influential digital voice and active creator within ' + groupName + ', driving civic awareness and digital political discourse.');
-  }
-
-  // Links
-  var xl = document.getElementById('ngLaXLink');
-  var xlt = document.getElementById('ngLaXLinkTxt');
-  if(xl) xl.href = 'https://x.com/' + handle;
-  if(xlt) xlt.textContent = '@' + handle;
-  var wl = document.getElementById('ngLaWebLink');
-  var wlt = document.getElementById('ngLaWebLinkTxt');
-  if(wl) wl.href = 'https://x.com/' + handle;
-  if(wlt) wlt.textContent = 'x.com/' + handle;
-
-  // Instant In-Memory KPI Cache (0ms response, NO '...' delay!)
-  if(leaderMeta){
-    document.getElementById('ngLaKpiTw').textContent = fmtNgNum(leaderMeta.tweets || 0);
-    document.getElementById('ngLaKpiLk').textContent = fmtNgNum(leaderMeta.likes || 0);
-    document.getElementById('ngLaKpiRt').textContent = fmtNgNum(leaderMeta.rts || 0);
-    document.getElementById('ngLaKpiVw').textContent = fmtNgNum(leaderMeta.views || 0);
-  } else {
-    document.getElementById('ngLaKpiTw').textContent = '0';
-    document.getElementById('ngLaKpiLk').textContent = '0';
-    document.getElementById('ngLaKpiRt').textContent = '0';
-    document.getElementById('ngLaKpiVw').textContent = '0';
-  }
-
-  // LIVE Fast MongoDB Fetch (~50ms) with Date Range Filter
-  var dr = (typeof getNgDateRange === 'function') ? getNgDateRange() : { mode: 'all' };
-  var params = [];
-  if(dr.from) params.push('from=' + encodeURIComponent(dr.from));
-  if(dr.to) params.push('to=' + encodeURIComponent(dr.to));
-  var apiUrl = '/api/narrative-groups/leader-analysis/' + encodeURIComponent(handle) + (params.length ? '?' + params.join('&') : '');
-
-  // Synchronize range dropdowns
-  var laRangeSel = document.getElementById('ngLaDateRange');
-  var mainRangeSel = document.getElementById('ngFilterRange');
-  if(laRangeSel && mainRangeSel){
-    laRangeSel.value = mainRangeSel.value;
-  }
-
-  fetch(apiUrl)
-    .then(function(res){ return res.json(); })
-    .then(function(data){
-      if(!data || !data.ok){
-        console.warn('Leader analysis endpoint error:', data && data.error);
-        return;
-      }
-
-      // 1. Live KPIs Update
-      var kpis = data.kpis || {};
-      document.getElementById('ngLaKpiTw').textContent = fmtNgNum(kpis.totalTweets || (leaderMeta ? leaderMeta.tweets : 0));
-      document.getElementById('ngLaKpiLk').textContent = fmtNgNum(kpis.totalLikes || (leaderMeta ? leaderMeta.likes : 0));
-      document.getElementById('ngLaKpiRt').textContent = fmtNgNum(kpis.totalRetweets || (leaderMeta ? leaderMeta.rts : 0));
-      document.getElementById('ngLaKpiVw').textContent = fmtNgNum(kpis.totalViews || (leaderMeta ? leaderMeta.views : 0));
-
-      // 2. Multi-line Engagement Trend Chart (Screenshot 2 Match)
-      renderLeaderTrendChart(data.timeline || []);
-
-      // 3. Topics Breakdown Accordion
-      renderLeaderTopicsAccordion(data.topics || []);
-
-      // 4. Sentiment Breakdown Accordion
-      renderLeaderSentimentAccordion(data.sentiment || []);
-
-      // 5. Engagement Breakdown Accordion
-      var avgViews = (kpis.totalTweets > 0) ? Math.round(kpis.totalViews / kpis.totalTweets) : 0;
-      var engRatio = (kpis.totalViews > 0) ? (((kpis.totalLikes + kpis.totalRetweets + kpis.totalComments) / kpis.totalViews) * 100).toFixed(2) : '0';
-      var engBody = document.getElementById('ngLaEngagementBody');
-      if(engBody){
-        engBody.innerHTML = '<div style="font-size:12px;color:#37474F;line-height:1.6">' +
-          '<div>&bull; <b>Average Views / Tweet:</b> ' + fmtNgNum(avgViews) + '</div>' +
-          '<div>&bull; <b>Engagement to View Ratio:</b> ' + engRatio + '%</div>' +
-          '<div>&bull; <b>Total Comments Generated:</b> ' + fmtNgNum(kpis.totalComments || 0) + '</div>' +
-        '</div>';
-      }
-
-      // 6. Audience Insights Accordion
-      var audBody = document.getElementById('ngLaAudienceBody');
-      if(audBody){
-        audBody.innerHTML = '<div style="font-size:12px;color:#37474F;line-height:1.6">' +
-          '<div>&bull; <b>Core Reach:</b> Pan-India Digital Citizens &amp; Youth</div>' +
-          '<div>&bull; <b>Peak Activity:</b> 18:00 - 22:00 IST (Evening prime-time)</div>' +
-          '<div>&bull; <b>Top Content Format:</b> Video commentary, ground investigations &amp; infographics</div>' +
-        '</div>';
-      }
-
-      // 7. Top Performing Tweet (With conditional clean media handling)
-      var top = data.topTweet;
-      var topCard = document.getElementById('ngLaTopTweetCard');
-      if(top && topCard){
-        var ttAv = document.getElementById('ngLaTtAvatar');
-        if(ttAv) ttAv.src = leaderMeta && leaderMeta.avatar ? leaderMeta.avatar : ('/api/avatar/' + encodeURIComponent(handle));
-        var ttNm = document.getElementById('ngLaTtName');
-        if(ttNm) ttNm.textContent = top['Candidate Name'] || leaderName;
-        var ttDt = document.getElementById('ngLaTtDate');
-        if(ttDt) ttDt.textContent = top['Tweet Date'] || 'Recent';
-        var ttTx = document.getElementById('ngLaTtText');
-        if(ttTx) ttTx.textContent = top['Tweet Text'] || '';
-        var ttLk = document.getElementById('ngLaTopTweetLink');
-        if(ttLk) ttLk.href = top['Tweet URL'] || ('https://x.com/' + handle);
-
-        // Smart Media Handling: Show actual image if exists, else hide gray box completely!
-        var mediaBox = document.getElementById('ngLaTtMedia');
-        var mediaUrl = top['Media URL'] || top['Media'] || top['Image URL'] || top['Photo URL'] || null;
-        if(!mediaUrl && top['Tweet Text']){
-          var m = top['Tweet Text'].match(/(https:\/\/pbs\.twimg\.com\/media\/[^\s]+)/i);
-          if(m) mediaUrl = m[1];
-        }
-
-        if(mediaBox){
-          if(mediaUrl){
-            mediaBox.style.display = 'block';
-            mediaBox.style.height = 'auto';
-            mediaBox.innerHTML = '<img src="'+mediaUrl+'" style="width:100%;max-height:260px;object-fit:cover;border-radius:8px;margin-bottom:10px" onerror="this.parentElement.style.display=\'none\';">';
-          } else {
-            // Text-only tweet: Hide empty placeholder box completely
-            mediaBox.style.display = 'none';
-            mediaBox.innerHTML = '';
-          }
-        }
-
-        document.getElementById('ngLaTtComments').textContent = fmtNgNum(top['Total Comments'] || 0);
-        document.getElementById('ngLaTtRts').textContent = fmtNgNum(top['Total Retweets'] || 0);
-        document.getElementById('ngLaTtLikes').textContent = fmtNgNum(top['Total Likes'] || 0);
-        document.getElementById('ngLaTtViews').textContent = fmtNgNum(top['Total Views'] || 0);
-      } else if(topCard) {
-        var ttTx = document.getElementById('ngLaTtText');
-        if(ttTx) ttTx.textContent = 'No tweets found for @' + handle + ' within the selected date range.';
-        var mediaBox = document.getElementById('ngLaTtMedia');
-        if(mediaBox){ mediaBox.style.display = 'none'; mediaBox.innerHTML = ''; }
-        document.getElementById('ngLaTtComments').textContent = '0';
-        document.getElementById('ngLaTtRts').textContent = '0';
-        document.getElementById('ngLaTtLikes').textContent = '0';
-        document.getElementById('ngLaTtViews').textContent = '0';
-      }
-
-      // 8. Recent Tweets
-      var recents = data.recentTweets || [];
-      var recList = document.getElementById('ngLaRecentList');
-      if(recList){
-        if(!recents.length){
-          recList.innerHTML = '<div style="font-size:12px;color:#888;padding:8px">No recent tweets found for @' + handle + '</div>';
-        } else {
-          recList.innerHTML = recents.map(function(t){
-            var tUrl = t['Tweet URL'] || ('https://x.com/' + handle);
-            var av = leaderMeta && leaderMeta.avatar ? leaderMeta.avatar : ('/api/avatar/' + encodeURIComponent(handle));
-            var snippet = (t['Tweet Text'] || '').substring(0, 110) + ((t['Tweet Text']||'').length > 110 ? '...' : '');
-            return '<div class="ng-la-recent-item">' +
-              '<div style="display:flex;align-items:flex-start;gap:8px">' +
-                '<img class="ng-la-tweet-av" src="'+av+'">' +
-                '<div style="flex:1">' +
-                  '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:3px">' +
-                    '<span style="font-size:12px;font-weight:700;color:#1A1A1A">@'+handle+'</span>' +
-                    '<span style="font-size:10.5px;color:#757575">'+(t['Tweet Date']||'').substring(0,10)+'</span>' +
-                  '</div>' +
-                  '<div style="font-size:11.5px;color:#37474F;line-height:1.35;margin-bottom:6px">'+snippet+'</div>' +
-                  '<div style="display:flex;gap:12px;font-size:10.5px;font-weight:700;color:#616161">' +
-                    '<span>💬 '+fmtNgNum(t['Total Comments']||0)+'</span>' +
-                    '<span>🔁 '+fmtNgNum(t['Total Retweets']||0)+'</span>' +
-                    '<span>❤️ '+fmtNgNum(t['Total Likes']||0)+'</span>' +
-                    '<span>👁️ '+fmtNgNum(t['Total Views']||0)+'</span>' +
-                    '<a href="'+tUrl+'" target="_blank" style="margin-left:auto;color:#1D9BF0;text-decoration:none">Open ↗</a>' +
-                  '</div>' +
-                '</div>' +
-              '</div>' +
-            '</div>';
-          }).join('');
-        }
-      }
+function ngdRangeLbl() { var s = document.getElementById('ngFilterRange'); try { return s.options[s.selectedIndex].text; } catch (e) { return 'Full Range'; } }
+function ngdDay(s) { var M = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'], p = String(s || '').slice(0, 10).split('-'); return p.length < 3 ? String(s || '') : (+p[2]) + ' ' + (M[+p[1] - 1] || p[1]); }
+function ngdQ(h) { return String(h || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'"); }
+/* hero cover: pehla handle jiska X banner hamare folder me hai; koi na mile to cover khaali (sirf group rang) */
+function ngdCover(el, handles) {
+  if (!el) return;
+  var seen = {}, hs = (handles || []).filter(function (h) { h = String(h || '').toLowerCase(); if (!h || seen[h]) return false; seen[h] = 1; return true; }), i = 0, tok = Date.now() + Math.random();
+  el._tok = tok; el.innerHTML = ''; el.classList.remove('on');
+  (function next() {
+    if (el._tok !== tok || i >= hs.length) return;
+    var src = '/assets/ng/b_' + String(hs[i++]).toLowerCase() + '.jpg', im = new Image();
+    im.onload = function () { if (el._tok !== tok) return; el.innerHTML = '<img src="' + src + '" alt="">'; el.classList.add('on'); };
+    im.onerror = next; im.src = src;
+  })();
+}
+function ngdToneHtml(map) {
+  if (map === null) return '<div class="ngd-empty0">Loading&hellip;</div>';
+  var keys = Object.keys(map || {}), tot = keys.reduce(function (a, k) { return a + (+map[k] || 0); }, 0);
+  if (!tot) return '<div class="ngd-empty0">No posts in this range</div>';
+  var ord = ['Positive', 'Neutral', 'Negative', 'Pro-Govt', 'Anti-Govt', 'Pro-BJP', 'Anti-BJP', 'No-Sentiment'];
+  keys.sort(function (a, b) { var ia = ord.indexOf(a), ib = ord.indexOf(b); return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib); });
+  keys = keys.filter(function (k) { return +map[k] > 0; });
+  var bar = keys.map(function (k) { return '<i style="width:' + (map[k] * 100 / tot).toFixed(2) + '%;background:' + (NGD_TONE[k] || '#CFC5B8') + '" title="' + _ngrEsc(k) + '"></i>'; }).join('');
+  var rows = keys.map(function (k) {
+    var p = map[k] * 100 / tot;
+    return '<div class="ngd-tr"><span class="ngd-td" style="background:' + (NGD_TONE[k] || '#CFC5B8') + '"></span><span class="ngd-tn">' + _ngrEsc(k === 'No-Sentiment' ? 'Untagged' : k) + '</span><span class="ngd-tc">' + Number(map[k]).toLocaleString('en-IN') + '</span><b>' + (p < 0.1 ? '<0.1' : p.toFixed(1)) + '%</b></div>';
+  }).join('');
+  return '<div class="ngd-tbar">' + bar + '</div><div class="ngd-trows">' + rows + '</div>';
+}
+function ngdRender(g) {
+  var hero = document.getElementById('ngHeroCard');
+  if (hero) hero.style.setProperty('--gc', g.color || '#E8590C');
+  var lg = document.getElementById('ngHeroLogo');
+  if (lg) lg.innerHTML = _ngrImg(g.logoUrl, g.id === 'creators' ? '' : g.handle, g.acronym);
+  var L = (g.leaders || []).slice().sort(function (a, b) { return (+b.tweets || 0) - (+a.tweets || 0) || (+b.views || 0) - (+a.views || 0); });
+  ngdCover(document.getElementById('ngdCover'), [g.id === 'creators' ? '' : g.handle].concat(g.handles || [], L.map(function (m) { return m.handle; })));
+  var tot = +(g.stats || {}).tweets || 0, box = document.getElementById('ngdMembers');
+  var sub = document.getElementById('ngdMemSub');
+  if (sub) sub.textContent = L.length + (L.length === 1 ? ' member' : ' members') + ' · ' + ngdRangeLbl() + ' · tap one for the full analysis';
+  if (box) box.innerHTML = L.length ? L.map(function (m, i) {
+    var sh = tot ? (+m.tweets || 0) * 100 / tot : 0;
+    return '<button type="button" class="ngd-m' + ((+m.tweets || 0) ? '' : ' z') + '" onclick="openLeaderAnalysis(\'' + ngdQ(m.handle) + '\')">'
+      + '<span class="ngd-mr">' + (i + 1) + '</span>'
+      + '<span class="ngd-mw"><span class="ngd-ma">' + _ngrImg(m.avatar, m.handle, m.name) + '</span><span class="ngd-mn"><b>' + _ngrEsc(m.name) + '</b><small>' + _ngrEsc(m.role || ('@' + m.handle)) + '</small></span></span>'
+      + '<span class="ngd-mv">' + _ngrFmt(+m.tweets || 0) + '</span><span class="ngd-mv">' + _ngrFmt(+m.likes || 0) + '</span>'
+      + '<span class="ngd-mv">' + _ngrFmt(+m.rts || 0) + '</span><span class="ngd-mv">' + _ngrFmt(+m.views || 0) + '</span>'
+      + '<span class="ngd-mv ngd-msh">' + (sh ? (sh < 0.1 ? '<0.1' : sh.toFixed(1)) + '%' : '&mdash;') + '</span>'
+      + '<svg class="ngd-mgo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>';
+  }).join('') : '<div class="ngd-empty0">No members listed for this group.</div>';
+  ngdDonut(L, tot);
+  ngdLoadActivity(g);
+}
+function ngdDonut(L, tot) {
+  var cv = document.getElementById('ngDonutChart'), leg = document.getElementById('ngDonutLegend'), cc = document.getElementById('ngDonutCenterVal');
+  if (cc) cc.textContent = _ngrFmt(tot);
+  var act = L.filter(function (m) { return (+m.tweets || 0) > 0; }), sumTop = 0;
+  var items = act.slice(0, 5).map(function (m, i) { sumTop += +m.tweets; return { n: m.name, m: m, v: +m.tweets, c: NGD_PAL[i % NGD_PAL.length] }; });
+  var rest = Math.max(0, tot - sumTop);
+  if (rest > 0) items.push({ n: act.length > 5 ? 'Other members & official handles' : 'Official handles', v: rest, c: '#D6CCC0' });
+  if (leg) leg.innerHTML = items.length ? items.map(function (it) {
+    var p = tot ? it.v * 100 / tot : 0;
+    return '<div class="ngd-li"><span class="ngd-td" style="background:' + it.c + '"></span><span class="ngd-ln">' + _ngrEsc(it.n) + '</span><span class="ngd-lv">' + _ngrFmt(it.v) + '</span><b>' + (p < 0.1 ? '<0.1' : p.toFixed(1)) + '%</b></div>';
+  }).join('') : '<div class="ngd-empty0">No posts in this range</div>';
+  if (!cv || typeof Chart === 'undefined') return;
+  if (_ngDonutInst) { try { _ngDonutInst.destroy(); } catch (e) {} }
+  _ngDonutInst = new Chart(cv, {
+    type: 'doughnut',
+    data: { labels: items.length ? items.map(function (x) { return x.n; }) : ['None'],
+      datasets: [{ data: items.length ? items.map(function (x) { return x.v; }) : [1], backgroundColor: items.length ? items.map(function (x) { return x.c; }) : ['#F1EAE1'], borderWidth: 3, borderColor: '#fff', hoverOffset: 4 }] },
+    options: { responsive: true, maintainAspectRatio: false, cutout: '74%',
+      plugins: { legend: { display: false }, datalabels: { display: false },
+        tooltip: { enabled: !!items.length, callbacks: { label: function (c) { return ' ' + c.label + ': ' + _ngrFmt(c.raw) + ' (' + (tot ? (c.raw * 100 / tot).toFixed(1) : 0) + '%)'; } } } } }
+  });
+}
+function ngdLoadActivity(g) {
+  _ngdAct.gid = g.id; _ngdAct.data = null;
+  ngdDrawAct();
+  var tn = document.getElementById('ngdTone'); if (tn) tn.innerHTML = ngdToneHtml(null);
+  var qs = ngdRangeQS();
+  fetch('/api/narrative-groups/comparison?group=' + encodeURIComponent(g.id) + (qs ? '&' + qs : ''), { credentials: 'same-origin', cache: 'no-store' })
+    .then(function (r) { return r.json(); })
+    .then(function (d) {
+      if (_ngdAct.gid !== g.id) return;
+      _ngdAct.data = (d && d.ok) ? d : { dates: [], timelines: {}, sentiments: {} };
+      ngdDrawAct();
+      var agg = {}; Object.keys(_ngdAct.data.sentiments || {}).forEach(function (h) { var s = _ngdAct.data.sentiments[h] || {}; Object.keys(s).forEach(function (k) { agg[k] = (agg[k] || 0) + (+s[k] || 0); }); });
+      if (tn) tn.innerHTML = ngdToneHtml(agg);
     })
-    .catch(function(err){
-      console.error('Failed to load leader analysis:', err);
-    });
+    .catch(function () { if (_ngdAct.gid !== g.id) return; _ngdAct.data = { dates: [], timelines: {}, sentiments: {} }; ngdDrawAct(); if (tn) tn.innerHTML = ngdToneHtml({}); });
+}
+function ngdDrawAct() {
+  var cv = document.getElementById('ngTimelineChart'), em = document.getElementById('ngdActEmpty'), d = _ngdAct.data, k = _ngdAct.k;
+  document.querySelectorAll('#ngdActSeg button').forEach(function (b) { b.classList.toggle('on', b.getAttribute('data-k') === k); });
+  var st = document.getElementById('ngdActSub'); if (st) st.textContent = ({ tweets: 'Posts', likes: 'Likes', views: 'Views' })[k] + ' per day, by member · ' + ngdRangeLbl();
+  if (!cv || typeof Chart === 'undefined') return;
+  if (_ngTimelineInst) { try { _ngTimelineInst.destroy(); } catch (e) {} _ngTimelineInst = null; }
+  var dates = (d && d.dates) || [], tl = (d && d.timelines) || {};
+  var g = _ngActiveGroup || {}, nm = {};
+  (g.leaders || []).forEach(function (m) { nm[String(m.handle || '').toLowerCase()] = m.name; });
+  var hs = Object.keys(tl).map(function (h) { var s = 0; dates.forEach(function (dt) { s += +((tl[h][dt] || {})[k]) || 0; }); return { h: h, s: s }; })
+    .filter(function (x) { return x.s > 0; }).sort(function (a, b) { return b.s - a.s; });
+  if (em) em.hidden = !!(d && hs.length && dates.length) || !d;
+  if (!d || !hs.length || !dates.length) { if (em && d) em.textContent = 'No posts in this range'; return; }
+  var top = hs.slice(0, 4), others = hs.slice(4);
+  var ds = top.map(function (x, i) {
+    return { label: nm[x.h] || '@' + x.h, data: dates.map(function (dt) { return +((tl[x.h][dt] || {})[k]) || 0; }), backgroundColor: NGD_PAL[i % NGD_PAL.length], borderRadius: 3, maxBarThickness: 18 };
+  });
+  if (others.length) ds.push({ label: 'Others', data: dates.map(function (dt) { return others.reduce(function (a, x) { return a + (+((tl[x.h][dt] || {})[k]) || 0); }, 0); }), backgroundColor: '#D6CCC0', borderRadius: 3, maxBarThickness: 18 });
+  _ngTimelineInst = new Chart(cv, {
+    type: 'bar',
+    data: { labels: dates.map(ngdDay), datasets: ds },
+    options: { responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false },
+      scales: { x: { stacked: true, grid: { display: false }, ticks: { font: { size: 10 }, color: '#9A8B7B', maxRotation: 0, autoSkip: true, maxTicksLimit: 10 } },
+        y: { stacked: true, grid: { color: '#F3ECE2' }, border: { display: false }, ticks: { font: { size: 10 }, color: '#9A8B7B', callback: function (v) { return _ngrFmt(v); } } } },
+      plugins: { datalabels: { display: false }, legend: { position: 'bottom', labels: { boxWidth: 8, boxHeight: 8, usePointStyle: true, font: { size: 11 }, color: '#5E5148' } },
+        tooltip: { backgroundColor: '#17120E', padding: 10, cornerRadius: 8, callbacks: { label: function (c) { return ' ' + c.dataset.label + ': ' + _ngrFmt(c.raw); } } } } }
+  });
+}
+document.addEventListener('click', function (e) {
+  var b = e.target && e.target.closest ? e.target.closest('#ngdActSeg button') : null;
+  if (b) { _ngdAct.k = b.getAttribute('data-k'); ngdDrawAct(); return; }
+  var m = e.target && e.target.closest ? e.target.closest('#ngmSeg button') : null;
+  if (m) { _ngmK = m.getAttribute('data-k'); ngmDraw(); }
+});
+
+/* ---- member page ---- */
+function ngmFindGroup(h) {
+  var lh = String(h || '').toLowerCase(), has = function (g) { return g && ((g.leaders || []).some(function (m) { return String(m.handle || '').toLowerCase() === lh; }) || (g.handles || []).some(function (x) { return String(x).toLowerCase() === lh; })); };
+  if (has(_ngActiveGroup)) return _ngActiveGroup;
+  return NARRATIVE_GROUPS_DATA.filter(has)[0] || null;
+}
+function ngmDraw() {
+  var cv = document.getElementById('ngLaTrendChart'), em = document.getElementById('ngmEmpty'), k = _ngmK, tl = _ngmTL || [];
+  document.querySelectorAll('#ngmSeg button').forEach(function (b) { b.classList.toggle('on', b.getAttribute('data-k') === k); });
+  var st = document.getElementById('ngmActSub'); if (st) st.textContent = ({ views: 'Views', likes: 'Likes', reposts: 'Retweets', tweets: 'Posts' })[k] + ' per day · ' + ngdRangeLbl();
+  if (!cv || typeof Chart === 'undefined') return;
+  if (_ngLaTrendInst) { try { _ngLaTrendInst.destroy(); } catch (e) {} _ngLaTrendInst = null; }
+  if (em) em.hidden = !!(tl.length) || _ngmTL === null;
+  if (!tl.length) return;
+  var ctx = cv.getContext('2d'), gr = ctx.createLinearGradient(0, 0, 0, cv.clientHeight || 260);
+  gr.addColorStop(0, _ngmColor + '55'); gr.addColorStop(1, _ngmColor + '00');
+  _ngLaTrendInst = new Chart(cv, {
+    type: 'line',
+    data: { labels: tl.map(function (x) { return ngdDay(x._id); }), datasets: [{ label: ({ views: 'Views', likes: 'Likes', reposts: 'Retweets', tweets: 'Posts' })[k], data: tl.map(function (x) { return +x[k] || 0; }),
+      borderColor: _ngmColor, backgroundColor: gr, fill: true, tension: 0.35, borderWidth: 2.2, pointRadius: tl.length > 40 ? 0 : 2.5, pointHoverRadius: 5, pointBackgroundColor: _ngmColor }] },
+    options: { responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false },
+      scales: { x: { grid: { display: false }, ticks: { font: { size: 10 }, color: '#9A8B7B', maxRotation: 0, autoSkip: true, maxTicksLimit: 10 } },
+        y: { grid: { color: '#F3ECE2' }, border: { display: false }, beginAtZero: true, ticks: { font: { size: 10 }, color: '#9A8B7B', callback: function (v) { return _ngrFmt(v); } } } },
+      plugins: { legend: { display: false }, datalabels: { display: false },
+        tooltip: { backgroundColor: '#17120E', padding: 10, cornerRadius: 8, callbacks: { label: function (c) { return ' ' + c.dataset.label + ': ' + _ngrFmt(c.raw); } } } } }
+  });
+}
+/* 14-Nov: tweet card = Handle Analytics wala X jaisa template (htc-*): naam, @handle, X logo, text 3 line + "See more",
+   tareekh, replies / retweets / likes / views, "Open on X", daayein sentiment */
+var _ngmTwN = 0;
+function ngmDate(d) {
+  var m = String(d || '').match(/^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})/);
+  if (!m) return _ngrEsc(String(d || '').slice(0, 16));
+  var MO = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'], hh = +m[4];
+  return (+m[3]) + ' ' + MO[+m[2] - 1] + ' ' + m[1] + ' \u00b7 ' + ((hh % 12) || 12) + ':' + m[5] + ' ' + (hh < 12 ? 'AM' : 'PM');
+}
+function ngmTweetHtml(t, m, name, handle) {
+  if (!t) return '';
+  var raw = String(t['Tweet Text'] || '').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'");
+  var txt = _ngrEsc(raw).replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener">$1</a>').replace(/(^|[\s(])([#@][\w\u0900-\u0D7F]+)/g, '$1<span class="ht">$2</span>');
+  var sent = String(t['Sentiment'] || ''), sc = (typeof NGD_TONE !== 'undefined' && NGD_TONE[sent]) || '#78909C', id = 'ngmT' + (++_ngmTwN);
+  var A = function (k, v, label, svg) { return '<span class="htc-a ' + k + '" title="' + label + ': ' + (+v || 0).toLocaleString('en-IN') + '"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">' + svg + '</svg><b>' + _ngrFmt(+v || 0) + '</b></span>'; };
+  var url = t['Tweet URL'] || ('https://x.com/' + handle);
+  return '<div class="htc-row"><article class="htc-tw">'
+    + '<div class="htc-hd">' + _ngrImg(m && m.avatar, handle, name).replace('<img ', '<img class="htc-av" ')
+    + '<div style="min-width:0"><div class="htc-nm">' + _ngrEsc(name) + '</div><div class="htc-hn">@' + _ngrEsc(handle) + '</div></div>'
+    + '<svg class="htc-x" viewBox="0 0 24 24"><path fill="#0F1419" d="M18.2 2.3h3.3l-7.2 8.3 8.5 11.1h-6.7l-5.2-6.8-6 6.8H1.7l7.7-8.8L1.3 2.3h6.8l4.7 6.2zm-1.2 17.4h1.8L7.1 4.2H5.1z"/></svg></div>'
+    + '<div class="htc-txt clamp" id="' + id + '">' + txt + '</div>'
+    + '<button type="button" class="htc-more" data-t="' + id + '" hidden>See more</button>'
+    + '<div class="htc-date">' + ngmDate(t['Tweet Date']) + '</div>'
+    + '<div class="htc-acts">' + A('cm', t['Total Comments'], 'Replies', '<path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.4A8 8 0 1 1 21 12z"/>')
+    + A('sh', t['Total Retweets'], 'Retweets', '<path d="M17 2l4 4-4 4"/><path d="M3 11V9a3 3 0 0 1 3-3h15"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v2a3 3 0 0 1-3 3H3"/>')
+    + A('lk', t['Total Likes'], 'Likes', '<path d="M12 21s-7-4.4-9.3-8.8C1.2 9.3 2.8 5.5 6.5 5.1c2-.2 3.6.9 4.5 2.4.9-1.5 2.5-2.6 4.5-2.4 3.7.4 5.3 4.2 3.8 7.1C19 16.6 12 21 12 21z"/>')
+    + A('vw', t['Total Views'], 'Views', '<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>')
+    + '<a class="htc-open" href="' + _ngrEsc(url) + '" target="_blank" rel="noopener">Open on X &#8599;</a></div>'
+    + '</article><div class="htc-sent" style="color:' + sc + '"><i style="background:' + sc + '"></i>' + _ngrEsc(sent || '\u2014') + '</div></div>';
+}
+/* "See more" sirf jahan text 3 line se lamba ho (Handle Analytics jaisa) */
+function ngmMore(box) {
+  if (!box) return;
+  box.querySelectorAll('.htc-more').forEach(function (b) {
+    var t = document.getElementById(b.getAttribute('data-t')); if (!t || b.textContent === 'See less') return;
+    var lh = parseFloat(getComputedStyle(t).lineHeight) || 23;
+    t.classList.remove('clamp'); var lines = Math.round(t.getBoundingClientRect().height / lh); t.classList.add('clamp');
+    b.hidden = lines <= 3;
+    b.onclick = function () { var c = t.classList.toggle('clamp'); b.textContent = c ? 'See more' : 'See less'; };
+  });
+}function openLeaderAnalysis(handle, defaultName) {
+  if (!handle) return;
+  var dirV = document.getElementById('ngDirectoryView'), detV = document.getElementById('ngDetailView'), laV = document.getElementById('ngLeaderAnalysisView');
+  var wasLa = laV && laV.style.display !== 'none' && _ngCurrentLeaderHandle;
+  if (!wasLa) _ngLaFrom = (detV && detV.style.display !== 'none' && _ngActiveGroup) ? 'group' : 'dir';
+  var fresh = String(_ngCurrentLeaderHandle || '').toLowerCase() !== String(handle).toLowerCase();
+  _ngCurrentLeaderHandle = handle;
+  if (dirV) dirV.style.display = 'none';
+  if (detV) detV.style.display = 'none';
+  if (laV) laV.style.display = 'block';
+  if (!wasLa || fresh) { try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch (e) { window.scrollTo(0, 0); } }
+  var g = ngmFindGroup(handle); _ngmGroup = g;
+  var lh = String(handle).toLowerCase(), m = g ? (g.leaders || []).filter(function (x) { return String(x.handle || '').toLowerCase() === lh; })[0] : null;
+  var name = m ? m.name : (defaultName || handle);
+  _ngmColor = (g && g.color) || '#E8590C';
+  var set = function (id, v) { var e = document.getElementById(id); if (e) e.textContent = v; };
+  set('ngLaCrumbGroup', g ? g.acronym : 'Group'); set('ngLaCrumbLeader', name);
+  var bb = document.getElementById('ngLaBtnBack'); if (bb) { var sp = bb.querySelector('span'); if (sp) sp.textContent = (_ngLaFrom === 'group' && g) ? 'Back to ' + g.acronym : 'All groups'; }
+  var hero = document.getElementById('ngmHero'); if (hero) hero.style.setProperty('--gc', _ngmColor);
+  var av = document.getElementById('ngmAv'); if (av) av.innerHTML = _ngrImg(m && m.avatar, handle, name);
+  ngdCover(document.getElementById('ngmCover'), [handle].concat(g ? [g.id === 'creators' ? '' : g.handle].concat(g.handles || []) : []));
+  set('ngLaName', name); set('ngLaRole', (m && m.role) || 'Member');
+  var gt = document.getElementById('ngmGroupTag'); if (gt) gt.innerHTML = g ? '<span class="ngm-glg">' + _ngrImg(g.logoUrl, g.id === 'creators' ? '' : g.handle, g.acronym) + '</span>' + _ngrEsc(g.name) : '';
+  var xl = document.getElementById('ngLaXLink'); if (xl) xl.href = 'https://x.com/' + handle;
+  set('ngLaXLinkTxt', '@' + handle);
+  var fill = function (k) {
+    k = k || {}; var tw = +k.totalTweets || 0, per = function (v) { return tw ? Math.round((+v || 0) / tw).toLocaleString('en-IN') + ' per post' : ''; };
+    set('ngLaKpiTw', _ngrFmt(tw)); set('ngLaKpiLk', _ngrFmt(+k.totalLikes || 0)); set('ngLaKpiRt', _ngrFmt(+k.totalRetweets || 0)); set('ngLaKpiVw', _ngrFmt(+k.totalViews || 0)); set('ngmKpiCm', _ngrFmt(+k.totalComments || 0));
+    set('ngmTwSub', ngdRangeLbl()); set('ngmLkSub', per(k.totalLikes)); set('ngmRtSub', per(k.totalRetweets)); set('ngmVwSub', per(k.totalViews)); set('ngmCmSub', per(k.totalComments));
+  };
+  fill(m ? { totalTweets: m.tweets, totalLikes: m.likes, totalRetweets: m.rts, totalViews: m.views } : {});
+  _ngmTL = null; ngmDraw();
+  var sb = document.getElementById('ngLaSentimentBody'); if (sb) sb.innerHTML = ngdToneHtml(null);
+  var eb = document.getElementById('ngLaEngagementBody'); if (eb) eb.innerHTML = '';
+  var tp = document.getElementById('ngmTop'); if (tp) tp.innerHTML = '<div class="ngd-empty0">Loading&hellip;</div>';
+  var rl = document.getElementById('ngLaRecentList'); if (rl) rl.innerHTML = '';
+  var qs = ngdRangeQS(), want = handle;
+  fetch('/api/narrative-groups/leader-analysis/' + encodeURIComponent(handle) + (qs ? '?' + qs : ''), { credentials: 'same-origin', cache: 'no-store' })
+    .then(function (r) { return r.json(); })
+    .then(function (d) {
+      if (_ngCurrentLeaderHandle !== want) return;
+      if (!d || !d.ok) d = { kpis: {}, timeline: [], sentiment: [], recentTweets: [] };
+      var k = d.kpis || {}; fill(k);
+      _ngmTL = d.timeline || []; ngmDraw();
+      var smap = {}; (d.sentiment || []).forEach(function (s) { smap[s._id || 'No-Sentiment'] = (smap[s._id || 'No-Sentiment'] || 0) + (+s.count || 0); });
+      if (sb) sb.innerHTML = ngdToneHtml(smap);
+      var tw = +k.totalTweets || 0, vw = +k.totalViews || 0, best = null;
+      (_ngmTL || []).forEach(function (x) { if (!best || (+x.views || 0) > (+best.views || 0)) best = x; });
+      var row = function (l, v) { return '<div class="ngm-f"><span>' + l + '</span><b>' + v + '</b></div>'; };
+      if (eb) eb.innerHTML = tw ? row('Views per post', _ngrFmt(Math.round(vw / tw))) + row('Likes per post', _ngrFmt(Math.round((+k.totalLikes || 0) / tw)))
+        + row('Engagement rate', vw ? (((+k.totalLikes || 0) + (+k.totalRetweets || 0) + (+k.totalComments || 0)) * 100 / vw).toFixed(2) + '%' : '&mdash;')
+        + row('Active days', (_ngmTL || []).length) + (best ? row('Best day', ngdDay(best._id) + ' · ' + _ngrFmt(+best.views || 0) + ' views') : '')
+        : '<div class="ngd-empty0">No posts in this range</div>';
+      ngmTop7(handle, m, name);
+      var rec = d.recentTweets || [];
+      if (rl) { rl.innerHTML = rec.length ? rec.map(function (t) { return ngmTweetHtml(t, m, name, handle); }).join('') : '<div class="ngd-empty0">No recent posts</div>'; ngmMore(rl); }
+    })
+    .catch(function () { if (tp) tp.innerHTML = '<div class="ngd-empty0">Could not load right now</div>'; if (sb) sb.innerHTML = ngdToneHtml({}); _ngmTL = []; ngmDraw(); });
 }
 window.openLeaderAnalysis = openLeaderAnalysis;
+/* top post: data ke aakhri din se 7 din peeche tak sabse zyada dekha gaya post (date filter se alag, khud badalta rehta hai) */
+function ngmTop7(handle, m, name) {
+  var tp = document.getElementById('ngmTop'), tl = document.getElementById('ngLaTopTweetLink'), win = document.getElementById('ngmTopWin');
+  var D = window.PHD_DATES || window.AD || [], ref = D.length ? String(D[D.length - 1]).slice(0, 10) : '';
+  if (!ref) { var n = new Date(Date.now() + 5.5 * 3600 * 1000); ref = n.toISOString().slice(0, 10); }
+  var r = new Date(ref + 'T00:00:00Z'), f = new Date(r.getTime() - 6 * 86400000), from = f.toISOString().slice(0, 10);
+  if (win) win.textContent = 'last 7 days \u00b7 ' + ngdDay(from) + ' \u2013 ' + ngdDay(ref);
+  fetch('/api/narrative-groups/leader-analysis/' + encodeURIComponent(handle) + '?from=' + from + '&to=' + ref, { credentials: 'same-origin', cache: 'no-store' })
+    .then(function (x) { return x.json(); })
+    .then(function (d) {
+      if (_ngCurrentLeaderHandle !== handle) return;
+      var t = d && d.ok ? d.topTweet : null;
+      if (tl) { tl.href = t && t['Tweet URL'] ? t['Tweet URL'] : 'https://x.com/' + handle; tl.style.visibility = t ? '' : 'hidden'; }
+      if (tp) { tp.innerHTML = t ? ngmTweetHtml(t, m, name, handle) : '<div class="ngd-empty0">No posts in the last 7 days</div>'; ngmMore(tp); }
+    })
+    .catch(function () { if (tp) tp.innerHTML = '<div class="ngd-empty0">Could not load right now</div>'; });
+}
+function closeLeaderAnalysis() {
+  var laV = document.getElementById('ngLeaderAnalysisView'), detV = document.getElementById('ngDetailView');
+  if (laV) laV.style.display = 'none';
+  _ngCurrentLeaderHandle = null;
+  if (_ngLaFrom === 'group' && _ngActiveGroup) { if (detV) detV.style.display = 'block'; try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch (e) {} }
+  else closeNarrativeGroup();
+}
+window.closeLeaderAnalysis = closeLeaderAnalysis;
+window.ngmOpenGroup = function () {
+  if (!_ngmGroup) return;
+  var laV = document.getElementById('ngLeaderAnalysisView'); if (laV) laV.style.display = 'none';
+  _ngCurrentLeaderHandle = null;
+  openNarrativeGroup(_ngmGroup.id);
+  try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch (e) {}
+};
+
 
 function renderLeaderTrendChart(timeline){
   var cv = document.getElementById('ngLaTrendChart');
@@ -18309,7 +18461,7 @@ function loadLeaderComparisonData() {
   if (subEl) subEl.textContent = 'Compare engagement and activity of key leaders within ' + grpName;
 
   var url = '/api/narrative-groups/comparison?group=' + encodeURIComponent(grpId) +
-    '&days=' + encodeURIComponent(_ngCompRange) +
+    (function () { var q = (typeof ngdRangeQS === 'function') ? ngdRangeQS() : ''; return q ? '&' + q : ''; })() +
     '&sentiment=' + encodeURIComponent(_ngCompSentiment);
 
   fetch(url)
@@ -18330,6 +18482,7 @@ function loadLeaderComparisonData() {
 
       (data.leaders || []).forEach(function (l, idx) {
         l.color = l.color || NG_LEADER_COLORS[idx % NG_LEADER_COLORS.length];
+        if (l.handle) l.avatar = '/assets/ng/' + String(l.handle).toLowerCase() + '.jpg';   /* 14-Nov: apni saved X photo */
       });
 
       // Default: top 3 leaders checked
@@ -18792,7 +18945,7 @@ function renderNgMetricsTable() {
 
   var titleEl = document.getElementById('ngCompTableTitle');
   if (titleEl) {
-    var rangeStr = _ngCompRange === 'all' ? 'Full Range' : _ngCompRange === 'today' ? 'Today' : 'Last ' + _ngCompRange + ' Days';
+    var rangeStr = (typeof ngdRangeLbl === 'function') ? ngdRangeLbl() : 'Full Range';   /* 14-Nov: upar wala filter hi range hai */
     var sentStr = _ngCompSentiment !== 'all' ? ' — ' + _ngCompSentiment + ' Sentiment' : '';
     titleEl.textContent = 'Leader-wise Metrics (' + rangeStr + sentStr + ')';
   }
