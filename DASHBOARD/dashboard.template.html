@@ -2733,6 +2733,28 @@ svg#indiaMap{width:100%;height:100%;max-width:100%;max-height:100%;display:block
   color: #FFFFFF;
   border-color: #E65100;
 }
+/* 14-Nov: "Tap to compare" pill -- party rang ka halka pill, hover par bhar jaata hai, teer aage khiskta hai */
+.roster-btn.rc-pill{display:inline-flex;align-items:center;gap:7px;height:30px;padding:0 13px 0 11px;border-radius:999px;white-space:nowrap;
+  border:1px solid color-mix(in srgb,var(--pc,#E65100) 38%,#fff);background:color-mix(in srgb,var(--pc,#E65100) 8%,#fff);
+  color:color-mix(in srgb,var(--pc,#E65100) 82%,#000);font:700 11.5px 'DM Sans',sans-serif;letter-spacing:.01em;
+  transition:background .2s ease,color .2s ease,border-color .2s ease,box-shadow .2s ease}
+.roster-btn.rc-pill svg{width:14px;height:14px;flex:none}
+.roster-btn.rc-pill .rc-go{transition:transform .2s ease}
+.roster-btn.rc-pill:hover,.roster-btn.rc-pill:focus-visible{background:var(--pc,#E65100);border-color:var(--pc,#E65100);color:#fff;
+  box-shadow:0 6px 14px -8px color-mix(in srgb,var(--pc,#E65100) 80%,#000);outline:none}
+.roster-btn.rc-pill:hover .rc-go{transform:translateX(3px)}
+.roster-item.rc-flash{animation:rcFlash 1.6s ease}
+@keyframes rcFlash{0%,40%{background:color-mix(in srgb,var(--pc,#E65100) 12%,#fff);border-color:var(--pc,#E65100)}100%{}}
+/* comparison: wapas directory ka teer -- dibba nahi */
+.pc-back{display:inline-flex;align-items:center;gap:6px;margin:0 0 6px -2px;padding:2px 0;border:0;background:none;cursor:pointer;
+  color:#C2410C;font:600 12px 'DM Sans',sans-serif}
+.pc-back[hidden]{display:none}
+.pc-back svg{width:16px;height:16px;transition:transform .2s ease}
+.pc-back:hover svg{transform:translateX(-3px)}
+.pc-back:hover span{text-decoration:underline;text-underline-offset:3px}
+.leader-card.lc-flash{animation:lcFlash 1.8s ease}
+@keyframes lcFlash{0%{transform:translateY(-4px);box-shadow:0 0 0 4px color-mix(in srgb,var(--accent-color,#E65100) 30%,transparent)}100%{}}
+.comp-chart-empty{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;color:#8A8178;font:500 13px 'DM Sans',sans-serif;pointer-events:none}
 
 /* LEADER COMPARISON CONTROLS & CARDS */
 .comp-header-row {
@@ -6028,6 +6050,8 @@ a.pe-btn:after{content:"";position:absolute;inset:0;z-index:1;background:linear-
     <div id="partySubPanel-leaders" style="display:none">
       <div class="comp-header-row">
         <div class="comp-title-block">
+          <!-- 14-Nov: directory ke "Tap to compare" se aaye hon to wapas usi neta tak le jaane wala teer -->
+          <button type="button" class="pc-back" id="pcBack" hidden onclick="partyCompBack()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg><span>Back to directory</span></button>
           <h3 id="partyCompTitle">Leader Comparison &ndash; BJP</h3>
           <div class="comp-subtitle" id="partyCompSubtitle">Compare engagement and activity of key leaders</div>
         </div>
@@ -6036,11 +6060,11 @@ a.pe-btn:after{content:"";position:absolute;inset:0;z-index:1;background:linear-
           <div class="comp-date-select">
             <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
             <select id="partyCompDateSelect" onchange="onPartyCompDateChange(this.value)">
-              <option value="today" selected>Today</option>
+              <option value="all" selected>Full Range</option>
               <option value="30">Last 30 Days</option>
               <option value="14">Last 14 Days</option>
               <option value="7">Last 7 Days</option>
-              <option value="all">All Time</option>
+              <option value="today">Latest Day</option>
             </select>
           </div>
 
@@ -6051,11 +6075,10 @@ a.pe-btn:after{content:"";position:absolute;inset:0;z-index:1;background:linear-
               <option value="Positive">Positive</option>
               <option value="Negative">Negative</option>
               <option value="Neutral">Neutral</option>
-              <option value="Hope">Hope</option>
-              <option value="Praise">Praise</option>
-              <option value="Fear">Fear</option>
-              <option value="Anger">Anger</option>
-              <option value="Joy">Joy</option>
+              <option value="Pro-BJP">Pro-BJP</option>
+              <option value="Pro-Govt">Pro-Govt</option>
+              <option value="Anti-BJP">Anti-BJP</option>
+              <option value="Anti-Govt">Anti-Govt</option>
             </select>
           </div>
 
@@ -19492,7 +19515,7 @@ window.toggleNgCompLeader = toggleNgCompLeader;
 var _activePartyKey = 'BJP';
 var _partySubTab = 'overview';
 var _partyCompMetric = 'tweets';
-var _partyCompDays = 'today';
+var _partyCompDays = 'all';   /* 14-Nov: default Full Range (pehle 'today' -- chart khaali dikhta tha) */
 var _partyCompSentiment = 'all';
 var _partyCompFreq = 'daily';
 var _partyActiveHandles = [];
@@ -19732,6 +19755,7 @@ function backToPartiesDirectory() {
 
 function switchPartySubTab(tab) {
   _partySubTab = tab;
+  if (typeof _pcFrom !== 'undefined') { _pcFrom = null; var _pb = document.getElementById('pcBack'); if (_pb) _pb.hidden = true; }
   var subtabs = document.querySelectorAll('.party-subtab');
   subtabs.forEach(function(btn) {
     btn.classList.toggle('active', btn.getAttribute('data-sub') === tab);
@@ -19814,11 +19838,13 @@ function renderPartyOverview() {
   var rosterList = document.getElementById('partyRosterList');
   if (rosterList) {
     rosterList.innerHTML = '';
+    rosterList.style.setProperty('--pc', cfg.color || '#E65100');
     var topList = pinnedFirst(handles, PARTY_PINNED[pName]).slice(0, 15);
     topList.forEach(function(l) {
       var _pin = '';   /* 31-Oct: 'Key Leader' badge hata diya */
       var item = document.createElement('div');
       item.className = 'roster-item';
+      item.setAttribute('data-h', String(l.handle).toLowerCase());
       item.innerHTML = '<div class="roster-left">'
         + '<img class="roster-avatar" src="/api/avatar/' + l.handle + '" onerror="this.src=\'https://ui-avatars.com/api/?name=' + encodeURIComponent(l.name) + '&background=' + cfg.color.replace('#','') + '&color=fff&size=64\'">'
         + '<div><div class="roster-name">' + l.name + ' <span style="font-size:10px;font-weight:600;color:#64748B">(' + l.designation + ')</span>' + _pin + '</div>'
@@ -19826,7 +19852,9 @@ function renderPartyOverview() {
         + '<div class="roster-stats"><div>'
         + '<div class="roster-tw">' + fmtF(l.stats.tweets) + ' tw</div>'
         + '<div class="roster-vw">' + fmtF(l.stats.views) + ' views</div></div>'
-        + '<button class="roster-btn" onclick="openComparisonWithLeader(\'' + l.handle + '\')">Compare &rarr;</button></div>';
+        + '<button type="button" class="roster-btn rc-pill" title="Compare ' + String(l.name).replace(/"/g, '&quot;') + ' with the party\'s key leaders" onclick="openComparisonWithLeader(\'' + l.handle + '\')">'
+        + '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19V10"/><path d="M10 19V5"/><path d="M16 19v-7"/><path d="M22 19H2"/></svg>'
+        + 'Tap to compare<svg class="rc-go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg></button></div>';
       rosterList.appendChild(item);
     });
   }
@@ -19985,9 +20013,39 @@ function renderOverviewDonutChart(handles, cfg) {
 }
 
 
+/* 14-Nov: "Tap to compare" -- chuna hua neta + party ke key leaders (akela neta = khaali-sa chart tha).
+   Comparison khulte hi upar sub-tab tak smooth scroll, us neta ka card chamakta hai; "Back to directory"
+   wapas Overview me usi neta ki row tak le jaata hai. */
+var _pcFrom = null, _pcFlash = null;
 function openComparisonWithLeader(handle) {
-  _partyActiveHandles = [String(handle).toLowerCase()];
+  var k = String(handle).toLowerCase(), pName = _activePartyKey;
+  var handles = getPartyHandlesList(pName);
+  var defs = pinnedFirst(handles, PARTY_DEFAULT_COMPARE[pName] || PARTY_PINNED[pName]).slice(0, 4)
+    .map(function (l) { return String(l.handle).toLowerCase(); });
+  var sel = [k];
+  defs.forEach(function (d) { if (sel.length < 4 && sel.indexOf(d) < 0) sel.push(d); });
+  _partyActiveHandles = sel;
+  _pcFlash = k;
   switchPartySubTab('leaders');
+  _pcFrom = { h: k, y: window.scrollY };
+  var b = document.getElementById('pcBack'); if (b) b.hidden = false;
+  var row = document.querySelector('.party-subtabs-row');
+  if (row) {
+    var top = row.getBoundingClientRect().top + window.scrollY - ((parseInt(getComputedStyle(document.documentElement).getPropertyValue('--header-h'), 10) || 70) + 12);
+    window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
+  }
+}
+function partyCompBack() {
+  var from = _pcFrom;
+  switchPartySubTab('overview');
+  if (!from) return;
+  setTimeout(function () {
+    var it = document.querySelector('#partyRosterList .roster-item[data-h="' + from.h + '"]');
+    if (it) {
+      it.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      it.classList.remove('rc-flash'); void it.offsetWidth; it.classList.add('rc-flash');
+    } else window.scrollTo({ top: from.y, behavior: 'smooth' });
+  }, 60);
 }
 
 // =============================================================================
@@ -20013,6 +20071,7 @@ function renderLeaderComparison() {
   }
 
   renderPartyLeaderCardsRow(handles, cfg);
+  _pcFlash = null;
   fetchAndRenderPartyComparisonChart();
 }
 
@@ -20047,6 +20106,7 @@ function renderPartyLeaderCardsRow(handles, cfg) {
 
     var metricVal = fmtF(l.stats[_partyCompMetric] || 0) + ' ' + _partyCompMetric;
 
+    if (_pcFlash && _pcFlash === hKey) { card.classList.add('lc-flash'); }
     card.innerHTML = '<div class="card-chk">'
       + '<svg viewBox="0 0 24 24" fill="none"><polyline points="20 6 9 17 4 12"/></svg></div>'
       + '<img class="card-avatar" src="/api/avatar/' + l.handle + '" onerror="this.src=\'https://ui-avatars.com/api/?name=' + encodeURIComponent(l.name) + '&background=' + cardColor.replace('#','') + '&color=fff&size=64\'">'
@@ -20118,8 +20178,36 @@ function onPartyCompFreqChange(val) {
   fetchAndRenderPartyComparisonChart();
 }
 
+/* 14-Nov: sentiment 'all' ho to graph dashboard ke roz ke hisaab (PHD: har handle ka din-wise tweets / views /
+   likes / reposts) se -- har laptop par aakhri din tak poora, turant, aur cards ke numbers se mel khaata hai.
+   Sentiment chuna ho tabhi tweets wali API (wahi sentiment jaanti hai). Range = data ke aakhri din tak. */
+var _pcPhdIdx = null;
+function partyCompFromPHD(pName) {
+  var P = window.PHD, DD = window.PHD_DATES;
+  if (!P || !DD || !DD.length) return null;
+  if (!_pcPhdIdx || _pcPhdIdx.P !== P) { var m = {}; for (var k in P) m[String(k).toLowerCase()] = k; _pcPhdIdx = { P: P, m: m }; }
+  var n = DD.length, a = 0;
+  if (_partyCompDays === 'today') a = n - 1;
+  else if (_partyCompDays !== 'all') a = Math.max(0, n - (parseInt(_partyCompDays, 10) || n));
+  var dates = DD.slice(a), list = getPartyHandlesList(pName);
+  var leaders = _partyActiveHandles.map(function (hk) {
+    var meta = list.find(function (x) { return String(x.handle).toLowerCase() === hk; }) || { handle: hk, name: hk, designation: 'Leader' };
+    var o = P[_pcPhdIdx.m[hk]] || {};
+    function arr(f) { return dates.map(function (_, i) { return +((o[f] || [])[a + i]) || 0; }); }
+    var tw = arr('t'), vw = arr('v'), lk = arr('k'), rt = arr('r');
+    function sum(x) { return x.reduce(function (s, v) { return s + v; }, 0); }
+    return { handle: meta.handle, name: meta.name, designation: meta.designation, avatar: '/api/avatar/' + meta.handle,
+      stats: { tweets: sum(tw), views: sum(vw), likes: sum(lk), reposts: sum(rt) },
+      timeline: { tweets: tw, views: vw, likes: lk, reposts: rt } };
+  });
+  return { ok: true, party: pName, dates: dates, leaders: leaders, src: 'phd' };
+}
 function fetchAndRenderPartyComparisonChart() {
   var pName = _activePartyKey;
+  if (_partyCompSentiment === 'all') {
+    var pd = null; try { pd = partyCompFromPHD(pName); } catch (e) { console.warn('party comp phd', e); }
+    if (pd) { drawPartyComparisonLineChart(pd); drawPartyComparisonTable(pd); drawPartyComparisonDonut(pd); return; }
+  }
   var handlesParam = _partyActiveHandles.join(',');
   var url = '/api/parties/comparison?party=' + encodeURIComponent(pName)
     + '&handles=' + encodeURIComponent(handlesParam)
@@ -20135,7 +20223,10 @@ function fetchAndRenderPartyComparisonChart() {
       drawPartyComparisonDonut(data);
     })
     .catch(function(err) {
-      console.warn('Comparison API offline, using cached series:', err);
+      /* 14-Nov: banawati (sine) series nahi -- API na mile to saaf khaali graph + sandesh */
+      console.warn('Comparison API offline:', err);
+      drawPartyComparisonLineChart({ ok: true, dates: [], leaders: [] });
+      return;
       var fallbackDates = (window.PHD_DATES && window.PHD_DATES.slice(-14)) || ['2026-10-09','2026-10-10','2026-10-11','2026-10-12','2026-10-13','2026-10-14','2026-10-15','2026-10-16','2026-10-17','2026-10-18','2026-10-19','2026-10-20','2026-10-21','2026-10-22'];
       var partyHandles = getPartyHandlesList(pName);
       var leadersData = _partyActiveHandles.map(function(hKey) {
@@ -20215,6 +20306,7 @@ var partyAvatarPlugin = {
       var pts = meta.data;
       var avatarIdx = assignedPoints[dIdx];
 
+      if (pts.length > 45) return;   /* 14-Nov: lambi range me har din ka gola bheed banata tha */
       pts.forEach(function(element, idx) {
         if (idx === avatarIdx) return;
         ctx.save();
@@ -20277,9 +20369,26 @@ function drawPartyComparisonLineChart(apiData) {
   var leaders = apiData.leaders || [];
   var colors = ['#E65100', '#1D4ED8', '#059669', '#7C3AED', '#E11D48', '#D97706'];
 
+  /* 14-Nov: Daily / Weekly / Monthly sach me lagta hai (pehle select sirf dikhawa tha) + "12 Nov" jaise label */
+  var MOS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  function nice(d) { return (+d.slice(8, 10)) + ' ' + MOS[(+d.slice(5, 7) || 1) - 1]; }
+  var bucket = dates.map(function (d) {
+    if (_partyCompFreq === 'monthly') return d.slice(0, 7);
+    if (_partyCompFreq === 'weekly') { var t = Date.UTC(+d.slice(0, 4), +d.slice(5, 7) - 1, +d.slice(8, 10)), wd = (new Date(t).getUTCDay() + 6) % 7; return new Date(t - wd * 864e5).toISOString().slice(0, 10); }
+    return d;
+  });
+  var keys = []; bucket.forEach(function (b) { if (keys.indexOf(b) < 0) keys.push(b); });
+  var labels = keys.map(function (b) { return _partyCompFreq === 'monthly' ? MOS[(+b.slice(5, 7) || 1) - 1] + ' ' + b.slice(2, 4) : (_partyCompFreq === 'weekly' ? 'Wk ' + nice(b) : nice(b)); });
+  function agg(arr) { var out = keys.map(function () { return 0; }); (arr || []).forEach(function (v, i) { var j = keys.indexOf(bucket[i]); if (j >= 0) out[j] += +v || 0; }); return out; }
+  var anyData = leaders.some(function (l) { return ((l.timeline && l.timeline[_partyCompMetric]) || []).some(function (v) { return +v > 0; }); });
+  var box = canvas.parentNode, em = box.querySelector('.comp-chart-empty');
+  if (!em) { em = document.createElement('div'); em.className = 'comp-chart-empty'; box.appendChild(em); }
+  em.textContent = anyData ? '' : 'No ' + _partyCompMetric + ' in this range for the selected leaders' + (_partyCompSentiment !== 'all' ? ' and sentiment' : '');
+  em.style.display = anyData ? 'none' : 'flex';
+
   var datasets = leaders.map(function(l, idx) {
     var c = colors[idx % colors.length];
-    var seriesData = (l.timeline && l.timeline[_partyCompMetric]) || [];
+    var seriesData = agg((l.timeline && l.timeline[_partyCompMetric]) || []);
 
     var img = new Image();
     img.src = l.avatar;
@@ -20301,7 +20410,7 @@ function drawPartyComparisonLineChart(apiData) {
   _partyCompLineChart = new Chart(ctx, {
     type: 'line',
     data: {
-      labels: dates.map(function(d) { return d.slice(5); }),
+      labels: labels,
       datasets: datasets
     },
     options: {
@@ -20309,8 +20418,8 @@ function drawPartyComparisonLineChart(apiData) {
       maintainAspectRatio: false,
       interaction: { mode: 'index', intersect: false },
       scales: {
-        x: { grid: { color: '#F1F5F9' }, ticks: { font: { size: 10 }, color: '#64748B' } },
-        y: { grid: { color: '#F1F5F9' }, ticks: { font: { size: 10 }, color: '#64748B', callback: function(v) { return fmtF(v); } } }
+        x: { grid: { color: '#F1F5F9' }, ticks: { font: { size: 10 }, color: '#64748B', autoSkip: true, maxTicksLimit: 10, maxRotation: 0 } },
+        y: { beginAtZero: true, grid: { color: '#F1F5F9' }, ticks: { font: { size: 10 }, color: '#64748B', callback: function(v) { return fmtF(v); } } }
       },
       plugins: {
         legend: { display: true, position: 'top', labels: { usePointStyle: true, font: { size: 11, weight: '700' } } },
