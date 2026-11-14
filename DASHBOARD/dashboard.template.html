@@ -467,7 +467,7 @@ th.cf-open .cf-btn{opacity:1;background:rgba(0,0,0,.07)}
 @media(max-width:600px){.cf-pop{min-width:0;width:min(300px,calc(100vw - 20px))}}
 /* ===== table-scroll (10-Oct): har table ka apna scroll ===== */
 :root{--table-max-height:70vh}
-.table-scroll{max-height:var(--table-max-height,70vh);overflow:auto;overscroll-behavior:contain;border-radius:inherit;-webkit-overflow-scrolling:touch;scrollbar-width:thin;scrollbar-color:#d8d2c8 transparent}
+.table-scroll{max-height:var(--table-max-height,70vh);overflow:auto;overscroll-behavior:auto;border-radius:inherit;-webkit-overflow-scrolling:touch;scrollbar-width:thin;scrollbar-color:#d8d2c8 transparent}
 .table-scroll thead th{position:sticky;top:0;z-index:3;background:#f8f6f2;border-bottom:none !important;box-shadow:inset 0 -2px 0 var(--border,#E5E0D8)}
 .table-scroll thead tr:nth-child(2) th{top:34px;z-index:2}
 .table-scroll .cm-table thead th,.table-scroll .htbl thead th{background:#f8f6f2}
@@ -6816,7 +6816,7 @@ a.pe-btn:after{content:"";position:absolute;inset:0;z-index:1;background:linear-
     #sec-narrative-groups .ngd-mhead,#sec-narrative-groups .ngd-m{display:grid;grid-template-columns:22px minmax(150px,1.6fr) repeat(5,minmax(52px,.6fr)) 14px;gap:10px;align-items:center}
     #sec-narrative-groups .ngd-mhead{padding:0 10px 8px;font:700 9.5px 'DM Sans',sans-serif;letter-spacing:.9px;text-transform:uppercase;color:#7A6E63}
     #sec-narrative-groups .ngd-mhead span:nth-child(n+3){text-align:right}
-    #sec-narrative-groups .ngd-mlist{max-height:372px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:#E3D7C8 transparent}
+    #sec-narrative-groups .ngd-mlist{max-height:none;overflow:visible}
     #sec-narrative-groups .ngd-m{width:100%;box-sizing:border-box;margin:0;padding:8px 10px;border:0;border-top:1px solid #F5EFE7;background:none;text-align:left;cursor:pointer;font:inherit;color:inherit;border-radius:0;transition:background .15s}
     #sec-narrative-groups .ngd-m:first-child{border-top:0}
     #sec-narrative-groups .ngd-m:hover,#sec-narrative-groups .ngd-m:focus-visible{background:#FBF7F1;border-radius:10px;outline:0}
@@ -15444,8 +15444,8 @@ setTimeout(hExec,600);
    font, gol kone -- kuch nahi badalta, bas scroll ka vyavhaar judta hai.
 
    * Table par maus/ungli ho to SIRF rows chalti hain, page ruka rehta hai.
-     Table ke ant par pahunch kar aur scroll karo to bhi page nahi khiskta
-     (overscroll-behavior:contain -- scroll page ko "pakadta" nahi).
+     14-Nov: table ke ant par pahunch kar aur scroll karo to ab PAGE aage khiskta hai
+     (pehle overscroll-behavior:contain tha -- maus table par ho to page atak jaata tha).
    * Table ke bahar page pehle jaisa hi chalta hai.
    * Header chipka rehta hai; dayein-bayein bhi usi dibbe me scroll hota hai.
    * Row kam hon to dibba apni asli unchai leta hai -- koi khaali jagah nahi,
