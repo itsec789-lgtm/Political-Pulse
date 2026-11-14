@@ -8087,8 +8087,11 @@ a.pe-btn:after{content:"";position:absolute;inset:0;z-index:1;background:linear-
   @media (prefers-reduced-motion:reduce){.cp-panel{animation:none}.cp-card{transition:none}}
   /* 14-Nov: chune metric ka analysis alag panel nahi -- Content Performance ke andar hi (kesariya kinara / dibba nahi);
      andar ke weekday aur day-by-day dibbe waise hi */
-  .cp-panel{margin-top:20px;padding:18px 0 0;border:0;border-top:1px solid #F1EAE1;border-radius:0;background:none;box-shadow:none}
-  @media (max-width:700px){.cp-panel{padding:14px 0 0}}
+  .cp-panel{margin-top:22px;padding:0;border:0;border-radius:0;background:none;box-shadow:none}
+  /* heading: saadi sundar line -- '<metric> day by day', metric kesariya (uppercase chhote akshar nahi) */
+  .cp-pl{font:700 17px 'DM Sans',sans-serif;letter-spacing:-.2px;text-transform:none;color:#17120E}
+  .cp-pl em{font-style:normal;color:#C2410C}
+  @media (max-width:700px){.cp-panel{padding:0}}
   </style>
   <div class="ha-card ha-coll" data-key="content">
     <div class="ha-stitle" role="button" tabindex="0" aria-expanded="true">Content Performance <span class="ha-chint">click to collapse</span><span class="ha-cchev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg></span></div>
@@ -13692,7 +13695,7 @@ setTimeout(hExec,600);
     }
     var rng = st.span ? (U.nice(L[0], L[0].slice(0, 4) !== L[st.n - 1].slice(0, 4)) + ' – ' + U.nice(L[st.n - 1], true)) : '—';
     p.innerHTML = '<div class="cp-panel">'
-      + '<div class="cp-ph"><div><div class="cp-pl">' + m.t + ' · daily analysis</div>'
+      + '<div class="cp-ph"><div><div class="cp-pl"><em>' + m.t + '</em> day by day</div>'
       + '<div class="cp-pv">' + U.full(st.tot) + '<small>total ' + m.u + '</small></div>'
       + '<div class="cp-pr">' + esc(rng) + ' · ' + dd(st.n) + ' with data'
       + (st.gap > 0 ? '<span class="cp-gap" title="No tweets of this handle were collected on these days, so they are left out of every average (not counted as zero).">' + dd(st.gap) + ' not collected</span>' : '') + '</div></div>'
