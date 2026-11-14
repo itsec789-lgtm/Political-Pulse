@@ -32,7 +32,8 @@ const crypto = require('crypto');
 
 const app = express();
 app.use(express.urlencoded({ extended: false }));
-app.use('/assets', express.static(path.join(__dirname, 'assets')));
+/* perf (14-Nov): photos / logos browser me 1 din cache -- har page khulne par dobara poochhna band */
+app.use('/assets', express.static(path.join(__dirname, 'assets'), { maxAge: '1d' }));
 
 /* ---------- GZIP ----------
  * Dashboard ka HTML ~6 MB ka hai (saara data usi me bake hota hai).
@@ -4498,6 +4499,49 @@ async function trWarm() {
 }
 setTimeout(function () { trWarm(); setInterval(trWarm, 20 * 60 * 1000); }, 20000);
 
+/* perf-warm (14-Nov): dashboard / sections khulte hi jo API bulaate hain unke server-cache pehle se garam --
+   pehli request bhi turant. Route ka apna handler hi chalta hai (nakli req/res) -- koi naya hisaab nahi. */
+function apiCall(p, query) {
+  return new Promise(function (resolve) {
+    try {
+      var L = (app._router && app._router.stack || []).filter(function (l) { return l.route && l.route.path === p && l.route.methods.get; })[0];
+      if (!L) return resolve(false);
+      var hs = L.route.stack, h = hs[hs.length - 1].handle;
+      var done = false, fin = function () { if (!done) { done = true; resolve(true); } };
+      var res = { statusCode: 200, headersSent: false, set: function () { return res; }, setHeader: function () {}, getHeader: function () {},
+        removeHeader: function () {}, status: function () { return res; }, type: function () { return res; },
+        json: fin, send: fin, end: fin, redirect: fin };
+      var req = { query: query || {}, params: {}, headers: {}, cookies: {}, role: 'admin', get: function () { return ''; } };
+      Promise.resolve(h(req, res, fin)).catch(fin);
+      setTimeout(fin, 120000);
+    } catch (e) { resolve(false); }
+  });
+}
+var API_WARM = [
+  ['/api/eng-daily', { scope: 'all' }],
+  ['/api/narrative-groups/stance', { days: '7' }],
+  ['/api/news', { scope: 'all', tab: 'national', cat: 'All', sort: 'latest', limit: '30', skip: '0' }]
+];
+async function apiWarm() {
+  /* Narrative Groups: har group ka page (Full Range) bhi */
+  try {
+    JSON.parse(fs.readFileSync(path.join(__dirname, 'data', 'narrative_groups_config.json'), 'utf8')).forEach(function (g) {
+      if (g && g.id && !API_WARM.some(function (w) { return w[1].group === g.id; })) API_WARM.push(['/api/narrative-groups/comparison', { group: g.id }]);
+    });
+  } catch (e) {}
+  for (var i = 0; i < API_WARM.length; i++) {
+    var t0 = Date.now();
+    try { await apiCall(API_WARM[i][0], API_WARM[i][1]); } catch (e) {}
+    if (Date.now() - t0 > 3000) console.log('  [warm] ' + API_WARM[i][0] + ' ' + (Date.now() - t0) + ' ms');
+  }
+}
+/* har 2 min -- cache taaza ho to ye sirf cache padhta hai (sasta); khatam hone ke turant baad naya bana deta hai */
+var _apiWarmBusy = false;
+if (!NO_JOBS) setTimeout(function () {
+  var run = function () { if (_apiWarmBusy) return; _apiWarmBusy = true; apiWarm().finally(function () { _apiWarmBusy = false; }); };
+  run(); setInterval(run, 2 * 60 * 1000);
+}, 12000);
+
 /* ---- AI assistant (right-bottom wala chat) ----
    Wahi free Groq key jo reports ka AI use karta hai (ai_config.json).
    Model ko RAW TWEET nahi bheje jaate -- sirf apne hi gine hue aankde,
@@ -4815,8 +4859,14 @@ app.get('/api/narrative-groups/stance', async function (req, res) {
 });
 
 // ---------- Narrative Groups: LIVE MongoDB Leader Comparison Endpoint ----------
+var _ngCmpCache = new Map();   /* perf (14-Nov): group page ka data 5 min cache + server khulte hi sab groups garam */
 app.get('/api/narrative-groups/comparison', async function (req, res) {
   res.set('Cache-Control', 'no-store');
+  var _ck = ['group', 'from', 'to', 'days', 'sentiment'].map(function (k) { return String(req.query[k] || ''); }).join('|').toLowerCase();
+  var _ch = _ngCmpCache.get(_ck);
+  if (_ch && Date.now() - _ch.at < 300000 && !req._warm) return res.json(_ch.v);
+  var _json = res.json.bind(res);
+  res.json = function (v) { if (v && v.ok !== false) { _ngCmpCache.set(_ck, { at: Date.now(), v: v }); if (_ngCmpCache.size > 80) _ngCmpCache.delete(_ngCmpCache.keys().next().value); } return _json(v); };
   try {
     var groupId = String(req.query.group || 'cjp').trim().toLowerCase();
     var cfgPath = path.join(__dirname, 'data', 'narrative_groups_config.json');
@@ -5368,6 +5418,7 @@ async function plResolve(p, full) {
    X se taaza), image ek baar laakar pulse_master.party_covers me (7 din); na mile to 1 din dobara nahi.
    Na mile to 404 -- page tab party ke netaon ki photo / rang wala banner dikhata hai. */
 var _pcBusy = new Map();
+var _imgMem = new Map();   /* perf (14-Nov): party logo / banner ki image memory me (6 ghante) -- har request par Mongo nahi */
 async function pcResolve(h) {
   var pr = await haProfile(h, false);
   var cv = pr && pr.prof && pr.prof.cover;
@@ -5382,6 +5433,11 @@ app.get('/api/party-cover', dashGuard, async function (req, res) {
   var qh = String(req.query.h || '').replace(/^@/, '').trim();
   var h = /^\w{1,15}$/.test(qh) ? qh : plOfficial(p);
   if (!h || PL_NONE[p]) return res.status(404).end();
+  var mk = 'cv|' + h.toLowerCase(), mh = _imgMem.get(mk);   /* perf: memory se turant (Mongo connect nahi) */
+  if (mh && Date.now() - mh.at < 6 * 3600e3) {
+    if (!mh.buf) return res.status(404).set('Cache-Control', 'private, max-age=3600').end();
+    return res.set('Content-Type', mh.ct).set('Cache-Control', 'private, max-age=86400').send(mh.buf);
+  }
   try {
     var cli = MP.client(); await cli.connect();
     try {
@@ -5399,8 +5455,9 @@ app.get('/api/party-cover', dashGuard, async function (req, res) {
         else doc = { _id: id, none: true, at: new Date() };
         await coll.replaceOne({ _id: id }, doc, { upsert: true });
       }
-      if (!doc || doc.none || !doc.data) return res.status(404).set('Cache-Control', 'private, max-age=3600').end();
+      if (!doc || doc.none || !doc.data) { _imgMem.set(mk, { at: Date.now(), buf: null }); return res.status(404).set('Cache-Control', 'private, max-age=3600').end(); }
       var buf = Buffer.isBuffer(doc.data) ? doc.data : Buffer.from(doc.data.buffer || doc.data);
+      _imgMem.set(mk, { at: Date.now(), buf: buf, ct: doc.ct || 'image/jpeg' });
       res.set('Content-Type', doc.ct || 'image/jpeg').set('Cache-Control', 'private, max-age=86400').send(buf);
     } finally { try { await cli.close(); } catch (e) {} }
   } catch (e) {
@@ -5412,6 +5469,11 @@ app.get('/api/party-logo', dashGuard, async function (req, res) {
   var p = String(req.query.p || '').trim().toUpperCase().slice(0, 40);
   var full = String(req.query.n || '').trim().slice(0, 120);
   if (!p || PL_NONE[p]) return res.status(404).end();
+  var mk = 'lg|' + p, mh = _imgMem.get(mk);   /* perf: memory se turant (Mongo connect nahi) */
+  if (mh && Date.now() - mh.at < 6 * 3600e3) {
+    if (!mh.buf) return res.status(404).set('Cache-Control', 'private, max-age=3600').end();
+    return res.set('Content-Type', mh.ct).set('Cache-Control', 'private, max-age=86400').send(mh.buf);
+  }
   try {
     var cli = MP.client(); await cli.connect();
     try {
@@ -5433,8 +5495,9 @@ app.get('/api/party-logo', dashGuard, async function (req, res) {
         }
         await coll.replaceOne({ _id: p }, doc, { upsert: true });
       }
-      if (!doc || doc.none || !doc.data) return res.status(404).set('Cache-Control', 'private, max-age=3600').end();
+      if (!doc || doc.none || !doc.data) { _imgMem.set(mk, { at: Date.now(), buf: null }); return res.status(404).set('Cache-Control', 'private, max-age=3600').end(); }
       var buf = Buffer.isBuffer(doc.data) ? doc.data : Buffer.from(doc.data.buffer || doc.data);
+      _imgMem.set(mk, { at: Date.now(), buf: buf, ct: doc.ct || 'image/jpeg' });
       res.set('Content-Type', doc.ct || 'image/jpeg').set('Cache-Control', 'private, max-age=86400').send(buf);
     } finally { try { await cli.close(); } catch (e) {} }
   } catch (e) {
@@ -5443,38 +5506,178 @@ app.get('/api/party-logo', dashGuard, async function (req, res) {
   }
 });
 
+/* perf-avatar (14-Nov): photo turant --
+   1) cache disk par (data/avatar_cache.json) -- restart ke baad bhi; x_profiles (Handle Analytics ki saved photos) se bhi bhara
+   2) cache me na ho to X se dhoondhna PEECHE chalta hai; jawab max 1.2 s me -- tab tak naam ke akshar wali apni SVG
+      (bahar ki ui-avatars.com site nahi), 10 min cache; agli baar asli photo
+   3) ek saath max 4 dhoondh, ek handle ek hi baar
+   4) asli photo ka redirect browser me 1 din cache */
+var _avDisk = path.join(__dirname, 'data', 'avatar_cache.json'), _avSaveT = null;
+try {
+  var _avd = JSON.parse(fs.readFileSync(_avDisk, 'utf8'));
+  Object.keys(_avd).forEach(function (k) { if (_avd[k] && _avd[k].url && !_avatarCache[k]) _avatarCache[k] = _avd[k]; });
+} catch (e) {}
+function avSave() {
+  clearTimeout(_avSaveT);
+  _avSaveT = setTimeout(function () {
+    try {
+      var o = {}; Object.keys(_avatarCache).forEach(function (k) { var v = _avatarCache[k]; if (v && v.url) o[k] = { url: v.url, expires: v.expires, ct: v.ct, got: v.got }; });
+      fs.writeFile(_avDisk, JSON.stringify(o), function () {});
+    } catch (e) {}
+  }, 5000);
+}
+setTimeout(async function avSeed() {   /* Handle Analytics ki saved X profile photos */
+  try {
+    var cli = MP.client(); await cli.connect();
+    try {
+      var rows = await cli.db(MASTER_DB).collection('x_profiles').find({ image: { $regex: '^https://pbs\\.twimg\\.com/' } }, { projection: { image: 1 } }).toArray();
+      var n = 0;
+      rows.forEach(function (r) {
+        var k = String(r._id || '').toLowerCase(); if (!k) return;
+        var c = _avatarCache[k];
+        if (!c || !c.url || c.expires < Date.now()) { _avatarCache[k] = { url: String(r.image).replace('_normal.', '_400x400.'), expires: Date.now() + 7 * 864e5 }; n++; }
+      });
+      if (n) { avSave(); console.log('  [avatar] ' + n + ' photos from x_profiles'); }
+    } finally { try { await cli.close(); } catch (e) {} }
+  } catch (e) {}
+}, 8000);
+var _avBusy = new Map(), _avQ = [], _avRun = 0, _avMiss = new Map();
+function avFetch(handle) {
+  var lk = handle.toLowerCase();
+  if (_avBusy.has(lk)) return _avBusy.get(lk);
+  var p = new Promise(function (resolve) { _avQ.push({ h: handle, done: resolve }); avPump(); }).then(function (u) {
+    _avBusy.delete(lk);
+    if (u) { _avatarCache[lk] = { url: u, expires: Date.now() + 864e5 * 7 }; _avMiss.delete(lk); avSave(); }
+    else _avMiss.set(lk, Date.now());
+    return u;
+  });
+  _avBusy.set(lk, p);
+  return p;
+}
+function avPump() {
+  while (_avRun < 4 && _avQ.length) {
+    var j = _avQ.shift(); _avRun++;
+    scrapeXAvatarLive(j.h).catch(function () { return null; }).then((function (jj) { return function (u) { _avRun--; jj.done(u); avPump(); }; })(j));
+  }
+}
+var AV_COL = ['#C2410C', '#0D47A1', '#2E7D32', '#6A1B9A', '#AD1457', '#00838F', '#5D4037', '#B45309'];
+function avSvg(handle) {
+  var s = String(handle || '?').replace(/[^A-Za-z0-9]/g, ''), ini = (s.charAt(0) || '?').toUpperCase(), h = 0;
+  for (var i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0;
+  return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" fill="' + AV_COL[h % AV_COL.length]
+    + '"/><text x="32" y="42" text-anchor="middle" font-family="Arial,sans-serif" font-size="28" font-weight="700" fill="#fff">' + ini + '</text></svg>';
+}
+/* perf-avatar v2 (14-Nov): photo SERVER KI DISK se -- data/avatars/<handle>.img. Browser ko X (pbs.twimg.com)
+   par nirbhar nahi rehna padta (dheema / block / photo badli -> 404). Ek baar download, phir hamesha apne paas se.
+   Server khulte hi aur har 6 ghante jaani-pehchaani sab photos peeche-peeche download (avDownloadAll). */
+var AV_DIR = path.join(__dirname, 'data', 'avatars');
+try { fs.mkdirSync(AV_DIR, { recursive: true }); } catch (e) {}
+function avFile(lk) { return path.join(AV_DIR, lk.replace(/[^a-z0-9_]/g, '_') + '.img'); }
+var _avDl = new Map();
+function avBytes(lk, url) {
+  if (_avDl.has(lk)) return _avDl.get(lk);
+  var p = (async function () {
+    try {
+      var r = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0' }, signal: AbortSignal.timeout(6000) });
+      var ct = r.headers.get('content-type') || '';
+      if (!r.ok || !/^image\//.test(ct)) {
+        if (r.status === 404 || r.status === 403) { var c = _avatarCache[lk]; if (c) c.expires = 0; _avMiss.delete(lk); }   /* photo badli -- agli baar naya url */
+        return null;
+      }
+      var buf = Buffer.from(await r.arrayBuffer());
+      if (!buf.length || buf.length > 3e6) return null;
+      await fs.promises.writeFile(avFile(lk), buf);
+      var e = _avatarCache[lk] || (_avatarCache[lk] = { url: url, expires: Date.now() + 7 * 864e5 });
+      e.ct = ct; e.got = Date.now(); avSave();
+      return { buf: buf, ct: ct };
+    } catch (err) { return null; }
+    finally { _avDl.delete(lk); }
+  })();
+  _avDl.set(lk, p);
+  return p;
+}
+function avOnDisk(lk) {
+  var c = _avatarCache[lk];
+  if (!c || !c.got || Date.now() - c.got > 14 * 864e5) return null;
+  try { var st = fs.statSync(avFile(lk)); if (st.size > 0) return c; } catch (e) {}
+  return null;
+}
+/* hamare folder ki photo (case-insensitive naam) -- assets/ng/<h>.jpg, assets/leaders/<h>.webp */
+var _avOwnIdx = null;
+function avOwn(lk) {
+  if (!_avOwnIdx) {
+    _avOwnIdx = {};
+    [['ng', /^(?!b_).+\.(jpe?g|png|webp)$/i], ['leaders', /\.(webp|png|jpe?g)$/i]].forEach(function (d) {
+      try { fs.readdirSync(path.join(__dirname, 'assets', d[0])).forEach(function (f) {
+        if (!d[1].test(f)) return; var k = f.replace(/\.[^.]+$/, '').toLowerCase(); if (!_avOwnIdx[k]) _avOwnIdx[k] = path.join(__dirname, 'assets', d[0], f); }); } catch (e) {}
+    });
+  }
+  return _avOwnIdx[lk] || null;
+}
+var _avAllBusy = false;
+async function avDownloadAll() {
+  if (_avAllBusy) return; _avAllBusy = true;
+  try {
+    var todo = Object.keys(_avatarCache).filter(function (k) { var c = _avatarCache[k]; return c && c.url && !avOnDisk(k); });
+    var i = 0, n = 0;
+    async function worker() {
+      while (i < todo.length) {
+        var k = todo[i++];
+        var got = await avBytes(k, _avatarCache[k].url);
+        if (got) n++;
+        await new Promise(function (r) { setTimeout(r, 120); });
+      }
+    }
+    await Promise.all([worker(), worker(), worker()]);
+    if (n) console.log('  [avatar] ' + n + ' photos saved to disk (' + todo.length + ' tried)');
+  } finally { _avAllBusy = false; }
+}
+if (!NO_JOBS) setTimeout(function () { avDownloadAll(); setInterval(avDownloadAll, 6 * 3600e3); }, 30000);
+
 app.get('/api/avatar/:handle', async function (req, res) {
   var handle = String(req.params.handle || '').trim().replace(/^@/, '');
   var lk = handle.toLowerCase();
-  if (!handle) {
-    return res.redirect(302, 'https://ui-avatars.com/api/?name=X&background=EA580C&color=fff&size=128');
+  var json = req.query.json === '1';
+  function initials(maxAge) {
+    if (json) return res.json({ ok: false, handle: handle, avatar: '', fallback: true });
+    /* X se photo na mile to hamari apni photo (assets/ng ya assets/leaders) -- akshar se pehle */
+    var own = avOwn(lk);
+    if (own) return res.set('Cache-Control', 'private, max-age=86400').sendFile(own, function (err) {
+      if (err && !res.headersSent) res.set('Content-Type', 'image/svg+xml').send(avSvg(handle)); });
+    res.set('Content-Type', 'image/svg+xml').set('Cache-Control', 'private, max-age=' + (maxAge || 600)).send(avSvg(handle));
   }
+  function disk(c) {
+    res.set('Content-Type', c.ct || 'image/jpeg').set('Cache-Control', 'private, max-age=86400');
+    return res.sendFile(avFile(lk), function (err) { if (err && !res.headersSent) initials(600); });
+  }
+  async function photo(u, fresh) {
+    if (json) return res.json({ ok: true, handle: handle, avatar: u, cached: !fresh });
+    /* disk par nahi -- server khud laata hai (max 2.5 s), warna browser ko X ka link (download peeche chalta rehta hai) */
+    var got = await Promise.race([avBytes(lk, u), new Promise(function (r) { setTimeout(function () { r(null); }, 2500); })]);
+    if (got) return res.set('Content-Type', got.ct).set('Cache-Control', 'private, max-age=86400').send(got.buf);
+    res.set('Cache-Control', 'private, max-age=600');
+    return res.redirect(302, u);
+  }
+  if (!handle) return initials(86400);
 
-  // 1. Check in-memory cache
+  // 0. server ki disk par -- sabse tez
+  var dc = !json && avOnDisk(lk);
+  if (dc) return disk(dc);
+
+  // 1. cache (memory + disk + x_profiles)
   var cached = _avatarCache[lk];
-  if (cached && cached.url && cached.expires > Date.now()) {
-    if (req.query.json === '1') {
-      return res.json({ ok: true, handle: handle, avatar: cached.url, cached: true });
-    }
-    return res.redirect(302, cached.url);
-  }
+  if (cached && cached.url && cached.expires > Date.now()) return photo(cached.url, false);
 
-  // 2. Live scrape from X
-  var liveUrl = await scrapeXAvatarLive(handle);
-  if (liveUrl) {
-    _avatarCache[lk] = { url: liveUrl, expires: Date.now() + 86400000 * 3 };
-    if (req.query.json === '1') {
-      return res.json({ ok: true, handle: handle, avatar: liveUrl, cached: false });
-    }
-    return res.redirect(302, liveUrl);
-  }
+  // pichhle 6 ghante me X par nahi mili -- dobara dhoondhne me waqt mat gawao (purani mili ho to wahi)
+  var miss = _avMiss.get(lk);
+  if (miss && Date.now() - miss < 6 * 3600e3) return cached && cached.url ? photo(cached.url, false) : initials(3600);
 
-  // 3. Fallback to initials avatar
-  var fallback = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(handle) + '&background=EA580C&color=fff&size=128';
-  if (req.query.json === '1') {
-    return res.json({ ok: false, handle: handle, avatar: fallback, fallback: true });
-  }
-  return res.redirect(302, fallback);
+  // 2. X se dhoondh -- peeche; 1.2 s me mil gayi to wahi, warna abhi ke liye akshar / purani photo
+  var job = avFetch(handle);
+  var u = await Promise.race([job, new Promise(function (r) { setTimeout(function () { r(null); }, 1200); })]);
+  if (u) return photo(u, true);
+  if (cached && cached.url) return photo(cached.url, false);
+  return initials(600);
 });
 
 // ---------- Report tab: ALL-INDIA + Media/Journalist, LIVE MongoDB query ----------

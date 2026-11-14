@@ -67,3 +67,7 @@ server audit political pulse.pdf
 UPDATE_*/config/
 UPDATE_*/mongo/
 UPDATE_*/update_log.txt
+
+# perf (14-Nov): server ki apni photo cache -- har machine par khud banti hai
+DASHBOARD/data/avatars/
+DASHBOARD/data/avatar_cache.json
