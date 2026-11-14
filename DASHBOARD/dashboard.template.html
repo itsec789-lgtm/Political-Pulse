@@ -4131,9 +4131,70 @@ td.leg-g0{color:#B5A898}
 #sec-mla-tracker .leg-tbl tbody tr:hover td{background:rgba(255,255,255,.8)}
 #sec-mla-tracker .leg-tbl tbody tr:hover td:first-child{border-radius:12px 0 0 12px}
 #sec-mla-tracker .leg-tbl tbody tr:hover td:last-child{border-radius:0 12px 12px 0}
+/* 14-Nov: table poori chaudai me fit -- daayen-baayen slide nahi (fixed layout, colgroup); Avg views + likes ek 'Per post' khaane me;
+   aakhri khaane me teer; row tap = profile card */
+#sec-mla-tracker .leg-tbl{table-layout:fixed;width:100%}
+#sec-mla-tracker .leg-tbl col.c-n{width:42px}#sec-mla-tracker .leg-tbl col.c-loc{width:12%}#sec-mla-tracker .leg-tbl col.c-pty{width:58px}
+#sec-mla-tracker .leg-tbl col.c-role{width:15%}#sec-mla-tracker .leg-tbl col.c-num{width:8%}#sec-mla-tracker .leg-tbl col.c-tw{width:6%}#sec-mla-tracker .leg-tbl col.c-go{width:34px}
+#sec-mla-tracker .leg-tbl thead th{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#5E5148}
+#sec-mla-tracker .leg-tbl td{overflow:hidden}
+#sec-mla-tracker .leg-who,#sec-mla-tracker .leg-loc,#sec-mla-tracker .leg-role,#sec-mla-tracker .leg-party{min-width:0;max-width:none}
+#sec-mla-tracker .leg-nm{overflow:hidden}
+#sec-mla-tracker .leg-nm b,#sec-mla-tracker .leg-nm small,#sec-mla-tracker .leg-loc b,#sec-mla-tracker .leg-loc small{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#sec-mla-tracker .leg-role b{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+#sec-mla-tracker .leg-pp{display:flex;flex-direction:column;align-items:flex-end;line-height:1.25}
+#sec-mla-tracker .leg-pp b{font:600 12px 'DM Sans',sans-serif;color:#2A221C;font-variant-numeric:tabular-nums}
+#sec-mla-tracker .leg-pp small{font-size:10px;color:#9A8B7B;white-space:nowrap}
+#sec-mla-tracker .leg-tbl tr.leg-row{cursor:pointer}
+#sec-mla-tracker .leg-tbl tr.leg-row:focus-visible{outline:2px solid rgba(232,89,12,.5);outline-offset:-2px}
+#sec-mla-tracker .leg-tbl td.leg-go{padding-left:0;padding-right:10px;text-align:right;color:#C9B8A6}
+#sec-mla-tracker .leg-tbl td.leg-go svg{width:16px;height:16px;vertical-align:middle;transition:transform .2s,color .2s}
+#sec-mla-tracker .leg-tbl tr.leg-row:hover td.leg-go,#sec-mla-tracker .leg-tbl tr.leg-row:focus-visible td.leg-go{color:#E8590C}
+#sec-mla-tracker .leg-tbl tr.leg-row:hover td.leg-go svg{transform:translateX(3px)}
+#sec-mla-tracker .leg-tbl tr.leg-row:hover .leg-nm b{color:#C2410C}
+/* chhoti screen (laptop 1100-1250): khaane thode kase, heading 2 line me aa sakti hai -- phir bhi slide nahi */
+@media(max-width:1280px){#sec-mla-tracker .leg-tbl col.c-n{width:34px}#sec-mla-tracker .leg-tbl col.c-pty{width:48px}#sec-mla-tracker .leg-tbl col.c-go{width:24px}
+  #sec-mla-tracker .leg-tbl col.c-loc{width:11%}#sec-mla-tracker .leg-tbl col.c-role{width:13.5%}#sec-mla-tracker .leg-tbl col.c-num{width:7.4%}#sec-mla-tracker .leg-tbl col.c-tw{width:5.6%}
+  #sec-mla-tracker .leg-tbl td{padding:9px 6px}#sec-mla-tracker .leg-tbl thead th{padding:10px 6px;font-size:11px;white-space:normal;line-height:1.2;vertical-align:bottom}
+  #sec-mla-tracker .leg-tbl .nv,#sec-mla-tracker .leg-pp b{font-size:11.5px}#sec-mla-tracker .leg-av{width:30px;height:30px}#sec-mla-tracker .leg-who{gap:8px}
+  #sec-mla-tracker .leg-nm b{font-size:12px}#sec-mla-tracker .leg-role b{font-size:11.5px}#sec-mla-tracker .leg-tbl td.leg-go{padding-right:4px}}
+@media(max-width:1000px){#sec-mla-tracker .leg-tbl{min-width:900px}}
 #sec-mla-tracker .leg-tbl th.is-sorted{color:#C2410C}
-#sec-mla-tracker .mla-pager{margin-top:12px}
+#sec-mla-tracker .mla-pager{margin-top:6px;padding:14px 10px 4px;border-top:1px solid rgba(60,30,10,.08)}
+#sec-mla-tracker .leg-box{scroll-margin-top:96px}
+#sec-mla-tracker .mla-info{font:500 12.5px 'DM Sans',sans-serif;color:#8A7B6C}
+#sec-mla-tracker .mla-info b{font-weight:700;color:#2A221C;font-variant-numeric:tabular-nums}
+#sec-mla-tracker .mla-pages{gap:6px}
+#sec-mla-tracker .mla-pg{min-width:34px;height:34px;padding:0 10px;border:1px solid #E6DED3;border-radius:10px;background:#fff;color:#3A2E25;
+  font:600 12.5px 'DM Sans',sans-serif;font-variant-numeric:tabular-nums;box-shadow:none;transition:border-color .15s,color .15s,background .15s}
+#sec-mla-tracker .mla-pg:hover{border-color:#E8590C;color:#C2410C;background:#FFF8F2}
+#sec-mla-tracker .mla-pg.active{background:#E8590C;border-color:#E8590C;color:#fff;box-shadow:0 6px 14px -8px rgba(232,89,12,.8)}
+#sec-mla-tracker .mla-pg.mla-ar{padding:0;width:34px}
+#sec-mla-tracker .mla-pg.mla-ar svg{width:16px;height:16px}
+#sec-mla-tracker .mla-pg.disabled{opacity:.35}
+#sec-mla-tracker .mla-pg.dots{border:0;background:none;min-width:16px;padding:0;color:#A8998A}
+#sec-mla-tracker .mla-pg:focus-visible{outline:2px solid rgba(232,89,12,.5);outline-offset:2px}
+#sec-mla-tracker .mla-jump{display:inline-flex;align-items:center;gap:6px;margin-left:10px;padding-left:12px;border-left:1px solid #E6DED3;font:500 12.5px 'DM Sans',sans-serif;color:#8A7B6C}
+#sec-mla-tracker .mla-jump input{width:52px;height:34px;box-sizing:border-box;padding:0 6px;border:1px solid #E6DED3;border-radius:10px;background:#fff;text-align:center;
+  font:600 12.5px 'DM Sans',sans-serif;color:#17120E;-moz-appearance:textfield}
+#sec-mla-tracker .mla-jump input::-webkit-inner-spin-button,#sec-mla-tracker .mla-jump input::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+#sec-mla-tracker .mla-jump input:focus{border-color:#E8590C;outline:0;box-shadow:0 0 0 3px rgba(232,89,12,.12)}
+@media(max-width:600px){#sec-mla-tracker .mla-pager{justify-content:center}#sec-mla-tracker .mla-jump{display:none}}
 @media(max-width:600px){#sec-mla-tracker .lg-panel{padding:14px 12px 12px;border-radius:16px}#sec-mla-tracker .mla-input{max-width:none;flex:1 1 100%}}
+/* 14-Nov: Elected reps filter -- States & CM jaisa: search me icon, ek jaise dabbe, text Reset, range wali line nahi, dates sirf Custom par */
+#sec-mla-tracker .mla-search{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+#sec-mla-tracker .lg-sbox{position:relative;flex:1 1 180px;min-width:170px;max-width:320px;display:block}
+#sec-mla-tracker .lg-sbox svg{position:absolute;left:12px;top:50%;width:15px;height:15px;transform:translateY(-50%);color:#A8998A;pointer-events:none}
+#sec-mla-tracker .lg-sbox .mla-input{box-sizing:border-box;width:100%;max-width:none;height:36px;padding:0 12px 0 34px;font:500 12.5px 'DM Sans',sans-serif;color:#17120E}
+#sec-mla-tracker .lg-sbox .mla-input::placeholder{color:#A8998A}
+#sec-mla-tracker .mla-search select.filter-select{box-sizing:border-box;height:36px;min-width:0!important;width:128px;padding:0 24px 0 11px;margin:0;font:500 12.5px 'DM Sans',sans-serif;color:#17120E;text-overflow:ellipsis}
+#sec-mla-tracker .mla-search #mlaStateFilter{width:150px}
+#sec-mla-tracker .mla-search select.filter-select{-webkit-appearance:none;appearance:none;background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%237A6E63' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 10px center;padding-right:28px}
+#sec-mla-tracker .mla-search input[type=date].filter-select{box-sizing:border-box;height:36px;min-width:0!important;width:138px;padding:0 10px;margin:0;font:500 12.5px 'DM Sans',sans-serif}
+#sec-mla-tracker .mla-search .pf-reset{margin-left:2px}
+#sec-mla-tracker .mla-search:not(.is-custom) #mlaFrom,#sec-mla-tracker .mla-search:not(.is-custom) #mlaTo{display:none!important}
+#mlaRangeNote{display:none!important}
+@media(max-width:600px){#sec-mla-tracker .lg-sbox{max-width:none;flex-basis:100%}#sec-mla-tracker .mla-search select.filter-select{flex:1 1 140px}}
 body.ui-capture .ui-jump2{display:none!important}
 
 @media(min-width:1200px){#sec-dashboard main{padding-right:64px}}
@@ -5511,7 +5572,7 @@ a.pe-btn:after{content:"";position:absolute;inset:0;z-index:1;background:linear-
   <section class="lg-panel">
   <div class="lg-head"><div class="lg-title">Elected representatives</div><div class="lg-sub">MPs, MLAs &amp; MLCs on X · ranked by post · Apr–Jul 2026</div></div>
   <div class="mla-search">
-    <input type="text" class="mla-input" id="mlaSearch" placeholder="Search by name or handle..." oninput="filterMLA()">
+    <label class="sc-sbox lg-sbox"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input type="text" class="mla-input" id="mlaSearch" placeholder="Search name or handle&hellip;" oninput="filterMLA()"></label>
     <select class="filter-select" id="mlaPartyFilter" onchange="filterMLA()" style="min-width:110px">
       <option value="">All Parties</option>
       <option value="BJP">BJP</option>
@@ -5527,13 +5588,14 @@ a.pe-btn:after{content:"";position:absolute;inset:0;z-index:1;background:linear-
     <select class="filter-select" id="mlaPreset" onchange="mlaPreset()" style="min-width:120px"><option value="today">Today (1 Jul)</option><option value="all" selected>Full Range</option><option value="3">Last 3d</option><option value="7">Last 7d</option><option value="14">Last 14d</option><option value="custom">Custom</option></select>
     <input type="date" id="mlaFrom" class="filter-select" value="2026-04-01" min="2026-04-01" max="2026-07-01" onchange="var p=document.getElementById('mlaPreset');if(p)p.value='custom';renderMLA()" style="min-width:140px">
     <input type="date" id="mlaTo" class="filter-select" value="2026-07-01" min="2026-04-01" max="2026-07-01" onchange="var p=document.getElementById('mlaPreset');if(p)p.value='custom';renderMLA()" style="min-width:140px">
-    <button class="filter-select" style="cursor:pointer;font-weight:700;color:#C2410C;border-color:#f0d0b0" onclick="mlaReset()">↺ Reset</button>
+    <button type="button" class="pf-reset" onclick="mlaReset()" title="Back to All Parties, All Levels, All States/UTs and Full Range"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg><span>Reset</span></button>
   </div>
   </section>
   <!-- leg-v2 (02-Nov): leader photo + party logo, 7-day follower gain, har column par sahi (poori list ki) sorting,
        default kram pad ke hisaab se (PM, LoP, Union Cabinet, CM ...). "Last updated" column is table me nahi. -->
   <div class="tbl-box leg-box" style="margin-bottom:0">
     <table class="leg-tbl" data-nolu="1">
+      <colgroup><col class="c-n"><col class="c-who"><col class="c-loc"><col class="c-pty"><col class="c-role"><col class="c-num"><col class="c-num"><col class="c-tw"><col class="c-num"><col class="c-num"><col class="c-num"><col class="c-go"></colgroup>
       <thead>
         <tr id="mlaHead">
           <th data-k="tier" title="Default order: by post (PM, Leader of Opposition, Union Cabinet, CMs ...)">#</th>
@@ -5541,7 +5603,7 @@ a.pe-btn:after{content:"";position:absolute;inset:0;z-index:1;background:linear-
           <th data-k="followers" class="num">Followers</th>
           <th data-k="gain" class="num" id="mlaGainTh" title="Followers gained in the 7 days up to the selected date">7-day gain</th>
           <th data-k="tw" class="num">Tweets</th><th data-k="rt" class="num">Retweets</th>
-          <th data-k="vw" class="num">Total Views</th><th data-k="av" class="num">Avg Views/Post</th><th data-k="al" class="num">Avg Likes/Post</th>
+          <th data-k="vw" class="num">Total views</th><th data-k="av" class="num" title="Average views (and likes, below) per post">Per post</th><th class="leg-go-h" aria-label="Open profile"></th>
         </tr>
       </thead>
       <tbody id="mlaBody"></tbody>
@@ -8740,8 +8802,10 @@ window.pRange=function(v,DD){
 function _preset(prefix,v){var _r=window.pRange(v);if(!_r)return;var f=_r.f,t=_r.t;var fe=document.getElementById(prefix+'From'),te=document.getElementById(prefix+'To');if(fe)fe.value=f;if(te)te.value=t;}
 window.tlPreset=function(){_preset('tl',(document.getElementById('tlPreset')||{}).value);renderLeaders();};
 window.tlReset=function(){var p=document.getElementById('tlPreset');if(p)p.value='all';var pa=document.getElementById('tlParty');if(pa)pa.value='';_preset('tl','all');renderLeaders();};
-window._applyDate=_applyDate;window._hSum=_hSum;window.mlaPreset=function(){_preset('mla',(document.getElementById('mlaPreset')||{}).value);if(window.renderMLA)window.renderMLA();};
-window.mlaReset=function(){['mlaSearch','mlaPartyFilter','mlaLevelFilter','mlaStateFilter'].forEach(function(id){var e=document.getElementById(id);if(e)e.value='';});var p=document.getElementById('mlaPreset');if(p)p.value='all';_preset('mla','all');try{window.mlaOpts&&window.mlaOpts()}catch(e){}if(window.filterMLA)window.filterMLA();else if(window.renderMLA)window.renderMLA();};
+window._applyDate=_applyDate;window._hSum=_hSum;window.mlaCustomUI=function(){var b=document.querySelector('#sec-mla-tracker .mla-search'),p=document.getElementById('mlaPreset');if(b)b.classList.toggle('is-custom',!!p&&p.value==='custom');};
+document.addEventListener('change',function(e){if(e.target&&/^mla(Preset|From|To)$/.test(e.target.id))setTimeout(window.mlaCustomUI,0);});setTimeout(window.mlaCustomUI,0);
+window.mlaPreset=function(){_preset('mla',(document.getElementById('mlaPreset')||{}).value);window.mlaCustomUI();if(window.renderMLA)window.renderMLA();};
+window.mlaReset=function(){['mlaSearch','mlaPartyFilter','mlaLevelFilter','mlaStateFilter'].forEach(function(id){var e=document.getElementById(id);if(e)e.value='';});var p=document.getElementById('mlaPreset');if(p)p.value='all';try{window.mlaCustomUI();}catch(e){}_preset('mla','all');try{window.mlaOpts&&window.mlaOpts()}catch(e){}if(window.filterMLA)window.filterMLA();else if(window.renderMLA)window.renderMLA();};
 /* ====== leader-pool : "Top 15" sach me 15 bhara hua aaye ======
    Pehle ye table SIRF HANDLES blob se banta tha -- usme hamesha ke liye
    15 hi handle hote hain, pipeline ke chune hue. Date filter lagate hi
@@ -9777,7 +9841,8 @@ function mlaRow(h,i){
     :'<span class="leg-plogo"><img src="/api/party-logo?p='+encodeURIComponent(P)+'" alt="" loading="lazy"'+(fb?' data-fb="'+esc(fb)+'"':'')+' onerror="legImgErr(this)"><b style="display:none;--pc:'+col+'">'+esc(P.slice(0,3))+'</b></span>';
   var loc=h[window.ROW_LOC_F||'state']||h.state||'—',seat=h.loc&&h.loc!=='-'?h.loc:'';
   var g=window._legGainFor?window._legGainFor(h.h):null;
-  return '<tr><td><span class="rank">'+(i+1)+'</span></td>'
+  var hq=String(h.h||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'");   /* 14-Nov: row tap = wahi profile card jo CM / Dy CM me khulta hai */
+  return '<tr class="leg-row" tabindex="0" aria-label="Open profile of '+esc(h.name||h.h)+'" onclick="openProfile(\''+hq+'\')" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();openProfile(\''+hq+'\')}"><td><span class="rank">'+(i+1)+'</span></td>'
     +'<td><div class="leg-who"><span class="leg-av"><img src="/api/avatar/'+encodeURIComponent(h.h)+'" alt="" loading="lazy" onerror="legImgErr(this)"><i style="display:none">'+esc(_legInit(h.name||h.h))+'</i></span>'
     +'<span class="leg-nm"><b>'+esc(h.name||h.h)+'</b><small>@'+esc(h.h)+'</small></span></div></td>'
     +'<td><div class="leg-loc"><b>'+esc(loc)+'</b>'+(seat&&seat!==loc?'<small>'+esc(seat)+'</small>':'')+'</div></td>'
@@ -9788,10 +9853,22 @@ function mlaRow(h,i){
     +'<td class="num"><span class="nv">'+(+h.tw||0).toLocaleString('en-IN')+'</span></td>'
     +'<td class="num"><span class="nv">'+uf(h.rt)+'</span></td>'
     +'<td class="num"><span class="nv leg-strong">'+uf(h.vw)+'</span></td>'
-    +'<td class="num"><span class="nv">'+uf(av)+'</span></td>'
-    +'<td class="num"><span class="nv">'+uf(al)+'</span></td></tr>';
+    +'<td class="num"><div class="leg-pp"><b>'+uf(av)+'</b><small>'+uf(al)+' likes</small></div></td>'
+    +'<td class="leg-go"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></td></tr>';
 }
-var mlaPage=1;var MLA_PP=40;function mlaPageList(cur,pages){var set={};set[1]=1;set[pages]=1;for(var p=cur-1;p<=cur+1;p++){if(p>=1&&p<=pages)set[p]=1;}var ks=Object.keys(set).map(Number).sort(function(x,y){return x-y});var a=[],prev=0;ks.forEach(function(p){if(p-prev>1)a.push('...');a.push(p);prev=p;});return a;}function buildMlaPager(total,pages,start,shown){if(total===0)return '<div class="mla-info">No results found</div>';var cur=mlaPage;var html='<div class="mla-info">Showing '+(start+1)+'\u2013'+(start+shown)+' of '+total+' legislators</div><div class="mla-pages">';html+='<button class="mla-pg'+(cur<=1?' disabled':'')+'" '+(cur<=1?'':'onclick="mlaGoto('+(cur-1)+')"')+'>\u2039 Prev</button>';mlaPageList(cur,pages).forEach(function(p){if(p==='...'){html+='<span class="mla-pg dots">\u2026</span>';}else{html+='<button class="mla-pg'+(p===cur?' active':'')+'" onclick="mlaGoto('+p+')">'+p+'</button>';}});html+='<button class="mla-pg'+(cur>=pages?' disabled':'')+'" '+(cur>=pages?'':'onclick="mlaGoto('+(cur+1)+')"')+'>Next \u203a</button></div>';return html;}window.mlaGoto=function(n){mlaPage=n;window.renderMLA();var el=document.getElementById('mlaPager');if(el&&el.scrollIntoView)el.scrollIntoView({block:'nearest'});};function _rebuildSel(id,allLabel,opts,cur){var sel=document.getElementById(id);if(!sel)return;sel.innerHTML='<option value="">'+allLabel+'</option>'+opts.map(function(o){return '<option value="'+String(o).replace(/"/g,'&quot;')+'"'+(o===cur?' selected':'')+'>'+o+'</option>';}).join('');if(opts.indexOf(cur)<0)sel.value='';}
+var mlaPage=1;var MLA_PP=40;function mlaPageList(cur,pages){var set={};set[1]=1;set[pages]=1;for(var p=cur-2;p<=cur+2;p++){if(p>=1&&p<=pages)set[p]=1;}var ks=Object.keys(set).map(Number).sort(function(x,y){return x-y});var a=[],prev=0;ks.forEach(function(p){if(p-prev>1)a.push('...');a.push(p);prev=p;});return a;}/* 14-Nov: pager -- saaf UI (icon teer, beech ke 2-2 page, 'Go to' box) aur page badalne par table ki shuruaat par le jaata hai */
+function buildMlaPager(total,pages,start,shown){window._mlaPages=pages;if(total===0)return '<div class="mla-info">No leaders match these filters</div>';var cur=mlaPage,L=function(n){return Number(n).toLocaleString('en-IN');};
+  var ar=function(d){return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="'+(d<0?'M15 18l-6-6 6-6':'M9 6l6 6-6 6')+'"/></svg>';};
+  var html='<div class="mla-info">Showing <b>'+L(start+1)+'\u2013'+L(start+shown)+'</b> of <b>'+L(total)+'</b> legislators</div>';
+  if(pages<=1)return html;
+  html+='<div class="mla-pages"><button type="button" class="mla-pg mla-ar'+(cur<=1?' disabled':'')+'" aria-label="Previous page" '+(cur<=1?'disabled':'onclick="mlaGoto('+(cur-1)+')"')+'>'+ar(-1)+'</button>';
+  mlaPageList(cur,pages).forEach(function(p){html+=p==='...'?'<span class="mla-pg dots">\u2026</span>':'<button type="button" class="mla-pg'+(p===cur?' active" aria-current="page':'')+'" onclick="mlaGoto('+p+')">'+p+'</button>';});
+  html+='<button type="button" class="mla-pg mla-ar'+(cur>=pages?' disabled':'')+'" aria-label="Next page" '+(cur>=pages?'disabled':'onclick="mlaGoto('+(cur+1)+')"')+'>'+ar(1)+'</button>';
+  html+='<label class="mla-jump">Go to<input type="number" min="1" max="'+pages+'" value="'+cur+'" aria-label="Page number" onkeydown="if(event.key===\'Enter\'){event.preventDefault();mlaGoto(+this.value)}" onchange="mlaGoto(+this.value)"><span>of '+pages+'</span></label></div>';
+  return html;}
+window.mlaGoto=function(n){var P=window._mlaPages||1;n=Math.round(+n||1);if(n<1)n=1;if(n>P)n=P;if(n===mlaPage){window.renderMLA();return;}mlaPage=n;window.renderMLA();
+  var box=document.querySelector('#sec-mla-tracker .leg-box');if(!box)return;var sc=box.querySelector('.table-scroll');if(sc)sc.scrollTop=0;
+  try{box.scrollIntoView({block:'start',behavior:'smooth'});}catch(e){box.scrollIntoView(true);}};function _rebuildSel(id,allLabel,opts,cur){var sel=document.getElementById(id);if(!sel)return;sel.innerHTML='<option value="">'+allLabel+'</option>'+opts.map(function(o){return '<option value="'+String(o).replace(/"/g,'&quot;')+'"'+(o===cur?' selected':'')+'>'+o+'</option>';}).join('');if(opts.indexOf(cur)<0)sel.value='';}
 window.mlaOpts=function(){var pf=(document.getElementById('mlaPartyFilter')||{}).value||'';var sf=(document.getElementById('mlaStateFilter')||{}).value||'';var lf=(document.getElementById('mlaLevelFilter')||{}).value||'';/* fix-md (12-Oct): MLA_LOCF -- All-India par 'state', UP par 'loc'
      (UP me har handle ka state 'Uttar Pradesh' hi hai, isliye
      wahan District hi kaam ka filter hai). */
