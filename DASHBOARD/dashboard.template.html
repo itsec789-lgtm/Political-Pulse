@@ -6772,7 +6772,20 @@ a.pe-btn:after{content:"";position:absolute;inset:0;z-index:1;background:linear-
     #sec-narrative-groups .ngd-cover.on img{opacity:1}
     #sec-narrative-groups .ngd-hero::before{content:'';position:absolute;inset:0;z-index:-1;pointer-events:none;
       background:linear-gradient(90deg,#fff 0%,#fff 50%,rgba(255,255,255,.6) 60%,rgba(255,255,255,0) 74%)}
-    #sec-narrative-groups .ngd-hero-in{display:flex;align-items:center;gap:18px;padding:22px 24px 18px;max-width:640px}
+    #sec-narrative-groups .ngd-hero-in{display:flex;align-items:center;gap:18px;padding:10px 24px 16px;max-width:640px}
+    /* hero ki upar wali patti: back teer + raasta + date filter (alag panel nahi) */
+    #sec-narrative-groups .ngd-bar{display:flex;align-items:center;gap:10px;padding:12px 24px 0 16px;max-width:calc(58% - 8px);min-height:34px}
+    #sec-narrative-groups .ngd-bk{flex:none;width:34px;height:34px;display:grid;place-items:center;border:0;border-radius:10px;background:none;color:#17120E;cursor:pointer;transition:background .15s,color .15s}
+    #sec-narrative-groups .ngd-bk svg{width:20px;height:20px;transition:transform .2s}
+    #sec-narrative-groups .ngd-bk:hover,#sec-narrative-groups .ngd-bk:focus-visible{background:#F4EEE5;color:#C2410C;outline:0}
+    #sec-narrative-groups .ngd-bk:hover svg{transform:translateX(-2px)}
+    #sec-narrative-groups .ngd-bar .ngd-crumb{flex:0 1 auto;min-width:0}
+    #sec-narrative-groups .ngd-fslot{margin-left:2px;flex:none}
+    /* 14-Nov: back teer ke bagal raasta nahi -- seedha teer, phir date filter + Reset (baayein, photo se door) */
+    #sec-narrative-groups .ngd-bar .ngd-crumb{display:none}
+    #sec-narrative-groups .ngd-fslot .ngx-fbar{width:auto;margin:0;padding:0;background:none;border:0;border-radius:0;box-shadow:none}
+    #sec-narrative-groups .ngd-fslot .ngx-fr{display:none!important}
+    #sec-narrative-groups .ngd-fslot .ngx-sel{min-width:132px}
     #sec-narrative-groups .ngd-logo{flex:none;width:84px;height:84px;border-radius:50%;overflow:hidden;background:#fff;
       box-shadow:0 0 0 3px #fff,0 0 0 5.5px color-mix(in srgb,var(--gc) 45%,#fff),0 14px 26px -14px rgba(43,20,7,.55)}
     #sec-narrative-groups .ngd-logo img{width:100%;height:100%;object-fit:cover;display:block}
@@ -6975,12 +6988,11 @@ a.pe-btn:after{content:"";position:absolute;inset:0;z-index:1;background:linear-
   <div id="ngDetailView" style="display:none">
     <!-- ngd (14-Nov): group page -- upar saada back + raasta; hero me group ka X cover (official banner), logo, naam,
          category, tagline, links; neeche asli numbers. Tabs sirf do (jo sach me kaam karte hain). -->
-    <div class="ngd-top">
-      <button type="button" class="ngd-back" onclick="closeNarrativeGroup()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M11 18l-6-6 6-6"/></svg>All groups</button>
-      <span class="ngd-crumb"><a onclick="closeNarrativeGroup()">Narrative Groups</a><i>/</i><b id="ngDetailCrumb">Group</b></span>
-    </div>
     <section class="ngd-hero" id="ngHeroCard">
       <div class="ngd-cover" id="ngdCover" aria-hidden="true"></div>
+      <div class="ngd-bar"><button type="button" class="ngd-bk" onclick="closeNarrativeGroup()" title="Back to all groups" aria-label="Back to all groups"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M11 18l-6-6 6-6"/></svg></button>
+        <span class="ngd-crumb"><a onclick="closeNarrativeGroup()">Narrative Groups</a><i>/</i><b id="ngDetailCrumb">Group</b></span>
+        <div class="ngd-fslot" id="ngdFSlot"></div></div>
       <div class="ngd-hero-in">
         <div class="ngd-logo" id="ngHeroLogo"></div>
         <div class="ngd-id">
@@ -7197,12 +7209,11 @@ a.pe-btn:after{content:"";position:absolute;inset:0;z-index:1;background:linear-
   <div id="ngLeaderAnalysisView" style="display:none">
     <!-- ngm (14-Nov): member page -- group page jaisa hero (member ka X cover + photo), asli numbers; activity chart ek metric
          par (chunne layak); tone + engagement asli; top post + recent posts. Nakli topics / audience hataye. -->
-    <div class="ngd-top">
-      <button type="button" class="ngd-back" id="ngLaBtnBack" onclick="closeLeaderAnalysis()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M11 18l-6-6 6-6"/></svg><span>Back</span></button>
-      <span class="ngd-crumb"><a onclick="closeNarrativeGroup()">Narrative Groups</a><i>/</i><a id="ngLaCrumbGroup" onclick="ngmOpenGroup()">Group</a><i>/</i><b id="ngLaCrumbLeader">Member</b></span>
-    </div>
     <section class="ngd-hero ngm-hero" id="ngmHero">
       <div class="ngd-cover" id="ngmCover" aria-hidden="true"></div>
+      <div class="ngd-bar"><button type="button" class="ngd-bk" id="ngLaBtnBack" onclick="closeLeaderAnalysis()" title="Back" aria-label="Back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M11 18l-6-6 6-6"/></svg><span hidden>Back</span></button>
+        <span class="ngd-crumb"><a onclick="closeNarrativeGroup()">Narrative Groups</a><i>/</i><a id="ngLaCrumbGroup" onclick="ngmOpenGroup()">Group</a><i>/</i><b id="ngLaCrumbLeader">Member</b></span>
+        <div class="ngd-fslot" id="ngmFSlot"></div></div>
       <div class="ngd-hero-in">
         <div class="ngd-logo ngm-av" id="ngmAv"></div>
         <div class="ngd-id">
@@ -17353,7 +17364,10 @@ function ngxPlaceFilters() {
   var fb = document.getElementById('ngxFBar'), slot = document.getElementById('ngxFSlot'), home = document.getElementById('ngxFHome');
   if (!fb || !slot || !home) return;
   var dir = document.getElementById('ngDirectoryView'), inDir = !dir || dir.style.display !== 'none';
-  if (inDir) { if (fb.parentNode !== slot) slot.appendChild(fb); }
+  var vis = function (id) { var e = document.getElementById(id); return e && e.style.display !== 'none' && e.style.display !== ''; };
+  /* 14-Nov: group / member page par filter unke hero ki upar wali patti me (alag panel nahi) */
+  var to = inDir ? slot : vis('ngLeaderAnalysisView') ? document.getElementById('ngmFSlot') : vis('ngDetailView') ? document.getElementById('ngdFSlot') : null;
+  if (to) { if (fb.parentNode !== to) to.appendChild(fb); }
   else if (fb.parentNode !== home.parentNode || fb.previousSibling !== home) home.parentNode.insertBefore(fb, home.nextSibling);
 }
 window.ngxPlaceFilters = ngxPlaceFilters;
@@ -17367,7 +17381,7 @@ setInterval(function () {
   } catch (e) {}
 }, 300000);
 (function () {
-  ['openNarrativeGroup', 'openLeaderAnalysis'].forEach(function (n) {
+  ['openNarrativeGroup', 'openLeaderAnalysis', 'closeLeaderAnalysis', 'ngmOpenGroup'].forEach(function (n) {
     var o = window[n]; if (typeof o !== 'function' || o._ngx) return;
     var w = function () { var r = o.apply(this, arguments); try { ngxPlaceFilters(); } catch (e) {} return r; };
     w._ngx = 1; window[n] = w;
@@ -17944,6 +17958,7 @@ function ngdRender(g) {
   }).join('') : '<div class="ngd-empty0">No members listed for this group.</div>';
   ngdDonut(L, tot);
   ngdLoadActivity(g);
+  try { ngxPlaceFilters(); } catch (e) {}
 }
 function ngdDonut(L, tot) {
   var cv = document.getElementById('ngDonutChart'), leg = document.getElementById('ngDonutLegend'), cc = document.getElementById('ngDonutCenterVal');
@@ -18095,6 +18110,7 @@ function ngmMore(box) {
   if (dirV) dirV.style.display = 'none';
   if (detV) detV.style.display = 'none';
   if (laV) laV.style.display = 'block';
+  try { ngxPlaceFilters(); } catch (e) {}
   if (!wasLa || fresh) { try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch (e) { window.scrollTo(0, 0); } }
   var g = ngmFindGroup(handle); _ngmGroup = g;
   var lh = String(handle).toLowerCase(), m = g ? (g.leaders || []).filter(function (x) { return String(x.handle || '').toLowerCase() === lh; })[0] : null;
@@ -18102,7 +18118,7 @@ function ngmMore(box) {
   _ngmColor = (g && g.color) || '#E8590C';
   var set = function (id, v) { var e = document.getElementById(id); if (e) e.textContent = v; };
   set('ngLaCrumbGroup', g ? g.acronym : 'Group'); set('ngLaCrumbLeader', name);
-  var bb = document.getElementById('ngLaBtnBack'); if (bb) { var sp = bb.querySelector('span'); if (sp) sp.textContent = (_ngLaFrom === 'group' && g) ? 'Back to ' + g.acronym : 'All groups'; }
+  var bb = document.getElementById('ngLaBtnBack'); if (bb) { var _bl = (_ngLaFrom === 'group' && g) ? 'Back to ' + g.acronym : 'Back to all groups'; bb.title = _bl; bb.setAttribute('aria-label', _bl); var sp = bb.querySelector('span'); if (sp) sp.textContent = _bl; }
   var hero = document.getElementById('ngmHero'); if (hero) hero.style.setProperty('--gc', _ngmColor);
   var av = document.getElementById('ngmAv'); if (av) av.innerHTML = _ngrImg(m && m.avatar, handle, name);
   ngdCover(document.getElementById('ngmCover'), [handle].concat(g ? [g.id === 'creators' ? '' : g.handle].concat(g.handles || []) : []));
@@ -18174,6 +18190,7 @@ function ngmTop7(handle, m, name) {
   _ngCurrentLeaderHandle = null;
   if (_ngLaFrom === 'group' && _ngActiveGroup) { if (detV) detV.style.display = 'block'; try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch (e) {} }
   else closeNarrativeGroup();
+  try { ngxPlaceFilters(); } catch (e) {}
 }
 window.closeLeaderAnalysis = closeLeaderAnalysis;
 window.ngmOpenGroup = function () {
