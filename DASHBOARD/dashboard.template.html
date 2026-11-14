@@ -11791,7 +11791,10 @@ setTimeout(ovRefresh,80);
     var AD=window.PHD_DATES||window.AD||(window.D&&window.D.AD)||[];
     var f=AD.length?AD[0]:'2026-04-01',t=AD.length?AD[AD.length-1]:'2026-04-01';
     if(sec&&sec.id==='sec-parties'&&window.__pfRange&&window.__pfDAYS){
-      try{var pr=window.__pfRange(),PD=window.__pfDAYS;if(PD[pr[0]]&&PD[pr[1]]){f=PD[pr[0]];t=PD[pr[1]];}}catch(e){}
+      /* Full Range par Parties ke cards poore daur (UNI) ke hote hain, jabki uski din-patti (AGG.dates) chhoti ho
+         sakti hai (Oct 24 se) -- isliye Full Range = data ki poori range; baaki presets par Parties ka apna range */
+      try{var md=(window.__PF&&window.__PF.dmode)||'all';
+        if(md!=='all'){var pr=window.__pfRange(),PD=window.__pfDAYS;if(PD[pr[0]]&&PD[pr[1]]){f=PD[pr[0]];t=PD[pr[1]];}}}catch(e){}
     }else if(sec){var ds=[].filter.call(sec.querySelectorAll('input[type=date]'),function(x){return x.offsetParent!==null;});
       if(ds.length>=2&&ds[0].value&&ds[1].value){f=ds[0].value;t=ds[1].value;}}
     var txt=fp(f,false)+' \u2013 '+fp(t,true);
