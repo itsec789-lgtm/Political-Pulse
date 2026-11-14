@@ -1674,6 +1674,7 @@ svg#indiaMap{width:100%;height:100%;max-width:100%;max-height:100%;display:block
   font-weight:700;margin-bottom:14px;line-height:1.3}
 .ha-stitle span{font-weight:500;text-transform:none;letter-spacing:0;font-size:12.5px;margin-left:6px;color:#6B7280}
 .ha-controls{display:flex;gap:18px;flex-wrap:wrap;align-items:flex-end}
+.ha-controls .ha-reset{margin-left:-6px;height:38px}
 .ha-cg{display:flex;flex-direction:column;gap:6px}
 .ha-cg label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px}
 .ha-cg input,.ha-cg select{background:var(--card);border:1.5px solid var(--border);color:var(--text);
@@ -5020,7 +5021,7 @@ window.sentCardsHTML = function (S, suffix) {
   </div>
   <div class="hdr-right">
     <div class="data-pill upd-pill hdr-fade" style="--d:.20s" id="updPill" title="When the data was last updated">&#8635; &mdash;</div>
-    <div class="data-pill hdr-fade" style="--d:.26s" id="dataPill">Apr 01 – Jul 01, 2026</div>
+    <div class="data-pill hdr-fade" style="--d:.26s" id="dataPill">&mdash;</div>
   </div>
 </header>
 <script>/* 14-Nov: header ke (chhupe) update pill ka text Admin menu ke right corner me -- pill badle to ye bhi */
@@ -7475,13 +7476,14 @@ a.pe-btn:after{content:"";position:absolute;inset:0;z-index:1;background:linear-
         <option value="all" selected>All time</option>
       </select>
     </div>
+    <!-- 14-Nov: Parties jaisa text-style Reset -- search khaali, category default, BJP4India, All time -->
+    <button type="button" class="pf-reset ha-reset" id="haReset" onclick="window.haReset&&window.haReset()" title="Back to BJP4India, All time, search cleared"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg><span>Reset</span></button>
   </div>
 
   <div class="ha-hero">
     <div class="ha-banner" id="haBanner">
       <div class="ha-coverimg" id="haCover"></div>
-      <button class="ha-refresh" id="haRefresh" type="button" title="Reload profile from X"
-              onclick="haRefreshProf()">&#8635;</button>
+      <!-- 14-Nov: banner ka ↻ (profile X se dobara) button hataya -- purani profile khud hi taaza hoti hai -->
       <div class="ha-av" id="haAv">&mdash;</div>
       <div class="ha-who">
         <div class="ha-name" id="haName">&mdash;</div>
@@ -11783,8 +11785,15 @@ setTimeout(ovRefresh,80);
   window.updateDatePill=function(){
     var pill=document.getElementById('dataPill');if(!pill)return;
     var sec=document.querySelector('.page-section.active');
-    var f='2026-04-01',t='2026-07-01';
-    if(sec){var ds=sec.querySelectorAll('input[type=date]');if(ds.length>=2){if(ds[0].value)f=ds[0].value;if(ds[1].value)t=ds[1].value;}}
+    /* 14-Nov: pehle yahan pakki '2026-04-01 – 2026-07-01' thi, aur section ki pehli do date-input (chhupi bhi, purani
+       value wali bhi) padhi jaati thi -- isliye header me galat mahina (Jul / Oct) dikhta tha. Ab default = data ki
+       asli range (PHD_DATES / AD); date-input tabhi maante hain jab dono bhari hon aur screen par dikh rahi hon. */
+    var AD=window.PHD_DATES||window.AD||(window.D&&window.D.AD)||[];
+    var f=AD.length?AD[0]:'2026-04-01',t=AD.length?AD[AD.length-1]:'2026-04-01';
+    if(sec&&sec.id==='sec-parties'&&window.__pfRange&&window.__pfDAYS){
+      try{var pr=window.__pfRange(),PD=window.__pfDAYS;if(PD[pr[0]]&&PD[pr[1]]){f=PD[pr[0]];t=PD[pr[1]];}}catch(e){}
+    }else if(sec){var ds=[].filter.call(sec.querySelectorAll('input[type=date]'),function(x){return x.offsetParent!==null;});
+      if(ds.length>=2&&ds[0].value&&ds[1].value){f=ds[0].value;t=ds[1].value;}}
     var txt=fp(f,false)+' \u2013 '+fp(t,true);
     if(pill.textContent!==txt)pill.textContent=txt;
   };
@@ -13141,15 +13150,15 @@ setTimeout(hExec,600);
       return 'To load photo / cover, create x_config.json in the DASHBOARD folder and put your three X cookies '
            + '(auth_token, ct0, twid) into it — the photo then loads when you click a handle.';
     if (p.why === 'RATE')
-      return 'X has rate-limited us. Press refresh (↻) after 15 minutes.';
+      return 'X has rate-limited us. Open the handle again after 15 minutes.';
     if (p.why === 'AUTH')
       return 'X rejected the cookies (login expired). Put fresh auth_token / ct0 / twid into x_config.json.';
     if (p.why === 'NOTFOUND')
       return 'This handle was not found on X (renamed, or the account was closed).';
     if (p.why === 'COOLDOWN')
-      return 'The last attempt for this handle failed — press refresh (↻) after 10 minutes.';
+      return 'The last attempt for this handle failed — open it again after 10 minutes.';
     if (p.why && p.why !== 'CACHE' && p.why !== 'LIVE')
-      return 'Could not fetch the profile from X (' + p.why + '). Press refresh (↻) to try again.';
+      return 'Could not fetch the profile from X (' + p.why + '). Open the handle again later to retry.';
     return '';
   }
 
@@ -14211,6 +14220,15 @@ setTimeout(hExec,600);
       var n = el('haNote'); if (n) { n.className = 'ha-note on'; n.textContent = e.message; }
     });
   }
+  /* 14-Nov: Reset -- pehli baar khulne jaisa: search khaali, category default, period All time, BJP4India */
+  window.haReset = function () {
+    var c = el('haCat'), q0 = el('haQ'), p = el('haPeriod');
+    if (q0) q0.value = '';
+    if (c) c.value = Array.prototype.some.call(c.options, function (o) { return o.value === 'Official Page'; }) ? 'Official Page' : 'ALL';
+    if (p) p.value = 'all';
+    if (!booted) { boot(); return; }
+    window.haLoadHandles('BJP4India');
+  };
   window.haBootWithHandle = function (h, name) {
     PENDING_HANDLE = h;
     var qEl = el('haQ');
@@ -16464,7 +16482,7 @@ function render() {
   var ttl = $('pfOverviewTitle');
   if (ttl && ttl.firstChild) ttl.firstChild.nodeValue = 'Party Overview ';
   var osub = $('pfOvSub');
-  if (osub) osub.textContent = rangeLabel() + (sel ? ' · ' + sel : '');
+  if (osub) osub.textContent = sel ? '· ' + sel : '';   /* 14-Nov: date heading ke bagal se hata di -- sirf chuni party */
 
   drawDaily(selRows); drawHourly(); drawTop(selRows);
   drawViews(allRows, sel); drawTweets(allRows, sel); drawSent(allRows, sel);
