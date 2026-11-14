@@ -14195,11 +14195,12 @@ setTimeout(hExec,600);
          Category = Official Page aur Handle = BJP4India -- sirf dropdown se, search box khaali. Uske baad
          user jo chune wahi rehta hai. */
       if (!h) {
-        var c = el('haCat');
-        if (c && Array.prototype.some.call(c.options, function (o) { return o.value === 'Official Page'; })) {
-          c.value = 'Official Page';
-          h = 'BJP4India';
-        }
+        /* 14-Nov: default HAMESHA BJP4India -- category me 'Official Page' ho to wahi, warna All (pehle 'Official Page'
+           na milne par list ka pehla handle khul jaata tha); search box khaali */
+        var c = el('haCat'), q0 = el('haQ');
+        if (c) c.value = Array.prototype.some.call(c.options, function (o) { return o.value === 'Official Page'; }) ? 'Official Page' : 'ALL';
+        if (q0) q0.value = '';
+        h = 'BJP4India';
       }
       return window.haLoadHandles(h);
     }).catch(function (e) {
@@ -14245,6 +14246,15 @@ setTimeout(hExec,600);
       return out;
     };
   }
+  /* 14-Nov: pehli baar tab kholte hi result -- page khulne ke kuch der baad (browser khaali ho tab) chupchaap
+     BJP4India ka poora page pehle se bana lete hain (chhupe tab me). Tab khulne par boot() pehle se 'booted' hai,
+     isliye seedha bana-banaya dikhta hai, loading nahi. */
+  (function () {
+    var go = function () { if (!booted) { try { boot(); } catch (e) {} } };
+    var start = function () { (window.requestIdleCallback || function (fn) { return setTimeout(fn, 1200); })(go, { timeout: 4000 }); };
+    if (document.readyState === 'complete') setTimeout(start, 800);
+    else window.addEventListener('load', function () { setTimeout(start, 800); });
+  })();
 })();
 </script>
 <style id="hrq-css">
@@ -16663,7 +16673,7 @@ W.__pfByParty = byParty; W.__pfMetrics = metrics; W.__pfCATS = CATS; W.__pfDAYS 
     /* sirf wahi control jinki apni id hai -- unhi ko wapas dhoondh sakte hain */
     return [].slice.call(D.querySelectorAll(
       'select[id], input[id][type="date"], input[id][type="search"], input[id][type="text"]'
-    )).filter(function (e) { return !e.closest('#sec-handle-req') && !/^((mla|cm)(Preset|From|To)|pf(Date|From|To|Level))$/.test(e.id); });   /* 14-Nov: Elected Representatives + States & CM + Parties hamesha Full Range (Parties: All Levels) se khulen */
+    )).filter(function (e) { return !e.closest('#sec-handle-req') && !e.closest('#sec-handle-analytics') && !/^((mla|cm)(Preset|From|To)|pf(Date|From|To|Level))$/.test(e.id); });   /* 14-Nov: Elected Representatives + States & CM + Parties hamesha Full Range (Parties: All Levels) se khulen */
     /* Handle-Request form chhod dete hain -- wo bhara hua form hai, usme
        purani value wapas daalna ulta pad sakta hai. */
   }
