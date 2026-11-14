@@ -6451,7 +6451,7 @@ a.pe-btn:after{content:"";position:absolute;inset:0;z-index:1;background:linear-
     @media(max-width:1240px){#sec-narrative-groups .ngx-rleg{display:none}#sec-narrative-groups .ngx-h2-r{border-left:0;padding-left:0}}
     /* 14-Nov: race -- pehle 5 group badi lines me (spotlight ki unchai bhar ke), baaki isi box me scroll */
     #sec-narrative-groups .ngr-body{align-items:start}
-    #sec-narrative-groups .ngx-lwrap{position:relative;max-height:calc(var(--H,66px) * 5);overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#E3D7C8 transparent;padding-right:4px}
+    #sec-narrative-groups .ngx-lwrap{position:relative;max-height:calc(var(--H,66px) * 5);overflow-y:auto;overscroll-behavior:auto;scrollbar-width:thin;scrollbar-color:#E3D7C8 transparent;padding-right:4px}
     #sec-narrative-groups .ngx-lwrap::-webkit-scrollbar{width:6px}
     #sec-narrative-groups .ngx-lwrap::-webkit-scrollbar-thumb{background:#E3D7C8;border-radius:6px}
     #sec-narrative-groups .ngx-lwrap.more{-webkit-mask-image:linear-gradient(180deg,#000 calc(100% - 26px),rgba(0,0,0,.25));mask-image:linear-gradient(180deg,#000 calc(100% - 26px),rgba(0,0,0,.25))}
@@ -6893,7 +6893,8 @@ a.pe-btn:after{content:"";position:absolute;inset:0;z-index:1;background:linear-
     #sec-narrative-groups .ngm-lbl span{color:#8A7B6C;letter-spacing:.4px;text-transform:none;font-weight:600;font-size:11px}
     #sec-narrative-groups .ngm-lbl2{margin-top:18px;color:#7A6E63}
     #sec-narrative-groups .ngm-posts #ngmTop .ngm-tw{border-color:color-mix(in srgb,var(--gc,#E8590C) 28%,#F0E8DD);background:linear-gradient(160deg,color-mix(in srgb,var(--gc,#E8590C) 6%,#fff),#fff 60%)}
-    #sec-narrative-groups .ngm-feed{max-height:640px;overflow-y:auto;overscroll-behavior:contain;padding-right:8px;scrollbar-width:thin;scrollbar-color:#E3D7C8 transparent}
+    /* 14-Nov: posts ka apna scroll nahi -- page ke andar alag scroll se maus wheel atak jaata tha; sirf 6 post hain, page ke saath hi khiskein */
+    #sec-narrative-groups .ngm-feed{max-height:none;overflow:visible;padding-right:0}
     #sec-narrative-groups .ngm-feed::-webkit-scrollbar{width:6px}#sec-narrative-groups .ngm-feed::-webkit-scrollbar-thumb{background:#E3D7C8;border-radius:6px}
     #sec-narrative-groups .ngm-feed .htc-row{grid-template-columns:minmax(0,1fr) 120px}
     #sec-narrative-groups .ngm-feed .htc-av{width:40px;height:40px}
@@ -18151,17 +18152,23 @@ function ngmTop7(handle, m, name) {
   if (!ref) { var n = new Date(Date.now() + 5.5 * 3600 * 1000); ref = n.toISOString().slice(0, 10); }
   var r = new Date(ref + 'T00:00:00Z'), f = new Date(r.getTime() - 6 * 86400000), from = f.toISOString().slice(0, 10);
   if (win) win.textContent = 'last 7 days \u00b7 ' + ngdDay(from) + ' \u2013 ' + ngdDay(ref);
-  fetch('/api/narrative-groups/leader-analysis/' + encodeURIComponent(handle) + '?from=' + from + '&to=' + ref, { credentials: 'same-origin', cache: 'no-store' })
-    .then(function (x) { return x.json(); })
+  var show = function (t, lbl) {
+    if (_ngCurrentLeaderHandle !== handle) return;
+    if (win) win.textContent = lbl;
+    if (tl) { tl.href = t && t['Tweet URL'] ? t['Tweet URL'] : 'https://x.com/' + handle; tl.style.visibility = t ? '' : 'hidden'; }
+    if (tp) { tp.innerHTML = t ? ngmTweetHtml(t, m, name, handle) : '<div class="ngd-empty0">No posts yet</div>'; ngmMore(tp); }
+  };
+  var get = function (qs) { return fetch('/api/narrative-groups/leader-analysis/' + encodeURIComponent(handle) + (qs ? '?' + qs : ''), { credentials: 'same-origin', cache: 'no-store' }).then(function (x) { return x.json(); }); };
+  var wk = 'last 7 days \u00b7 ' + ngdDay(from) + ' \u2013 ' + ngdDay(ref);
+  /* pehle data ke aakhri hafte ka top post; us hafte koi post nahi to ab tak (poori range) ka top post */
+  get('from=' + from + '&to=' + ref)
     .then(function (d) {
-      if (_ngCurrentLeaderHandle !== handle) return;
       var t = d && d.ok ? d.topTweet : null;
-      if (tl) { tl.href = t && t['Tweet URL'] ? t['Tweet URL'] : 'https://x.com/' + handle; tl.style.visibility = t ? '' : 'hidden'; }
-      if (tp) { tp.innerHTML = t ? ngmTweetHtml(t, m, name, handle) : '<div class="ngd-empty0">No posts in the last 7 days</div>'; ngmMore(tp); }
+      if (t) { show(t, wk); return; }
+      return get('').then(function (d2) { show(d2 && d2.ok ? d2.topTweet : null, 'till now \u00b7 no posts in ' + ngdDay(from) + ' \u2013 ' + ngdDay(ref)); });
     })
     .catch(function () { if (tp) tp.innerHTML = '<div class="ngd-empty0">Could not load right now</div>'; });
-}
-function closeLeaderAnalysis() {
+}function closeLeaderAnalysis() {
   var laV = document.getElementById('ngLeaderAnalysisView'), detV = document.getElementById('ngDetailView');
   if (laV) laV.style.display = 'none';
   _ngCurrentLeaderHandle = null;
