@@ -6104,56 +6104,54 @@ a.pe-btn:after{content:"";position:absolute;inset:0;z-index:1;background:linear-
 </div>
 <!-- 7.5. NARRATIVE GROUPS -->
 <div class="page-section" id="sec-narrative-groups">
-<!-- 5 TOP FILTERS FOR NARRATIVE GROUPS -->
-<div class="ng-filter-bar">
-  <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-    <span class="filter-label">DATE RANGE</span>
-    <select class="filter-select" id="ngFilterRange" onchange="onNgFilterChange()" style="min-width:130px">
-      <option value="all">Full Range</option>
-      <option value="today" selected>Today</option>
+<!-- ngx (14-Nov): filter card -- Parties jaisa safed card; Full Range default; text Reset; live sync daayein -->
+<div class="ng-filter-bar ngx-fbar">
+  <div class="ngx-fl">
+    <label class="ngx-selw"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4.5" width="18" height="16.5" rx="2.5"/><path d="M16 3v3M8 3v3M3 10h18"/></svg>
+    <select class="ngx-sel" id="ngFilterRange" onchange="onNgFilterChange()" aria-label="Date range">
+      <option value="all" selected>Full Range</option>
+      <option value="today">Today</option>
       <option value="yest">Yesterday</option>
-      <option value="3d">3 Days</option>
-      <option value="7d">7 Days</option>
-      <option value="14d">14 Days</option>
-      <option value="30d">30 Days</option>
+      <option value="3d">Last 3 days</option>
+      <option value="7d">Last 7 days</option>
+      <option value="14d">Last 14 days</option>
+      <option value="30d">Last 30 days</option>
       <option value="custom">Custom</option>
-    </select>
-    <div id="ngCustomDates" style="display:none;align-items:center;gap:4px">
-      <input type="date" class="filter-select" id="ngDateFrom" onchange="onNgFilterChange()">
-      <span class="filter-label" style="letter-spacing:0">to</span>
-      <input type="date" class="filter-select" id="ngDateTo" onchange="onNgFilterChange()">
+    </select></label>
+    <div id="ngCustomDates" class="ngx-cust" style="display:none">
+      <input type="date" class="ngx-sel ngx-date" id="ngDateFrom" onchange="onNgFilterChange()" aria-label="From">
+      <span>to</span>
+      <input type="date" class="ngx-sel ngx-date" id="ngDateTo" onchange="onNgFilterChange()" aria-label="To">
     </div>
-    
-    <div id="ngGroupFilterWrap" style="display:inline-flex;align-items:center;gap:8px">
-      <div class="filter-divider"></div>
-      <span class="filter-label">ALL GROUPS</span>
-      <select class="filter-select" id="ngFilterGroup" onchange="onNgFilterChange()" style="min-width:160px">
+    <div id="ngGroupFilterWrap" style="display:inline-flex;align-items:center">
+      <label class="ngx-selw"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 19a5.5 5.5 0 0 1 11 0"/><circle cx="17" cy="9" r="2.4"/><path d="M15.5 14.2A4.5 4.5 0 0 1 21 18.5"/></svg>
+      <select class="ngx-sel" id="ngFilterGroup" onchange="onNgFilterChange()" aria-label="Group">
         <option value="all">All Groups</option>
-      </select>
+      </select></label>
     </div>
+    <button type="button" class="pf-reset" onclick="ngReset()" title="Back to Full Range, All Groups, every metric"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg><span>Reset</span></button>
   </div>
-  <div class="filter-info" style="margin-left:auto;display:flex;align-items:center;gap:12px">
-    <button onclick="fetchLiveNarrativeGroupStats(true)" style="background:#FFF3E0;border:1px solid #FFD8A8;color:#E65100;font-size:11px;font-weight:700;padding:4px 10px;border-radius:6px;cursor:pointer;display:inline-flex;align-items:center;gap:4px" title="Pull latest counts directly from MongoDB">
-      <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg> Live Sync
-    </button>
-    <span style="color:#C2410C;font-weight:700" id="ngTotalStats">Live MongoDB Data</span>
+  <div class="ngx-fr">
+    <span class="ngx-live"><i aria-hidden="true"></i><span id="ngTotalStats">Live data</span></span>
+    <button type="button" class="ngx-sync" onclick="fetchLiveNarrativeGroupStats(true)" title="Pull the latest counts from the database"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 4v6h-6M3 20v-6h6"/><path d="M20.5 10A8.5 8.5 0 0 0 5 6.6L3 9M3.5 14A8.5 8.5 0 0 0 19 17.4l2-2.4"/></svg><span>Sync</span></button>
   </div>
 </div>
-
 <main style="padding:18px 24px">
   <!-- VIEW 1: Directory Table View -->
   <div id="ngDirectoryView">
-    <div class="ng-header-row">
-      <div>
-        <h2 class="ng-title">NARRATIVE GROUPS</h2>
-        <div class="ng-sub">Overview of political groups, student organisations and digital creator networks</div>
+    <!-- ngx-h2 (14-Nov): apna hero -- baayein bada title + "abhi kaun aage" + numbers ki saaf patti (dibbe nahi);
+         daayein "share of voice" ring: har group ka hissa uske rang me, logo ring ke bahar, beech me kul ginti.
+         Ring wahi metric dikhata hai jo race me chuna hai (Tweets / Likes / Retweets / Views). -->
+    <section class="ngx-h2" id="ngxHero">
+      <div class="ngx-h2-l">
+        <div class="ngx-h2-eb"><span class="ngx-h2-live"><i></i>Live</span><span>Narrative Groups</span></div>
+        <h1 class="ngx-h2-t">Who&rsquo;s shaping the <em>conversation</em></h1>
+        <p class="ngx-h2-s" id="ngxSub">Political groups, student wings &amp; creator networks</p>
+        <div class="ngx-h2-lead" id="ngxLead"></div>
+        <div class="ngx-h2-stats" id="ngxKpis"></div>
       </div>
-      <div class="ng-search-box">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        <input type="text" id="ngSearchInput" placeholder="Search narrative groups..." oninput="filterNarrativeGroups()">
-      </div>
-    </div>
-
+      <div class="ngx-h2-r"><div class="ngx-ring" id="ngxRing"></div></div>
+    </section>
 
     <!-- ng-race (29-Oct): Narrative Race -- groups ek race me, chuna hua metric (Tweets/Likes/Retweets/Views).
          Metric ya date badalte hi bars badhti hain, groups sarak kar nayi rank par aate hain, rank ka badlaav
@@ -6227,27 +6225,341 @@ a.pe-btn:after{content:"";position:absolute;inset:0;z-index:1;background:linear-
     @media (max-width:640px){.ngr-lane{grid-template-columns:24px 1fr;height:88px}.ngr-track{grid-column:2}.ngr-seg{margin-left:0}}
     @media (prefers-reduced-motion:reduce){.ngr *,.ngr *::before,.ngr *::after{animation:none!important;transition:none!important}}
     </style>
+    <style>
+    /* ===== ngx (14-Nov): Narrative Groups redesign -- States & CM / Parties / Elected reps wali bhasha =====
+       filter card (safed, gol kone), light hero + gradient-ring KPI tiles, race card saaf (number apne khaane me,
+       aakhir me teer), light spotlight, "Loudest voices". IDs aur purana JS wahi -- sirf roop badla. */
+    #sec-narrative-groups{--ngx-ring:linear-gradient(110deg,#2B1407 0%,#5A2A0E 45%,#E8590C 100%)}
+    /* --- filter card --- */
+    #sec-narrative-groups .ngx-fbar{box-sizing:border-box;width:calc(100% - 48px);margin:14px auto 0;padding:7px 8px 7px 10px;display:flex;align-items:center;justify-content:space-between;
+      gap:10px;flex-wrap:wrap;background:#fff;border:1px solid #ECE4DA;border-radius:18px;box-shadow:0 1px 0 #ECE4DA,0 18px 40px -30px rgba(60,30,10,.45)}
+    #sec-narrative-groups .ngx-fl{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+    #sec-narrative-groups .ngx-selw{position:relative;display:inline-flex;align-items:center;margin:0}
+    #sec-narrative-groups .ngx-selw>svg{position:absolute;left:11px;width:15px;height:15px;color:#A8998A;pointer-events:none;z-index:1}
+    #sec-narrative-groups .ngx-sel{box-sizing:border-box;height:32px;min-width:150px;margin:0;padding:0 30px 0 33px;border:1px solid #E6DED3;border-radius:10px;
+      -webkit-appearance:none;appearance:none;font:500 12.5px 'DM Sans',sans-serif;color:#17120E;cursor:pointer;box-shadow:none;
+      background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%237A6E63' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 10px center}
+    #sec-narrative-groups #ngFilterGroup{min-width:210px}
+    #sec-narrative-groups .ngx-fbar .pf-reset{height:32px}
+    #sec-narrative-groups .ngx-sel.ngx-date{height:32px}
+    #sec-narrative-groups .ngx-sel.ngx-date{width:140px;min-width:0;padding:0 10px;background-image:none;cursor:text}
+    #sec-narrative-groups .ngx-sel:focus{border-color:#E8590C;outline:0;box-shadow:0 0 0 3px rgba(232,89,12,.12)}
+    #sec-narrative-groups .ngx-cust{align-items:center;gap:6px;font:500 12px 'DM Sans',sans-serif;color:#8A7B6C}
+    #sec-narrative-groups .ngx-fr{display:flex;align-items:center;gap:12px}
+    #sec-narrative-groups .ngx-live{display:inline-flex;align-items:center;gap:8px;font:500 12px 'DM Sans',sans-serif;color:#6E6156;white-space:nowrap}
+    #sec-narrative-groups .ngx-live i{width:7px;height:7px;border-radius:50%;background:#16A34A;box-shadow:0 0 0 3px rgba(22,163,74,.16);animation:ngxLive 2s ease-in-out infinite}
+    @keyframes ngxLive{50%{box-shadow:0 0 0 6px rgba(22,163,74,.05)}}
+    #sec-narrative-groups #ngTotalStats{color:#3A2E25!important;font-weight:600!important}
+    #sec-narrative-groups .ngx-sync{display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 12px;border:1px solid #E6DED3;border-radius:10px;background:#fff;
+      color:#3A2E25;font:600 12px 'DM Sans',sans-serif;cursor:pointer;transition:border-color .15s,color .15s,background .15s}
+    #sec-narrative-groups .ngx-sync svg{width:14px;height:14px;transition:transform .5s cubic-bezier(.2,.8,.2,1)}
+    #sec-narrative-groups .ngx-sync:hover{border-color:#E8590C;color:#C2410C;background:#FFF8F2}
+    #sec-narrative-groups .ngx-sync:hover svg{transform:rotate(180deg)}
+    #sec-narrative-groups .ngx-sync:focus-visible{outline:2px solid rgba(232,89,12,.5);outline-offset:2px}
+    /* --- hero --- */
+    #sec-narrative-groups .ngx-hero{position:relative;overflow:hidden;isolation:isolate;border-radius:20px;margin:0 0 16px;padding:22px 24px 20px;color:#17120E;border:1.5px solid transparent;
+      background:linear-gradient(118deg,#fff 0%,#fff 40%,color-mix(in srgb,#F26A1B 22%,#fff) 100%) padding-box,var(--ngx-ring) border-box;box-shadow:0 2px 12px -4px rgba(43,20,7,.3)}
+    #sec-narrative-groups .ngx-hero::before{content:'';position:absolute;right:60px;top:-90px;width:420px;height:420px;border-radius:50%;z-index:-1;
+      background:radial-gradient(closest-side,rgba(242,106,27,.18),transparent)}
+    #sec-narrative-groups .ngx-hero-txt,#sec-narrative-groups .ngx-kpis{position:relative;z-index:2;margin-right:min(420px,35%)}
+    #sec-narrative-groups .ngx-eyebrow{display:flex;align-items:center;gap:8px;font:700 11px 'DM Sans',sans-serif;letter-spacing:1.6px;text-transform:uppercase;color:#C2410C}
+    #sec-narrative-groups .ngx-dot{width:7px;height:7px;border-radius:50%;background:#E8590C;box-shadow:0 0 0 4px rgba(232,89,12,.15)}
+    #sec-narrative-groups .ngx-title{margin:10px 0 4px;font:700 30px/1.1 'Rajdhani',sans-serif;color:#17120E;letter-spacing:.2px}
+    #sec-narrative-groups .ngx-title span{color:#E8590C}
+    #sec-narrative-groups .ngx-sub{margin:0;font-size:12.5px;color:#6E6156}
+    #sec-narrative-groups .ngx-kpis{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin-top:18px}
+    #sec-narrative-groups .ngx-k{padding:12px 14px;border-radius:14px;border:1.5px solid transparent;background:linear-gradient(#fff,#fff) padding-box,var(--ngx-ring) border-box;
+      box-shadow:0 2px 12px -4px rgba(43,20,7,.3);transition:box-shadow .2s,transform .2s;min-width:0}
+    #sec-narrative-groups .ngx-k:hover{transform:translateY(-2px);box-shadow:0 10px 24px -10px rgba(43,20,7,.45)}
+    #sec-narrative-groups .ngx-kl{font:700 10px 'DM Sans',sans-serif;letter-spacing:1.2px;text-transform:uppercase;color:#8A7B6C}
+    #sec-narrative-groups .ngx-kv{margin:6px 0 2px;font:700 22px/1.05 'DM Sans',sans-serif;letter-spacing:-.5px;color:#17120E;font-variant-numeric:tabular-nums;white-space:nowrap}
+    #sec-narrative-groups .ngx-ks{font-size:11px;color:#9A8B7B;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    #sec-narrative-groups .ngx-logos{position:absolute;right:30px;top:0;bottom:0;width:min(400px,33%);display:flex;align-items:center;justify-content:flex-end;z-index:1;pointer-events:none}
+    #sec-narrative-groups .ngx-lg{flex:none;width:60px;height:60px;margin-left:-4px;border-radius:50%;background:#fff;overflow:hidden;
+      box-shadow:0 0 0 3px #fff,0 0 0 5px color-mix(in srgb,var(--gc) 38%,#fff),0 14px 22px -12px rgba(43,20,7,.55);animation:ngxFloat 6s ease-in-out infinite;animation-delay:calc(var(--i) * -.85s)}
+    #sec-narrative-groups .ngx-lg:nth-child(even){margin-top:58px}
+    #sec-narrative-groups .ngx-lg:nth-child(odd){margin-bottom:28px}
+    #sec-narrative-groups .ngx-lg img{width:100%;height:100%;object-fit:cover;display:block}
+    @keyframes ngxFloat{50%{transform:translateY(-6px)}}
+    /* --- hero v2 (apna): safed card, halka kesariya noor + bindiyon ki jaali ring ke peeche --- */
+    #sec-narrative-groups .ngx-h2{position:relative;overflow:hidden;isolation:isolate;display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:24px;align-items:center;
+      margin:0 0 16px;padding:14px 26px 14px 30px;border-radius:22px;background:#fff;border:1px solid #ECE4DA;box-shadow:0 1px 0 #ECE4DA,0 22px 44px -32px rgba(60,30,10,.5)}
+    #sec-narrative-groups .ngx-h2::before{content:'';position:absolute;z-index:-1;right:-60px;top:-80px;width:520px;height:520px;border-radius:50%;
+      background:radial-gradient(closest-side,rgba(242,106,27,.13),rgba(242,106,27,.04) 60%,transparent)}
+    #sec-narrative-groups .ngx-h2::after{content:'';position:absolute;z-index:-1;right:0;top:0;bottom:0;width:420px;opacity:.55;
+      background-image:radial-gradient(rgba(150,90,40,.22) 1px,transparent 1.3px);background-size:14px 14px;
+      -webkit-mask-image:radial-gradient(closest-side at 62% 50%,#000,transparent);mask-image:radial-gradient(closest-side at 62% 50%,#000,transparent)}
+    #sec-narrative-groups .ngx-h2-eb{display:flex;align-items:center;gap:10px;font:700 11px 'DM Sans',sans-serif;letter-spacing:1.5px;text-transform:uppercase;color:#8A7B6C}
+    #sec-narrative-groups .ngx-h2-live{display:inline-flex;align-items:center;gap:6px;padding:4px 9px 4px 8px;border-radius:999px;background:#ECFDF3;color:#15803D;letter-spacing:1px;font-size:10px}
+    #sec-narrative-groups .ngx-h2-live i{width:6px;height:6px;border-radius:50%;background:#16A34A;animation:ngxLive 2s ease-in-out infinite}
+    #sec-narrative-groups .ngx-h2-t{margin:14px 0 6px;font:700 40px/1.02 'Rajdhani',sans-serif;letter-spacing:-.2px;color:#17120E;max-width:560px}
+    #sec-narrative-groups .ngx-h2-t em{font-style:normal;background:linear-gradient(95deg,#F26A1B 0%,#C2410C 55%,#7C2D12 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+    #sec-narrative-groups .ngx-h2-s{margin:0;font-size:13px;color:#6E6156}
+    #sec-narrative-groups .ngx-h2-lead{display:inline-flex;align-items:center;gap:10px;margin-top:16px;padding:6px 14px 6px 6px;border-radius:999px;background:#FBF7F1;
+      border:1px solid #F0E6DA;font:500 12.5px 'DM Sans',sans-serif;color:#3A2E25}
+    #sec-narrative-groups .ngx-h2-lead b{font-weight:700;color:#17120E}
+    #sec-narrative-groups .ngx-h2-lg{width:28px;height:28px;border-radius:50%;overflow:hidden;flex:none;background:#fff;box-shadow:0 0 0 2px #fff,0 0 0 3.5px color-mix(in srgb,var(--gc) 45%,#fff)}
+    #sec-narrative-groups .ngx-h2-lg img{width:100%;height:100%;object-fit:cover;display:block}
+    #sec-narrative-groups .ngx-h2-q{padding-left:8px;color:#8A7B6C}
+    #sec-narrative-groups .ngx-h2-stats{display:flex;flex-wrap:wrap;margin-top:20px;padding-top:16px;border-top:1px solid #F1EAE1}
+    #sec-narrative-groups .ngx-st{position:relative;flex:1 1 0;min-width:96px;padding:0 18px}
+    #sec-narrative-groups .ngx-st:first-child{padding-left:0}
+    #sec-narrative-groups .ngx-st+.ngx-st::before{content:'';position:absolute;left:0;top:4px;bottom:4px;width:1px;background:#EFE7DD}
+    #sec-narrative-groups .ngx-st b{display:block;font:700 26px/1 'DM Sans',sans-serif;letter-spacing:-.8px;color:#17120E;font-variant-numeric:tabular-nums;white-space:nowrap}
+    #sec-narrative-groups .ngx-st span{display:block;margin-top:7px;font:700 10px 'DM Sans',sans-serif;letter-spacing:1.2px;text-transform:uppercase;color:#9A8B7B}
+    #sec-narrative-groups .ngx-st small{display:block;margin-top:2px;font-size:11px;color:#A8998A}
+    #sec-narrative-groups .ngx-st.on b{color:#C2410C}
+    #sec-narrative-groups .ngx-st.on span{color:#C2410C}
+    /* share-of-voice ring */
+    #sec-narrative-groups .ngx-h2-r{display:grid;place-items:center}
+    #sec-narrative-groups .ngx-ring{position:relative;width:300px;height:300px}
+    #sec-narrative-groups .ngx-ring svg{position:absolute;inset:20px;width:260px;height:260px;transform:rotate(-90deg);overflow:visible}
+    #sec-narrative-groups .ngx-track{fill:none;stroke:#F3ECE2;stroke-width:22}
+    #sec-narrative-groups .ngx-arc{fill:none;stroke-width:22;stroke-linecap:butt;transition:opacity .2s;animation:ngxArc .9s cubic-bezier(.2,.8,.2,1) both;animation-delay:var(--d)}
+    #sec-narrative-groups .ngx-arc:hover{opacity:.82}
+    @keyframes ngxArc{from{stroke-dasharray:0 1000}}
+    #sec-narrative-groups .ngx-ring.is-empty .ngx-track{stroke-dasharray:4 6;stroke:#E6DBCC;stroke-width:2}
+    #sec-narrative-groups .ngx-ring-c{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;pointer-events:none}
+    #sec-narrative-groups .ngx-ring-c span{font:700 9.5px 'DM Sans',sans-serif;letter-spacing:1.3px;text-transform:uppercase;color:#9A8B7B}
+    #sec-narrative-groups .ngx-ring-c b{margin:6px 0 4px;font:700 34px/1 'DM Sans',sans-serif;letter-spacing:-1px;color:#17120E;font-variant-numeric:tabular-nums}
+    #sec-narrative-groups .ngx-ring-c small{font-size:11px;color:#8A7B6C;max-width:150px}
+    #sec-narrative-groups .ngx-pin{position:absolute;width:38px;height:38px;margin:-19px 0 0 -19px;border-radius:50%;background:#fff;
+      box-shadow:0 0 0 2.5px #fff,0 0 0 4.5px color-mix(in srgb,var(--gc) 55%,#fff),0 8px 16px -8px rgba(43,20,7,.55);animation:ngxPin .5s cubic-bezier(.2,.8,.2,1) both;animation-delay:var(--d)}
+    #sec-narrative-groups .ngx-pin img{width:100%;height:100%;border-radius:50%;object-fit:cover;display:block}
+    #sec-narrative-groups .ngx-pin em{position:absolute;left:50%;bottom:-17px;transform:translateX(-50%);font:700 10px 'DM Sans',sans-serif;font-style:normal;color:#3A2E25;white-space:nowrap;
+      background:#fff;border-radius:6px;padding:0 4px;box-shadow:0 1px 0 #EFE7DD}
+    @keyframes ngxPin{from{opacity:0;transform:scale(.6)}}
+    @media(max-width:1180px){#sec-narrative-groups .ngx-h2{grid-template-columns:minmax(0,1fr) 280px;padding:22px 22px 20px}
+      #sec-narrative-groups .ngx-ring{width:270px;height:270px;transform:scale(.9)}#sec-narrative-groups .ngx-h2-t{font-size:34px}
+      #sec-narrative-groups .ngx-st{padding:0 12px;min-width:84px}#sec-narrative-groups .ngx-st b{font-size:22px}}
+    @media(max-width:900px){#sec-narrative-groups .ngx-h2{grid-template-columns:1fr}#sec-narrative-groups .ngx-h2-r{order:-1}
+      #sec-narrative-groups .ngx-st{flex:1 1 30%;margin-bottom:14px}}
+    @media (prefers-reduced-motion:reduce){#sec-narrative-groups .ngx-arc,#sec-narrative-groups .ngx-pin{animation:none}}
+    /* 14-Nov: hero patla -- 'kaun aage' wali pill nahi, ring chhota (scale), title aur jagah kam */
+    #sec-narrative-groups .ngx-h2-lead{display:none!important}
+    #sec-narrative-groups .ngx-h2{grid-template-columns:minmax(0,1fr) 230px;padding:16px 22px 16px 26px}
+    #sec-narrative-groups .ngx-ring{transform:scale(.7);margin:-45px}
+    #sec-narrative-groups .ngx-h2-t{margin:10px 0 4px;font-size:32px}
+    #sec-narrative-groups .ngx-h2-stats{margin-top:14px;padding-top:12px}
+    #sec-narrative-groups .ngx-st b{font-size:22px}
+    #sec-narrative-groups .ngx-st span{margin-top:5px}
+    #sec-narrative-groups .ngx-h2::after{width:300px}
+    @media(max-width:1180px){#sec-narrative-groups .ngx-h2{grid-template-columns:minmax(0,1fr) 210px}#sec-narrative-groups .ngx-ring{transform:scale(.64);margin:-54px}
+      #sec-narrative-groups .ngx-h2-t{font-size:28px}}
+    /* --- race card --- */
+    #sec-narrative-groups .ngr{margin-top:0;border:1px solid #ECE4DA;border-radius:18px;box-shadow:0 1px 0 #ECE4DA,0 18px 40px -30px rgba(60,30,10,.45)}
+    #sec-narrative-groups .ngr-glow{opacity:.55}
+    #sec-narrative-groups .ngr-top{align-items:flex-end;padding:20px 22px 12px}
+    #sec-narrative-groups .ngr-kick{font:700 11px 'DM Sans',sans-serif;letter-spacing:1.4px;color:#C2410C}
+    #sec-narrative-groups .ngr-title{margin-top:3px;font:700 18px 'DM Sans',sans-serif;letter-spacing:-.2px;color:#17120E}
+    #sec-narrative-groups .ngr-sub{font-size:12px;color:#8A7B6C;margin-top:3px}
+    #sec-narrative-groups .ngx-rtools{margin-left:auto;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+    #sec-narrative-groups .ngx-search{position:relative;display:block;width:220px;padding:0;margin:0;border:0;background:none;box-shadow:none}
+    #sec-narrative-groups .ngx-search svg{position:absolute;left:12px;top:50%;width:15px;height:15px;transform:translateY(-50%);color:#A8998A;pointer-events:none}
+    #sec-narrative-groups .ngx-search input{box-sizing:border-box;width:100%;height:36px;padding:0 12px 0 34px;border:1px solid #E6DED3;border-radius:10px;background:#fff;
+      font:500 12.5px 'DM Sans',sans-serif;color:#17120E}
+    #sec-narrative-groups .ngx-search input::placeholder{color:#A8998A}
+    #sec-narrative-groups .ngx-search input:focus{border-color:#E8590C;outline:0;box-shadow:0 0 0 3px rgba(232,89,12,.12)}
+    #sec-narrative-groups .ngr-seg{margin-left:0;padding:4px;border-radius:12px;background:#F4EEE5}
+    #sec-narrative-groups .ngr-seg button{font:600 12.5px 'DM Sans',sans-serif;padding:7px 14px;border-radius:9px;color:#6E6156}
+    #sec-narrative-groups .ngr-seg button.on{color:#fff}
+    #sec-narrative-groups .ngr-seg button:not(.on):hover{color:#17120E}
+    #sec-narrative-groups .ngr-seg .ngr-pill{border-radius:9px;background:#17120E;box-shadow:0 6px 14px -8px rgba(23,18,14,.7)}
+    #sec-narrative-groups .ngr-body{grid-template-columns:290px 1fr;gap:20px;padding:6px 22px 16px}
+    /* spotlight -- light */
+    #sec-narrative-groups .ngr-spot{color:#17120E;padding:18px;min-height:0;border-radius:16px;border:1px solid color-mix(in srgb,var(--sc,#E8590C) 22%,#fff);
+      background:linear-gradient(165deg,color-mix(in srgb,var(--sc,#E8590C) 13%,#fff) 0%,#fff 62%);transition:box-shadow .2s,transform .2s}
+    #sec-narrative-groups .ngr-spot:not(.empty):hover{box-shadow:0 16px 30px -22px color-mix(in srgb,var(--sc,#E8590C) 70%,#000);transform:translateY(-1px)}
+    #sec-narrative-groups .ngr-spot::before{right:-70px;top:-70px;background:radial-gradient(circle,color-mix(in srgb,var(--sc,#E8590C) 22%,transparent),transparent 70%)}
+    #sec-narrative-groups .ngr-crown{position:relative;width:max-content;gap:6px;padding:5px 10px;border-radius:999px;opacity:1;font:700 10.5px 'DM Sans',sans-serif;letter-spacing:1px;
+      background:#fff;color:color-mix(in srgb,var(--sc,#E8590C) 82%,#000);box-shadow:0 0 0 1px color-mix(in srgb,var(--sc,#E8590C) 22%,#fff)}
+    #sec-narrative-groups .ngr-crown svg{width:12px;height:12px}
+    #sec-narrative-groups .ngx-spot-row{position:relative;display:flex;align-items:center;gap:12px;margin-top:16px}
+    #sec-narrative-groups .ngr-spot-logo{flex:none;width:56px;height:56px;margin:0;box-shadow:0 0 0 3px #fff,0 0 0 5px color-mix(in srgb,var(--sc,#E8590C) 40%,#fff),0 10px 18px -10px rgba(0,0,0,.4)}
+    #sec-narrative-groups .ngr-spot-logo::after{border-color:color-mix(in srgb,var(--sc,#E8590C) 50%,transparent)}
+    #sec-narrative-groups .ngr-spot-name{font:700 21px/1 'Rajdhani',sans-serif;color:#17120E}
+    #sec-narrative-groups .ngr-spot-full{font-size:12px;color:#6E6156;opacity:1;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    #sec-narrative-groups .ngr-spot-val{position:relative;margin-top:18px;font:700 38px/1 'DM Sans',sans-serif;letter-spacing:-1px;color:#17120E}
+    #sec-narrative-groups .ngr-spot-lbl{font-size:12px;color:#6E6156;opacity:1;margin-top:5px}
+    #sec-narrative-groups .ngr-spot-lead{position:relative;margin-top:10px;background:#fff;border:1px solid color-mix(in srgb,var(--sc,#E8590C) 22%,#fff);color:#3A2E25;font:600 11.5px 'DM Sans',sans-serif}
+    #sec-narrative-groups .ngx-spot-top{position:relative;display:flex;align-items:center;gap:10px;margin-top:12px;padding:9px 11px;background:#fff;border:1px solid #EFE7DD;border-radius:12px}
+    #sec-narrative-groups .ngx-spot-top img{width:30px;height:30px;border-radius:50%;object-fit:cover;flex:none}
+    #sec-narrative-groups .ngx-spot-top small{display:block;font:700 9.5px 'DM Sans',sans-serif;letter-spacing:.8px;text-transform:uppercase;color:#9A8B7B}
+    #sec-narrative-groups .ngx-spot-top b{display:block;font:700 12.5px 'DM Sans',sans-serif;color:#17120E;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    #sec-narrative-groups .ngx-spot-top>span{margin-left:auto;font:700 13px 'DM Sans',sans-serif;color:#17120E;font-variant-numeric:tabular-nums}
+    #sec-narrative-groups .ngx-spot-mini{position:relative;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin-top:10px}
+    #sec-narrative-groups .ngx-spot-mini div{padding:8px 9px;background:rgba(255,255,255,.75);border:1px solid #EFE7DD;border-radius:10px;min-width:0}
+    #sec-narrative-groups .ngx-spot-mini b{display:block;font:700 13px 'DM Sans',sans-serif;color:#17120E;font-variant-numeric:tabular-nums;white-space:nowrap}
+    #sec-narrative-groups .ngx-spot-mini span{display:block;margin-top:2px;font:700 9px 'DM Sans',sans-serif;letter-spacing:.7px;text-transform:uppercase;color:#9A8B7B}
+    #sec-narrative-groups .ngr-spot{align-self:start}
+    #sec-narrative-groups .ngx-spot-cta{position:relative;margin-top:4px;padding-top:12px;display:inline-flex;align-items:center;gap:6px;font:600 12.5px 'DM Sans',sans-serif;
+      color:color-mix(in srgb,var(--sc,#E8590C) 82%,#000)}
+    #sec-narrative-groups .ngx-spot-cta svg{width:15px;height:15px;transition:transform .2s}
+    #sec-narrative-groups .ngr-spot:hover .ngx-spot-cta svg{transform:translateX(3px)}
+    #sec-narrative-groups .ngr-spot.empty{background:#FBF8F4;border:1px dashed #E3D7C8;align-items:center;justify-content:center;text-align:center;padding:26px 18px}
+    #sec-narrative-groups .ngr-spot.empty::before{display:none}
+    #sec-narrative-groups .ngx-empty-ic{width:52px;height:52px;border-radius:16px;background:#fff;border:1px solid #EFE7DD;display:grid;place-items:center;color:#C2410C}
+    #sec-narrative-groups .ngx-empty-ic svg{width:24px;height:24px}
+    #sec-narrative-groups .ngx-empty-t{margin-top:14px;font:700 16px 'DM Sans',sans-serif;color:#17120E}
+    #sec-narrative-groups .ngx-empty-s{margin-top:4px;max-width:230px;font-size:12px;line-height:1.45;color:#8A7B6C}
+    #sec-narrative-groups .ngx-empty-b{margin-top:14px;height:34px;padding:0 14px;border:0;border-radius:10px;background:#17120E;color:#fff;font:600 12px 'DM Sans',sans-serif;cursor:pointer}
+    #sec-narrative-groups .ngx-empty-b:hover{background:#C2410C}
+    /* lanes */
+    #sec-narrative-groups .ngr-lane{height:62px;grid-template-columns:26px minmax(170px,230px) minmax(80px,1fr) 92px 126px 16px;gap:16px;padding:0 12px;border:1px solid transparent;border-radius:14px;--lbg:#fff}
+    #sec-narrative-groups .ngr-lane:hover,#sec-narrative-groups .ngr-lane:focus-visible{background:#FBF7F1;border-color:#F0E6DA;outline:0;--lbg:#FBF7F1}
+    #sec-narrative-groups .ngr-rk{font:700 18px 'Rajdhani',sans-serif;color:#CFC5B8}
+    #sec-narrative-groups .ngr-lane.lead .ngr-rk{color:#E8590C}
+    #sec-narrative-groups .ngr-lg{width:40px;height:40px}
+    #sec-narrative-groups .ngr-acr{font:700 14px 'DM Sans',sans-serif;color:#17120E}
+    #sec-narrative-groups .ngr-full{font-size:11px;color:#8A7B6C;margin-top:1px}
+    #sec-narrative-groups .ngx-cat{font:700 9px 'DM Sans',sans-serif;letter-spacing:.8px;text-transform:uppercase;color:#B3A595;margin-top:2px}
+    #sec-narrative-groups .ngr-track{height:10px;border-radius:999px;background:#F3ECE2;overflow:visible}
+    #sec-narrative-groups .ngr-fill{border-radius:999px;overflow:hidden}
+    #sec-narrative-groups .ngr-lane.dim .ngr-track{height:0;background:none;border-top:1.5px dashed #E6DBCC}
+    #sec-narrative-groups .ngr-zero{left:0;top:0;padding-right:10px;background:var(--lbg);font:500 11px 'DM Sans',sans-serif;color:#A8998A}
+    #sec-narrative-groups .ngx-num{text-align:right;min-width:0}
+    #sec-narrative-groups .ngr-val{position:static;transform:none;font:700 15px 'DM Sans',sans-serif;letter-spacing:-.2px;color:#17120E;white-space:nowrap}
+    #sec-narrative-groups .ngr-share{display:block;margin:2px 0 0;font:500 10.5px 'DM Sans',sans-serif;color:#8A7B6C;opacity:1}
+    #sec-narrative-groups .ngr-lane.dim .ngr-val{color:#B3A99C}
+    #sec-narrative-groups .ngr-lane.dim{opacity:1}
+    #sec-narrative-groups .ngr-lane.dim .ngr-who{opacity:.72}
+    #sec-narrative-groups .ngr-cnt{font:500 10.5px 'DM Sans',sans-serif}
+    #sec-narrative-groups .ngx-go{color:#C9B8A6;display:grid;place-items:center}
+    #sec-narrative-groups .ngx-go svg{width:16px;height:16px;transition:transform .2s}
+    #sec-narrative-groups .ngr-lane:hover .ngx-go,#sec-narrative-groups .ngr-lane:focus-visible .ngx-go{color:#E8590C}
+    #sec-narrative-groups .ngr-lane:hover .ngx-go svg{transform:translateX(2px)}
+    #sec-narrative-groups .ngr-lane:hover .ngr-acr{color:#C2410C}
+    #sec-narrative-groups .ngr-foot{font:500 11.5px 'DM Sans',sans-serif;color:#8A7B6C;border-top:1px solid #F1EAE1;padding:12px 22px 14px}
+    /* --- loudest voices v2 --- */
+    #sec-narrative-groups .ngx-voices{margin-top:16px;padding:20px 22px 20px;background:#fff;border:1px solid #ECE4DA;border-radius:18px;box-shadow:0 1px 0 #ECE4DA,0 18px 40px -30px rgba(60,30,10,.45)}
+    #sec-narrative-groups .ngx-vtitle{margin-top:3px;font:700 18px 'DM Sans',sans-serif;letter-spacing:-.2px;color:#17120E}
+    #sec-narrative-groups .ngx-vgrid{display:block;margin-top:16px}
+    #sec-narrative-groups .ngx-vcards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+    #sec-narrative-groups .ngx-vcards.n1{grid-template-columns:minmax(0,420px)}
+    #sec-narrative-groups .ngx-vcards.n2{grid-template-columns:repeat(2,minmax(0,1fr))}
+    #sec-narrative-groups .ngx-vc{position:relative;overflow:hidden;display:flex;flex-direction:column;gap:12px;margin:0;padding:14px 16px 13px;text-align:left;cursor:pointer;
+      font:inherit;color:inherit;border-radius:16px;border:1px solid color-mix(in srgb,var(--gc) 20%,#EFE7DD);
+      background:linear-gradient(160deg,color-mix(in srgb,var(--gc) 8%,#fff) 0%,#fff 58%);transition:transform .2s,box-shadow .2s,border-color .2s}
+    #sec-narrative-groups .ngx-vc::after{content:'';position:absolute;right:-50px;top:-50px;width:150px;height:150px;border-radius:50%;pointer-events:none;
+      background:radial-gradient(circle,color-mix(in srgb,var(--gc) 14%,transparent),transparent 70%)}
+    #sec-narrative-groups .ngx-vc:hover,#sec-narrative-groups .ngx-vc:focus-visible{transform:translateY(-2px);outline:0;border-color:color-mix(in srgb,var(--gc) 40%,#fff);
+      box-shadow:0 16px 30px -22px color-mix(in srgb,var(--gc) 70%,#000)}
+    #sec-narrative-groups .ngx-vc-top{display:flex;align-items:center;justify-content:space-between}
+    #sec-narrative-groups .ngx-vc-rk{display:grid;place-items:center;width:26px;height:26px;border-radius:9px;background:#17120E;color:#fff;font:700 13px 'DM Sans',sans-serif}
+    #sec-narrative-groups .ngx-vc:first-child .ngx-vc-rk{background:linear-gradient(135deg,#F59E0B,#E8590C)}
+    #sec-narrative-groups .ngx-vtag{display:inline-flex;align-items:center;gap:6px;padding:3px 9px 3px 3px;border-radius:999px;background:#fff;
+      box-shadow:0 0 0 1px color-mix(in srgb,var(--gc) 25%,#fff);font:700 10.5px 'DM Sans',sans-serif;letter-spacing:.3px;color:color-mix(in srgb,var(--gc) 85%,#000)}
+    #sec-narrative-groups .ngx-vtag-lg{width:18px;height:18px;border-radius:50%;overflow:hidden;flex:none}
+    #sec-narrative-groups .ngx-vtag-lg img{width:100%;height:100%;object-fit:cover;display:block}
+    #sec-narrative-groups .ngx-vc-who{display:flex;align-items:center;gap:11px;min-width:0}
+    #sec-narrative-groups .ngx-vc-av{flex:none;width:46px;height:46px;border-radius:50%;overflow:hidden;background:#F4EEE6;
+      box-shadow:0 0 0 2.5px #fff,0 0 0 4.5px color-mix(in srgb,var(--gc) 45%,#fff)}
+    #sec-narrative-groups .ngx-vc-av img{width:100%;height:100%;object-fit:cover;display:block}
+    #sec-narrative-groups .ngx-vc-nm{min-width:0}
+    #sec-narrative-groups .ngx-vc-nm b{display:block;font:700 14px 'DM Sans',sans-serif;color:#17120E;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    #sec-narrative-groups .ngx-vc-nm small{display:block;font-size:11px;color:#9A8B7B;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    #sec-narrative-groups .ngx-vc-num{display:flex;align-items:baseline;gap:7px}
+    #sec-narrative-groups .ngx-vc-num b{font:700 28px/1 'DM Sans',sans-serif;letter-spacing:-.8px;color:#17120E;font-variant-numeric:tabular-nums}
+    #sec-narrative-groups .ngx-vc-num small{font:600 11.5px 'DM Sans',sans-serif;color:#8A7B6C}
+    #sec-narrative-groups .ngx-vc-share{position:relative;display:block;height:5px;border-radius:9px;background:#F3ECE2;overflow:hidden}
+    #sec-narrative-groups .ngx-vc-share i{position:absolute;left:0;top:0;bottom:0;border-radius:9px;background:linear-gradient(90deg,color-mix(in srgb,var(--gc) 60%,#fff),var(--gc))}
+    #sec-narrative-groups .ngx-vc-foot{display:flex;align-items:center;justify-content:space-between;font:500 11px 'DM Sans',sans-serif;color:#8A7B6C;margin-top:-4px}
+    #sec-narrative-groups .ngx-vc-go{display:inline-flex;align-items:center;gap:4px;font-weight:600;color:color-mix(in srgb,var(--gc) 80%,#000);opacity:.75;transition:opacity .2s}
+    #sec-narrative-groups .ngx-vc-go svg{width:13px;height:13px;transition:transform .2s}
+    #sec-narrative-groups .ngx-vc:hover .ngx-vc-go{opacity:1}
+    #sec-narrative-groups .ngx-vc:hover .ngx-vc-go svg{transform:translateX(3px)}
+    #sec-narrative-groups .ngx-vlist{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 22px;margin-top:12px;border-top:1px solid #F1EAE1;padding-top:6px}
+    #sec-narrative-groups .ngx-vl{display:grid;grid-template-columns:20px 32px minmax(0,1fr) auto 14px;align-items:center;gap:11px;width:100%;box-sizing:border-box;margin:0;
+      padding:9px 8px;border:0;border-bottom:1px solid #F5EFE7;border-radius:0;background:none;text-align:left;cursor:pointer;font:inherit;color:inherit;transition:background .15s}
+    #sec-narrative-groups .ngx-vl:hover,#sec-narrative-groups .ngx-vl:focus-visible{background:#FBF7F1;outline:0;border-radius:10px}
+    #sec-narrative-groups .ngx-vl-rk{font:700 13px 'DM Sans',sans-serif;color:#B3A595;text-align:center}
+    #sec-narrative-groups .ngx-vl-av{width:32px;height:32px;border-radius:50%;overflow:hidden;background:#F4EEE6;box-shadow:0 0 0 2px #fff,0 0 0 3.5px color-mix(in srgb,var(--gc) 40%,#fff)}
+    #sec-narrative-groups .ngx-vl-av img{width:100%;height:100%;object-fit:cover;display:block}
+    #sec-narrative-groups .ngx-vl-nm{min-width:0}
+    #sec-narrative-groups .ngx-vl-nm b{display:block;font:700 12.5px 'DM Sans',sans-serif;color:#17120E;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    #sec-narrative-groups .ngx-vl-nm small{display:block;font-size:10.5px;color:#9A8B7B;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    #sec-narrative-groups .ngx-vl-v{text-align:right}
+    #sec-narrative-groups .ngx-vl-v b{display:block;font:700 13px 'DM Sans',sans-serif;color:#17120E;font-variant-numeric:tabular-nums}
+    #sec-narrative-groups .ngx-vl-v small{display:block;font-size:10px;color:#9A8B7B}
+    #sec-narrative-groups .ngx-vl-go{width:14px;height:14px;color:#C9B8A6;transition:transform .2s,color .2s}
+    #sec-narrative-groups .ngx-vl:hover .ngx-vl-go{color:#E8590C;transform:translateX(2px)}
+    #sec-narrative-groups .ngx-vl:hover .ngx-vl-nm b{color:#C2410C}
+    #sec-narrative-groups .ngx-vempty{padding:22px;text-align:center;font:500 12.5px 'DM Sans',sans-serif;color:#8A7B6C;background:#FBF8F4;border:1px dashed #E3D7C8;border-radius:12px}
+    @media(max-width:900px){#sec-narrative-groups .ngx-vcards,#sec-narrative-groups .ngx-vcards.n2{grid-template-columns:1fr}#sec-narrative-groups .ngx-vlist{grid-template-columns:1fr}}
+    /* ngx-photo (14-Nov): Parties card jaisa -- neta ki badi photo daayein background me, baayein safed se ghulti hui;
+       naam / number / share us par overlay. Spotlight me upar photo ka banner, logo uske kinare par. */
+    #sec-narrative-groups .ngx-vc{min-height:196px;isolation:isolate;background:#fff}
+    #sec-narrative-groups .ngx-vc::after{display:none}
+    #sec-narrative-groups .ngx-vc-ph{position:absolute;z-index:-2;right:0;top:0;bottom:0;width:62%;background:color-mix(in srgb,var(--gc) 10%,#fff)}
+    #sec-narrative-groups .ngx-vc-ph img{width:100%;height:100%;object-fit:cover;object-position:center 22%;display:block;transition:transform .5s cubic-bezier(.2,.8,.2,1);
+      -webkit-mask-image:linear-gradient(90deg,transparent 0%,rgba(0,0,0,.45) 26%,#000 58%);mask-image:linear-gradient(90deg,transparent 0%,rgba(0,0,0,.45) 26%,#000 58%)}
+    #sec-narrative-groups .ngx-vc::before{content:'';position:absolute;inset:0;z-index:-1;pointer-events:none;
+      background:linear-gradient(90deg,#fff 0%,rgba(255,255,255,.94) 34%,rgba(255,255,255,.55) 52%,rgba(255,255,255,0) 72%),
+                 linear-gradient(0deg,color-mix(in srgb,var(--gc) 16%,transparent) 0%,transparent 40%)}
+    #sec-narrative-groups .ngx-vc:hover .ngx-vc-ph img{transform:scale(1.04)}
+    #sec-narrative-groups .ngx-vc-top{justify-content:flex-start;gap:8px}
+    #sec-narrative-groups .ngx-vc-who,#sec-narrative-groups .ngx-vc-num,#sec-narrative-groups .ngx-vc-share,#sec-narrative-groups .ngx-vc-foot{max-width:58%}
+    #sec-narrative-groups .ngx-vc-nm b{font-size:15px;white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;line-height:1.2}
+    #sec-narrative-groups .ngx-vc-num b{font-size:30px}
+    #sec-narrative-groups .ngx-vc-foot{flex-wrap:wrap;gap:4px 10px;margin-top:-2px}
+    #sec-narrative-groups .ngx-vc-go{opacity:1}
+    #sec-narrative-groups .ngx-vc-share{background:rgba(23,18,14,.08)}
+    /* spotlight banner */
+    #sec-narrative-groups .ngr-spot:not(.empty){padding-top:0}
+    #sec-narrative-groups .ngx-spot-ban{position:relative;height:150px;margin:0 -18px;overflow:hidden;border-radius:15px 15px 0 0;background:color-mix(in srgb,var(--sc,#E8590C) 14%,#fff)}
+    #sec-narrative-groups .ngx-spot-ban img{width:100%;height:100%;object-fit:cover;object-position:center 22%;display:block;transition:transform .6s cubic-bezier(.2,.8,.2,1);
+      -webkit-mask-image:linear-gradient(180deg,#000 45%,transparent 100%);mask-image:linear-gradient(180deg,#000 45%,transparent 100%)}
+    #sec-narrative-groups .ngx-spot-ban::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(23,18,14,.28) 0%,transparent 38%)}
+    #sec-narrative-groups .ngr-spot:hover .ngx-spot-ban img{transform:scale(1.04)}
+    #sec-narrative-groups .ngr-spot:not(.empty) .ngr-crown{position:absolute;top:14px;left:14px;z-index:2}
+    #sec-narrative-groups .ngr-spot:not(.empty) .ngx-spot-row{margin-top:-30px;z-index:2}
+    #sec-narrative-groups .ngr-spot:not(.empty) .ngr-spot-logo{width:60px;height:60px}
+    #sec-narrative-groups .ngr-spot:not(.empty) .ngx-spot-row>div:last-child{padding-top:24px}
+    #sec-narrative-groups .ngr-spot:not(.empty) .ngr-spot-val{margin-top:14px}    /* --- responsive --- */
+    @media(max-width:1240px){#sec-narrative-groups .ngr-lane{grid-template-columns:24px minmax(150px,200px) minmax(60px,1fr) 86px 16px}#sec-narrative-groups .ngr-lane .ngr-memcol{display:none}
+      #sec-narrative-groups .ngx-hero-txt,#sec-narrative-groups .ngx-kpis{margin-right:min(300px,28%)}#sec-narrative-groups .ngx-logos{width:min(300px,28%)}
+      #sec-narrative-groups .ngx-lg{width:56px;height:56px}#sec-narrative-groups .ngx-lg:nth-child(n+5){display:none}}
+    @media(max-width:980px){#sec-narrative-groups .ngr-body{grid-template-columns:1fr}#sec-narrative-groups .ngx-vgrid{grid-template-columns:1fr}
+      #sec-narrative-groups .ngx-logos{display:none}#sec-narrative-groups .ngx-hero-txt,#sec-narrative-groups .ngx-kpis{margin-right:0}
+      #sec-narrative-groups .ngx-kpis{grid-template-columns:repeat(3,minmax(0,1fr))}}
+    @media(max-width:640px){#sec-narrative-groups .ngx-fbar{width:calc(100% - 24px)}#sec-narrative-groups .ngx-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
+      #sec-narrative-groups .ngr-lane{height:62px;grid-template-columns:22px minmax(0,1fr) 78px 14px}#sec-narrative-groups .ngr-lane .ngr-track{display:none}
+      #sec-narrative-groups .ngx-search{width:100%}#sec-narrative-groups .ngx-rtools{width:100%;margin-left:0}
+      #sec-narrative-groups .ngx-v{grid-template-columns:18px 34px minmax(0,1fr) 70px}#sec-narrative-groups .ngx-vg{display:none}}
+    </style>
+
     <div class="ngr" id="ngRace">
       <div class="ngr-glow"></div>
       <div class="ngr-top">
         <div>
-          <div class="ngr-kick" id="ngrKick">Narrative Race</div>
+          <div class="ngr-kick" id="ngrKick">Narrative race</div>
           <div class="ngr-title">Who is leading the conversation</div>
           <div class="ngr-sub" id="ngrSub"></div>
         </div>
+        <div class="ngx-rtools">
+        <label class="ng-search-box ngx-search">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+          <input type="text" id="ngSearchInput" placeholder="Search groups&hellip;" oninput="filterNarrativeGroups()">
+        </label>
         <div class="ngr-seg" id="ngrSeg"><span class="ngr-pill"></span>
           <button data-k="tweets" data-c="#1E88E5" data-l="tweets" class="on">Tweets</button>
           <button data-k="likes" data-c="#D81B60" data-l="likes">Likes</button>
           <button data-k="rts" data-c="#2E7D32" data-l="retweets">Retweets</button>
           <button data-k="views" data-c="#6A1B9A" data-l="views">Views</button>
         </div>
+        </div>
       </div>
       <div class="ngr-body">
         <div class="ngr-spot" id="ngrSpot"></div>
         <div class="ngr-lanes" id="ngrLanes"></div>
       </div>
-      <div class="ngr-foot"><span id="ngrFootL"></span><span>Click any group to open its full analysis</span></div>
+      <div class="ngr-foot"><span id="ngrFootL"></span><span>Tap any group to open its full analysis</span></div>
     </div>
+    <!-- ngx (14-Nov): Loudest voices -- saare groups ke members me chune metric par sabse aage -->
+    <section class="ngx-voices" id="ngxVoicesCard">
+      <div class="ngx-vhead"><div><div class="ngr-kick">Loudest voices</div><div class="ngx-vtitle">Members carrying each group&rsquo;s narrative</div><div class="ngr-sub" id="ngxVSub"></div></div></div>
+      <div class="ngx-vgrid" id="ngxVoices"></div>
+    </section>
     <!-- ng-race (29-Oct): table ab nahi dikhti -- Narrative Race hi directory hai. Table DOM me rehti hai
          (renderNarrativeGroupsTable usi se race ko bhi chalata hai), bas chhupi hui. -->
     <style>#ngTableWrap,#ngPagination{display:none!important}</style>
@@ -16608,9 +16920,17 @@ function fetchLiveNarrativeGroupStats(showNotice){
             gRt += m.rts;
             gVw += m.views;
           });
+          /* 14-Nov: group ki ginti me official handles bhi (jaise CJP ke @Cockroachisback, @CJP_is_back) -- pehle sirf members gine jaate the */
+          var _seenH = {};
+          (g.leaders || []).forEach(function(m){ _seenH[String(m.handle || '').toLowerCase()] = 1; });
+          (g.handles || []).forEach(function(h){
+            var lh = String(h || '').toLowerCase(); if(!lh || _seenH[lh]) return; _seenH[lh] = 1;
+            var st2 = statsMap[h] || statsMap[lh]; if(!st2) return;
+            gTw += st2.tweets || 0; gLk += st2.likes || 0; gRt += st2.rts || 0; gVw += st2.views || 0;
+          });
           g.stats = { tweets: gTw, likes: gLk, rts: gRt, views: gVw };
           grandTw += gTw;
-          grandHandles += (g.leaders || []).length;
+          grandHandles += Object.keys(_seenH).length;
 
           (g.leaders || []).forEach(function(m){
             m.sharePct = gTw > 0 ? Math.round((m.tweets / gTw) * 100) : 0;
@@ -16817,7 +17137,10 @@ function _ngrFmt(n) { return (typeof fmtNgNum === 'function') ? fmtNgNum(n) : St
 function _ngrEsc(x) { return String(x == null ? '' : x).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
 function _ngrImg(src, handle, name) {
   var h = _ngrEsc(handle || ''), n = encodeURIComponent(name || handle || '?');
-  return '<img src="' + _ngrEsc(src || ('/api/avatar/' + encodeURIComponent(handle || ''))) + '" alt="" loading="lazy" onerror="if(!this._t&&\'' + h + '\'){this._t=1;this.src=\'/api/avatar/' + encodeURIComponent(handle || '') + '\';}else{this.onerror=null;this.src=\'https://ui-avatars.com/api/?name=' + n + '&background=EEE6DA&color=4B4439&size=64\';}">';
+  /* 14-Nov: X ki asli photo pehle apne folder se (assets/ng/<handle>.jpg) -- purane pbs links toot jaate the (jaise Srinivas BV) */
+  var loc = (handle && !/^data:/.test(src || '')) ? '/assets/ng/' + String(handle).toLowerCase() + '.jpg' : '';
+  var rem = _ngrEsc(src || ('/api/avatar/' + encodeURIComponent(handle || '')));
+  return '<img src="' + (loc || rem) + '" alt="" loading="lazy" data-r="' + rem + '" onerror="if(this.dataset.r&&!this._r){this._r=1;var r=this.dataset.r;this.removeAttribute(\'data-r\');if(r!==this.getAttribute(\'src\')){this.src=r;return;}}if(!this._t&&\'' + h + '\'){this._t=1;this.src=\'/api/avatar/' + encodeURIComponent(handle || '') + '\';}else{this.onerror=null;this.src=\'https://ui-avatars.com/api/?name=' + n + '&background=EEE6DA&color=4B4439&size=64\';}">';
 }
 function _ngrTween(el, from, to, ms) {
   var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -16829,10 +17152,105 @@ function _ngrTween(el, from, to, ms) {
     if (p < 1) requestAnimationFrame(step);
   });
 }
+/* ngx (14-Nov): hero KPI tiles, logo strip aur "Loudest voices" -- har race render ke saath (wahi list, wahi metric) */
+function ngxPaint(list, lbl) {
+  var K = { tweets: 0, likes: 0, rts: 0, views: 0 }, mem = 0;
+  list.forEach(function (g) { var s = g.stats || {}; for (var x in K) K[x] += (+s[x] || 0); mem += (g.leaders || []).length; });
+  var sub = document.getElementById('ngxSub');
+  if (sub) sub.textContent = 'Political groups, student wings & creator networks · ' + (lbl || 'Full Range');
+  var k0 = _ngr.k, lab = { tweets: 'Tweets', likes: 'Likes', rts: 'Retweets', views: 'Views' };
+  var kp = document.getElementById('ngxKpis');
+  if (kp) {
+    var st = function (l, v, s, on) { return '<div class="ngx-st' + (on ? ' on' : '') + '"><b>' + v + '</b><span>' + l + '</span>' + (s ? '<small>' + s + '</small>' : '') + '</div>'; };
+    kp.innerHTML = st('Groups', list.length, mem + ' handles', false)
+      + ['tweets', 'likes', 'rts', 'views'].map(function (x) { return st(lab[x], _ngrFmt(K[x]), '', x === k0); }).join('');
+  }
+  /* share of voice -- chune metric par */
+  var tot = K[k0] || 0, segs = list.map(function (g) { return { g: g, v: +((g.stats || {})[k0]) || 0 }; }).filter(function (x) { return x.v > 0; })
+    .sort(function (a, b) { return b.v - a.v; });
+  var ld = document.getElementById('ngxLead');
+  if (ld) {
+    if (segs.length) {
+      var s0 = segs[0], p0 = tot ? (s0.v * 100 / tot) : 0;
+      ld.innerHTML = '<span class="ngx-h2-lg" style="--gc:' + (s0.g.color || '#E8590C') + '">' + _ngrImg(s0.g.logoUrl, s0.g.handle, s0.g.acronym) + '</span>'
+        + '<span><b>' + _ngrEsc(s0.g.acronym) + '</b> is leading with <b>' + p0.toFixed(1) + '%</b> of all ' + _ngr.l + '</span>';
+      ld.style.display = '';
+    } else { ld.innerHTML = '<span class="ngx-h2-q">No group has ' + _ngr.l + ' in this range yet</span>'; }
+  }
+  var rg = document.getElementById('ngxRing');
+  if (rg) {
+    var R = 96, C = 2 * Math.PI * R, gap = segs.length > 1 ? 3 : 0, acc = 0, arcs = '', pins = '';
+    segs.forEach(function (x, i) {
+      var frac = x.v / tot, len = Math.max(frac * C - gap, 1.5), mid = (acc + frac / 2) * 2 * Math.PI - Math.PI / 2;
+      arcs += '<circle class="ngx-arc" cx="130" cy="130" r="' + R + '" stroke="' + (x.g.color || '#E8590C') + '" stroke-dasharray="' + len.toFixed(2) + ' ' + C.toFixed(2)
+        + '" stroke-dashoffset="' + (-(acc * C)).toFixed(2) + '" style="--len:' + len.toFixed(2) + ';--d:' + (i * 70) + 'ms"><title>' + _ngrEsc(x.g.acronym) + ' · ' + (frac * 100).toFixed(1) + '%</title></circle>';
+      if (frac >= 0.025) {
+        var px = 130 + Math.cos(mid) * 132, py = 130 + Math.sin(mid) * 132;
+        pins += '<span class="ngx-pin" style="left:' + ((px + 20) / 3).toFixed(2) + '%;top:' + ((py + 20) / 3).toFixed(2) + '%;--gc:' + (x.g.color || '#E8590C') + ';--d:' + (200 + i * 70) + 'ms" title="'
+          + _ngrEsc(x.g.acronym) + ' · ' + (frac * 100).toFixed(1) + '%">' + _ngrImg(x.g.logoUrl, x.g.handle, x.g.acronym) + '<em>' + Math.round(frac * 100) + '%</em></span>';
+      }
+      acc += frac;
+    });
+    rg.innerHTML = '<svg viewBox="0 0 260 260" aria-hidden="true"><circle class="ngx-track" cx="130" cy="130" r="' + R + '"/>' + arcs + '</svg>' + pins
+      + '<div class="ngx-ring-c"><span>Share of voice</span><b>' + (tot ? _ngrFmt(tot) : '0') + '</b><small>' + _ngr.l + ' &middot; ' + segs.length + ' of ' + list.length + ' groups</small></div>';
+    rg.classList.toggle('is-empty', !segs.length);
+  }  /* Loudest voices */
+  var k = _ngr.k, rows = [];
+  list.forEach(function (g) { (g.leaders || []).forEach(function (m) { if ((+m[k] || 0) > 0) rows.push({ m: m, g: g, v: +m[k] || 0 }); }); });
+  rows.sort(function (a, b) { return b.v - a.v; });
+  var seen = {}; rows = rows.filter(function (r) { var h = String(r.m.handle || '').toLowerCase(); if (seen[h]) return false; seen[h] = 1; return true; }).slice(0, 9);   /* 3 card + 6 list (dono column barabar) */
+  var vs = document.getElementById('ngxVSub');
+  if (vs) vs.textContent = 'Top members by ' + _ngr.l + (lbl ? ' · ' + lbl : '');
+  /* ngx-v2 (14-Nov): top 3 apne card me (bada number + kul ka hissa), baaki saaf 2-column list -- bar nahi
+     (ek member 744, doosra 2 ho to bar bekaar dikhti thi) */
+  var vg = document.getElementById('ngxVoices');
+  if (vg) {
+    var all = K[k] || 0;
+    var esc1 = function (s) { return String(s || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'"); };
+    var tag = function (g) { return '<span class="ngx-vtag" style="--gc:' + (g.color || '#E8590C') + '"><span class="ngx-vtag-lg">' + _ngrImg(g.logoUrl, g.handle, g.acronym) + '</span>' + _ngrEsc(g.acronym) + '</span>'; };
+    var pct = function (v) { return all ? (v * 100 / all) : 0; };
+    if (!rows.length) { vg.innerHTML = '<div class="ngx-vempty">No member has ' + _ngr.l + ' in this range yet.</div>'; }
+    else {
+      var cards = rows.slice(0, 3).map(function (r, i) {
+        var p = pct(r.v);
+        return '<button type="button" class="ngx-vc" style="--gc:' + (r.g.color || '#E8590C') + '" onclick="ngxOpenVoice(\'' + esc1(r.m.handle) + '\')" title="Open ' + _ngrEsc(r.m.name) + '">'
+          + '<span class="ngx-vc-ph" aria-hidden="true">' + _ngrImg(r.m.avatar, r.m.handle, r.m.name) + '</span>'
+          + '<span class="ngx-vc-top"><span class="ngx-vc-rk">' + (i + 1) + '</span>' + tag(r.g) + '</span>'
+          + '<span class="ngx-vc-who"><span class="ngx-vc-nm"><b>' + _ngrEsc(r.m.name) + '</b><small>@' + _ngrEsc(r.m.handle) + '</small></span></span>'
+          + '<span class="ngx-vc-num"><b>' + _ngrFmt(r.v) + '</b><small>' + _ngr.l + '</small></span>'
+          + '<span class="ngx-vc-share"><i style="width:' + Math.max(2, Math.min(100, p)).toFixed(1) + '%"></i></span>'
+          + '<span class="ngx-vc-foot"><span>' + (p >= 0.1 ? p.toFixed(1) : '<0.1') + '% of all ' + _ngr.l + '</span><span class="ngx-vc-go">View <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></span>'
+          + '</button>';
+      }).join('');
+      var rest = rows.slice(3).map(function (r, i) {
+        var p = pct(r.v);
+        return '<button type="button" class="ngx-vl" style="--gc:' + (r.g.color || '#E8590C') + '" onclick="ngxOpenVoice(\'' + esc1(r.m.handle) + '\')">'
+          + '<span class="ngx-vl-rk">' + (i + 4) + '</span><span class="ngx-vl-av">' + _ngrImg(r.m.avatar, r.m.handle, r.m.name) + '</span>'
+          + '<span class="ngx-vl-nm"><b>' + _ngrEsc(r.m.name) + '</b><small>' + _ngrEsc(r.g.acronym) + ' &middot; @' + _ngrEsc(r.m.handle) + '</small></span>'
+          + '<span class="ngx-vl-v"><b>' + _ngrFmt(r.v) + '</b><small>' + (p >= 0.1 ? p.toFixed(1) : '<0.1') + '%</small></span>'
+          + '<svg class="ngx-vl-go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>';
+      }).join('');
+      vg.innerHTML = '<div class="ngx-vcards n' + Math.min(3, rows.length) + '">' + cards + '</div>' + (rest ? '<div class="ngx-vlist">' + rest + '</div>' : '');
+    }
+  }
+}window.ngxOpenVoice = function (h) {
+  if (typeof openLeaderAnalysis === 'function') { try { openLeaderAnalysis(h); return; } catch (e) {} }
+  if (typeof openProfile === 'function') openProfile(h);
+};
+/* Reset: Full Range, All Groups, search khaali, metric Tweets */
+window.ngReset = function () {
+  var r = document.getElementById('ngFilterRange'); if (r) r.value = 'all';
+  var g = document.getElementById('ngFilterGroup'); if (g) g.value = 'all';
+  var q = document.getElementById('ngSearchInput'); if (q) q.value = '';
+  ['ngDateFrom', 'ngDateTo'].forEach(function (id) { var e = document.getElementById(id); if (e) e.value = ''; });
+  var tb = document.querySelector('#ngrSeg [data-k="tweets"]');
+  if (tb && _ngr.k !== 'tweets') { _ngr.k = 'tweets'; _ngr.c = tb.getAttribute('data-c'); _ngr.l = tb.getAttribute('data-l'); }
+  onNgFilterChange();
+};
 function renderNgRace() {
   var box = document.getElementById('ngRace'), lanes = document.getElementById('ngrLanes');
   if (!box || !lanes) return;
-  var list = getFilteredNarrativeGroups(), k = _ngr.k, H = 62;
+  var list = getFilteredNarrativeGroups(), k = _ngr.k, H = 70;
   var vals = list.map(function (g) { return +((g.stats || {})[k]) || 0; });
   var max = Math.max.apply(null, vals.concat([0])) || 1, sum = vals.reduce(function (a, b) { return a + b; }, 0);
   var order = list.map(function (g, i) { return i; }).sort(function (a, b) { return vals[b] - vals[a] || a - b; });
@@ -16843,7 +17261,7 @@ function renderNgRace() {
   var sub = document.getElementById('ngrSub');
   if (sub) sub.textContent = 'Ranked by ' + _ngr.l + (lbl ? ' · ' + lbl : '') + ' · ' + list.length + ' groups';
   var foot = document.getElementById('ngrFootL');
-  if (foot) foot.textContent = 'Total ' + _ngr.l + ': ' + _ngrFmt(sum) + '  ·  bar = share of the group in first place';
+  if (foot) foot.textContent = 'Total ' + _ngr.l + ': ' + _ngrFmt(sum) + '  ·  bar length is relative to the #1 group';
   box.style.setProperty('--mc', _ngr.c);
 
   /* lanes (keyed by group id) */
@@ -16863,10 +17281,14 @@ function renderNgRace() {
       var extra = (g.leaders || []).length - 4;
       el.innerHTML = '<div class="ngr-rk"></div>'
         + '<div class="ngr-who"><div class="ngr-lg">' + _ngrImg(g.logoUrl, g.handle, g.acronym) + '</div>'
-        + '<div style="min-width:0"><div class="ngr-acr">' + _ngrEsc(g.acronym) + ' <span class="ngr-mv"></span></div><div class="ngr-full">' + _ngrEsc(g.name) + '</div></div></div>'
-        + '<div class="ngr-track"><div class="ngr-fill"></div><div class="ngr-val">0<span class="ngr-share"></span></div><div class="ngr-zero" style="display:none">No activity in this range</div></div>'
+        + '<div style="min-width:0"><div class="ngr-acr">' + _ngrEsc(g.acronym) + ' <span class="ngr-mv"></span></div><div class="ngr-full">' + _ngrEsc(g.name) + '</div><div class="ngx-cat">' + _ngrEsc(g.category || '') + '</div></div></div>'
+        + '<div class="ngr-track"><div class="ngr-fill"></div><div class="ngr-zero" style="display:none">No posts in this range</div></div>'
+        + '<div class="ngx-num"><div class="ngr-val">0</div><div class="ngr-share"></div></div>'
         + '<div class="ngr-memcol"><div class="ngr-mem">' + mem + (extra > 0 ? '<span class="more">+' + extra + '</span>' : '') + '</div>'
-        + '<div class="ngr-cnt">' + (g.leaders || []).length + ' members</div></div>';
+        + '<div class="ngr-cnt">' + (g.leaders || []).length + ((g.leaders || []).length === 1 ? ' member' : ' members') + '</div></div>'
+        + '<div class="ngx-go" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></div>';
+      el.tabIndex = 0; el.setAttribute('role', 'button'); el.setAttribute('aria-label', 'Open ' + (g.name || g.acronym));
+      el.onkeydown = function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openNarrativeGroup(g.id); } };
       el.style.transform = 'translateY(' + (pos * H) + 'px)';
       lanes.appendChild(el);
     }
@@ -16883,14 +17305,11 @@ function renderNgRace() {
     } else { mv.className = 'ngr-mv'; mv.textContent = ''; }
     _ngr.prevRank[g.id] = pos;
     /* bar + value */
-    var pct = v ? Math.max(v / max * 100, 2) : 0, inside = pct > 26;
+    var pct = v ? Math.max(v / max * 100, 2) : 0;
     el.querySelector('.ngr-fill').style.width = pct + '%';
     var ve = el.querySelector('.ngr-val'), z = el.querySelector('.ngr-zero');
-    ve.style.display = v ? '' : 'none'; z.style.display = v ? 'none' : '';
-    if (inside) { ve.style.left = 'auto'; ve.style.right = 'calc(' + (100 - pct) + '% + 12px)'; }
-    else { ve.style.right = 'auto'; ve.style.left = 'calc(' + pct + '% + 10px)'; }
-    ve.style.color = inside ? '#fff' : (g.color || '#1B1712');
-    ve.querySelector('.ngr-share').textContent = sum && v ? (v * 100 / sum).toFixed(1) + '%' : '';
+    z.style.display = v ? 'none' : '';
+    el.querySelector('.ngr-share').textContent = sum && v ? (v * 100 / sum).toFixed(1) + '% share' : '—';
     _ngrTween(ve, _ngr.prevVal[g.id] || 0, v, 950);
     _ngr.prevVal[g.id] = v;
   });
@@ -16901,25 +17320,35 @@ function renderNgRace() {
   if (spot) {
     var tg = list[order[0]], tv = tg ? vals[order[0]] : 0;
     if (!tg || !tv) {
-      spot.className = 'ngr-spot empty';
-      spot.innerHTML = '<div class="ngr-crown">No leader yet</div><div style="margin-top:auto;font:700 20px Rajdhani,sans-serif">No ' + _ngr.l + ' in this range</div>'
-        + '<div class="ngr-spot-lbl">Try a longer date range (e.g. 7 Days or Full Range).</div>';
+      spot.className = 'ngr-spot empty'; spot.onclick = null; spot.style.cursor = '';
+      var _full = (document.getElementById('ngFilterRange') || {}).value === 'all';
+      spot.innerHTML = '<div class="ngx-empty-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="16.5" rx="2.5"/><path d="M16 3v3M8 3v3M3 10h18M9 15h6"/></svg></div>'
+        + '<div class="ngx-empty-t">Quiet in this range</div>'
+        + '<div class="ngx-empty-s">No group has ' + _ngr.l + ' ' + (lbl ? 'for &ldquo;' + _ngrEsc(lbl) + '&rdquo;' : 'here') + ' yet.</div>'
+        + (_full ? '' : '<button type="button" class="ngx-empty-b" onclick="ngReset()">Show Full Range</button>');
     } else {
       var sv = order.length > 1 ? vals[order[1]] : 0, sg = order.length > 1 ? list[order[1]] : null;
       var lead = sv ? ('Leads ' + _ngrEsc(sg.acronym) + ' by ' + (tv / sv >= 2 ? (tv / sv).toFixed(1) + '×' : _ngrFmt(tv - sv))) : 'Only group with ' + _ngr.l + ' here';
       spot.className = 'ngr-spot';
       spot.style.setProperty('--sc', tg.color || '#E65100');
       spot.onclick = function () { openNarrativeGroup(tg.id); }; spot.style.cursor = 'pointer';
-      spot.innerHTML = '<div class="ngr-crown">&#9733; #1 by ' + _ngr.l + '</div>'
-        + '<div class="ngr-spot-logo">' + _ngrImg(tg.logoUrl, tg.handle, tg.acronym) + '</div>'
-        + '<div class="ngr-spot-name">' + _ngrEsc(tg.acronym) + '</div><div class="ngr-spot-full">' + _ngrEsc(tg.name) + '</div>'
-        + '<div class="ngr-spot-val">0</div><div class="ngr-spot-lbl">' + _ngr.l + ' · ' + (sum ? (tv * 100 / sum).toFixed(1) : 0) + '% of all groups</div>'
-        + '<div class="ngr-spot-lead">' + lead + '</div>';
+      var _tv = (tg.leaders || []).slice().sort(function (a, b) { return (+b[k] || 0) - (+a[k] || 0); })[0];
+      var _bh = (_tv && (+_tv[k] || 0)) ? _tv : ((tg.leaders || [])[0] || null);
+      spot.innerHTML = '<div class="ngx-spot-ban" aria-hidden="true">' + (_bh ? _ngrImg(_bh.avatar, _bh.handle, _bh.name) : _ngrImg(tg.logoUrl, tg.handle, tg.acronym)) + '</div>'
+        + '<div class="ngr-crown"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 7l4.5 4L12 4l4.5 7L21 7l-2 12H5z"/></svg>#1 by ' + _ngr.l + '</div>'
+        + '<div class="ngx-spot-row"><div class="ngr-spot-logo">' + _ngrImg(tg.logoUrl, tg.handle, tg.acronym) + '</div>'
+        + '<div style="min-width:0"><div class="ngr-spot-name">' + _ngrEsc(tg.acronym) + '</div><div class="ngr-spot-full">' + _ngrEsc(tg.name) + '</div></div></div>'
+        + '<div class="ngr-spot-val">0</div><div class="ngr-spot-lbl">' + _ngr.l + ' &middot; ' + (sum ? (tv * 100 / sum).toFixed(1) : 0) + '% of all groups</div>'
+        + '<div class="ngr-spot-lead">' + lead + '</div>'
+        + (_tv && (+_tv[k] || 0) ? '<div class="ngx-spot-top">' + _ngrImg(_tv.avatar, _tv.handle, _tv.name) + '<div style="min-width:0"><small>Top voice</small><b>' + _ngrEsc(_tv.name) + '</b></div><span>' + _ngrFmt(+_tv[k] || 0) + '</span></div>' : '')
+        + '<div class="ngx-spot-mini">' + [['tweets', 'Tweets'], ['likes', 'Likes'], ['rts', 'Retweets'], ['views', 'Views']].filter(function (x) { return x[0] !== k; }).map(function (x) { return '<div><b>' + _ngrFmt(+(tg.stats || {})[x[0]] || 0) + '</b><span>' + x[1] + '</span></div>'; }).join('') + '</div>'
+        + '<div class="ngx-spot-cta">Open analysis <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>';
       _ngrTween(spot.querySelector('.ngr-spot-val'), 0, tv, 1100);
     }
   }
   box.classList.remove('shine'); void box.offsetWidth; box.classList.add('shine');
   _ngr.built = true;
+  try { ngxPaint(list, lbl); } catch (e) { console.warn('ngx', e); }
 
   /* metric switch pill */
   var seg = document.getElementById('ngrSeg');
@@ -19524,7 +19953,7 @@ function toggleModalLeader(handle) {
    badalta. Kaam wahi purane handler karte hain (change event), koi nayi logic nahi. */
 (function () {
   if (window.__defaultToday) return; window.__defaultToday = 1;
-  var SKIP = { 'sec-dashboard': 1, 'sec-handle-analytics': 1, 'sec-reports': 1, 'sec-states-cm': 1, 'sec-mla-tracker': 1, 'sec-parties': 1 };   /* 14-Nov: States & CM default Full Range */
+  var SKIP = { 'sec-dashboard': 1, 'sec-handle-analytics': 1, 'sec-reports': 1, 'sec-states-cm': 1, 'sec-mla-tracker': 1, 'sec-parties': 1, 'sec-narrative-groups': 1 };   /* 14-Nov: States & CM default Full Range */
   var EXTRA = { pfDate: 1, ngFilterRange: 1, ngLaDateRange: 1 };
   var done = {};
   function lastDay() {
